@@ -1,0 +1,17 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.1
+    steps:
+      - checkout
+      - run:
+          name: Restore
+          command: dotnet restore
+          working_directory: src/OpenFTTH.GDBIntegrator
+      - run:
+          name: Build
+          command: dotnet build -c Release
+          working_directory: src/OpenFTTH.GDBIntegrator
+      - setup_remote_docker:
+          docker_layer_caching: true
