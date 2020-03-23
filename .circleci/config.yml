@@ -13,5 +13,3 @@ jobs:
           name: Build
           command: dotnet build -c Release
           working_directory: src/OpenFTTH.GDBIntegrator
-      - setup_remote_docker:
-          docker_layer_caching: true
