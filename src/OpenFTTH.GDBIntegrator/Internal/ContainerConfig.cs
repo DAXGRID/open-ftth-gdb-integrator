@@ -18,9 +18,16 @@ namespace OpenFTTH.GDBIntegrator.Internal
 
             containerBuilder.Populate(serviceCollection);
 
+            RegisterTypes(containerBuilder);
+
             var container = containerBuilder.Build();
 
             return new AutofacServiceProvider(container);
+        }
+
+        private static void RegisterTypes(ContainerBuilder containerBuilder)
+        {
+            containerBuilder.RegisterType<Startup>().As<IStartup>().OwnedByLifetimeScope();
         }
     }
 }
