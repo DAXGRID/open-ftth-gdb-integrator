@@ -13,3 +13,11 @@ jobs:
           name: Build
           command: dotnet build -c Release
           working_directory: src/OpenFTTH.GDBIntegrator
+  test:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.1
+    steps:
+      - checkout
+      - run:
+          name: Test
+          command: dotnet test
+          working_directory: test/OpenFTTH.GDBIntegrator.Tests
