@@ -23,7 +23,6 @@ jobs:
           command: dotnet test
           working_directory: test/OpenFTTH.GDBIntegrator.Tests
 workflows:
-  version: 2
   build_and_test:
     jobs:
       - build
