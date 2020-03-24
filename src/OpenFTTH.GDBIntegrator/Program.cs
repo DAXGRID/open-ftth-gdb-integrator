@@ -6,6 +6,7 @@ namespace OpenFTTH.GDBIntegrator
     {
         static void Main(string[] args)
         {
+
         }
     }
 }
