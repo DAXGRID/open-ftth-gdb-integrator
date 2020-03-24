@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using OpenFTTH.GDBIntegrator.Internal;
 
 namespace OpenFTTH.GDBIntegrator
 {
@@ -7,9 +6,7 @@ namespace OpenFTTH.GDBIntegrator
     {
         static void Main(string[] args)
         {
-            var serviceProvider = new ServiceCollection()
-                .AddLogging()
-                .BuildServiceProvider();
+            var container = ContainerConfig.Configure();
         }
     }
 }
