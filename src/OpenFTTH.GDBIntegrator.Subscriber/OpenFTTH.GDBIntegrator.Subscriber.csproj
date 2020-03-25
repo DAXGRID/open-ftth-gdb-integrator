@@ -9,4 +9,8 @@
     <PackageReference Include="Topos.Kafka" Version="0.0.57" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OpenFTTH.GDBIntegrator.Model\OpenFTTH.GDBIntegrator.Model.csproj" />
+  </ItemGroup>
+
 </Project>
