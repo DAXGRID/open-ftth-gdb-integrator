@@ -1,5 +1,5 @@
 ##
-# Project Title
+# OpenFTTH GDB Integrator
 #
 # @file
 # @version 0.1
