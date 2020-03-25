@@ -4,7 +4,6 @@ namespace OpenFTTH.GDBIntegrator
     {
         public void Start()
         {
-
         }
     }
 }
