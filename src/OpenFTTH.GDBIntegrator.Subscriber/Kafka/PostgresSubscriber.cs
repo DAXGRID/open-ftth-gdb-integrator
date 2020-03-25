@@ -14,7 +14,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
             _consumer = Configure
                 .Consumer("postgis-consumer", c => c.UseKafka(""))
                 .Serialization(s => s.RouteSegment())
-                .Topics(t => t.Subscribe("dbserver1.route_network.route_segment"))
+                .Topics(t => t.Subscribe(""))
                 .Positions(p => p.StoreInMemory())
                 .Handle(async (messages, context, token) =>
                 {
