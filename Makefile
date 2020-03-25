@@ -6,6 +6,8 @@
 
 build:
 	dotnet build
+build-release:
+	dotnet build -c Release
 clean:
 	dotnet clean
 restore:
@@ -15,6 +17,6 @@ start:
 test:
 	dotnet test
 
-.PHONY: build clean restore start test
+.PHONY: build build-release clean restore start test
 
 # end

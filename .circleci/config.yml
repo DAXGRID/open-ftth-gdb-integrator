@@ -6,13 +6,17 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Apt update
+          command: apt-get update;
+      - run:
+          name: Install make
+          command: apt-get install make
+      - run:
           name: Restore
-          command: dotnet restore
-          working_directory: src/OpenFTTH.GDBIntegrator
+          command: make restore
       - run:
           name: Build
-          command: dotnet build -c Release
-          working_directory: src/OpenFTTH.GDBIntegrator
+          command: make build-release
   test:
     docker:
       - image: mcr.microsoft.com/dotnet/core/sdk:3.1
@@ -20,8 +24,7 @@ jobs:
       - checkout
       - run:
           name: Test
-          command: dotnet test
-          working_directory: test/OpenFTTH.GDBIntegrator.Tests
+          command: make test
 workflows:
   build_and_test:
     jobs:
