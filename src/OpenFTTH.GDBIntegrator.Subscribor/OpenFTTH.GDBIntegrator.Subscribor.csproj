@@ -4,4 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Topos" Version="0.0.57" />
+    <PackageReference Include="Topos.Kafka" Version="0.0.57" />
+  </ItemGroup>
+
 </Project>
