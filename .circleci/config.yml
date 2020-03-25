@@ -23,6 +23,12 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Apt update
+          command: apt-get update;
+      - run:
+          name: Install make
+          command: apt-get install make
+      - run:
           name: Test
           command: make test
 workflows:
