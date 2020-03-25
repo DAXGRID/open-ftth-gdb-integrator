@@ -1,7 +1,7 @@
 using System;
 using Xunit;
 
-namespace OpenFTTH.GDBIntegrator.Subscribor.Tests
+namespace OpenFTTH.GDBIntegrator.Subscriber.Tests
 {
     public class UnitTest1
     {

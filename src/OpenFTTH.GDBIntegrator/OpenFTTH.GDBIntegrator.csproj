@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OpenFTTH.GDBIntegrator.Subscribor\OpenFTTH.GDBIntegrator.Subscribor.csproj" />
+    <ProjectReference Include="..\OpenFTTH.GDBIntegrator.Subscriber\OpenFTTH.GDBIntegrator.Subscriber.csproj" />
   </ItemGroup>
 
 </Project>

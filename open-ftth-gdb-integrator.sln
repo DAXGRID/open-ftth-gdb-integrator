@@ -11,9 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{0FC16A1F-3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFTTH.GDBIntegrator.Tests", "test\OpenFTTH.GDBIntegrator.Tests\OpenFTTH.GDBIntegrator.Tests.csproj", "{3D8D7E29-57A6-4DD8-9FAB-14DDCAB4EDEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFTTH.GDBIntegrator.Subscribor", "src\OpenFTTH.GDBIntegrator.Subscribor\OpenFTTH.GDBIntegrator.Subscribor.csproj", "{F808D1BC-AEE9-4E4D-AD5F-915BD01B4AF8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFTTH.GDBIntegrator.Subscriber", "src\OpenFTTH.GDBIntegrator.Subscriber\OpenFTTH.GDBIntegrator.Subscriber.csproj", "{F808D1BC-AEE9-4E4D-AD5F-915BD01B4AF8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFTTH.GDBIntegrator.Subscribor.Tests", "test\OpenFTTH.GDBIntegrator.Subscribor.Tests\OpenFTTH.GDBIntegrator.Subscribor.Tests.csproj", "{415B6664-FC1D-4572-A80C-A051032B2A6F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenFTTH.GDBIntegrator.Subscriber.Tests", "test\OpenFTTH.GDBIntegrator.Subscriber.Tests\OpenFTTH.GDBIntegrator.Subscriber.Tests.csproj", "{415B6664-FC1D-4572-A80C-A051032B2A6F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
