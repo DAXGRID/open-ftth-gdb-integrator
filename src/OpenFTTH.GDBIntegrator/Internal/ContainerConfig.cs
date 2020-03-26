@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka;
 using OpenFTTH.GDBIntegrator.Subscriber;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using OpenFTTH.GDBIntegrator.Model;
 
 namespace OpenFTTH.GDBIntegrator.Internal
 {
@@ -15,9 +18,14 @@ namespace OpenFTTH.GDBIntegrator.Internal
             var serviceCollection = SetupServiceCollection();
             var containerBuilder = new ContainerBuilder();
 
-            containerBuilder.Populate(serviceCollection);
-            RegisterTypes(containerBuilder);
+            var appSettingsConfig = BuildConfig();
 
+            serviceCollection.AddOptions();
+            serviceCollection.Configure<KafkaSetting>(kafkaSettings => appSettingsConfig.GetSection("kafka").Bind(kafkaSettings));
+
+            containerBuilder.Populate(serviceCollection);
+
+            RegisterTypes(containerBuilder);
             var container = containerBuilder.Build();
 
             return new AutofacServiceProvider(container);
@@ -30,9 +38,17 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 .Configure<LoggerFilterOptions>(x => x.MinLevel = LogLevel.Trace);
         }
 
+        private static IConfigurationRoot BuildConfig()
+        {
+            return new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", false)
+                .AddEnvironmentVariables()
+                .Build();
+        }
+
         private static void RegisterTypes(ContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterType<Startup>().As<IStartup>().OwnedByLifetimeScope();
+            containerBuilder.RegisterType<Startup>().OwnedByLifetimeScope();
             containerBuilder.RegisterType<PostgresSubscriber>().As<ISubscriber>().OwnedByLifetimeScope();
         }
     }

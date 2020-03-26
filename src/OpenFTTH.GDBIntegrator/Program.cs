@@ -8,7 +8,7 @@ namespace OpenFTTH.GDBIntegrator
         static void Main(string[] args)
         {
             var container = ContainerConfig.Configure();
-            var startup = container.GetService<IStartup>();
+            var startup = container.GetService<Startup>();
             startup.Start();
         }
     }

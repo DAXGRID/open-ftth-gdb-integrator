@@ -2,7 +2,7 @@ using OpenFTTH.GDBIntegrator.Subscriber;
 
 namespace OpenFTTH.GDBIntegrator
 {
-    public class Startup : IStartup
+    public class Startup
     {
         private ISubscriber _subscriber;
 
@@ -16,6 +16,7 @@ namespace OpenFTTH.GDBIntegrator
             _subscriber.Subscribe();
 
             System.Console.ReadLine();
+            _subscriber.Dispose();
         }
     }
 }
