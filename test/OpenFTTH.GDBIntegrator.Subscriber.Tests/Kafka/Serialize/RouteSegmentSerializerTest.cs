@@ -6,6 +6,7 @@ using Topos.Consumer;
 using System.Collections.Generic;
 using FluentAssertions;
 using System;
+using System.Text;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
 {
@@ -52,6 +53,33 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             var expected = new ReceivedLogicalMessage(headers, new RouteSegment(), position);
 
             var result = routeSegmentSerializer.Deserialize(logicalMessage);
+
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Theory]
+        [JsonFileData("TestData/RouteSegmentSerializerMessage.json")]
+        public void Deserialize_ShouldReturnDeserializedMessage_OnValidReceivedTransportMessage(string fileData)
+        {
+            var routeSegmentSerializer = new RouteSegmentSerializer();
+
+            var position = new Position();
+            var headers = new Dictionary<string, string>();
+            var body = Encoding.UTF8.GetBytes(fileData);
+
+            var receivedTransportMessage = new ReceivedTransportMessage(position, headers, body);
+
+            var expectedRouteSegment = new RouteSegment
+            {
+                Mrid = new Guid("52e2fe1f-eb7e-4b33-a412-08527b9b4ed7"),
+                Coord = "AQIAACDoZAAAAgAAAMWfDKN8hCBBKSZDQ5SNV0FUVDzX7oQgQWEoq/ufjVdB",
+                WorkTaskMrid = Guid.Empty,
+                ApplicationName = string.Empty,
+                Username = string.Empty
+            };
+
+            var expected = new ReceivedLogicalMessage(headers, expectedRouteSegment, position);
+            var result = routeSegmentSerializer.Deserialize(receivedTransportMessage);
 
             result.Should().BeEquivalentTo(expected);
         }
