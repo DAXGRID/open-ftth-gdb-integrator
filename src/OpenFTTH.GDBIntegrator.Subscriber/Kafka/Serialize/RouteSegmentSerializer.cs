@@ -10,6 +10,9 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
     {
         public ReceivedLogicalMessage Deserialize(ReceivedTransportMessage message)
         {
+            if (message is null)
+                throw new ArgumentNullException($"{nameof(ReceivedTransportMessage)} is null");
+
             if (message.Body is null || message.Body.Length == 0)
                 return new ReceivedLogicalMessage(message.Headers, new RouteSegment(), message.Position);
 
