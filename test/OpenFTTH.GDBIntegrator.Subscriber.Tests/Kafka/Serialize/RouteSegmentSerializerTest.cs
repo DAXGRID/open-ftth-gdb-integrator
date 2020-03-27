@@ -32,10 +32,10 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             var headers = new Dictionary<string, string>();
             byte[] body = null;
 
-            var logicalMessage = new ReceivedTransportMessage(position, headers, body);
+            var receivedTransportMessage = new ReceivedTransportMessage(position, headers, body);
             var expected = new ReceivedLogicalMessage(headers, new RouteSegment(), position);
 
-            var result = routeSegmentSerializer.Deserialize(logicalMessage);
+            var result = routeSegmentSerializer.Deserialize(receivedTransportMessage);
 
             result.Should().BeEquivalentTo(expected);
         }
@@ -49,10 +49,10 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             var headers = new Dictionary<string, string>();
             var body = new byte[0];
 
-            var logicalMessage = new ReceivedTransportMessage(position, headers, null);
+            var receivedTransportMessage = new ReceivedTransportMessage(position, headers, null);
             var expected = new ReceivedLogicalMessage(headers, new RouteSegment(), position);
 
-            var result = routeSegmentSerializer.Deserialize(logicalMessage);
+            var result = routeSegmentSerializer.Deserialize(receivedTransportMessage);
 
             result.Should().BeEquivalentTo(expected);
         }
