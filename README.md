@@ -13,15 +13,12 @@ file, after that fill out all the empty fields in the appsettings file.
 
 ### Note
 On windows it can be done using chocolatey with the following command:
-
 ``` sh
 choco install make
 ```
 
 ## Running
-
 Running the application
 ``` makefile
 make start
 ```
-

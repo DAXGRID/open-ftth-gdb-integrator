@@ -27,9 +27,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
                 {
                     foreach (var message in messages)
                     {
-                        Console.WriteLine("Received message");
                         var routeSegment = (RouteSegment)message.Body;
-                        Console.WriteLine(routeSegment.Mrid);
 
                         if (!String.IsNullOrEmpty(routeSegment.Mrid.ToString()))
                             Console.WriteLine(routeSegment.Mrid);
