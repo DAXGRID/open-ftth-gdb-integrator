@@ -19,14 +19,24 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
             var messageBody = Encoding.UTF8.GetString(message.Body, 0, message.Body.Length);
 
             dynamic routeSegmentMessage = JObject.Parse(messageBody);
-
             var payload = routeSegmentMessage.payload;
-            JToken afterPayload = payload["after"];
 
-            var isRouteSegmentDeleted = afterPayload.Type == JTokenType.Null;
-            if (isRouteSegmentDeleted)
+            if (IsRouteSegmentDeleted(payload))
                 return new ReceivedLogicalMessage(message.Headers, new RouteSegment(), message.Position);
 
+            var routeSegment = CreateRouteSegmentOnPayload(payload);
+
+            return new ReceivedLogicalMessage(message.Headers, routeSegment, message.Position);
+        }
+
+        private bool IsRouteSegmentDeleted(dynamic payload)
+        {
+            JToken afterPayload = payload["after"];
+            return afterPayload.Type == JTokenType.Null;
+        }
+
+        private RouteSegment CreateRouteSegmentOnPayload(dynamic payload)
+        {
             payload = payload.after;
 
             var routeSegment = new RouteSegment
@@ -38,7 +48,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 ApplicationName = payload.application_name.ToString()
             };
 
-            return new ReceivedLogicalMessage(message.Headers, routeSegment, message.Position);
+            return routeSegment;
         }
 
         public TransportMessage Serialize(LogicalMessage message)
