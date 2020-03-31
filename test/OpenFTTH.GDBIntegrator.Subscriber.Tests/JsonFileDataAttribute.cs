@@ -9,7 +9,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests
     public class JsonFileDataAttribute : DataAttribute
     {
         private readonly string _filePath;
-        private readonly string _propertyName;
 
         /// <summary>
         /// Load data from a JSON file as the data source for a theory
