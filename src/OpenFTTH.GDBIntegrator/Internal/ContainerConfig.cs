@@ -6,7 +6,7 @@ using System;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka;
 using OpenFTTH.GDBIntegrator.Subscriber;
 using Microsoft.Extensions.Configuration;
-using OpenFTTH.GDBIntegrator.Model;
+using OpenFTTH.GDBIntegrator.RouteNetwork;
 
 namespace OpenFTTH.GDBIntegrator.Internal
 {
@@ -19,8 +19,9 @@ namespace OpenFTTH.GDBIntegrator.Internal
 
             var appSettingsConfig = BuildConfig();
 
-            serviceCollection.AddOptions();
-            serviceCollection.Configure<KafkaSetting>(kafkaSettings => appSettingsConfig.GetSection("kafka").Bind(kafkaSettings));
+            serviceCollection
+                .AddOptions()
+                .Configure<KafkaSetting>(kafkaSettings => appSettingsConfig.GetSection("kafka").Bind(kafkaSettings));
 
             containerBuilder.Populate(serviceCollection);
 

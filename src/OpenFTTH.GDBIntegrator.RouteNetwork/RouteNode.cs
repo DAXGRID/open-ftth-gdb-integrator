@@ -1,6 +1,6 @@
 using System;
 
-namespace OpenFTTH.GDBIntegrator.Model
+namespace OpenFTTH.GDBIntegrator.RouteNetwork
 {
     public class RouteNode
     {

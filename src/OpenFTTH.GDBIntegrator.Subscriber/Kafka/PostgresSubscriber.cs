@@ -1,5 +1,5 @@
 using Topos.Config;
-using OpenFTTH.GDBIntegrator.Model;
+using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
 using System;
 using Microsoft.Extensions.Options;

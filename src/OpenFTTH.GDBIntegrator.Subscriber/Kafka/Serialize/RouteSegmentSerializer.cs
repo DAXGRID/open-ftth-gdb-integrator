@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using Topos.Serialization;
 using Newtonsoft.Json.Linq;
-using OpenFTTH.GDBIntegrator.Model;
+using OpenFTTH.GDBIntegrator.RouteNetwork;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 {
