@@ -39,7 +39,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                                                  hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));
                 services.AddLogging();
 
-                services.AddSingleton<IHostedService, Startup>();
+                services.AddHostedService<Startup>();
                 services.AddScoped<ISubscriber, PostgresSubscriber>();
             });
         }
