@@ -6,7 +6,7 @@ using System;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka;
 using OpenFTTH.GDBIntegrator.Subscriber;
 using Microsoft.Extensions.Configuration;
-using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.Config;
 
 namespace OpenFTTH.GDBIntegrator.Internal
 {
