@@ -1,15 +1,18 @@
 ﻿using OpenFTTH.GDBIntegrator.Internal;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System.Threading.Tasks;
 
 namespace OpenFTTH.GDBIntegrator
 {
     class Program
     {
-        static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            var container = ContainerConfig.Configure();
-            var startup = container.GetService<Startup>();
-            startup.Start();
+            using (var host = ContainerConfig.Configure())
+            {
+                await host.StartAsync();
+                await host.WaitForShutdownAsync();
+            }
         }
     }
 }

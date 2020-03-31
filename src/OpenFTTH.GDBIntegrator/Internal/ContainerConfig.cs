@@ -1,55 +1,57 @@
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka;
-using OpenFTTH.GDBIntegrator.Subscriber;
 using Microsoft.Extensions.Configuration;
 using OpenFTTH.GDBIntegrator.Config;
+using Microsoft.Extensions.Hosting;
+using OpenFTTH.GDBIntegrator.Subscriber;
 
 namespace OpenFTTH.GDBIntegrator.Internal
 {
     public static class ContainerConfig
     {
-        public static IServiceProvider Configure()
+        public static IHost Configure()
         {
-            var serviceCollection = SetupServiceCollection();
-            var containerBuilder = new ContainerBuilder();
+            var hostBuilder = new HostBuilder();
 
-            var appSettingsConfig = BuildConfig();
+            ConfigureApp(hostBuilder);
+            ConfigureLogging(hostBuilder);
+            ConfigureServices(hostBuilder);
 
-            serviceCollection
-                .AddOptions()
-                .Configure<KafkaSetting>(kafkaSettings => appSettingsConfig.GetSection("kafka").Bind(kafkaSettings));
-
-            containerBuilder.Populate(serviceCollection);
-
-            RegisterTypes(containerBuilder);
-            var container = containerBuilder.Build();
-
-            return new AutofacServiceProvider(container);
+            return hostBuilder.Build();
         }
 
-        private static IServiceCollection SetupServiceCollection()
+        private static void ConfigureApp(IHostBuilder hostBuilder)
         {
-            return new ServiceCollection()
-                .AddLogging()
-                .Configure<LoggerFilterOptions>(x => x.MinLevel = LogLevel.Trace);
+            hostBuilder.ConfigureAppConfiguration((hostingContext, config) =>
+            {
+                config.AddJsonFile("appsettings.json", false);
+                config.AddEnvironmentVariables();
+            });
         }
 
-        private static IConfigurationRoot BuildConfig()
+        private static void ConfigureServices(IHostBuilder hostBuilder)
         {
-            return new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", false)
-                .AddEnvironmentVariables()
-                .Build();
+            hostBuilder.ConfigureServices((hostContext, services) =>
+            {
+                services.AddOptions();
+                services.Configure<KafkaSetting>(kafkaSettings =>
+                                                 hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));
+                services.AddLogging();
+
+                services.AddSingleton<IHostedService, Startup>();
+                services.AddScoped<ISubscriber, PostgresSubscriber>();
+            });
         }
 
-        private static void RegisterTypes(ContainerBuilder containerBuilder)
+        private static void ConfigureLogging(IHostBuilder hostBuilder)
         {
-            containerBuilder.RegisterType<Startup>().OwnedByLifetimeScope();
-            containerBuilder.RegisterType<PostgresSubscriber>().As<ISubscriber>().OwnedByLifetimeScope();
+            hostBuilder.ConfigureLogging((hostingContext, logging) =>
+            {
+                logging.ClearProviders();
+                logging.AddConsole();
+                logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+            });
         }
     }
 }
