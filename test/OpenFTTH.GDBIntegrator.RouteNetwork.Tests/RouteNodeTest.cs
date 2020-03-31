@@ -1,6 +1,5 @@
 using System;
 using Xunit;
-using OpenFTTH.GDBIntegrator.RouteNetwork;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using System.Collections.Generic;
