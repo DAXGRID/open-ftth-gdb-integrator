@@ -8,7 +8,7 @@ namespace OpenFTTH.GDBIntegrator
     {
         public static async Task Main(string[] args)
         {
-            using (var host = ContainerConfig.Configure())
+            using (var host = HostConfig.Configure())
             {
                 await host.StartAsync();
                 await host.WaitForShutdownAsync();

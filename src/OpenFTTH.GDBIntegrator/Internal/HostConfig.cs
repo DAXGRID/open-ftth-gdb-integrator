@@ -8,7 +8,7 @@ using OpenFTTH.GDBIntegrator.Subscriber;
 
 namespace OpenFTTH.GDBIntegrator.Internal
 {
-    public static class ContainerConfig
+    public static class HostConfig
     {
         public static IHost Configure()
         {
