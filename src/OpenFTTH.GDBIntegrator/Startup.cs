@@ -38,11 +38,15 @@ namespace OpenFTTH.GDBIntegrator
 
         private void OnStarted()
         {
+            _logger.LogInformation("Started");
+
+            _logger.LogInformation("Starting to subscribe");
             _subscriber.Subscribe();
         }
 
         private void OnStopped()
         {
+            _logger.LogInformation("Stopped");
             _subscriber.Dispose();
         }
     }
