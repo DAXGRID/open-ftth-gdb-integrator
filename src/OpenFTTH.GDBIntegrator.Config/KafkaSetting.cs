@@ -1,4 +1,4 @@
-namespace OpenFTTH.GDBIntegrator.RouteNetwork
+namespace OpenFTTH.GDBIntegrator.Config
 {
     public class KafkaSetting
     {

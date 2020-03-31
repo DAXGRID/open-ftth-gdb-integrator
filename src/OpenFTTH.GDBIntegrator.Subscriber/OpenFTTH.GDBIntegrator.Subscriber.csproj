@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OpenFTTH.GDBIntegrator.RouteNetwork\OpenFTTH.GDBIntegrator.RouteNetwork.csproj" />
+    <ProjectReference Include="..\OpenFTTH.GDBIntegrator.Config\OpenFTTH.GDBIntegrator.Config.csproj" />
   </ItemGroup>
 
 </Project>
