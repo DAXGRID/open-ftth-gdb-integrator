@@ -21,5 +21,6 @@ RUN dotnet publish -c Release -o out --packages ./packages
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/core/runtime:3.1
 WORKDIR /app
+
 COPY --from=build-env /app/src/OpenFTTH.GDBIntegrator/out .
 ENTRYPOINT ["dotnet", "OpenFTTH.GDBIntegrator.dll"]
