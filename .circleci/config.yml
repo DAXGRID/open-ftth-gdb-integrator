@@ -31,10 +31,22 @@ jobs:
       - run:
           name: Test
           command: make test
+
+orbs:
+  docker: circleci/docker@1.0.1
+
 workflows:
-  build_and_test:
+  build-and-test:
     jobs:
       - build
       - test:
           requires:
             - build
+  build-and-publish-docker-image:
+    jobs:
+      - docker/publish:
+          image: $GDB_INTEGRATOR_DOCKER_ORGANISATION/$GDB_INTEGRATOR_DOCKER_REPONAME
+          docker-username: $GDB_INTEGRATOR_DOCKER_LOGIN
+          docker-password: $GDB_INTEGRATOR_DOCKER_PASSWORD
+          requires:
+            - build_and_test
