@@ -49,4 +49,4 @@ workflows:
           docker-username: GDB_INTEGRATOR_DOCKER_LOGIN
           docker-password: GDB_INTEGRATOR_DOCKER_PASSWORD
           requires:
-            - build_and_test
+            - build-and-test
