@@ -2,6 +2,7 @@
 
 ## Build status
 [![CircleCI](https://circleci.com/gh/DAXGRID/open-ftth-gdb-integrator/tree/master.svg?style=shield&circle)](https://circleci.com/gh/DAXGRID/open-ftth-gdb-integrator/tree/master)
+[![MIT](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](./LICENSE)
 
 ## Configuration
 Either rename 'appsettings.example.json' to 'appsettings.json' or make a new
