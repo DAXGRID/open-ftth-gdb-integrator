@@ -23,3 +23,7 @@ Running the application
 ``` makefile
 make start
 ```
+
+## Node Editing
+Proposed features of the node editing commands
+![Overview of the node editing](https://raw.githubusercontent.com/DAXGRID/open-ftth-overview/master/Brainstorm%20Material/Route%20Network%20Editing%20Commands%20Proposal.jpg)
