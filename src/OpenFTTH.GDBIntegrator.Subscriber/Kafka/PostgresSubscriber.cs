@@ -23,7 +23,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
                 .Consumer(_kafkaSetting.Consumer, c => c.UseKafka(_kafkaSetting.Server))
                 .Serialization(s => s.RouteSegment())
                 .Topics(t => t.Subscribe(_kafkaSetting.Topic))
-                .Positions(p => p.StoreInMemory())
+                .Positions(p => p.StoreInFileSystem(_kafkaSetting.PositionFilePath))
                 .Handle(async (messages, context, token) =>
                 {
                     foreach (var message in messages)
