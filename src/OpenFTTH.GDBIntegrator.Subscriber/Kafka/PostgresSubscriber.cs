@@ -1,8 +1,10 @@
+using System;
 using Topos.Config;
+using MediatR;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
-using System;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Commands;
 using Microsoft.Extensions.Options;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
@@ -10,11 +12,13 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
     public class PostgresSubscriber : ISubscriber
     {
         private IDisposable _consumer;
-        private KafkaSetting _kafkaSetting;
+        private readonly KafkaSetting _kafkaSetting;
+        private readonly IMediator _mediator;
 
-        public PostgresSubscriber(IOptions<KafkaSetting> kafkaSetting)
+        public PostgresSubscriber(IOptions<KafkaSetting> kafkaSetting, IMediator mediator)
         {
             _kafkaSetting = kafkaSetting.Value;
+            _mediator = mediator;
         }
 
         public void Subscribe()
@@ -31,7 +35,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
                         var routeSegment = (RouteSegment)message.Body;
 
                         if (!String.IsNullOrEmpty(routeSegment.Mrid.ToString()))
-                            Console.WriteLine(routeSegment.Mrid);
+                            await _mediator.Send(new GdbUpdatedCommand());
                     }
                 }).Start();
         }

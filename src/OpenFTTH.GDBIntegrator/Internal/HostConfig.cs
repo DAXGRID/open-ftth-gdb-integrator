@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka;
@@ -5,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using OpenFTTH.GDBIntegrator.Config;
 using Microsoft.Extensions.Hosting;
 using OpenFTTH.GDBIntegrator.Subscriber;
+using MediatR.Registration;
+using MediatR;
 
 namespace OpenFTTH.GDBIntegrator.Internal
 {
@@ -38,6 +41,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.Configure<KafkaSetting>(kafkaSettings =>
                                                  hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));
                 services.AddLogging();
+                services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
 
                 services.AddHostedService<Startup>();
                 services.AddScoped<ISubscriber, PostgresSubscriber>();
