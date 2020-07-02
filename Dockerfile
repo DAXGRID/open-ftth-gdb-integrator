@@ -7,6 +7,7 @@ COPY ./src/OpenFTTH.GDBIntegrator/*.csproj ./src/OpenFTTH.GDBIntegrator/
 COPY ./src/OpenFTTH.GDBIntegrator.Config/*.csproj ./src/OpenFTTH.GDBIntegrator.Config/
 COPY ./src/OpenFTTH.GDBIntegrator.RouteNetwork/*.csproj ./src/OpenFTTH.GDBIntegrator.RouteNetwork/
 COPY ./src/OpenFTTH.GDBIntegrator.Subscriber/*.csproj ./src/OpenFTTH.GDBIntegrator.Subscriber/
+COPY ./src/OpenFTTH.GDBIntegrator.Producer/*.csproj ./src/OpenFTTH.GDBIntegrator.Producer/
 
 COPY ./test/OpenFTTH.GDBIntegrator.Tests/*.csproj ./test/OpenFTTH.GDBIntegrator.Tests/
 COPY ./test/OpenFTTH.GDBIntegrator.Subscriber.Tests/*.csproj ./test/OpenFTTH.GDBIntegrator.Subscriber.Tests/
