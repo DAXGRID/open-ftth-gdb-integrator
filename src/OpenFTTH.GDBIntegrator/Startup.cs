@@ -1,4 +1,5 @@
 using OpenFTTH.GDBIntegrator.Subscriber;
+using OpenFTTH.GDBIntegrator.Producer;
 using Microsoft.Extensions.Hosting;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,12 +10,14 @@ namespace OpenFTTH.GDBIntegrator
     public class Startup : IHostedService
     {
         private readonly ISubscriber _subscriber;
+        private readonly IProducer _producer;
         private readonly ILogger _logger;
         private readonly IHostApplicationLifetime _applicationLifetime;
 
-        public Startup(ISubscriber subscriber, ILogger<Startup> logger, IHostApplicationLifetime applicationLifetime)
+        public Startup(ISubscriber subscriber, IProducer producer, ILogger<Startup> logger, IHostApplicationLifetime applicationLifetime)
         {
             _subscriber = subscriber;
+            _producer = producer;
             _logger = logger;
             _applicationLifetime = applicationLifetime;
         }
@@ -41,12 +44,16 @@ namespace OpenFTTH.GDBIntegrator
 
             _logger.LogInformation("Starting to subscribe");
             _subscriber.Subscribe();
+
+            _logger.LogInformation("Init producer");
+            _producer.Init();
         }
 
         private void OnStopped()
         {
-            _logger.LogInformation("Stopped");
             _subscriber.Dispose();
+            _producer.Dispose();
+            _logger.LogInformation("Stopped");
         }
     }
 }

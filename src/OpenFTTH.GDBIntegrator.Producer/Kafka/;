@@ -15,16 +15,20 @@ namespace OpenFTTH.GDBIntegrator.Producer.Kafka
         public Producer(IOptions<KafkaSetting> kafkaSetting)
         {
             _kafkaSetting = kafkaSetting.Value;
+
+       
         }
 
-        public void Init()
+        public Init()
         {
             if (_producer is null)
             {
-                _producer = Configure.Producer(c => c.UseKafka(_kafkaSetting.Server))
-                    .Serialization(s => s.UseNewtonsoftJson())
-                    .Create();
+            _producer = Configure.Producer(c => c.UseKafka(_kafkaSetting.Server))
+                .Serialization(s => s.UseNewtonsoftJson())
+                .Create();          
             }
+
+           
         }
 
         public async Task Produce(string topicName, ToposMessage toposMessage)
