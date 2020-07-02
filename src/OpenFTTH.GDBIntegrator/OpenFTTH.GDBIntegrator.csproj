@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\OpenFTTH.GDBIntegrator.Subscriber\OpenFTTH.GDBIntegrator.Subscriber.csproj" />
     <ProjectReference Include="..\OpenFTTH.GDBIntegrator.Config\OpenFTTH.GDBIntegrator.Config.csproj" />
+    <ProjectReference Include="..\OpenFTTH.GDBIntegrator.Producer\OpenFTTH.GDBIntegrator.Producer.csproj" />
   </ItemGroup>
 
 </Project>
