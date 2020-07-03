@@ -14,6 +14,13 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Commands
 
     public class GdbUpdatedCommandHandler : IRequestHandler<GdbUpdatedCommand, Unit>
     {
+        private IMediator _mediator;
+
+        public GdbUpdatedCommandHandler(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+
         public Task<Unit> Handle(GdbUpdatedCommand request, CancellationToken cancellationToken)
         {
             var routeSegment = request.RouteSegment;

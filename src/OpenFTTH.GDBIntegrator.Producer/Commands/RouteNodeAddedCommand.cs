@@ -11,12 +11,12 @@ namespace OpenFTTH.GDBIntegrator.Producer.Commands
         public string EventType => "RouteNodeAddedCommand";
         public string EventId { get; set; }
         public string EventTs => DateTime.UtcNow.ToString();
-        public string CmdId => Guid.NewGuid().ToString();
+        public string CmdId { get; set; }
         public string NodeId { get; set; }
         public string Geometry { get; set; }
     }
 
-    public class RouteNodeAddedCommandHandler : IRequestHandler<RouteNodeAddedCommand>
+    public class RouteNodeAddedCommandHandler : AsyncRequestHandler<RouteNodeAddedCommand>
     {
         private readonly IProducer _producer;
 
@@ -25,10 +25,9 @@ namespace OpenFTTH.GDBIntegrator.Producer.Commands
             _producer = producer;
         }
 
-        public async Task<Unit> Handle(RouteNodeAddedCommand request, CancellationToken cancellationToken)
+        protected override async Task Handle(RouteNodeAddedCommand request, CancellationToken cancellationToken)
         {
             await _producer.Produce("event.route-network", new ToposMessage(request));
-            return default;
         }
     }
 }
