@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Topos.Producer;
+using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Producer.Commands
 {
@@ -21,14 +22,17 @@ namespace OpenFTTH.GDBIntegrator.Producer.Commands
     public class RouteSegmentAddedCommandHandler : AsyncRequestHandler<RouteSegmentAddedCommand>
     {
         private readonly IProducer _producer;
+        private readonly ILogger _logger;
 
-        public RouteSegmentAddedCommandHandler(IProducer producer)
+        public RouteSegmentAddedCommandHandler(IProducer producer, ILogger<RouteSegmentAddedCommandHandler> logger)
         {
             _producer = producer;
+            _logger = logger;
         }
 
         protected override async Task Handle(RouteSegmentAddedCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Producing RouteSegmentAdded event to event.route-network", request);
             await _producer.Produce("event.route-network", new ToposMessage(request));
         }
     }

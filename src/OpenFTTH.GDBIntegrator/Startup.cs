@@ -40,7 +40,7 @@ namespace OpenFTTH.GDBIntegrator
 
         private void OnStarted()
         {
-            _logger.LogInformation("Started");
+            _logger.LogInformation("Starting GDB-Integrator");
 
             _logger.LogInformation("Starting to subscribe");
             _subscriber.Subscribe();

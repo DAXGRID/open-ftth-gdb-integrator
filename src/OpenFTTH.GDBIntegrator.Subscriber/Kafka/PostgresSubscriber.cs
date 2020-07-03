@@ -4,8 +4,9 @@ using MediatR;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.RouteNetwork.Commands;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
 {
@@ -14,11 +15,13 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
         private IDisposable _consumer;
         private readonly KafkaSetting _kafkaSetting;
         private readonly IMediator _mediator;
+        private readonly ILogger _logger;
 
-        public PostgresSubscriber(IOptions<KafkaSetting> kafkaSetting, IMediator mediator)
+        public PostgresSubscriber(IOptions<KafkaSetting> kafkaSetting, IMediator mediator, ILogger<PostgresSubscriber> logger)
         {
             _kafkaSetting = kafkaSetting.Value;
             _mediator = mediator;
+            _logger = logger;
         }
 
         public void Subscribe()
@@ -34,8 +37,12 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
                     {
                         var routeSegment = (RouteSegment)message.Body;
 
+                        _logger.LogInformation(DateTime.UtcNow + " UTC: Received message "
+                                               + JsonConvert.SerializeObject(routeSegment, Formatting.Indented));
+
                         if (!String.IsNullOrEmpty(routeSegment.Mrid.ToString()))
-                            await _mediator.Send(new GdbUpdatedCommand());
+                        {
+                        }
                     }
                 }).Start();
         }
