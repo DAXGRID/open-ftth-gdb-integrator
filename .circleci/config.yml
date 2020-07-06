@@ -40,7 +40,7 @@ jobs:
           command: apt-get install make
       - run:
           name: Test
-          command: make test
+          command: make test-verbose
 
   build-docker-image:
     executor: docker-publisher
