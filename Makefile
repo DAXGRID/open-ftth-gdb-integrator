@@ -18,6 +18,7 @@ test:
 	dotnet test
 test-verbose:
 	dotnet test /p:CollectCoverage=true -l "console;verbosity=detailed"
+
 .PHONY: build build-release clean restore start test
 
 # end
