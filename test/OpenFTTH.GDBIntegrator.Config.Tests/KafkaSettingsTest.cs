@@ -3,7 +3,7 @@ using FluentAssertions;
 
 namespace OpenFTTH.GDBIntegrator.Config.Tests
 {
-    public class KafkaSettingsTests
+    public class KafkaSettingsTest
     {
         [Fact]
         public void KafkaSettings_ShouldInitalizeValues_OnConstruction()
