@@ -43,6 +43,10 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
                         if (!String.IsNullOrEmpty(routeSegment.Mrid.ToString()))
                         {
                         }
+                        else
+                        {
+                            _logger.LogInformation(DateTime.UtcNow + " UTC: Received message" + "RouteSegment deleted");
+                        }
                     }
                 }).Start();
         }
