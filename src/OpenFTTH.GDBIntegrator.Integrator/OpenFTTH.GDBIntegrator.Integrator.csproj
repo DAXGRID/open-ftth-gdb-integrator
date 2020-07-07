@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenFTTH.GDBIntegrator.RouteNetwork\OpenFTTH.GDBIntegrator.RouteNetwork.csproj" />
+    <ProjectReference Include="..\OpenFTTH.GDBIntegrator.GeoDatabase\OpenFTTH.GDBIntegrator.GeoDatabase.csproj" />
+    <ProjectReference Include="..\OpenFTTH.GDBIntegrator.Producer\OpenFTTH.GDBIntegrator.Producer.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="8.0.2" />
+  </ItemGroup>
+
+</Project>

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
+using OpenFTTH.GDBIntegrator.RouteNetwork;
 using Dapper;
 using Npgsql;
 using Microsoft.Extensions.Options;
