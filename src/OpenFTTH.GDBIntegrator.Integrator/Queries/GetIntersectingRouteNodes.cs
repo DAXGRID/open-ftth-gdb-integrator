@@ -24,7 +24,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Queries
         public async Task<List<RouteNode>> Handle(GetIntersectingRouteNodes request, CancellationToken cancellationToken)
         {
             var routeNodes = await _geoDatabase.GetIntersectingRouteNodes(request.RouteSegment);
-
             return routeNodes;
         }
     }
