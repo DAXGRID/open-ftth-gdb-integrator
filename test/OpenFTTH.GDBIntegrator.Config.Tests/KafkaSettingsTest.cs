@@ -1,5 +1,6 @@
 using Xunit;
 using FluentAssertions;
+using FluentAssertions.Execution;
 
 namespace OpenFTTH.GDBIntegrator.Config.Tests
 {
@@ -21,10 +22,13 @@ namespace OpenFTTH.GDBIntegrator.Config.Tests
                 Consumer = consumer
             };
 
-            kafkaSettings.Server.Should().BeEquivalentTo(server);
-            kafkaSettings.PositionFilePath.Should().BeEquivalentTo(positionFilePath);
-            kafkaSettings.Topic.Should().BeEquivalentTo(topic);
-            kafkaSettings.Consumer.Should().BeEquivalentTo(consumer);
+            using (new AssertionScope())
+            {
+                kafkaSettings.Server.Should().BeEquivalentTo(server);
+                kafkaSettings.PositionFilePath.Should().BeEquivalentTo(positionFilePath);
+                kafkaSettings.Topic.Should().BeEquivalentTo(topic);
+                kafkaSettings.Consumer.Should().BeEquivalentTo(consumer);
+            }
         }
     }
 }
