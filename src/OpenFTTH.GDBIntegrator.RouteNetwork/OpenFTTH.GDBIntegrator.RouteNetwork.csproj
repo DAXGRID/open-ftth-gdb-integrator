@@ -7,6 +7,13 @@
   <ItemGroup>
     <PackageReference Include="MediatR" Version="8.0.2" />
     <PackageReference Include="NetTopologySuite" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenFTTH.GDBIntegrator.Config\OpenFTTH.GDBIntegrator.Config.csproj" />
   </ItemGroup>
 
 </Project>

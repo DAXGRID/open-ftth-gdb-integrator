@@ -7,21 +7,14 @@ using NetTopologySuite.Geometries;
 
 namespace OpenFTTH.GDBIntegrator.RouteNetwork.Commands
 {
-    public class GdbUpdatedCommand : IRequest
+    public class GdbUpdated : IRequest
     {
         public RouteSegment RouteSegment { get; set; }
     }
 
-    public class GdbUpdatedCommandHandler : IRequestHandler<GdbUpdatedCommand, Unit>
+    public class GdbUpdatedHandler : IRequestHandler<GdbUpdated, Unit>
     {
-        private IMediator _mediator;
-
-        public GdbUpdatedCommandHandler(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
-        public Task<Unit> Handle(GdbUpdatedCommand request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(GdbUpdated request, CancellationToken cancellationToken)
         {
             var routeSegment = request.RouteSegment;
 

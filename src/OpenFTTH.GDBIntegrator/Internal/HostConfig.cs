@@ -7,6 +7,8 @@ using OpenFTTH.GDBIntegrator.Subscriber.Kafka;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Subscriber;
 using OpenFTTH.GDBIntegrator.Producer;
+using OpenFTTH.GDBIntegrator.GeoDatabase;
+using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres;
 using MediatR;
 
 namespace OpenFTTH.GDBIntegrator.Internal
@@ -49,6 +51,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddHostedService<Startup>();
                 services.AddSingleton<ISubscriber, PostgresSubscriber>();
                 services.AddSingleton<IProducer, Producer.Kafka.Producer>();
+                services.AddScoped<IGeoDatabase, Postgis>();
             });
         }
 
