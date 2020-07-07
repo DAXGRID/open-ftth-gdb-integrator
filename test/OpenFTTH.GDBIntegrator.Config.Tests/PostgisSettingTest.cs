@@ -10,6 +10,7 @@ namespace OpenFTTH.GDBIntegrator.Config.Tests
         public void PostgisSettingTest_ShouldInitalizeValues_OnConstruction()
         {
             var host = "192.13.2.3";
+            var port = "5432";
             var database = "OPEN_FTTH";
             var username = "postgres";
             var password = "1234";
@@ -17,6 +18,7 @@ namespace OpenFTTH.GDBIntegrator.Config.Tests
             var postgisSetting = new PostgisSetting
             {
                 Host = host,
+                Port = port,
                 Database = database,
                 Password = password,
                 Username = username
@@ -25,6 +27,7 @@ namespace OpenFTTH.GDBIntegrator.Config.Tests
             using (new AssertionScope())
             {
                 postgisSetting.Host.Should().BeEquivalentTo(host);
+                postgisSetting.Port.Should().BeEquivalentTo(port);
                 postgisSetting.Database.Should().BeEquivalentTo(database);
                 postgisSetting.Password.Should().BeEquivalentTo(password);
                 postgisSetting.Username.Should().BeEquivalentTo(username);

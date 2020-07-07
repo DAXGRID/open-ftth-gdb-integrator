@@ -5,6 +5,7 @@ using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.Queries;
+using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -43,7 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
 
                         if (!String.IsNullOrEmpty(routeSegment.Mrid.ToString()))
                         {
-                            await _mediator.Send(new GetIntersectingRouteNodes { RouteSegment = routeSegment });
+                            await _mediator.Send(new NewLonelyRouteSegmentCommand { RouteSegment = routeSegment });
                         }
                         else
                         {

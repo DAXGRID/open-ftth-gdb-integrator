@@ -46,8 +46,8 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task InsertRouteNode(RouteNode routeNode)
         {
-           using (var connection = new NpgsqlConnection(
-                       $"Host={_postgisSettings.Host};Username={_postgisSettings.Username};Password={_postgisSettings.Password};Database={_postgisSettings.Database}"))
+            using (var connection = new NpgsqlConnection(
+                        $"Host={_postgisSettings.Host};Port={_postgisSettings.Port};Username={_postgisSettings.Username};Password={_postgisSettings.Password};Database={_postgisSettings.Database}"))
             {
                 var query = $@"INSERT INTO route_network.route_node(
                     mrid,
