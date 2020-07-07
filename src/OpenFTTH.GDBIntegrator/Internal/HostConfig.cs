@@ -40,6 +40,9 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddOptions();
                 services.Configure<KafkaSetting>(kafkaSettings =>
                                                  hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));
+
+                services.Configure<PostgisSetting>(postgisSettings =>
+                                                 hostContext.Configuration.GetSection("postgis").Bind(postgisSettings));
                 services.AddLogging();
                 services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
 
