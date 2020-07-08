@@ -44,7 +44,13 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
 
                         if (!String.IsNullOrEmpty(routeSegment.Mrid.ToString()))
                         {
-                            await _mediator.Send(new NewLonelyRouteSegmentCommand { RouteSegment = routeSegment });
+                            var routeNodes = await _mediator.Send(new GetIntersectingRouteNodes { RouteSegment = routeSegment });
+
+                            if (routeNodes.Count <= 0)
+                            {
+                                _logger.LogInformation(DateTime.UtcNow + " UTC: No routenodes intersect calling NewLonelyRouteSegmentCommand");
+                                await _mediator.Send(new NewLonelyRouteSegmentCommand { RouteSegment = routeSegment });
+                            }
                         }
                         else
                         {

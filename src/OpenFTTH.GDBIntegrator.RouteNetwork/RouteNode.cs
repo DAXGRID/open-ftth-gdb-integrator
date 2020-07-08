@@ -10,6 +10,9 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
         public string Username { get; }
         public string ApplicationName { get; }
 
+        // Default constructor is needed for serialization
+        public RouteNode() {}
+
         public RouteNode(Guid mrid, byte[] coord, Guid workTaskMrid, string username, string applicationName)
         {
             Mrid = mrid;

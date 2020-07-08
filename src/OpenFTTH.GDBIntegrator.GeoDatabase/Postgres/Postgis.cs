@@ -20,27 +20,25 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         public async Task<List<RouteNode>> GetIntersectingRouteNodes(RouteSegment routeSegment)
         {
             using (var connection = new NpgsqlConnection(
-                       $"Host={_postgisSettings.Host};Username={_postgisSettings.Username};Password={_postgisSettings.Password};Database={_postgisSettings.Database}"))
+                       $"Host={_postgisSettings.Host};Port={_postgisSettings.Port};Username={_postgisSettings.Username};Password={_postgisSettings.Password};Database={_postgisSettings.Database}"))
             {
-                var query = $@"INSERT INTO route_network.route_node(
-                    mrid,
-                    coord,
-                    work_task_mrid,
-                    user_name,
-                    application_name
-                    )
-                    VALUES(
-                    @mrid,
-                    ST_GeomFromWKB(@coord, 25832),
-                    @workTaskMrid,
-                    @username,
-                    @applicationName
-                    );";
+                var query = $@"SELECT (ST_AsText(coord), mrid) FROM route_network.route_node
+                    WHERE ST_Intersects(
+                      ST_Buffer(
+                        ST_StartPoint(
+                          (SELECT coord FROM route_network.route_segment
+                          WHERE mrid = @mrid)
+                          ),
+                        0.01
+                      ),
+                      coord)
+                    ";
 
                 await connection.OpenAsync();
-                await connection.ExecuteAsync(query, routeSegment);
 
-                return new List<RouteNode>();
+                var routeNodes = await connection.QueryAsync<RouteNode>(query, routeSegment);
+
+                return routeNodes.AsList();
             }
         }
 
