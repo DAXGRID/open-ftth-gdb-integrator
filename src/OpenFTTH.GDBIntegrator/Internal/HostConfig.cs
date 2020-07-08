@@ -47,7 +47,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.Configure<PostgisSetting>(postgisSettings =>
                                                  hostContext.Configuration.GetSection("postgis").Bind(postgisSettings));
                 services.AddLogging();
-                services.AddMediatR(typeof(GetIntersectingRouteNodesHandler).GetTypeInfo().Assembly);
+                services.AddMediatR(typeof(GetIntersectingStartRouteNodesHandler).GetTypeInfo().Assembly);
 
                 services.AddHostedService<Startup>();
                 services.AddSingleton<ISubscriber, PostgresSubscriber>();

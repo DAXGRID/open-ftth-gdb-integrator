@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Topos.Config;
 using MediatR;
 using OpenFTTH.GDBIntegrator.Config;
@@ -38,26 +39,34 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
                     foreach (var message in messages)
                     {
                         var routeSegment = (RouteSegment)message.Body;
-
-                        _logger.LogInformation(DateTime.UtcNow + " UTC: Received message "
-                                               + JsonConvert.SerializeObject(routeSegment, Formatting.Indented));
-
-                        if (!String.IsNullOrEmpty(routeSegment.Mrid.ToString()))
-                        {
-                            var routeNodes = await _mediator.Send(new GetIntersectingRouteNodes { RouteSegment = routeSegment });
-
-                            if (routeNodes.Count <= 0)
-                            {
-                                _logger.LogInformation(DateTime.UtcNow + " UTC: No routenodes intersect calling NewLonelyRouteSegmentCommand");
-                                await _mediator.Send(new NewLonelyRouteSegmentCommand { RouteSegment = routeSegment });
-                            }
-                        }
-                        else
-                        {
-                            _logger.LogInformation(DateTime.UtcNow + " UTC: Received message" + "RouteSegment deleted");
-                        }
+                        await HandleSubscribedEvent(routeSegment);
                     }
                 }).Start();
+        }
+
+        private async Task HandleSubscribedEvent(RouteSegment routeSegment)
+        {
+            _logger.LogInformation(DateTime.UtcNow + " UTC: Received message "
+                                   + JsonConvert.SerializeObject(routeSegment, Formatting.Indented));
+
+            if (!String.IsNullOrEmpty(routeSegment.Mrid.ToString()))
+            {
+                var routeNodes = await _mediator.Send(new GetIntersectingStartRouteNodes { RouteSegment = routeSegment });
+
+                if (routeNodes.Count <= 0)
+                {
+                    _logger.LogInformation(DateTime.UtcNow + " UTC: No routenodes intersect calling NewLonelyRouteSegmentCommand");
+                    await _mediator.Send(new NewLonelyRouteSegmentCommand { RouteSegment = routeSegment });
+                }
+                if (routeNodes.Count == 1)
+                {
+
+                }
+            }
+            else
+            {
+                _logger.LogInformation(DateTime.UtcNow + " UTC: Received message" + "RouteSegment deleted");
+            }
         }
 
         public void Dispose()

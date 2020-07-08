@@ -7,23 +7,23 @@ using OpenFTTH.GDBIntegrator.RouteNetwork;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Queries
 {
-    public class GetIntersectingRouteNodes : IRequest<List<RouteNode>>
+    public class GetIntersectingStartRouteNodes : IRequest<List<RouteNode>>
     {
         public RouteSegment RouteSegment { get; set; }
     }
 
-    public class GetIntersectingRouteNodesHandler : IRequestHandler<GetIntersectingRouteNodes, List<RouteNode>>
+    public class GetIntersectingStartRouteNodesHandler : IRequestHandler<GetIntersectingStartRouteNodes, List<RouteNode>>
     {
         private readonly IGeoDatabase _geoDatabase;
 
-        public GetIntersectingRouteNodesHandler(IGeoDatabase geoDatabase)
+        public GetIntersectingStartRouteNodesHandler(IGeoDatabase geoDatabase)
         {
             _geoDatabase = geoDatabase;
         }
 
-        public async Task<List<RouteNode>> Handle(GetIntersectingRouteNodes request, CancellationToken cancellationToken)
+        public async Task<List<RouteNode>> Handle(GetIntersectingStartRouteNodes request, CancellationToken cancellationToken)
         {
-            var routeNodes = await _geoDatabase.GetIntersectingRouteNodes(request.RouteSegment);
+            var routeNodes = await _geoDatabase.GetIntersectingStartRouteNodes(request.RouteSegment);
             return routeNodes;
         }
     }

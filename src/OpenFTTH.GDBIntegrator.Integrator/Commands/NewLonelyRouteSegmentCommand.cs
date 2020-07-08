@@ -13,12 +13,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
     public class NewLonelyRouteSegmentCommandHandler : IRequestHandler<NewLonelyRouteSegmentCommand, Unit>
     {
-        private readonly IMediator _mediator;
         private readonly IGeoDatabase _geoDatabase;
 
-        public NewLonelyRouteSegmentCommandHandler(IMediator mediator, IGeoDatabase geoDatabase)
+        public NewLonelyRouteSegmentCommandHandler(IGeoDatabase geoDatabase)
         {
-            _mediator = mediator;
             _geoDatabase = geoDatabase;
         }
 
