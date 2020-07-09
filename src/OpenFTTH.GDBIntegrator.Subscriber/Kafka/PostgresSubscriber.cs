@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 using Topos.Config;
 using MediatR;
 using OpenFTTH.GDBIntegrator.Config;
@@ -51,16 +52,25 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
 
             if (!String.IsNullOrEmpty(routeSegment.Mrid.ToString()))
             {
-                var routeNodes = await _mediator.Send(new GetIntersectingStartRouteNodes { RouteSegment = routeSegment });
+                var intersectingStartNodes = await _mediator.Send(new GetIntersectingStartRouteNodes { RouteSegment = routeSegment });
+                var intersectingEndNodes = await _mediator.Send(new GetIntersectingEndRouteNodes { RouteSegment = routeSegment });
 
-                if (routeNodes.Count <= 0)
+                var totalIntersectingNodes = intersectingStartNodes.Count + intersectingEndNodes.Count;
+
+                if (totalIntersectingNodes == 0)
                 {
                     _logger.LogInformation(DateTime.UtcNow + " UTC: No routenodes intersect calling NewLonelyRouteSegmentCommand");
                     await _mediator.Send(new NewLonelyRouteSegmentCommand { RouteSegment = routeSegment });
                 }
-                if (routeNodes.Count == 1)
+                else if (totalIntersectingNodes == 1)
                 {
-
+                    _logger.LogInformation(DateTime.UtcNow + " UTC: Single routenode intersect calling ");
+                    await _mediator.Send(new NewRouteSegmentDigitizedToExistingNodeCommand
+                        {
+                            RouteSegment = routeSegment,
+                            StartRouteNode = intersectingStartNodes.FirstOrDefault(),
+                            EndRouteNode = intersectingEndNodes.FirstOrDefault()
+                        });
                 }
             }
             else
