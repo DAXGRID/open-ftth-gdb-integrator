@@ -11,7 +11,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         public RouteSegment RouteSegment { get; set; }
     }
 
-    public class NewLonelyRouteSegmentCommandHandler : IRequestHandler<NewLonelyRouteSegmentCommand, Unit>
+    public class NewLonelyRouteSegmentCommandHandler : AsyncRequestHandler<NewLonelyRouteSegmentCommand>
     {
         private readonly IGeoDatabase _geoDatabase;
 
@@ -20,14 +20,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _geoDatabase = geoDatabase;
         }
 
-        public async Task<Unit> Handle(NewLonelyRouteSegmentCommand request, CancellationToken cancellationToken)
+        protected override async Task Handle(NewLonelyRouteSegmentCommand request, CancellationToken cancellationToken)
         {
             var routeSegment = request.RouteSegment;
 
             await _geoDatabase.InsertRouteNode(routeSegment.FindStartNode());
             await _geoDatabase.InsertRouteNode(routeSegment.FindEndNode());
-
-            return default;
         }
     }
 }
