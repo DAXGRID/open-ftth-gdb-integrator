@@ -26,6 +26,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         protected override async Task Handle(NewRouteSegmentBetweenTwoExistingNodesCommand request, CancellationToken cancellationToken)
         {
+            if (request.RouteSegment is null)
+                throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");
+
             _logger.LogInformation($"{DateTime.UtcNow} UTC: Starting - New route segment between two existing nodes.\n");
 
             _logger.LogInformation($"{DateTime.UtcNow} UTC: Finished - New route segment between two existing nodes.\n");

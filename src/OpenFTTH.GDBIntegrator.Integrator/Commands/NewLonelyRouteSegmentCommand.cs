@@ -26,12 +26,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         protected override async Task Handle(NewLonelyRouteSegmentCommand request, CancellationToken cancellationToken)
         {
+            if (request.RouteSegment is null)
+                throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");
+
             _logger.LogInformation($"{DateTime.UtcNow} UTC: Starting - New lonely route segment.\n");
 
-            var routeSegment = request.RouteSegment;
-
-            await _geoDatabase.InsertRouteNode(routeSegment.FindStartNode());
-            await _geoDatabase.InsertRouteNode(routeSegment.FindEndNode());
+            await _geoDatabase.InsertRouteNode(request.RouteSegment.FindStartNode());
+            await _geoDatabase.InsertRouteNode(request.RouteSegment.FindEndNode());
 
             _logger.LogInformation($"{DateTime.UtcNow} UTC: Finished - New lonely route segment.\n");
         }
