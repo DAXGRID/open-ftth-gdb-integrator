@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
+using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
@@ -17,14 +18,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
      public class NewRouteSegmentToExistingNodeHandler : AsyncRequestHandler<NewRouteSegmentToExistingNodeCommand>
      {
          private readonly IGeoDatabase _geoDatabase;
+         private readonly ILogger<NewRouteSegmentBetweenTwoExistingNodesCommandHandler> _logger;
 
-         public NewRouteSegmentToExistingNodeHandler(IGeoDatabase geoDatabase)
+         public NewRouteSegmentToExistingNodeHandler(IGeoDatabase geoDatabase, ILogger<NewRouteSegmentBetweenTwoExistingNodesCommandHandler> logger)
          {
              _geoDatabase = geoDatabase;
+             _logger = logger;
          }
 
          protected override async Task Handle(NewRouteSegmentToExistingNodeCommand request, CancellationToken cancellationToken)
          {
+             _logger.LogInformation($"{DateTime.UtcNow} UTC: Starting - new routesegment to existing node.");
+
              if (request.RouteSegment is null)
                  throw new ArgumentNullException("RouteSegment cannot be null");
 
@@ -37,6 +42,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                  await _geoDatabase.InsertRouteNode(routeSegment.FindStartNode());
              else
                  await _geoDatabase.InsertRouteNode(routeSegment.FindEndNode());
+
+             _logger.LogInformation($"{DateTime.UtcNow} UTC: Finished - new routesegment to existing node.\n");
          }
      }
 }
