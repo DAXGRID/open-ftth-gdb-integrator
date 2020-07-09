@@ -9,12 +9,12 @@ namespace OpenFTTH.GDBIntegrator
 {
     public class Startup : IHostedService
     {
-        private readonly ISubscriber _subscriber;
+        private readonly IRouteSegmentSubscriber _subscriber;
         private readonly IProducer _producer;
         private readonly ILogger _logger;
         private readonly IHostApplicationLifetime _applicationLifetime;
 
-        public Startup(ISubscriber subscriber, IProducer producer, ILogger<Startup> logger, IHostApplicationLifetime applicationLifetime)
+        public Startup(IRouteSegmentSubscriber subscriber, IProducer producer, ILogger<Startup> logger, IHostApplicationLifetime applicationLifetime)
         {
             _subscriber = subscriber;
             _producer = producer;

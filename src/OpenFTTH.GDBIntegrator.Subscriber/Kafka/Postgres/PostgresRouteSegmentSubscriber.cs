@@ -12,16 +12,16 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
+namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
 {
-    public class PostgresSubscriber : ISubscriber
+    public class PostgresRouteSegmentSubscriber : IRouteSegmentSubscriber
     {
         private IDisposable _consumer;
         private readonly KafkaSetting _kafkaSetting;
         private readonly IMediator _mediator;
         private readonly ILogger _logger;
 
-        public PostgresSubscriber(IOptions<KafkaSetting> kafkaSetting, IMediator mediator, ILogger<PostgresSubscriber> logger)
+        public PostgresRouteSegmentSubscriber(IOptions<KafkaSetting> kafkaSetting, IMediator mediator, ILogger<PostgresRouteSegmentSubscriber> logger)
         {
             _kafkaSetting = kafkaSetting.Value;
             _mediator = mediator;

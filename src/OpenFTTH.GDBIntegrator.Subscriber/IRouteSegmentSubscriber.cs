@@ -2,7 +2,7 @@ using System;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber
 {
-    public interface ISubscriber : IDisposable
+    public interface IRouteSegmentSubscriber : IDisposable
     {
         void Subscribe();
     }

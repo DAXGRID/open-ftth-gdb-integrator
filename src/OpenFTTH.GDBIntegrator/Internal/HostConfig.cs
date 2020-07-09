@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using OpenFTTH.GDBIntegrator.Subscriber.Kafka;
+using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Subscriber;
 using OpenFTTH.GDBIntegrator.Producer;
@@ -50,7 +50,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddMediatR(typeof(GetIntersectingStartRouteNodesHandler).GetTypeInfo().Assembly);
 
                 services.AddHostedService<Startup>();
-                services.AddSingleton<ISubscriber, PostgresSubscriber>();
+                services.AddSingleton<IRouteSegmentSubscriber, PostgresRouteSegmentSubscriber>();
                 services.AddSingleton<IProducer, Producer.Kafka.Producer>();
                 services.AddScoped<IGeoDatabase, Postgis>();
             });
