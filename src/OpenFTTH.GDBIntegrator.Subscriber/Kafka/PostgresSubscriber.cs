@@ -59,18 +59,18 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka
 
                 if (totalIntersectingNodes == 0)
                 {
-                    _logger.LogInformation(DateTime.UtcNow + " UTC: No routenodes intersect calling NewLonelyRouteSegmentCommand");
+                    _logger.LogInformation($"{DateTime.UtcNow} UTC: No routenodes intersect calling {nameof(NewLonelyRouteSegmentCommand)}");
                     await _mediator.Send(new NewLonelyRouteSegmentCommand { RouteSegment = routeSegment });
                 }
                 else if (intersectingStartNodes.Count == 1 && intersectingEndNodes.Count == 1)
                 {
-                    _logger.LogInformation(DateTime.UtcNow + " UTC: Routenodes in each end calling NewConnectedRouteSegmentCommand");
-                    await _mediator.Send(new NewConnectedRouteSegmentCommand());
+                    _logger.LogInformation($"{DateTime.UtcNow} UTC: Routenodes in each end calling {nameof(NewRouteSegmentBetweenTwoExistingNodesCommand)}");
+                    await _mediator.Send(new NewRouteSegmentBetweenTwoExistingNodesCommand());
                 }
                 else if (totalIntersectingNodes == 1)
                 {
-                    _logger.LogInformation(DateTime.UtcNow + " UTC: Single routenode intersect calling");
-                    await _mediator.Send(new NewRouteSegmentDigitizedToExistingNodeCommand
+                    _logger.LogInformation($"{DateTime.UtcNow} UTC: Single routenode intersect calling {nameof(NewRouteSegmentToExistingNodeCommand)}");
+                    await _mediator.Send(new NewRouteSegmentToExistingNodeCommand
                         {
                             RouteSegment = routeSegment,
                             StartRouteNode = intersectingStartNodes.FirstOrDefault(),

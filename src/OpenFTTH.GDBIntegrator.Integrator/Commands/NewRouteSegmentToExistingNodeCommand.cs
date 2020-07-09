@@ -7,23 +7,23 @@ using OpenFTTH.GDBIntegrator.GeoDatabase;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
-    public class NewRouteSegmentDigitizedToExistingNodeCommand : IRequest
+    public class NewRouteSegmentToExistingNodeCommand : IRequest
     {
         public RouteSegment RouteSegment { get; set; }
         public RouteNode StartRouteNode { get; set; }
         public RouteNode EndRouteNode { get; set; }
     }
 
-     public class NewRouteSegmentDigitizedToExistingNodeHandler : AsyncRequestHandler<NewRouteSegmentDigitizedToExistingNodeCommand>
+     public class NewRouteSegmentToExistingNodeHandler : AsyncRequestHandler<NewRouteSegmentToExistingNodeCommand>
      {
          private readonly IGeoDatabase _geoDatabase;
 
-         public NewRouteSegmentDigitizedToExistingNodeHandler(IGeoDatabase geoDatabase)
+         public NewRouteSegmentToExistingNodeHandler(IGeoDatabase geoDatabase)
          {
              _geoDatabase = geoDatabase;
          }
 
-         protected override async Task Handle(NewRouteSegmentDigitizedToExistingNodeCommand request, CancellationToken cancellationToken)
+         protected override async Task Handle(NewRouteSegmentToExistingNodeCommand request, CancellationToken cancellationToken)
          {
              if (request.RouteSegment is null)
                  throw new ArgumentNullException("RouteSegment cannot be null");

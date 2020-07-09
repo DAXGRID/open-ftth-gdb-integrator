@@ -6,21 +6,21 @@ using OpenFTTH.GDBIntegrator.GeoDatabase;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
-    public class NewConnectedRouteSegmentCommand : IRequest
+    public class NewRouteSegmentBetweenTwoExistingNodesCommand : IRequest
     {
         public RouteSegment RouteSegment { get; set; }
     }
 
-    public class NewConnectedRouteSegmentCommandHandler : AsyncRequestHandler<NewConnectedRouteSegmentCommand>
+    public class NewRouteSegmentBetweenTwoExistingNodesCommandHandler : AsyncRequestHandler<NewRouteSegmentBetweenTwoExistingNodesCommand>
     {
         private readonly IGeoDatabase _geoDatabase;
 
-        public NewConnectedRouteSegmentCommandHandler(IGeoDatabase geoDatabase)
+        public NewRouteSegmentBetweenTwoExistingNodesCommandHandler(IGeoDatabase geoDatabase)
         {
             _geoDatabase = geoDatabase;
         }
 
-        protected override async Task Handle(NewConnectedRouteSegmentCommand request, CancellationToken cancellationToken)
+        protected override async Task Handle(NewRouteSegmentBetweenTwoExistingNodesCommand request, CancellationToken cancellationToken)
         {
             var routeSegment = request.RouteSegment;
         }
