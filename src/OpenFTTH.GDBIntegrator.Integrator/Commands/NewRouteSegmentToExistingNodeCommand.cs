@@ -15,18 +15,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         public RouteNode EndRouteNode { get; set; }
     }
 
-     public class NewRouteSegmentToExistingNodeCommandHandler : AsyncRequestHandler<NewRouteSegmentToExistingNodeCommand>
+     public class NewRouteSegmentToExistingNodeCommandHandler : IRequestHandler<NewRouteSegmentToExistingNodeCommand, Unit>
      {
          private readonly IGeoDatabase _geoDatabase;
-         private readonly ILogger<NewRouteSegmentBetweenTwoExistingNodesCommandHandler> _logger;
+         private readonly ILogger<NewRouteSegmentToExistingNodeCommandHandler> _logger;
 
-         public NewRouteSegmentToExistingNodeCommandHandler(IGeoDatabase geoDatabase, ILogger<NewRouteSegmentBetweenTwoExistingNodesCommandHandler> logger)
+         public NewRouteSegmentToExistingNodeCommandHandler(IGeoDatabase geoDatabase, ILogger<NewRouteSegmentToExistingNodeCommandHandler> logger)
          {
              _geoDatabase = geoDatabase;
              _logger = logger;
          }
 
-         protected override async Task Handle(NewRouteSegmentToExistingNodeCommand request, CancellationToken cancellationToken)
+         public async Task<Unit> Handle(NewRouteSegmentToExistingNodeCommand request, CancellationToken cancellationToken)
          {
              _logger.LogInformation($"{DateTime.UtcNow} UTC: Starting - new routesegment to existing node.");
 
@@ -36,14 +36,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
              if (request.StartRouteNode is null && request.EndRouteNode is null)
                  throw new ArgumentException("StartRouteNode and EndRouteNode cannot both be null");
 
-             var routeSegment = request.RouteSegment;
-
              if (request.StartRouteNode is null)
-                 await _geoDatabase.InsertRouteNode(routeSegment.FindStartNode());
+                 await _geoDatabase.InsertRouteNode(request.RouteSegment.FindStartNode());
              else
-                 await _geoDatabase.InsertRouteNode(routeSegment.FindEndNode());
+                 await _geoDatabase.InsertRouteNode(request.RouteSegment.FindEndNode());
 
              _logger.LogInformation($"{DateTime.UtcNow} UTC: Finished - new routesegment to existing node.\n");
+
+             return await Task.FromResult(new Unit());
          }
      }
 }
