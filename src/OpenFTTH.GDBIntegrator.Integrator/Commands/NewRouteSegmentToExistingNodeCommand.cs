@@ -15,12 +15,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         public RouteNode EndRouteNode { get; set; }
     }
 
-     public class NewRouteSegmentToExistingNodeHandler : AsyncRequestHandler<NewRouteSegmentToExistingNodeCommand>
+     public class NewRouteSegmentToExistingNodeCommandHandler : AsyncRequestHandler<NewRouteSegmentToExistingNodeCommand>
      {
          private readonly IGeoDatabase _geoDatabase;
          private readonly ILogger<NewRouteSegmentBetweenTwoExistingNodesCommandHandler> _logger;
 
-         public NewRouteSegmentToExistingNodeHandler(IGeoDatabase geoDatabase, ILogger<NewRouteSegmentBetweenTwoExistingNodesCommandHandler> logger)
+         public NewRouteSegmentToExistingNodeCommandHandler(IGeoDatabase geoDatabase, ILogger<NewRouteSegmentBetweenTwoExistingNodesCommandHandler> logger)
          {
              _geoDatabase = geoDatabase;
              _logger = logger;
