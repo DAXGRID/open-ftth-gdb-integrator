@@ -9,7 +9,7 @@ using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using Microsoft.Extensions.Logging;
 
-namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests
+namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests.Commands
 {
     public class NewRouteSegmentToExistingNodeCommandHandlerTest
     {
