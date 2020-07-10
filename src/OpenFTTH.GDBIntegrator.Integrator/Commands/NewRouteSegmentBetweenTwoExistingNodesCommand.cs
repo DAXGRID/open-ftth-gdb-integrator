@@ -13,7 +13,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         public RouteSegment RouteSegment { get; set; }
     }
 
-    public class NewRouteSegmentBetweenTwoExistingNodesCommandHandler : AsyncRequestHandler<NewRouteSegmentBetweenTwoExistingNodesCommand>
+    public class NewRouteSegmentBetweenTwoExistingNodesCommandHandler : IRequestHandler<NewRouteSegmentBetweenTwoExistingNodesCommand, Unit>
     {
         private readonly IGeoDatabase _geoDatabase;
         private readonly ILogger<NewRouteSegmentBetweenTwoExistingNodesCommandHandler> _logger;
@@ -24,7 +24,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _logger = logger;
         }
 
-        protected override async Task Handle(NewRouteSegmentBetweenTwoExistingNodesCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(NewRouteSegmentBetweenTwoExistingNodesCommand request, CancellationToken cancellationToken)
         {
             if (request.RouteSegment is null)
                 throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");
@@ -32,6 +32,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _logger.LogInformation($"{DateTime.UtcNow} UTC: Starting - New route segment between two existing nodes.\n");
 
             _logger.LogInformation($"{DateTime.UtcNow} UTC: Finished - New route segment between two existing nodes.\n");
+
+            return await Task.FromResult(new Unit());
         }
     }
 }

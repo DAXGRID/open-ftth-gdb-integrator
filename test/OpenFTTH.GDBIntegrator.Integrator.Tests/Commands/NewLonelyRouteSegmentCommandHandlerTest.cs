@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests
 {
-    public class NewLonelyRouteSegmentCommandHandlerTests
+    public class NewLonelyRouteSegmentCommandHandlerTest
     {
         [Fact]
         public async Task Handle_ShouldCallInsertTwoRouteNodes_OnBeingCalledWithRouteSegment()
@@ -38,7 +38,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests
         }
 
         [Fact]
-        public async Task Handle_ShouldThrowNullArgumentException_OnRouteSegmentBeingEmpty()
+        public async Task Handle_ShouldThrowNullArgumentException_OnRouteSegmentBeingNull()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             var logger = A.Fake<ILogger<NewLonelyRouteSegmentCommandHandler>>();
