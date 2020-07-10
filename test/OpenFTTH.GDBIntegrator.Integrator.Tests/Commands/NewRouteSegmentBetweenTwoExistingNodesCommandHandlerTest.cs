@@ -13,7 +13,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests
     public class NewRouteSegmentBetweenTwoExistingNodesCommandHandlerTest
     {
         [Fact]
-        public async Task Handle_ShouldCallInsertTwoRouteNodes_OnBeingCalledWithRouteSegment()
+        public async Task Handle_ShouldCallAndNotInsertAny_OnBeingCalledWithRouteSegment()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             var logger = A.Fake<ILogger<NewRouteSegmentBetweenTwoExistingNodesCommandHandler>>();
