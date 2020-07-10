@@ -12,7 +12,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
         public string Username { get; set; }
         public string ApplicationName { get; set; }
 
-        public RouteNode FindStartNode()
+        public virtual RouteNode FindStartNode()
         {
             var routeSegmentBytes = Convert.FromBase64String(Coord);
             var wkbReader = new WKBReader();
@@ -27,7 +27,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
             return startNode;
         }
 
-        public RouteNode FindEndNode()
+        public virtual RouteNode FindEndNode()
         {
             var routeSegmentBytes = Convert.FromBase64String(Coord);
             var wkbReader = new WKBReader();

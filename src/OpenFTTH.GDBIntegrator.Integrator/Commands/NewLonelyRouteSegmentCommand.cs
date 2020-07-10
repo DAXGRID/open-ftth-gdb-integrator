@@ -13,7 +13,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         public RouteSegment RouteSegment { get; set; }
     }
 
-    public class NewLonelyRouteSegmentCommandHandler : AsyncRequestHandler<NewLonelyRouteSegmentCommand>
+    public class NewLonelyRouteSegmentCommandHandler : IRequestHandler<NewLonelyRouteSegmentCommand, Unit>
     {
         private readonly IGeoDatabase _geoDatabase;
         private readonly ILogger<NewLonelyRouteSegmentCommandHandler> _logger;
@@ -24,7 +24,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _logger = logger;
         }
 
-        protected override async Task Handle(NewLonelyRouteSegmentCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(NewLonelyRouteSegmentCommand request, CancellationToken cancellationToken)
         {
             if (request.RouteSegment is null)
                 throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");
@@ -35,6 +35,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             await _geoDatabase.InsertRouteNode(request.RouteSegment.FindEndNode());
 
             _logger.LogInformation($"{DateTime.UtcNow} UTC: Finished - New lonely route segment.\n");
+
+            return await Task.FromResult(new Unit());
         }
     }
 }
