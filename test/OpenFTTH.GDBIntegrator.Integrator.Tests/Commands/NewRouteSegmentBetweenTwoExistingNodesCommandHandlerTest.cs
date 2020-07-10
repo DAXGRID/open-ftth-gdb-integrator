@@ -31,10 +31,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests
         public async Task Handle_ShouldThrowNullArgumentException_OnRouteSegmentBeingNull()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
-            var logger = A.Fake<ILogger<NewLonelyRouteSegmentCommandHandler>>();
+            var logger = A.Fake<ILogger<NewRouteSegmentBetweenTwoExistingNodesCommandHandler>>();
 
-            var command = new NewLonelyRouteSegmentCommand { RouteSegment = null };
-            var commandHandler = new NewLonelyRouteSegmentCommandHandler(geoDatabase, logger);
+            var command = new NewRouteSegmentBetweenTwoExistingNodesCommand { RouteSegment = null };
+            var commandHandler = new NewRouteSegmentBetweenTwoExistingNodesCommandHandler(geoDatabase, logger);
 
             Func<Task> act = async () => { await commandHandler.Handle(command, new CancellationToken()); };
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
