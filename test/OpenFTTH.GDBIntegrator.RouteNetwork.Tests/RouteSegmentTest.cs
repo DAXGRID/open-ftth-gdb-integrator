@@ -10,7 +10,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
         [Fact]
         public void RouteSegment_ShouldSetInitialValues_OnConstruction()
         {
-            var coord = "23022322/3232022";
+            var coord = Convert.FromBase64String("23022322/3232022");
             var mrid = Guid.Parse("053dc6c7-9210-4fbd-b564-f1357bcaf952");
             var username = "gdb-integrator";
             var workTaskMrid = Guid.Parse("8b97d7e6-7d45-4112-b3f3-2209fc3f27d5");
@@ -27,11 +27,31 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
 
             using (new AssertionScope())
             {
-                routeSegment.Coord.Should().Be(coord);
+                routeSegment.Coord.Should().BeEquivalentTo(coord);
                 routeSegment.Mrid.Should().Be(mrid);
                 routeSegment.Username.Should().Be(username);
                 routeSegment.WorkTaskMrid.Should().Be(workTaskMrid);
                 routeSegment.ApplicationName.Should().Be(applicationName);
+            }
+        }
+
+        [Fact]
+        public void FindStartNode_ShouldReturnNewRouteNodeWithCalculatedCoord_OnBeingCalled()
+        {
+            var routeSegment = new RouteSegment
+            {
+                Coord = Convert.FromBase64String("AQIAACDoZAAABgAAALx5ruNWRSFBsc8ScAykV0HZ6xJ8lEUhQYU+y98RpFdBILoYecJFIUEVfnDVB6RXQZH1zbVhRSFBTFhvegSkV0G/QerRbkUhQYWC7LEKpFdB/e8AFj1FIUG8d8O9BqRXQQ=="),
+            };
+
+            var startNode = routeSegment.FindStartNode();
+
+            using (new AssertionScope())
+            {
+                startNode.Mrid.Should().NotBeEmpty();
+                startNode.ApplicationName.Should().BeEquivalentTo("GDB_INTEGRATOR");
+                startNode.Username.Should().BeEquivalentTo("GDB_INTEGRATOR");
+                startNode.WorkTaskMrid.Should().NotBeEmpty();
+                startNode.Coord.Should().BeEquivalentTo(Convert.FromBase64String("AQEAAAC8ea7jVkUhQbHPEnAMpFdB"));
             }
         }
     }

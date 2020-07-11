@@ -19,11 +19,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
      {
          private readonly IGeoDatabase _geoDatabase;
          private readonly ILogger<NewRouteSegmentToExistingNodeCommandHandler> _logger;
+         private readonly IMediator _mediator;
 
-         public NewRouteSegmentToExistingNodeCommandHandler(IGeoDatabase geoDatabase, ILogger<NewRouteSegmentToExistingNodeCommandHandler> logger)
+         public NewRouteSegmentToExistingNodeCommandHandler(IGeoDatabase geoDatabase, ILogger<NewRouteSegmentToExistingNodeCommandHandler> logger, IMediator mediator)
          {
              _geoDatabase = geoDatabase;
              _logger = logger;
+             _mediator = mediator;
          }
 
          public async Task<Unit> Handle(NewRouteSegmentToExistingNodeCommand request, CancellationToken cancellationToken)
@@ -36,10 +38,21 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
              if (request.StartRouteNode is null && request.EndRouteNode is null)
                  throw new ArgumentException("StartRouteNode and EndRouteNode cannot both be null");
 
+             var startNode = request.RouteSegment.FindStartNode();
+             var endNode = request.RouteSegment.FindEndNode();
+             var eventId = Guid.NewGuid().ToString();
+
              if (request.StartRouteNode is null)
-                 await _geoDatabase.InsertRouteNode(request.RouteSegment.FindStartNode());
+             {
+                 await _geoDatabase.InsertRouteNode(startNode);
+                 // await _mediator.Send(new RouteNodeAddedCommand
+                 //     {
+                 //         NodeId = startNode.Mrid.ToString(),
+                 //         EventId = eventId,
+                 //     });
+             }
              else
-                 await _geoDatabase.InsertRouteNode(request.RouteSegment.FindEndNode());
+                 await _geoDatabase.InsertRouteNode(endNode);
 
              _logger.LogInformation($"{DateTime.UtcNow} UTC: Finished - new routesegment to existing node.\n");
 

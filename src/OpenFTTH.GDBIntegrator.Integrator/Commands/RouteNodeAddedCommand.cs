@@ -4,8 +4,9 @@ using System.Threading.Tasks;
 using MediatR;
 using Topos.Producer;
 using Microsoft.Extensions.Logging;
+using OpenFTTH.GDBIntegrator.Producer;
 
-namespace OpenFTTH.GDBIntegrator.Producer.Commands
+namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
     public class RouteNodeAddedCommand : IRequest
     {

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using Microsoft.Extensions.Logging;
+using MediatR;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests.Commands
 {
@@ -18,8 +19,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests.Commands
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var mediator = A.Fake<IMediator>();
 
-            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger);
+            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, mediator);
             var routeSegment = A.Fake<RouteSegment>();
             var startNode = A.Fake<RouteNode>();
             var endNode = A.Fake<RouteNode>();
@@ -47,8 +49,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests.Commands
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var mediator = A.Fake<IMediator>();
 
-            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger);
+            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, mediator);
             var routeSegment = A.Fake<RouteSegment>();
             var startNode = A.Fake<RouteNode>();
             var endNode = A.Fake<RouteNode>();
@@ -76,9 +79,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests.Commands
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var mediator = A.Fake<IMediator>();
 
             var command = new NewRouteSegmentToExistingNodeCommand { RouteSegment = null };
-            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger);
+            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, mediator);
 
             Func<Task> act = async () => { await commandHandler.Handle(command, new CancellationToken()); };
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
@@ -89,6 +93,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests.Commands
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var mediator = A.Fake<IMediator>();
 
             var command = new NewRouteSegmentToExistingNodeCommand
             {
@@ -97,7 +102,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests.Commands
                 EndRouteNode = null
             };
 
-            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger);
+            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, mediator);
 
             Func<Task> act = async () => { await commandHandler.Handle(command, new CancellationToken()); };
             await act.Should().ThrowExactlyAsync<ArgumentException>();

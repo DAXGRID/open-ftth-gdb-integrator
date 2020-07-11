@@ -7,7 +7,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
     public class RouteSegment
     {
         public Guid Mrid { get; set; }
-        public string Coord { get; set; }
+        public byte[] Coord { get; set; }
         public Guid WorkTaskMrid { get; set; }
         public string Username { get; set; }
         public string ApplicationName { get; set; }
@@ -15,10 +15,11 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
         public virtual RouteNode FindStartNode()
         {
             var lineString = GetLineString();
-            var wkbWriter = new WKBWriter();
 
             var startPoint = new Point(lineString.StartPoint.X, lineString.StartPoint.Y);
-            var startNode = new RouteNode(Guid.NewGuid(), wkbWriter.Write(startPoint), Guid.NewGuid(), String.Empty, String.Empty);
+            var wkbWriter = new WKBWriter();
+
+            var startNode = new RouteNode(Guid.NewGuid(), wkbWriter.Write(startPoint), Guid.NewGuid(), "GDB_INTEGRATOR", "GDB_INTEGRATOR");
 
             return startNode;
         }
@@ -29,16 +30,15 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
             var wkbWriter = new WKBWriter();
 
             var endPoint = new Point(lineString.EndPoint.X, lineString.EndPoint.Y);
-            var endNode = new RouteNode(Guid.NewGuid(), wkbWriter.Write(endPoint), Guid.NewGuid(), String.Empty, String.Empty);
+            var endNode = new RouteNode(Guid.NewGuid(), wkbWriter.Write(endPoint), Guid.NewGuid(), "GDB_INTEGRATOR", "GDB_INTEGRATOR");
 
             return endNode;
         }
 
         private LineString GetLineString()
         {
-            var routeSegmentBytes = Convert.FromBase64String(Coord);
             var wkbReader = new WKBReader();
-            var geometry = wkbReader.Read(routeSegmentBytes);
+            var geometry = wkbReader.Read(Coord);
             var lineString = (LineString)geometry;
 
             return lineString;

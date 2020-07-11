@@ -42,7 +42,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
             var routeSegment = new RouteSegment
             {
                 Mrid = new Guid(payload.mrid.ToString()),
-                Coord = payload.coord.wkb.ToString(),
+                Coord = Convert.FromBase64String(payload.coord.wkb.ToString()),
                 Username = payload.user_name.ToString(),
                 WorkTaskMrid = payload.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(payload.work_task_mrid),
                 ApplicationName = payload.application_name.ToString()
