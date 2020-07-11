@@ -21,7 +21,5 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
             Username = username;
             ApplicationName = applicationName;
         }
-
-
     }
 }

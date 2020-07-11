@@ -54,5 +54,26 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
                 startNode.Coord.Should().BeEquivalentTo(Convert.FromBase64String("AQEAAAC8ea7jVkUhQbHPEnAMpFdB"));
             }
         }
+
+        [Fact]
+        public void FindEndNode_ShouldReturnNewRouteNodeWithCalculatedCoord_OnBeingCalled()
+        {
+            var routeSegment = new RouteSegment
+            {
+                Coord = Convert.FromBase64String("AQIAACDoZAAABgAAALx5ruNWRSFBsc8ScAykV0HZ6xJ8lEUhQYU+y98RpFdBILoYecJFIUEVfnDVB6RXQZH1zbVhRSFBTFhvegSkV0G/QerRbkUhQYWC7LEKpFdB/e8AFj1FIUG8d8O9BqRXQQ=="),
+            };
+
+            var endNode = routeSegment.FindEndNode();
+            Console.WriteLine(Convert.ToBase64String(endNode.Coord));
+
+            using (new AssertionScope())
+            {
+                endNode.Mrid.Should().NotBeEmpty();
+                endNode.ApplicationName.Should().BeEquivalentTo("GDB_INTEGRATOR");
+                endNode.Username.Should().BeEquivalentTo("GDB_INTEGRATOR");
+                endNode.WorkTaskMrid.Should().NotBeEmpty();
+                endNode.Coord.Should().BeEquivalentTo(Convert.FromBase64String("AQEAAAD97wAWPUUhQbx3w70GpFdB"));
+            }
+        }
     }
 }
