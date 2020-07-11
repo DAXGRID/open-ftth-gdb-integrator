@@ -19,8 +19,8 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteNode>> GetIntersectingStartRouteNodes(RouteSegment routeSegment)
         {
-            using (var connection = new NpgsqlConnection(
-                       $"Host={_postgisSettings.Host};Port={_postgisSettings.Port};Username={_postgisSettings.Username};Password={_postgisSettings.Password};Database={_postgisSettings.Database}"))
+
+            using (var connection = GetNpgsqlConnection())
             {
                 var query = $@"SELECT (ST_AsText(coord), mrid) FROM route_network.route_node
                     WHERE ST_Intersects(
@@ -69,8 +69,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task InsertRouteNode(RouteNode routeNode)
         {
-            using (var connection = new NpgsqlConnection(
-                        $"Host={_postgisSettings.Host};Port={_postgisSettings.Port};Username={_postgisSettings.Username};Password={_postgisSettings.Password};Database={_postgisSettings.Database}"))
+            using (var connection = GetNpgsqlConnection())
             {
                 var query = $@"INSERT INTO route_network.route_node(
                     mrid,
@@ -90,6 +89,12 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 await connection.OpenAsync();
                 await connection.ExecuteAsync(query, routeNode);
             }
+        }
+
+        private NpgsqlConnection GetNpgsqlConnection()
+        {
+            return new NpgsqlConnection(
+                        $"Host={_postgisSettings.Host};Port={_postgisSettings.Port};Username={_postgisSettings.Username};Password={_postgisSettings.Password};Database={_postgisSettings.Database}");
         }
     }
 }
