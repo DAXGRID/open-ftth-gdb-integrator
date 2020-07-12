@@ -64,7 +64,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
             };
 
             var endNode = routeSegment.FindEndNode();
-            Console.WriteLine(Convert.ToBase64String(endNode.Coord));
 
             using (new AssertionScope())
             {
