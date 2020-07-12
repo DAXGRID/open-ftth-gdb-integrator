@@ -30,7 +30,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
          public async Task<Unit> Handle(NewRouteSegmentToExistingNodeCommand request, CancellationToken cancellationToken)
          {
-             _logger.LogInformation($"{DateTime.UtcNow} UTC: Starting - new routesegment to existing node.");
+             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting - new routesegment to existing node.");
 
              if (request.RouteSegment is null)
                  throw new ArgumentNullException("RouteSegment cannot be null");
@@ -54,7 +54,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
              else
                  await _geoDatabase.InsertRouteNode(endNode);
 
-             _logger.LogInformation($"{DateTime.UtcNow} UTC: Finished - new routesegment to existing node.\n");
+             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Finished - new routesegment to existing node.\n");
 
              return await Task.FromResult(new Unit());
          }

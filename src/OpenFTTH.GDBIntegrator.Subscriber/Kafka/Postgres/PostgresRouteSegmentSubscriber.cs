@@ -47,8 +47,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
 
         private async Task HandleSubscribedEvent(RouteSegment routeSegment)
         {
-            _logger.LogInformation(DateTime.UtcNow + " UTC: Received message "
-                                   + JsonConvert.SerializeObject(routeSegment, Formatting.Indented));
+            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Received message {JsonConvert.SerializeObject(routeSegment, Formatting.Indented)}");
 
             if (!String.IsNullOrEmpty(routeSegment.Mrid.ToString()))
             {
@@ -77,7 +76,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
             }
             else
             {
-                _logger.LogInformation(DateTime.UtcNow + " UTC: Received message" + "RouteSegment deleted");
+                _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Received message" + "RouteSegment deleted");
             }
         }
 

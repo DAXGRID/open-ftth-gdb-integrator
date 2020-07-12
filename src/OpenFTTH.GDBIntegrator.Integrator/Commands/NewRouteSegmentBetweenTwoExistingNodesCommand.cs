@@ -29,9 +29,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             if (request.RouteSegment is null)
                 throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");
 
-            _logger.LogInformation($"{DateTime.UtcNow} UTC: Starting - New route segment between two existing nodes.\n");
+            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting - New route segment between two existing nodes.\n");
 
-            _logger.LogInformation($"{DateTime.UtcNow} UTC: Finished - New route segment between two existing nodes.\n");
+            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Finished - New route segment between two existing nodes.\n");
 
             return await Task.FromResult(new Unit());
         }

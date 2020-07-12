@@ -29,12 +29,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             if (request.RouteSegment is null)
                 throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");
 
-            _logger.LogInformation($"{DateTime.UtcNow} UTC: Starting - New lonely route segment.\n");
+            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting - New lonely route segment.\n");
 
             await _geoDatabase.InsertRouteNode(request.RouteSegment.FindStartNode());
             await _geoDatabase.InsertRouteNode(request.RouteSegment.FindEndNode());
 
-            _logger.LogInformation($"{DateTime.UtcNow} UTC: Finished - New lonely route segment.\n");
+            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Finished - New lonely route segment.\n");
 
             return await Task.FromResult(new Unit());
         }
