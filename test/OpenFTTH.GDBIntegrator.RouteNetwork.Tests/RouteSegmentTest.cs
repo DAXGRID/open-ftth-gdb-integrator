@@ -22,7 +22,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
                 Mrid = mrid,
                 Username = username,
                 WorkTaskMrid = workTaskMrid,
-                ApplicationName = applicationName,
+                ApplicationName = applicationName
             };
 
             using (new AssertionScope())

@@ -71,5 +71,20 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
                 routeNode.ApplicationName.Should().Be(applicationName);
             }
         }
+
+        [Fact]
+        public void RouteNode_ShouldSetInitialValuesOnEmptyConstructor_OnConstruction()
+        {
+            var routeNode = new RouteNode();
+
+            using (new AssertionScope())
+            {
+                routeNode.Mrid.Should().BeEmpty();
+                routeNode.Coord.Should().BeNull();
+                routeNode.WorkTaskMrid.Should().BeEmpty();
+                routeNode.Username.Should().BeNull();
+                routeNode.ApplicationName.Should().BeNull();
+            }
+        }
     }
 }
