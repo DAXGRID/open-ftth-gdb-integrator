@@ -86,5 +86,21 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
                 routeNode.ApplicationName.Should().BeNull();
             }
         }
+
+        [Fact]
+        public void GetWkbString_OnCoordBeingSet_OnCalled()
+        {
+            var mrid = Guid.Empty;
+            var coord = Convert.FromBase64String("AQEAAAC8ea7jVkUhQbHPEnAMpFdB");
+            var workTaskMrId = Guid.Empty;
+            var username = string.Empty;
+            var applicationName = string.Empty;
+
+            var routeNode = new RouteNode(mrid, coord, workTaskMrId, username, applicationName);
+
+            var result = routeNode.GetWkbString();
+
+            result.Should().BeEquivalentTo("[565931.44469051762,6197297.75114815]");
+        }
     }
 }

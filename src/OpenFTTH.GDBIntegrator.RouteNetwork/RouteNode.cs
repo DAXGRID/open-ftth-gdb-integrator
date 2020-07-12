@@ -1,4 +1,6 @@
 using System;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 
 namespace OpenFTTH.GDBIntegrator.RouteNetwork
 {
@@ -20,6 +22,19 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
             WorkTaskMrid = workTaskMrid;
             Username = username;
             ApplicationName = applicationName;
+        }
+
+        public string GetWkbString()
+        {
+            var wkbReader = new WKBReader();
+            var geometry = wkbReader.Read(Coord);
+            var point = (Point)geometry;
+
+            return point.AsText()
+                .Replace("POINT ", "")
+                .Replace(" ", ",")
+                .Replace("(", "[")
+                .Replace(")", "]");
         }
     }
 }
