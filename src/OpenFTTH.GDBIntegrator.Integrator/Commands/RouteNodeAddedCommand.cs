@@ -12,7 +12,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
     {
         public string EventType => "RouteNodeAddedCommand";
         public string EventId { get; set; }
-        public string EventTs => DateTime.UtcNow.ToString();
+        public string EventTs => DateTime.UtcNow.ToString("o");
         public string CmdId { get; set; }
         public string NodeId { get; set; }
         public string Geometry { get; set; }
