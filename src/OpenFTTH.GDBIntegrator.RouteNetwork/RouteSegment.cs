@@ -35,6 +35,17 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
             return endNode;
         }
 
+        public virtual string GetWkbString()
+        {
+            var lineString = GetLineString();
+
+            return lineString.AsText()
+                .Replace("LINESTRING ", "")
+                .Replace(" ", "")
+                .Replace("(", "[")
+                .Replace(")", "]");
+        }
+
         private LineString GetLineString()
         {
             var wkbReader = new WKBReader();
