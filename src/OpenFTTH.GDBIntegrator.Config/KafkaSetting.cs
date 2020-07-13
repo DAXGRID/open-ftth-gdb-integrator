@@ -6,5 +6,6 @@ namespace OpenFTTH.GDBIntegrator.Config
         public string Topic { get; set; }
         public string Consumer { get; set; }
         public string PositionFilePath { get; set; }
+        public string EventRouteNetworkTopicName { get; set; }
     }
 }

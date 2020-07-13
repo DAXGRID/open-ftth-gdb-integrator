@@ -26,14 +26,14 @@ namespace OpenFTTH.GDBIntegrator.Producer.Kafka
             }
         }
 
-        public async Task Produce(string topicName, ToposMessage toposMessage)
+        public async Task Produce(string topicName, object toposMessage)
         {
-            await _producer.Send(topicName, toposMessage);
+            await _producer.Send(topicName, new ToposMessage(toposMessage));
         }
 
-        public async Task Produce(string topicName, ToposMessage toposMessage, string partitionKey)
+        public async Task Produce(string topicName, object toposMessage, string partitionKey)
         {
-            await _producer.Send(topicName, toposMessage, partitionKey);
+            await _producer.Send(topicName, new ToposMessage(toposMessage), partitionKey);
         }
 
         public void Dispose()

@@ -7,9 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using Microsoft.Extensions.Logging;
 
-namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests.Commands
+namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
 {
     public class NewLonelyRouteSegmentCommandHandlerTest
     {

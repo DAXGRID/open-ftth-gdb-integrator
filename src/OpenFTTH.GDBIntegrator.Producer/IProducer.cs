@@ -7,7 +7,7 @@ namespace OpenFTTH.GDBIntegrator.Producer
     public interface IProducer : IDisposable
     {
         void Init();
-        Task Produce(string topicName, ToposMessage toposMessage);
-        Task Produce(string topicName, ToposMessage toposMessage, string partitionKey);
+        Task Produce(string topicName, Object message);
+        Task Produce(string topicName, Object message, string partitionKey);
     }
 }

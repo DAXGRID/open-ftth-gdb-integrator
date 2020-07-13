@@ -24,7 +24,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
             ApplicationName = applicationName;
         }
 
-        public string GetWkbString()
+        public virtual string GetWkbString()
         {
             var wkbReader = new WKBReader();
             var geometry = wkbReader.Read(Coord);

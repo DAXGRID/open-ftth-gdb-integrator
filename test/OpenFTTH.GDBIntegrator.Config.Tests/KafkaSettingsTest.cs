@@ -13,13 +13,15 @@ namespace OpenFTTH.GDBIntegrator.Config.Tests
             var positionFilePath = "/tmp/";
             var topic = "event.route-network";
             var consumer = "postgis-consumer";
+            var eventRouteNetwork = "event.route-network";
 
             var kafkaSettings = new KafkaSetting
             {
                 Server = server,
                 PositionFilePath = positionFilePath,
                 Topic = topic,
-                Consumer = consumer
+                Consumer = consumer,
+                EventRouteNetworkTopicName = eventRouteNetwork
             };
 
             using (new AssertionScope())
@@ -28,6 +30,7 @@ namespace OpenFTTH.GDBIntegrator.Config.Tests
                 kafkaSettings.PositionFilePath.Should().BeEquivalentTo(positionFilePath);
                 kafkaSettings.Topic.Should().BeEquivalentTo(topic);
                 kafkaSettings.Consumer.Should().BeEquivalentTo(consumer);
+                kafkaSettings.EventRouteNetworkTopicName.Should().BeEquivalentTo(eventRouteNetwork);
             }
         }
     }
