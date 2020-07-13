@@ -107,5 +107,121 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands.Tests.Commands
             Func<Task> act = async () => { await commandHandler.Handle(command, new CancellationToken()); };
             await act.Should().ThrowExactlyAsync<ArgumentException>();
         }
+
+        [Fact]
+        public async Task Handle_ShouldCallRouteNodeAddedCommandOnce_OnBeingCalledWithEndRouteNodeBeingNullAndStartNodeIsSet()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var mediator = A.Fake<IMediator>();
+
+            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, mediator);
+            var routeSegment = A.Fake<RouteSegment>();
+            var startNode = A.Fake<RouteNode>();
+            var endNode = A.Fake<RouteNode>();
+
+            A.CallTo(() => routeSegment.FindEndNode()).Returns(endNode);
+
+            var command = new NewRouteSegmentToExistingNodeCommand
+            {
+                RouteSegment = routeSegment,
+                StartRouteNode = startNode,
+                EndRouteNode = null
+            };
+
+            await commandHandler.Handle(command, new CancellationToken());
+
+            using (new AssertionScope())
+            {
+                A.CallTo(() => mediator.Send(A<RouteNodeAddedCommand>._, new CancellationToken())).MustHaveHappenedOnceExactly();
+            }
+        }
+
+        [Fact]
+        public async Task Handle_ShouldCallRouteNodeAddedOnce_OnBeingCalledWithStartRouteNodeBeingNullAndEndNodeIsSet()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var mediator = A.Fake<IMediator>();
+
+            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, mediator);
+            var routeSegment = A.Fake<RouteSegment>();
+            var startNode = A.Fake<RouteNode>();
+            var endNode = A.Fake<RouteNode>();
+
+            A.CallTo(() => routeSegment.FindStartNode()).Returns(startNode);
+
+            var command = new NewRouteSegmentToExistingNodeCommand
+            {
+                RouteSegment = routeSegment,
+                StartRouteNode = null,
+                EndRouteNode = endNode
+            };
+
+            await commandHandler.Handle(command, new CancellationToken());
+
+            using (new AssertionScope())
+            {
+                A.CallTo(() => mediator.Send(A<RouteNodeAddedCommand>._, new CancellationToken())).MustHaveHappenedOnceExactly();
+            }
+        }
+
+        [Fact]
+        public async Task Handle_ShouldCallRouteSegmentAddedCommandOnce_OnBeingCalledWithEndRouteNodeBeingNullAndStartNodeIsSet()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var mediator = A.Fake<IMediator>();
+
+            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, mediator);
+            var routeSegment = A.Fake<RouteSegment>();
+            var startNode = A.Fake<RouteNode>();
+            var endNode = A.Fake<RouteNode>();
+
+            A.CallTo(() => routeSegment.FindEndNode()).Returns(endNode);
+
+            var command = new NewRouteSegmentToExistingNodeCommand
+            {
+                RouteSegment = routeSegment,
+                StartRouteNode = startNode,
+                EndRouteNode = null
+            };
+
+            await commandHandler.Handle(command, new CancellationToken());
+
+            using (new AssertionScope())
+            {
+                A.CallTo(() => mediator.Send(A<RouteSegmentAddedCommand>._, new CancellationToken())).MustHaveHappenedOnceExactly();
+            }
+        }
+
+        [Fact]
+        public async Task Handle_ShouldCallRouteSegmentAddedCommandOnce_OnBeingCalledWithStartRouteNodeBeingNullAndEndNodeIsSet()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var mediator = A.Fake<IMediator>();
+
+            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, mediator);
+            var routeSegment = A.Fake<RouteSegment>();
+            var startNode = A.Fake<RouteNode>();
+            var endNode = A.Fake<RouteNode>();
+
+            A.CallTo(() => routeSegment.FindStartNode()).Returns(startNode);
+
+            var command = new NewRouteSegmentToExistingNodeCommand
+            {
+                RouteSegment = routeSegment,
+                StartRouteNode = null,
+                EndRouteNode = endNode
+            };
+
+            await commandHandler.Handle(command, new CancellationToken());
+
+            using (new AssertionScope())
+            {
+                A.CallTo(() => mediator.Send(A<RouteSegmentAddedCommand>._, new CancellationToken())).MustHaveHappenedOnceExactly();
+            }
+        }
     }
 }

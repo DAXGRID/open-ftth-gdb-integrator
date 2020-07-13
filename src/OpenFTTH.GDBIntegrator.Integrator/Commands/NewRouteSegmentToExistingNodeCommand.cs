@@ -45,14 +45,32 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
              if (request.StartRouteNode is null)
              {
                  await _geoDatabase.InsertRouteNode(startNode);
-                 // await _mediator.Send(new RouteNodeAddedCommand
-                 //     {
-                 //         NodeId = startNode.Mrid.ToString(),
-                 //         EventId = eventId,
-                 //     });
+                 await _mediator.Send(new RouteNodeAddedCommand
+                     {
+                         NodeId = startNode.Mrid.ToString(),
+                         EventId = eventId,
+                         Geometry = request.RouteSegment.GetWkbString(),
+                     });
              }
              else
-                 await _geoDatabase.InsertRouteNode(endNode);
+             {
+                await _geoDatabase.InsertRouteNode(endNode);
+                await _mediator.Send(new RouteNodeAddedCommand
+                    {
+                        NodeId = startNode.Mrid.ToString(),
+                        EventId = eventId,
+                        Geometry = request.RouteSegment.GetWkbString(),
+                    });
+             }
+
+             await _mediator.Send(new RouteSegmentAddedCommand
+                 {
+                     EventId = eventId,
+                     SegmentId = request.RouteSegment.Mrid.ToString(),
+                     Geometry = request.RouteSegment.GetWkbString(),
+                     ToNodeId = endNode.Mrid.ToString(),
+                     FromNodeId = startNode.Mrid.ToString(),
+                 });
 
              _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Finished - new routesegment to existing node.\n");
 
