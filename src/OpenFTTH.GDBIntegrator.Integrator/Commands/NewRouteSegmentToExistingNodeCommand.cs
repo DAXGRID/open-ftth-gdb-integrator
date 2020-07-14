@@ -58,17 +58,24 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             {
                 startNode = request.RouteSegment.FindStartNode();
                 await _geoDatabase.InsertRouteNode(startNode);
-                await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, new RouteNodeAdded(eventId, startNode.Mrid, startNode.GetWkbString()));
+                await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
+                                        new RouteNodeAdded(eventId, startNode.Mrid, startNode.GetWkbString()));
             }
             else
             {
                 endNode = request.RouteSegment.FindEndNode();
                 await _geoDatabase.InsertRouteNode(endNode);
-                await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, new RouteNodeAdded(eventId, endNode.Mrid, endNode.GetWkbString()));
+                await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
+                                        new RouteNodeAdded(eventId, endNode.Mrid, endNode.GetWkbString()));
             }
 
             await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
-                                    new RouteSegmentAdded(eventId, request.RouteSegment.Mrid, startNode.Mrid, endNode.Mrid, request.RouteSegment.GetWkbString()));
+                                    new RouteSegmentAdded(
+                                        eventId,
+                                        request.RouteSegment.Mrid,
+                                        startNode.Mrid,
+                                        endNode.Mrid,
+                                        request.RouteSegment.GetWkbString()));
 
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Finished - new routesegment to existing node.\n");
 
