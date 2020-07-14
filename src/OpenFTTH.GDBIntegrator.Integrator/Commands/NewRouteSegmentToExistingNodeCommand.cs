@@ -59,14 +59,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 startNode = request.RouteSegment.FindStartNode();
                 await _geoDatabase.InsertRouteNode(startNode);
                 await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
-                                        new RouteNodeAdded(eventId, startNode.Mrid, startNode.GetWkbString()));
+                                        new RouteNodeAdded(eventId, startNode.Mrid, startNode.GetGeoJsonCoordinate()));
             }
             else
             {
                 endNode = request.RouteSegment.FindEndNode();
                 await _geoDatabase.InsertRouteNode(endNode);
                 await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
-                                        new RouteNodeAdded(eventId, endNode.Mrid, endNode.GetWkbString()));
+                                        new RouteNodeAdded(eventId, endNode.Mrid, endNode.GetGeoJsonCoordinate()));
             }
 
             await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,

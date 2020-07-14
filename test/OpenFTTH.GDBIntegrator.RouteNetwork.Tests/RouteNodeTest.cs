@@ -88,7 +88,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
         }
 
         [Fact]
-        public void GetWkbString_OnCoordBeingSet_OnCalled()
+        public void GetGeoJsonCoordinate_OnCoordBeingSet_OnCalled()
         {
             var mrid = Guid.Empty;
             var coord = Convert.FromBase64String("AQEAAAC8ea7jVkUhQbHPEnAMpFdB");
@@ -98,9 +98,10 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
 
             var routeNode = new RouteNode(mrid, coord, workTaskMrId, username, applicationName);
 
-            var result = routeNode.GetWkbString();
+            var result = routeNode.GetGeoJsonCoordinate();
+            Console.WriteLine(result);
 
-            result.Should().BeEquivalentTo("[565931.44469051762,6197297.75114815]");
+            result.Should().BeEquivalentTo("[565931.4446905176,6197297.75114815]");
         }
     }
 }
