@@ -62,16 +62,21 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
                 }
                 else if (intersectingStartNodes.Count == 1 && intersectingEndNodes.Count == 1)
                 {
-                    await _mediator.Send(new NewRouteSegmentBetweenTwoExistingNodesCommand { RouteSegment = routeSegment });
+                    await _mediator.Send(new NewRouteSegmentBetweenTwoExistingNodesCommand
+                    {
+                        RouteSegment = routeSegment,
+                        StartRouteNode = intersectingStartNodes.FirstOrDefault(),
+                        EndRouteNode = intersectingEndNodes.FirstOrDefault()
+                    });
                 }
                 else if (totalIntersectingNodes == 1)
                 {
                     await _mediator.Send(new NewRouteSegmentToExistingNodeCommand
-                        {
-                            RouteSegment = routeSegment,
-                            StartRouteNode = intersectingStartNodes.FirstOrDefault(),
-                            EndRouteNode = intersectingEndNodes.FirstOrDefault()
-                        });
+                    {
+                        RouteSegment = routeSegment,
+                        StartRouteNode = intersectingStartNodes.FirstOrDefault(),
+                        EndRouteNode = intersectingEndNodes.FirstOrDefault()
+                    });
                 }
             }
             else
