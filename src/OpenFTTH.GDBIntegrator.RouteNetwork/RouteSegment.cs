@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace OpenFTTH.GDBIntegrator.RouteNetwork
 {
@@ -35,15 +38,17 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
             return endNode;
         }
 
-        public virtual string GetWkbString()
+        public virtual string GetGeoJsonCoordinate()
         {
             var lineString = GetLineString();
+            var serializer = GeoJsonSerializer.Create();
 
-            return lineString.AsText()
-                .Replace("LINESTRING ", "")
-                .Replace(" ", "")
-                .Replace("(", "[")
-                .Replace(")", "]");
+            using (var stringWriter = new StringWriter())
+            {
+                serializer.Serialize(stringWriter, lineString);
+                var geoJson = stringWriter.ToString();
+                return JObject.Parse(geoJson)["coordinates"].ToString(Formatting.None);
+            };
         }
 
         private LineString GetLineString()

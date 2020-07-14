@@ -33,7 +33,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
 
             A.CallTo(() => routeSegment.FindEndNode()).Returns(endNode);
             A.CallTo(() => endNode.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
-            A.CallTo(() => routeSegment.GetWkbString()).Returns(A.Dummy<string>());
+            A.CallTo(() => routeSegment.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
 
             var command = new NewRouteSegmentToExistingNodeCommand
             {
@@ -66,7 +66,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
 
             A.CallTo(() => routeSegment.FindStartNode()).Returns(startNode);
             A.CallTo(() => startNode.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
-            A.CallTo(() => routeSegment.GetWkbString()).Returns(A.Dummy<string>());
+            A.CallTo(() => routeSegment.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
 
             var command = new NewRouteSegmentToExistingNodeCommand
             {
@@ -135,7 +135,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
 
             A.CallTo(() => routeSegment.FindEndNode()).Returns(endNode);
             A.CallTo(() => endNode.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
-            A.CallTo(() => routeSegment.GetWkbString()).Returns(A.Dummy<string>());
+            A.CallTo(() => routeSegment.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
 
             var command = new NewRouteSegmentToExistingNodeCommand
             {
@@ -167,7 +167,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
 
             A.CallTo(() => routeSegment.FindStartNode()).Returns(startNode);
             A.CallTo(() => startNode.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
-            A.CallTo(() => routeSegment.GetWkbString()).Returns(A.Dummy<string>());
+            A.CallTo(() => routeSegment.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
 
             var command = new NewRouteSegmentToExistingNodeCommand
             {
@@ -199,7 +199,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
 
             A.CallTo(() => routeSegment.FindEndNode()).Returns(endNode);
             A.CallTo(() => endNode.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
-            A.CallTo(() => routeSegment.GetWkbString()).Returns(A.Dummy<string>());
+            A.CallTo(() => routeSegment.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
 
             var command = new NewRouteSegmentToExistingNodeCommand
             {
@@ -231,7 +231,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
 
             A.CallTo(() => routeSegment.FindStartNode()).Returns(startNode);
             A.CallTo(() => startNode.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
-            A.CallTo(() => routeSegment.GetWkbString()).Returns(A.Dummy<string>());
+            A.CallTo(() => routeSegment.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
 
             var command = new NewRouteSegmentToExistingNodeCommand
             {

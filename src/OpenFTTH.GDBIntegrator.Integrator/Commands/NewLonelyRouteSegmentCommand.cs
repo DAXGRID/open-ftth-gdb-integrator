@@ -58,7 +58,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                                     new RouteNodeAdded(eventId, endNode.Mrid, endNode.GetGeoJsonCoordinate()));
 
             await _producer.Produce(_kafkaSetting.EventRouteNetworkTopicName,
-                                    new RouteSegmentAdded(eventId, routeSegment.Mrid, startNode.Mrid, endNode.Mrid, routeSegment.GetWkbString()));
+                                    new RouteSegmentAdded(eventId, routeSegment.Mrid, startNode.Mrid, endNode.Mrid, routeSegment.GetGeoJsonCoordinate()));
 
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Finished - New lonely route segment.\n");
 

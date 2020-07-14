@@ -75,7 +75,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                                         request.RouteSegment.Mrid,
                                         startNode.Mrid,
                                         endNode.Mrid,
-                                        request.RouteSegment.GetWkbString()));
+                                        request.RouteSegment.GetGeoJsonCoordinate()));
 
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Finished - new routesegment to existing node.\n");
 

@@ -76,16 +76,16 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
         }
 
         [Fact]
-        public void GetWkbString_ShouldReturnWkbString_OnBeingCalled()
+        public void GetGeoJsonCoordinate_ShouldReturnGeoJsonCoordinateString_OnBeingCalled()
         {
             var routeSegment = new RouteSegment
             {
                 Coord = Convert.FromBase64String("AQIAACDoZAAABgAAALx5ruNWRSFBsc8ScAykV0HZ6xJ8lEUhQYU+y98RpFdBILoYecJFIUEVfnDVB6RXQZH1zbVhRSFBTFhvegSkV0G/QerRbkUhQYWC7LEKpFdB/e8AFj1FIUG8d8O9BqRXQQ=="),
             };
 
-            var wkbString = routeSegment.GetWkbString();
+            var wkbString = routeSegment.GetGeoJsonCoordinate();
 
-            wkbString.Should().BeEquivalentTo("[565931.444690517626197297.75114815,565962.242331857916197319.4967800425,565985.236516777436197279.3349909978,565936.855086969336197265.913045954,565943.409990362716197290.7800604152,565918.542975902216197274.9650554024]");
+            wkbString.Should().BeEquivalentTo("[[565931.4446905176,6197297.75114815],[565962.2423318579,6197319.496780043],[565985.2365167774,6197279.334990998],[565936.8550869693,6197265.913045954],[565943.4099903627,6197290.780060415],[565918.5429759022,6197274.965055402]]");
         }
     }
 }
