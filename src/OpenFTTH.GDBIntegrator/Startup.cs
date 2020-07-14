@@ -9,17 +9,24 @@ namespace OpenFTTH.GDBIntegrator
 {
     public class Startup : IHostedService
     {
-        private readonly IRouteSegmentSubscriber _subscriber;
+        private readonly IRouteSegmentSubscriber _routeSegmentSubscriber;
+        private readonly IRouteNodeSubscriber _routeNodeSubscriber;
         private readonly IProducer _producer;
         private readonly ILogger _logger;
         private readonly IHostApplicationLifetime _applicationLifetime;
 
-        public Startup(IRouteSegmentSubscriber subscriber, IProducer producer, ILogger<Startup> logger, IHostApplicationLifetime applicationLifetime)
+        public Startup(
+            IRouteSegmentSubscriber routeSegmentSubscriber,
+            IRouteNodeSubscriber routeNodeSubscriber,
+            IProducer producer,
+            ILogger<Startup> logger,
+            IHostApplicationLifetime applicationLifetime)
         {
-            _subscriber = subscriber;
+            _routeSegmentSubscriber = routeSegmentSubscriber;
             _producer = producer;
             _logger = logger;
             _applicationLifetime = applicationLifetime;
+            _routeNodeSubscriber = routeNodeSubscriber;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -42,8 +49,11 @@ namespace OpenFTTH.GDBIntegrator
         {
             _logger.LogInformation("Starting GDB-Integrator");
 
-            _logger.LogInformation("Starting to subscribe");
-            _subscriber.Subscribe();
+            _logger.LogInformation($"Starting {nameof(IRouteSegmentSubscriber)}");
+            _routeSegmentSubscriber.Subscribe();
+
+            _logger.LogInformation($"Starting {nameof(IRouteNodeSubscriber)}");
+            _routeNodeSubscriber.Subscribe();
 
             _logger.LogInformation("Init producer");
             _producer.Init();
@@ -51,7 +61,7 @@ namespace OpenFTTH.GDBIntegrator
 
         private void OnStopped()
         {
-            _subscriber.Dispose();
+            _routeSegmentSubscriber.Dispose();
             _producer.Dispose();
             _logger.LogInformation("Stopped");
         }

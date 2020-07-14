@@ -19,11 +19,12 @@ namespace OpenFTTH.GDBIntegrator.Tests
         public async Task StartAsync_ShouldNotThrow_OnBeingCalled()
         {
             var routeSegmentSubscriber = A.Fake<IRouteSegmentSubscriber>();
+            var routeNodeSubscriber = A.Fake<IRouteNodeSubscriber>();
             var producer = A.Fake<IProducer>();
             var logger = A.Fake<ILogger<Startup>>();
             var hostApplicationLifetime = A.Fake<IHostApplicationLifetime>();
 
-            var startup = new Startup(routeSegmentSubscriber, producer, logger, hostApplicationLifetime);
+            var startup = new Startup(routeSegmentSubscriber, routeNodeSubscriber, producer, logger, hostApplicationLifetime);
 
             Func<Task> act = async () => { await startup.StartAsync(new CancellationToken()); };
 
@@ -34,11 +35,12 @@ namespace OpenFTTH.GDBIntegrator.Tests
         public async Task StopAsync_ShouldNotThrow_OnBeingCalled()
         {
             var routeSegmentSubscriber = A.Fake<IRouteSegmentSubscriber>();
+            var routeNodeSubscriber = A.Fake<IRouteNodeSubscriber>();
             var producer = A.Fake<IProducer>();
             var logger = A.Fake<ILogger<Startup>>();
             var hostApplicationLifetime = A.Fake<IHostApplicationLifetime>();
 
-            var startup = new Startup(routeSegmentSubscriber, producer, logger, hostApplicationLifetime);
+            var startup = new Startup(routeSegmentSubscriber, routeNodeSubscriber, producer, logger, hostApplicationLifetime);
 
             Func<Task> act = async () => { await startup.StopAsync(new CancellationToken()); };
 

@@ -31,9 +31,9 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
         public void Subscribe()
         {
             _consumer = Configure
-                .Consumer(_kafkaSetting.Consumer, c => c.UseKafka(_kafkaSetting.Server))
+                .Consumer(_kafkaSetting.PostgresRouteSegmentConsumer, c => c.UseKafka(_kafkaSetting.Server))
                 .Serialization(s => s.RouteSegment())
-                .Topics(t => t.Subscribe(_kafkaSetting.Topic))
+                .Topics(t => t.Subscribe(_kafkaSetting.PostgresRouteSegmentTopic))
                 .Positions(p => p.StoreInFileSystem(_kafkaSetting.PositionFilePath))
                 .Handle(async (messages, context, token) =>
                 {

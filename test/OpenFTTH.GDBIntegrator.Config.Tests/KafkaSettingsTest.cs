@@ -19,8 +19,8 @@ namespace OpenFTTH.GDBIntegrator.Config.Tests
             {
                 Server = server,
                 PositionFilePath = positionFilePath,
-                Topic = topic,
-                Consumer = consumer,
+                PostgresRouteSegmentTopic = topic,
+                PostgresRouteSegmentConsumer = consumer,
                 EventRouteNetworkTopicName = eventRouteNetwork
             };
 
@@ -28,8 +28,8 @@ namespace OpenFTTH.GDBIntegrator.Config.Tests
             {
                 kafkaSettings.Server.Should().BeEquivalentTo(server);
                 kafkaSettings.PositionFilePath.Should().BeEquivalentTo(positionFilePath);
-                kafkaSettings.Topic.Should().BeEquivalentTo(topic);
-                kafkaSettings.Consumer.Should().BeEquivalentTo(consumer);
+                kafkaSettings.PostgresRouteSegmentTopic.Should().BeEquivalentTo(topic);
+                kafkaSettings.PostgresRouteSegmentConsumer.Should().BeEquivalentTo(consumer);
                 kafkaSettings.EventRouteNetworkTopicName.Should().BeEquivalentTo(eventRouteNetwork);
             }
         }
