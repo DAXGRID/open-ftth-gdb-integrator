@@ -99,7 +99,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
             var routeNode = new RouteNode(mrid, coord, workTaskMrId, username, applicationName);
 
             var result = routeNode.GetGeoJsonCoordinate();
-            Console.WriteLine(result);
 
             result.Should().BeEquivalentTo("[565931.4446905176,6197297.75114815]");
         }
