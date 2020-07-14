@@ -76,7 +76,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
         }
 
         [Fact]
-        public void GetGeoJsonCoordinate_ShouldReturnGeoJsonCoordinateString_OnBeingCalled()
+        public void GetGeoJsonCoordinate_ShouldReturnGeoJsonCoordinate_OnBeingCalled()
         {
             var routeSegment = new RouteSegment
             {

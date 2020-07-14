@@ -88,7 +88,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
         }
 
         [Fact]
-        public void GetGeoJsonCoordinate_OnCoordBeingSet_OnCalled()
+        public void GetGeoJsonCoordinate_ShouldReturnGeoJsonCoordinate_OnCalled()
         {
             var mrid = Guid.Empty;
             var coord = Convert.FromBase64String("AQEAAAC8ea7jVkUhQbHPEnAMpFdB");
