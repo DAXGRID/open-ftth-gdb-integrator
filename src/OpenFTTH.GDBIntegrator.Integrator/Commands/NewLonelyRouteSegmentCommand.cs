@@ -3,6 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.Integrator.EventMessages;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.Config;
@@ -42,15 +43,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting - New lonely route segment.\n");
 
+            var eventId = Guid.NewGuid();
+
             var routeSegment = request.RouteSegment;
             var startNode = routeSegment.FindStartNode();
             var endNode = routeSegment.FindEndNode();
 
             await _geoDatabase.InsertRouteNode(startNode);
-            await _producer.Produce(_kafkaSetting.EventRouteNetworkTopicName, startNode);
+            await _producer.Produce(_kafkaSetting.EventRouteNetworkTopicName,
+                                    new RouteNodeAdded(eventId, startNode.Mrid, startNode.GetWkbString()));
 
             await _geoDatabase.InsertRouteNode(endNode);
-            await _producer.Produce(_kafkaSetting.EventRouteNetworkTopicName, endNode);
+            await _producer.Produce(_kafkaSetting.EventRouteNetworkTopicName,
+                                    new RouteNodeAdded(eventId, endNode.Mrid, endNode.GetWkbString()));
+
+            await _producer.Produce(_kafkaSetting.EventRouteNetworkTopicName,
+                                    new RouteSegmentAdded(eventId, routeSegment.Mrid, startNode.Mrid, endNode.Mrid, routeSegment.GetWkbString()));
 
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Finished - New lonely route segment.\n");
 

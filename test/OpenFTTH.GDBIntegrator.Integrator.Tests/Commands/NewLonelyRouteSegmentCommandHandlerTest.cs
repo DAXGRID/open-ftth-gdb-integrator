@@ -9,6 +9,7 @@ using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.Integrator.Commands;
+using OpenFTTH.GDBIntegrator.Integrator.EventMessages;
 using OpenFTTH.GDBIntegrator.Config;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -59,7 +60,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
         }
 
         [Fact]
-        public async Task Handle_ShouldCallProduceRouteNodesForStartNodeAndEndNode_OnBeingCalled()
+        public async Task Handle_ShouldCallProduceRouteNodesForStartNodeAndEndNodeAndRouteSegment_OnBeingCalled()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             var logger = A.Fake<ILogger<NewLonelyRouteSegmentCommandHandler>>();
@@ -80,8 +81,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
 
             using (new AssertionScope())
             {
-                A.CallTo(() => producer.Produce(kafkaSetting.Value.EventRouteNetworkTopicName, startNode)).MustHaveHappenedOnceExactly();
-                A.CallTo(() => producer.Produce(kafkaSetting.Value.EventRouteNetworkTopicName, endNode)).MustHaveHappenedOnceExactly();
+                A.CallTo(() => producer.Produce(kafkaSetting.Value.EventRouteNetworkTopicName, A<RouteNodeAdded>._)).MustHaveHappenedTwiceExactly();
+                A.CallTo(() => producer.Produce(kafkaSetting.Value.EventRouteNetworkTopicName, A<RouteSegmentAdded>._)).MustHaveHappenedOnceExactly();
             }
         }
     }
