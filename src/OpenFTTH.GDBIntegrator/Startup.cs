@@ -23,10 +23,10 @@ namespace OpenFTTH.GDBIntegrator
             IHostApplicationLifetime applicationLifetime)
         {
             _routeSegmentSubscriber = routeSegmentSubscriber;
+            _routeNodeSubscriber = routeNodeSubscriber;
             _producer = producer;
             _logger = logger;
             _applicationLifetime = applicationLifetime;
-            _routeNodeSubscriber = routeNodeSubscriber;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -62,6 +62,7 @@ namespace OpenFTTH.GDBIntegrator
         private void OnStopped()
         {
             _routeSegmentSubscriber.Dispose();
+            _routeNodeSubscriber.Dispose();
             _producer.Dispose();
             _logger.LogInformation("Stopped");
         }

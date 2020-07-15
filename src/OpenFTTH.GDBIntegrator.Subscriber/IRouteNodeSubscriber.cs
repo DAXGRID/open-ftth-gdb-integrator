@@ -1,6 +1,8 @@
+using System;
+
 namespace OpenFTTH.GDBIntegrator.Subscriber
 {
-    public interface IRouteNodeSubscriber
+    public interface IRouteNodeSubscriber : IDisposable
     {
         void Subscribe();
     }

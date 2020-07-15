@@ -6,7 +6,7 @@ using OpenFTTH.GDBIntegrator.RouteNetwork;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 {
-    public class RouteSegmentSerializer : IMessageSerializer
+    public class RouteNodeSerializer : IMessageSerializer
     {
         public ReceivedLogicalMessage Deserialize(ReceivedTransportMessage message)
         {
@@ -24,9 +24,9 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
             if (IsTombStoneMessage(payload))
                 return new ReceivedLogicalMessage(message.Headers, new RouteSegment(), message.Position);
 
-            var routeSegment = CreateRouteSegmentOnPayload(payload);
+            var routeNode = CreateRouteNodeOnPayload(payload);
 
-            return new ReceivedLogicalMessage(message.Headers, routeSegment, message.Position);
+            return new ReceivedLogicalMessage(message.Headers, routeNode, message.Position);
         }
 
         private bool IsTombStoneMessage(dynamic payload)
@@ -35,18 +35,18 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
             return afterPayload.Type == JTokenType.Null;
         }
 
-        private RouteSegment CreateRouteSegmentOnPayload(dynamic payload)
+        private RouteNode CreateRouteNodeOnPayload(dynamic payload)
         {
             var payloadAfter = payload.after;
 
-            return new RouteSegment
-            {
-                Mrid = new Guid(payloadAfter.mrid.ToString()),
-                Coord = Convert.FromBase64String(payloadAfter.coord.wkb.ToString()),
-                Username = payloadAfter.user_name.ToString(),
-                WorkTaskMrid = payloadAfter.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(payloadAfter.work_task_mrid.ToString()),
-                ApplicationName = payloadAfter.application_name.ToString()
-            };
+            return new RouteNode
+                (
+                    new Guid(payloadAfter.mrid.ToString()),
+                    Convert.FromBase64String(payloadAfter.coord.wkb.ToString()),
+                    payloadAfter.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(payloadAfter.work_task_mrid.ToString()),
+                    payloadAfter.user_name.ToString(),
+                    payloadAfter.application_name.ToString()
+                );
         }
 
         public TransportMessage Serialize(LogicalMessage message)

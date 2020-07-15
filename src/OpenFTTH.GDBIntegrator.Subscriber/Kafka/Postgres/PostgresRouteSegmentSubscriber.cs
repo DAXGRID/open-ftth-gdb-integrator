@@ -44,8 +44,16 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
                 {
                     foreach (var message in messages)
                     {
-                        var routeSegment = (RouteSegment)message.Body;
-                        await HandleSubscribedEvent(routeSegment);
+                        if (message.Body is RouteSegment)
+                        {
+                            _logger.LogInformation($"Received {nameof(RouteSegment)}");
+                            var routeSegment = (RouteSegment)message.Body;
+                            await HandleSubscribedEvent(routeSegment);
+                        }
+                        else if (message.Body is RouteNode)
+                        {
+                            _logger.LogInformation($"Received {nameof(RouteNode)}");
+                        }
                     }
                 }).Start();
         }

@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Topos.Producer;
 
 namespace OpenFTTH.GDBIntegrator.Producer
 {
