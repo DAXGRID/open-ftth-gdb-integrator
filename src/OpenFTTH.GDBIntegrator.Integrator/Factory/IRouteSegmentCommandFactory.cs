@@ -2,7 +2,7 @@ using MediatR;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using System.Threading.Tasks;
 
-namespace OpenFTTH.GDBIntegrator.Integrator.Factory
+namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
     public interface IRouteSegmentCommandFactory
     {

@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace OpenFTTH.GDBIntegrator.Integrator.Factory
+namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
     public class RouteSegmentCommandFactory : IRouteSegmentCommandFactory
     {

@@ -10,7 +10,7 @@ using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres;
 using OpenFTTH.GDBIntegrator.Integrator.Queries;
-using OpenFTTH.GDBIntegrator.Integrator.Factory;
+using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using MediatR;
 
 namespace OpenFTTH.GDBIntegrator.Internal
