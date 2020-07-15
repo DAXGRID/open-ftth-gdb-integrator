@@ -10,6 +10,7 @@ using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres;
 using OpenFTTH.GDBIntegrator.Integrator.Queries;
+using OpenFTTH.GDBIntegrator.Integrator.Factory;
 using MediatR;
 
 namespace OpenFTTH.GDBIntegrator.Internal
@@ -41,11 +42,6 @@ namespace OpenFTTH.GDBIntegrator.Internal
             hostBuilder.ConfigureServices((hostContext, services) =>
             {
                 services.AddOptions();
-                services.Configure<KafkaSetting>(kafkaSettings =>
-                                                 hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));
-
-                services.Configure<PostgisSetting>(postgisSettings =>
-                                                 hostContext.Configuration.GetSection("postgis").Bind(postgisSettings));
                 services.AddLogging();
                 services.AddMediatR(typeof(GetIntersectingStartRouteNodesHandler).GetTypeInfo().Assembly);
 
@@ -53,7 +49,14 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddSingleton<IRouteSegmentSubscriber, PostgresRouteSegmentSubscriber>();
                 services.AddSingleton<IRouteNodeSubscriber, PostgresRouteNodeSubscriber>();
                 services.AddSingleton<IProducer, Producer.Kafka.Producer>();
-                services.AddScoped<IGeoDatabase, Postgis>();
+                services.AddSingleton<IRouteSegmentCommandFactory, RouteSegmentCommandFactory>();
+                services.AddTransient<IGeoDatabase, Postgis>();
+
+                services.Configure<KafkaSetting>(kafkaSettings =>
+                                                 hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));
+
+                services.Configure<PostgisSetting>(postgisSettings =>
+                                                 hostContext.Configuration.GetSection("postgis").Bind(postgisSettings));
             });
         }
 

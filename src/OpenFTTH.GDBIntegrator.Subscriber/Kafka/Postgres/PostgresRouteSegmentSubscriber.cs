@@ -1,13 +1,11 @@
 using System;
 using System.Threading.Tasks;
-using System.Linq;
 using Topos.Config;
 using MediatR;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.Integrator.Queries;
-using OpenFTTH.GDBIntegrator.Integrator.Commands;
+using OpenFTTH.GDBIntegrator.Integrator.Factory;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -20,12 +18,19 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
         private readonly KafkaSetting _kafkaSetting;
         private readonly IMediator _mediator;
         private readonly ILogger _logger;
+        private readonly IRouteSegmentCommandFactory _routeSegmentCommandFactory;
 
-        public PostgresRouteSegmentSubscriber(IOptions<KafkaSetting> kafkaSetting, IMediator mediator, ILogger<PostgresRouteSegmentSubscriber> logger)
+        public PostgresRouteSegmentSubscriber(
+            IOptions<KafkaSetting> kafkaSetting,
+            IMediator mediator,
+            ILogger<PostgresRouteSegmentSubscriber> logger,
+            IRouteSegmentCommandFactory routeSegmentCommandFactory
+            )
         {
             _kafkaSetting = kafkaSetting.Value;
             _mediator = mediator;
             _logger = logger;
+            _routeSegmentCommandFactory = routeSegmentCommandFactory;
         }
 
         public void Subscribe()
@@ -51,33 +56,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
 
             if (!String.IsNullOrEmpty(routeSegment.Mrid.ToString()))
             {
-                var intersectingStartNodes = await _mediator.Send(new GetIntersectingStartRouteNodes { RouteSegment = routeSegment });
-                var intersectingEndNodes = await _mediator.Send(new GetIntersectingEndRouteNodes { RouteSegment = routeSegment });
-
-                var totalIntersectingNodes = intersectingStartNodes.Count + intersectingEndNodes.Count;
-
-                if (totalIntersectingNodes == 0)
-                {
-                    await _mediator.Send(new NewLonelyRouteSegmentCommand { RouteSegment = routeSegment });
-                }
-                else if (intersectingStartNodes.Count == 1 && intersectingEndNodes.Count == 1)
-                {
-                    await _mediator.Send(new NewRouteSegmentBetweenTwoExistingNodesCommand
-                    {
-                        RouteSegment = routeSegment,
-                        StartRouteNode = intersectingStartNodes.FirstOrDefault(),
-                        EndRouteNode = intersectingEndNodes.FirstOrDefault()
-                    });
-                }
-                else if (totalIntersectingNodes == 1)
-                {
-                    await _mediator.Send(new NewRouteSegmentToExistingNodeCommand
-                    {
-                        RouteSegment = routeSegment,
-                        StartRouteNode = intersectingStartNodes.FirstOrDefault(),
-                        EndRouteNode = intersectingEndNodes.FirstOrDefault()
-                    });
-                }
+                var command = await _routeSegmentCommandFactory.Create(routeSegment);
+                await _mediator.Send(command);
             }
             else
             {
