@@ -19,8 +19,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         public async Task<IRequest> Create(RouteSegment routeSegment)
         {
-            var intersectingStartNodes = await _mediator.Send(new GetIntersectingStartRouteNodes { RouteSegment = routeSegment });
-            var intersectingEndNodes = await _mediator.Send(new GetIntersectingEndRouteNodes { RouteSegment = routeSegment });
+            var intersectingStartNodes = await _mediator.Send(
+                new GetIntersectingStartRouteNodes { RouteSegment = routeSegment });
+            var intersectingEndNodes = await _mediator.Send(
+                new GetIntersectingEndRouteNodes { RouteSegment = routeSegment });
 
             var totalIntersectingNodes = intersectingStartNodes.Count + intersectingEndNodes.Count;
 
