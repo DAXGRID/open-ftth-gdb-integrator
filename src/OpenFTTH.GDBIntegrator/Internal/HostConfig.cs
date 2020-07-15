@@ -47,7 +47,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
 
                 services.AddHostedService<Startup>();
                 services.AddSingleton<IRouteSegmentSubscriber, PostgresRouteSegmentSubscriber>();
-                services.AddSingleton<IRouteNodeSubscriber, IRouteNodeSubscriber>();
+                services.AddSingleton<IRouteNodeSubscriber, PostgresRouteNodeSubscriber>();
                 services.AddSingleton<IProducer, Producer.Kafka.Producer>();
                 services.AddTransient<IRouteSegmentCommandFactory, RouteSegmentCommandFactory>();
                 services.AddTransient<IGeoDatabase, Postgis>();
