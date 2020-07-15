@@ -24,12 +24,13 @@
             "doc": "Geometry",
             "field": "coord"
           },
+          { "type": "string", "optional": true, "field": "node_name" },
+          { "type": "string", "optional": true, "field": "node_kind" },
           {
             "type": "boolean",
             "optional": true,
             "field": "marked_to_be_deleted"
           },
-          { "type": "string", "optional": true, "field": "segment_kind" },
           {
             "type": "string",
             "optional": true,
@@ -41,7 +42,7 @@
           { "type": "string", "optional": true, "field": "application_name" }
         ],
         "optional": true,
-        "name": "postgres.route_network.route_segment.Value",
+        "name": "postgres.route_network.route_node.Value",
         "field": "before"
       },
       {
@@ -66,12 +67,13 @@
             "doc": "Geometry",
             "field": "coord"
           },
+          { "type": "string", "optional": true, "field": "node_name" },
+          { "type": "string", "optional": true, "field": "node_kind" },
           {
             "type": "boolean",
             "optional": true,
             "field": "marked_to_be_deleted"
           },
-          { "type": "string", "optional": true, "field": "segment_kind" },
           {
             "type": "string",
             "optional": true,
@@ -83,7 +85,7 @@
           { "type": "string", "optional": true, "field": "application_name" }
         ],
         "optional": true,
-        "name": "postgres.route_network.route_segment.Value",
+        "name": "postgres.route_network.route_node.Value",
         "field": "after"
       },
       {
@@ -131,18 +133,16 @@
       }
     ],
     "optional": false,
-    "name": "postgres.route_network.route_segment.Envelope"
+    "name": "postgres.route_network.route_node.Envelope"
   },
   "payload": {
     "before": null,
     "after": {
-      "mrid": "bfa35619-e60c-4393-99d1-fb21abce702e",
-      "coord": {
-        "wkb": "AQIAACDoZAAAAgAAAM8G3/JefCBBjzUaLet5V0HDwDo5pH0gQdhEy5rqeVdB",
-        "srid": 25832
-      },
-      "marked_to_be_deleted": false,
-      "segment_kind": null,
+      "mrid": "de39df61-8e2b-4132-a7c2-c55c77b98578",
+      "coord": { "wkb": "AQEAACDoZAAA4tDwso11IEGdihg1rXlXQQ==", "srid": 25832 },
+      "node_name": null,
+      "node_kind": null,
+      "marked_to_be_deleted": null,
       "work_task_mrid": null,
       "user_name": null,
       "application_name": null
@@ -151,17 +151,17 @@
       "version": "1.1.2.Final",
       "connector": "postgresql",
       "name": "postgres",
-      "ts_ms": 1594825815176,
+      "ts_ms": 1594825719865,
       "snapshot": "false",
       "db": "OPEN_FTTH",
       "schema": "route_network",
-      "table": "route_segment",
-      "txId": 569,
-      "lsn": 46824584,
+      "table": "route_node",
+      "txId": 568,
+      "lsn": 46824224,
       "xmin": null
     },
     "op": "c",
-    "ts_ms": 1594825815312,
+    "ts_ms": 1594825720180,
     "transaction": null
   }
 }

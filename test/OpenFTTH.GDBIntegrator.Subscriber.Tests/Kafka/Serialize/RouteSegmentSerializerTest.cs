@@ -71,8 +71,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
 
             var expectedRouteSegment = new RouteSegment
             {
-                Mrid = new Guid("52e2fe1f-eb7e-4b33-a412-08527b9b4ed7"),
-                Coord = Convert.FromBase64String("AQIAACDoZAAAAgAAAMWfDKN8hCBBKSZDQ5SNV0FUVDzX7oQgQWEoq/ufjVdB"),
+                Mrid = new Guid("bfa35619-e60c-4393-99d1-fb21abce702e"),
+                Coord = Convert.FromBase64String("AQIAACDoZAAAAgAAAM8G3/JefCBBjzUaLet5V0HDwDo5pH0gQdhEy5rqeVdB"),
                 WorkTaskMrid = Guid.Empty,
                 ApplicationName = string.Empty,
                 Username = string.Empty
