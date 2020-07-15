@@ -13,9 +13,15 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 
             StandardConfigurer.Open(configurer)
                 .Register(c => new RouteSegmentSerializer());
+        }
+
+        public static void RouteNode(this StandardConfigurer<IMessageSerializer> configurer)
+        {
+            if (configurer == null)
+                throw new ArgumentNullException(nameof(configurer));
 
             StandardConfigurer.Open(configurer)
-                .Register(c => new RouteSegmentSerializer());
+                .Register(c => new RouteNodeSerializer());
         }
     }
 }
