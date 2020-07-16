@@ -81,8 +81,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
 
             using (new AssertionScope())
             {
-                A.CallTo(() => producer.Produce(kafkaSetting.Value.EventRouteNetworkTopicName, A<RouteNodeAdded>._)).MustHaveHappenedTwiceExactly();
-                A.CallTo(() => producer.Produce(kafkaSetting.Value.EventRouteNetworkTopicName, A<RouteSegmentAdded>._)).MustHaveHappenedOnceExactly();
+                A.CallTo(() => producer.Produce(kafkaSetting.Value.EventRouteNetworkTopicName, A<RouteNodeAdded>._))
+                    .MustHaveHappenedTwiceExactly();
+                A.CallTo(() => producer.Produce(kafkaSetting.Value.EventRouteNetworkTopicName, A<RouteSegmentAdded>._))
+                    .MustHaveHappenedOnceExactly();
             }
         }
     }
