@@ -50,6 +50,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddSingleton<IRouteNodeSubscriber, PostgresRouteNodeSubscriber>();
                 services.AddSingleton<IProducer, Producer.Kafka.Producer>();
                 services.AddTransient<IRouteSegmentCommandFactory, RouteSegmentCommandFactory>();
+                services.AddTransient<IRouteNodeCommandFactory, RouteNodeCommandFactory>();
                 services.AddTransient<IGeoDatabase, Postgis>();
 
                 services.Configure<KafkaSetting>(kafkaSettings =>

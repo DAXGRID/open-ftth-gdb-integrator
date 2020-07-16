@@ -18,19 +18,19 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
         private readonly KafkaSetting _kafkaSetting;
         private readonly IMediator _mediator;
         private readonly ILogger _logger;
-        private readonly IRouteSegmentCommandFactory _routeSegmentCommandFactory;
+        private readonly IRouteNodeCommandFactory _routeNodeCommandFactory;
 
         public PostgresRouteNodeSubscriber(
             IOptions<KafkaSetting> kafkaSetting,
             IMediator mediator,
             ILogger<PostgresRouteSegmentSubscriber> logger,
-            IRouteSegmentCommandFactory routeSegmentCommandFactory
+            IRouteNodeCommandFactory routeNodeCommandFactory
             )
         {
             _kafkaSetting = kafkaSetting.Value;
             _mediator = mediator;
             _logger = logger;
-            _routeSegmentCommandFactory = routeSegmentCommandFactory;
+            _routeNodeCommandFactory = routeNodeCommandFactory;
         }
 
         public void Subscribe()
@@ -64,8 +64,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
 
             if (!String.IsNullOrEmpty(routeNode.Mrid.ToString()))
             {
-                //var command = await _routeSegmentCommandFactory.Create(routeSegment);
-                //await _mediator.Send(command);
+                var command = await _routeNodeCommandFactory.Create(routeNode);
+                await _mediator.Send(command);
             }
             else
             {
