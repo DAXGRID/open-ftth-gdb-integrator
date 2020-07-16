@@ -15,6 +15,12 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
         public string Username { get; set; }
         public string ApplicationName { get; set; }
 
+        public virtual bool IsValidAndSimple()
+        {
+            var lineString = GetLineString();
+            return lineString.IsValid && lineString.IsSimple;
+        }
+
         public virtual RouteNode FindStartNode()
         {
             var lineString = GetLineString();
