@@ -67,7 +67,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task Create_ReturnNull_OnUsernameBeingApplicationNameForGdbIntegrator()
+        public async Task Create_ShouldReturnGdbCreatedEntityCommand_OnUsernameBeingApplicationNameForGdbIntegrator()
         {
             var mediator = A.Fake<IMediator>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -86,7 +86,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await routeNodeCommandFactory.Create(routeNode);
 
-            result.Should().BeNull();
+            result.Should().BeOfType(typeof(GdbCreatedEntityCommand));
         }
     }
 }

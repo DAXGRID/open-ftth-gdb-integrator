@@ -32,14 +32,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             // If the GDB integrator produced the message do nothing
             if (routeNode.ApplicationName == _applicationSetting.ApplicationName)
-                return null;
+                return new GdbCreatedEntityCommand();
 
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
 
             if (intersectingRouteSegments.Count == 0)
-            {
                 return new NewLonelyRouteNodeCommand { RouteNode = routeNode };
-            }
 
             throw new Exception("No valid event for current state");
         }
