@@ -3,13 +3,9 @@ using FluentAssertions;
 using FakeItEasy;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.Commands;
-using OpenFTTH.GDBIntegrator.Integrator.Queries;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using MediatR;
-using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 using System;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
@@ -25,6 +21,20 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             Func<Task> act = async () => { await routeNodeCommandFactory.Create(routeNode); };
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task Create_ShouldReturnNewLonelyRouteNode_OnIntersectingRouteSegmentsBeingZero()
+        {
+            var mediator = A.Fake<IMediator>();
+            RouteNode routeNode = A.Fake<RouteNode>();
+            var routeNodeCommandFactory = new RouteNodeCommandFactory(mediator);
+
+            var result = await routeNodeCommandFactory.Create(routeNode);
+
+            var expected = new NewLonelyRouteNodeCommand { RouteNode = routeNode };
+
+            result.Should().BeEquivalentTo(expected);
         }
     }
 }

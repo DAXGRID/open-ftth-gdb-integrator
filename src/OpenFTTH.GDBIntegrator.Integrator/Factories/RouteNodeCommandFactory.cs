@@ -1,7 +1,9 @@
 using System;
 using MediatR;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
@@ -14,12 +16,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             _mediator = mediator;
         }
 
-        public Task<IRequest> Create(RouteNode routeNode)
+        public async Task<IRequest> Create(RouteNode routeNode)
         {
             if (routeNode is null)
                 throw new ArgumentNullException($"Parameter {nameof(routeNode)} cannot be null");
 
-            return null;
+            return new NewLonelyRouteNodeCommand { RouteNode = routeNode };
         }
     }
 }
