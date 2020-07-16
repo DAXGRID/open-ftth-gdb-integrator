@@ -21,7 +21,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         public async Task<Unit> Handle(GdbCreatedEntityCommand command, CancellationToken token)
         {
-            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Received message with enetity"
+            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Received message with entity"
                                    + "that was crated by GdbIntegrator therefore no action is taken");
 
             return await Task.FromResult(new Unit());

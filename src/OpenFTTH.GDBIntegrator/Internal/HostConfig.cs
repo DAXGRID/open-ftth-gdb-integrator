@@ -59,7 +59,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.Configure<PostgisSetting>(postgisSettings =>
                                                  hostContext.Configuration.GetSection("postgis").Bind(postgisSettings));
 
-                services.Configure<PostgisSetting>(applicationSettings =>
+                services.Configure<ApplicationSetting>(applicationSettings =>
                                                  hostContext.Configuration.GetSection("application").Bind(applicationSettings));
             });
         }
