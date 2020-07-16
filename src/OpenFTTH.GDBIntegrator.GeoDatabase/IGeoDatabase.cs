@@ -8,6 +8,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase
     {
         Task<List<RouteNode>> GetIntersectingStartRouteNodes(RouteSegment routeSegment);
         Task<List<RouteNode>> GetIntersectingEndRouteNodes(RouteSegment routeSegment);
+        Task<List<RouteSegment>> GetIntersectingRouteSegments(RouteNode routeNode);
         Task InsertRouteNode(RouteNode routeNode);
     }
 }
