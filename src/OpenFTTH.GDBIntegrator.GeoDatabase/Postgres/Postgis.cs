@@ -79,7 +79,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord)";
 
                 await connection.OpenAsync();
-                var result = await connection.QueryAsync<RouteSegment>(query);
+                var result = await connection.QueryAsync<RouteSegment>(query, routeNode);
 
                 return result.AsList();
             }
