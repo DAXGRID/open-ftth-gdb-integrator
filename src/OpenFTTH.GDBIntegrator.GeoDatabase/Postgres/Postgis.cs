@@ -19,7 +19,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteNode>> GetIntersectingStartRouteNodes(RouteSegment routeSegment)
         {
-
             using (var connection = GetNpgsqlConnection())
             {
                 var query = $@"SELECT (ST_AsText(coord), mrid) FROM route_network.route_node
@@ -44,8 +43,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteNode>> GetIntersectingEndRouteNodes(RouteSegment routeSegment)
         {
-            using (var connection = new NpgsqlConnection(
-                       $"Host={_postgisSettings.Host};Port={_postgisSettings.Port};Username={_postgisSettings.Username};Password={_postgisSettings.Password};Database={_postgisSettings.Database}"))
+            using (var connection = GetNpgsqlConnection())
             {
                 var query = $@"SELECT (ST_AsText(coord), mrid) FROM route_network.route_node
                     WHERE ST_Intersects(
