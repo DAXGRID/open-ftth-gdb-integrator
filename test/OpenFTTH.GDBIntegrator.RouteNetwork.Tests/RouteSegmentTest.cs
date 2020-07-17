@@ -2,6 +2,7 @@ using System;
 using Xunit;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using NetTopologySuite.Geometries;
 
 namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
 {
@@ -92,6 +93,19 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
             var geoJson = routeSegment.GetGeoJsonCoordinate();
 
             geoJson.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void GetLineString_ShouldReturnLineString_OnBeingPassedLineString()
+        {
+            var routeSegment = new RouteSegment
+            {
+                Coord = Convert.FromBase64String("AQIAACDoZAAAAgAAAEu6uBZURSFBSjSrSRikV0HVZEzDYkUhQZKMQUgZpFdB")
+            };
+
+            var result = routeSegment.GetLineString();
+
+            result.AsText().Should().BeEquivalentTo("LINESTRING (565930.04437811056 6197345.1510744784, 565937.381442214 6197349.1290008)");
         }
     }
 }
