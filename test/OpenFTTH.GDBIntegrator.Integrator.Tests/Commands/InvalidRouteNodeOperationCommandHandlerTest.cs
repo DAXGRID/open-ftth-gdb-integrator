@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
 {
-    public class InvalidRouteNodeOperationHandlerTest
+    public class InvalidRouteNodeOperationCommandHandlerTest
     {
         [Fact]
         public async Task Handle_ShouldCallGeoDatabaseDelete_OnBeingSuppliedRouteNode()
