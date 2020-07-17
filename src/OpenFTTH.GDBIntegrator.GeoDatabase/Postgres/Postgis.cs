@@ -142,7 +142,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             }
         }
 
-        private async Task InsertRouteSegment(RouteSegment routeSegment)
+        public async Task InsertRouteSegment(RouteSegment routeSegment)
         {
            using (var connection = GetNpgsqlConnection())
             {
