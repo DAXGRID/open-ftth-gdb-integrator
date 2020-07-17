@@ -142,6 +142,30 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             }
         }
 
+        private async Task InsertRouteSegment(RouteSegment routeSegment)
+        {
+           using (var connection = GetNpgsqlConnection())
+            {
+                var query = $@"INSERT INTO route_network.route_segment(
+                    mrid,
+                    coord,
+                    work_task_mrid,
+                    user_name,
+                    application_name
+                    )
+                    VALUES(
+                    @mrid,
+                    ST_GeomFromWKB(@coord, 25832),
+                    @workTaskMrid,
+                    @username,
+                    @applicationName
+                    );";
+
+                await connection.OpenAsync();
+                await connection.ExecuteAsync(query, routeSegment);
+            }
+        }
+
         private NpgsqlConnection GetNpgsqlConnection()
         {
             return new NpgsqlConnection(

@@ -2,7 +2,6 @@
 using System.IO;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using NetTopologySuite.Operation.Overlay.Snap;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
