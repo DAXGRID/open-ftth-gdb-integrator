@@ -12,10 +12,12 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
     public class Postgis : IGeoDatabase
     {
         private readonly PostgisSetting _postgisSettings;
+        private readonly ApplicationSetting _applicationSettings;
 
-        public Postgis(IOptions<PostgisSetting> postgisSetting)
+        public Postgis(IOptions<PostgisSetting> postgisSettings, IOptions<ApplicationSetting> applicationSettings)
         {
-            _postgisSettings = postgisSetting.Value;
+            _postgisSettings = postgisSettings.Value;
+            _applicationSettings = applicationSettings.Value;
         }
 
         public async Task<List<RouteNode>> GetIntersectingStartRouteNodes(RouteSegment routeSegment)
@@ -88,25 +90,31 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task DeleteRouteNode(Guid mrid)
         {
-            using ( var connection = GetNpgsqlConnection())
+            var applicationName = _applicationSettings.ApplicationName;
+
+            using (var connection = GetNpgsqlConnection())
             {
-                var query = @"DELETE FROM route_network.route_node
+                var query = @"UPDATE route_network.route_node
+                    SET
+                      delete_me = true
                     WHERE mrid = @mrid";
 
                 await connection.OpenAsync();
-                await connection.ExecuteAsync(query, mrid);
+                await connection.ExecuteAsync(query, new { mrid });
             }
         }
 
         public async Task DeleteRouteSegment(Guid mrid)
         {
-            using ( var connection = GetNpgsqlConnection())
+            using (var connection = GetNpgsqlConnection())
             {
-                var query = @"DELETE FROM route_network.route_segment
+                var query = @"UPDATE route_network.route_segment
+                    SET
+                      delete_me = true
                     WHERE mrid = @mrid";
 
                 await connection.OpenAsync();
-                await connection.ExecuteAsync(query, mrid);
+                await connection.ExecuteAsync(query, new { mrid });
             }
         }
 

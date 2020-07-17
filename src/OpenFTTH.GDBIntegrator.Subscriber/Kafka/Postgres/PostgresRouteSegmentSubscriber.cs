@@ -58,7 +58,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
         {
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Received message {JsonConvert.SerializeObject(routeSegment, Formatting.Indented)}");
 
-            if (!String.IsNullOrEmpty(routeSegment.Mrid.ToString()))
+            if (routeSegment.Mrid != Guid.Empty)
             {
                 var command = await _routeSegmentCommandFactory.Create(routeSegment);
                 await _mediator.Send(command);
