@@ -49,7 +49,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 };
             }
 
-            throw new Exception("No valid commands for this Route Segment State");
+            return new InvalidRouteSegmentOperation { RouteSegment = routeSegment };
         }
     }
 }

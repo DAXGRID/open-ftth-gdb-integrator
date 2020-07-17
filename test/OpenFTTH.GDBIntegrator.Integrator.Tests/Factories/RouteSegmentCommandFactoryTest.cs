@@ -160,5 +160,31 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             result.Should().BeEquivalentTo(expected);
         }
+
+        [Fact]
+        public async Task Create_ShouldReturnInvalidNodeOperationCommand_OnIntersectingRouteSegmentCountBeingBiggerThanOne()
+        {
+            var mediator = A.Fake<IMediator>();
+
+            var routeSegment = A.Fake<RouteSegment>();
+
+            var intersectingStartRouteNodes = new List<RouteNode> { new RouteNode(), new RouteNode() };
+            var intersectingEndRouteNodes = new List<RouteNode> { new RouteNode() };
+
+            A.CallTo(() => mediator
+                     .Send(A<GetIntersectingStartRouteNodes>._, A<CancellationToken>._))
+                .Returns(intersectingStartRouteNodes);
+
+            A.CallTo(() => mediator
+                     .Send(A<GetIntersectingEndRouteNodes>._, A<CancellationToken>._))
+                .Returns(intersectingEndRouteNodes);
+
+            var routeSegmentFactory = new RouteSegmentCommandFactory(mediator);
+            var result = await routeSegmentFactory.Create(routeSegment);
+
+            var expected = new InvalidRouteSegmentOperation { RouteSegment = routeSegment };
+
+            result.Should().BeEquivalentTo(expected);
+        }
     }
 }
