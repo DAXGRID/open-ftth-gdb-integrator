@@ -31,14 +31,14 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                           (SELECT coord FROM route_network.route_segment
                           WHERE mrid = @mrid)
                           ),
-                        0.01
+                        @tolerance
                       ),
                       coord)
                     ";
 
                 await connection.OpenAsync();
 
-                var routeNodes = await connection.QueryAsync<RouteNode>(query, routeSegment);
+                var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
                 return routeNodes.AsList();
             }
@@ -55,14 +55,14 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                           (SELECT coord FROM route_network.route_segment
                           WHERE mrid = @mrid)
                           ),
-                        0.01
+                        @tolerance
                       ),
                       coord)
                     ";
 
                 await connection.OpenAsync();
 
-                var routeNodes = await connection.QueryAsync<RouteNode>(query, routeSegment);
+                var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
                 return routeNodes.AsList();
             }
@@ -72,17 +72,17 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = @"SELECT (ST_AsText(coord), mrid) FROM route_network.route_segment
+                var query = $@"SELECT (ST_AsText(coord), mrid) FROM route_network.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                           (SELECT coord FROM route_network.route_node
                           WHERE mrid = @mrid),
-                        0.01
+                        @tolerance
                       ),
                       coord)";
 
                 await connection.OpenAsync();
-                var result = await connection.QueryAsync<RouteSegment>(query, routeNode);
+                var result = await connection.QueryAsync<RouteSegment>(query, new { routeNode.Mrid, _applicationSettings.Tolerance });
 
                 return result.AsList();
             }
