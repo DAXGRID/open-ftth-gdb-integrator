@@ -49,7 +49,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task Create_ThrowException_OnIntersectingRouteSegmentsBeingBiggerThanZero()
+        public async Task Create_ShouldReturnInvalidNodeOperationCommand_OnIntersectingRouteSegmentsBeingBiggerThanZero()
         {
             var mediator = A.Fake<IMediator>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -61,9 +61,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var routeNodeCommandFactory = new RouteNodeCommandFactory(mediator, geoDatabase, applicationSetting);
 
-            Func<Task> act = async () => await routeNodeCommandFactory.Create(routeNode);
+            var result = await routeNodeCommandFactory.Create(routeNode);
 
-            await act.Should().ThrowExactlyAsync<Exception>();
+            var expected = new InvalidRouteNodeOperationCommand { RouteNode = routeNode };
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Fact]

@@ -39,7 +39,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (intersectingRouteSegments.Count == 0)
                 return new NewLonelyRouteNodeCommand { RouteNode = routeNode };
 
-            throw new Exception("No valid event for current state");
+            return new InvalidRouteNodeOperationCommand { RouteNode = routeNode };
         }
     }
 }
