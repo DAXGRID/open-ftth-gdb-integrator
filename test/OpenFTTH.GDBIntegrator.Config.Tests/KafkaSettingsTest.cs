@@ -11,26 +11,32 @@ namespace OpenFTTH.GDBIntegrator.Config.Tests
         {
             var server = "192.13.2.1";
             var positionFilePath = "/tmp/";
-            var topic = "event.route-network";
-            var consumer = "postgis-consumer";
+            var postgresRouteSegmentTopic = "event.route-network_route_segment";
+            var postgresRouteSegmentConsumer = "postgis-consumer_route_segment";
             var eventRouteNetwork = "event.route-network";
+            var postgresRouteNodeTopic = "event.route-network_route_node";
+            var postgresRouteNodeConsumer = "postgis-consumer_route_node";
 
             var kafkaSettings = new KafkaSetting
             {
                 Server = server,
                 PositionFilePath = positionFilePath,
-                PostgresRouteSegmentTopic = topic,
-                PostgresRouteSegmentConsumer = consumer,
-                EventRouteNetworkTopicName = eventRouteNetwork
+                PostgresRouteSegmentTopic = postgresRouteSegmentTopic,
+                PostgresRouteSegmentConsumer = postgresRouteSegmentConsumer,
+                EventRouteNetworkTopicName = eventRouteNetwork,
+                PostgresRouteNodeTopic = postgresRouteNodeTopic,
+                PostgresRouteNodeConsumer = postgresRouteNodeConsumer
             };
 
             using (new AssertionScope())
             {
                 kafkaSettings.Server.Should().BeEquivalentTo(server);
                 kafkaSettings.PositionFilePath.Should().BeEquivalentTo(positionFilePath);
-                kafkaSettings.PostgresRouteSegmentTopic.Should().BeEquivalentTo(topic);
-                kafkaSettings.PostgresRouteSegmentConsumer.Should().BeEquivalentTo(consumer);
+                kafkaSettings.PostgresRouteSegmentTopic.Should().BeEquivalentTo(postgresRouteSegmentTopic);
+                kafkaSettings.PostgresRouteSegmentConsumer.Should().BeEquivalentTo(postgresRouteSegmentConsumer);
                 kafkaSettings.EventRouteNetworkTopicName.Should().BeEquivalentTo(eventRouteNetwork);
+                kafkaSettings.PostgresRouteNodeTopic.Should().BeEquivalentTo(postgresRouteNodeTopic);
+                kafkaSettings.PostgresRouteNodeConsumer.Should().BeEquivalentTo(postgresRouteNodeConsumer);
             }
         }
     }
