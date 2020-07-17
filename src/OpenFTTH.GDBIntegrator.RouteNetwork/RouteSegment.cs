@@ -2,6 +2,7 @@
 using System.IO;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using NetTopologySuite.Operation.Overlay.Snap;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -14,12 +15,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
         public Guid WorkTaskMrid { get; set; }
         public string Username { get; set; }
         public string ApplicationName { get; set; }
-
-        public virtual bool IsValidAndSimple()
-        {
-            var lineString = GetLineString();
-            return lineString.IsValid && lineString.IsSimple;
-        }
 
         public virtual RouteNode FindStartNode()
         {
