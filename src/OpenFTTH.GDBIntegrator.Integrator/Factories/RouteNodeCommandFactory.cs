@@ -6,6 +6,7 @@ using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using System.Linq;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
@@ -38,6 +39,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (intersectingRouteSegments.Count == 0)
                 return new NewLonelyRouteNode { RouteNode = routeNode };
+
+            if (intersectingRouteSegments.Count == 1)
+                return new ExistingRouteSegmentSplittedByRouteNode { RouteNode = routeNode, IntersectingRouteSegment = intersectingRouteSegments.First() };
 
             return new InvalidRouteNodeOperation { RouteNode = routeNode };
         }

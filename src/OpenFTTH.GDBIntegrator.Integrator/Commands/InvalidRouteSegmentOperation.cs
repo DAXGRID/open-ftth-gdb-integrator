@@ -1,3 +1,4 @@
+using System;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using MediatR;
@@ -25,7 +26,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         public async Task<Unit> Handle(InvalidRouteSegmentOperation request, CancellationToken token)
         {
-            _logger.LogInformation($"Deleteting {nameof(RouteSegment)} with mrid '{request.RouteSegment.Mrid}'");
+            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Deleteting {nameof(RouteSegment)} with mrid '{request.RouteSegment.Mrid}'");
             await _geoDatabase.DeleteRouteSegment(request.RouteSegment.Mrid);
 
             return await Task.FromResult(new Unit());

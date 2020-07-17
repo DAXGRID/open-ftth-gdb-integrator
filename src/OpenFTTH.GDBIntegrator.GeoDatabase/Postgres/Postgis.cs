@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
@@ -24,7 +25,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT (ST_AsText(coord), mrid) FROM route_network.route_node
+                var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_StartPoint(
@@ -48,7 +49,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT (ST_AsText(coord), mrid) FROM route_network.route_node
+                var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_EndPoint(
@@ -72,7 +73,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT (ST_AsText(coord), mrid) FROM route_network.route_segment
+                var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                           (SELECT coord FROM route_network.route_node
@@ -84,6 +85,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 await connection.OpenAsync();
                 var result = await connection.QueryAsync<RouteSegment>(query, new { routeNode.Mrid, _applicationSettings.Tolerance });
 
+                Console.WriteLine("First: " + result.FirstOrDefault().Mrid);
                 return result.AsList();
             }
         }
@@ -165,6 +167,30 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 await connection.ExecuteAsync(query, routeSegment);
             }
         }
+
+        public async Task<string> GetRouteSegmentsSplittedByRouteNode(RouteNode routeNode, RouteSegment intersectingRouteSegment)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var query = @"SELECT ST_AsText(
+                        ST_Split(
+                            ST_Snap(
+                                route_segment.coord,
+                                ST_GeomFromWKB(@coord, 25832),
+                                0.02
+                            ),
+                            ST_GeomFromWKB(@coord, 25832)
+                        )
+                    )
+                    FROM route_network.route_segment WHERE mrid = @mrid";
+
+                await connection.OpenAsync();
+                var result = await connection.QueryAsync<string>(query, new { routeNode.Coord, intersectingRouteSegment.Mrid });
+
+                return result.First();
+            }
+        }
+
 
         private NpgsqlConnection GetNpgsqlConnection()
         {

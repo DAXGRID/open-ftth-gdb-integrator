@@ -49,7 +49,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task Create_ShouldReturnInvalidNodeOperationCommand_OnIntersectingRouteSegmentsBeingBiggerThanZero()
+        public async Task Create_ShouldReturnInvalidNodeOperationCommand_OnIntersectingRouteSegmentsBeingBiggerThanOne()
         {
             var mediator = A.Fake<IMediator>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -57,13 +57,33 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
 
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(routeNode))
-                .Returns(new List<RouteSegment>() { new RouteSegment() });
+                .Returns(new List<RouteSegment> { new RouteSegment(), new RouteSegment() });
 
             var routeNodeCommandFactory = new RouteNodeCommandFactory(mediator, geoDatabase, applicationSetting);
 
             var result = await routeNodeCommandFactory.Create(routeNode);
 
             var expected = new InvalidRouteNodeOperation { RouteNode = routeNode };
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public async Task Create_ShouldReturnExistingRouteSegmentSplittedByRouteNode_OnIntersectingRouteSegmentsBeingOne()
+        {
+            var mediator = A.Fake<IMediator>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeNode = A.Fake<RouteNode>();
+            var intersectingRouteSegments = new List<RouteSegment> { new RouteSegment() };
+            var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
+
+            A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(routeNode))
+                .Returns(intersectingRouteSegments);
+
+            var routeNodeCommandFactory = new RouteNodeCommandFactory(mediator, geoDatabase, applicationSetting);
+
+            var result = await routeNodeCommandFactory.Create(routeNode);
+
+            var expected = new ExistingRouteSegmentSplittedByRouteNode { RouteNode = routeNode, IntersectingRouteSegment = intersectingRouteSegments[0] };
             result.Should().BeEquivalentTo(expected);
         }
 
@@ -78,7 +98,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeNode.ApplicationName).Returns("GDB_INTEGRATOR");
 
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(routeNode))
-                .Returns(new List<RouteSegment>() { new RouteSegment() });
+                .Returns(new List<RouteSegment> { new RouteSegment() });
 
             A.CallTo(() => applicationSetting.Value)
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
