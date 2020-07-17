@@ -90,7 +90,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
             };
 
             var geoJson = routeSegment.GetGeoJsonCoordinate();
-            Console.WriteLine(geoJson);
 
             geoJson.Should().BeEquivalentTo(expected);
         }
