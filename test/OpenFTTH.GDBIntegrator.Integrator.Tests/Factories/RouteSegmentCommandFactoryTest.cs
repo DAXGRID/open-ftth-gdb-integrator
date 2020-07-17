@@ -32,7 +32,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentFactory = new RouteSegmentCommandFactory(mediator);
             var result = await routeSegmentFactory.Create(routeSegment);
 
-            var expected = new NewLonelyRouteSegmentCommand { RouteSegment = routeSegment };
+            var expected = new NewLonelyRouteSegment { RouteSegment = routeSegment };
 
             result.Should().BeEquivalentTo(expected);
         }
@@ -58,7 +58,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentFactory = new RouteSegmentCommandFactory(mediator);
             var result = await routeSegmentFactory.Create(routeSegment);
 
-            var expected = new NewRouteSegmentBetweenTwoExistingNodesCommand
+            var expected = new NewRouteSegmentBetweenTwoExistingNodes
             {
                 RouteSegment = routeSegment,
                 StartRouteNode = intersectingStartRouteNodes.FirstOrDefault(),
@@ -89,7 +89,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentFactory = new RouteSegmentCommandFactory(mediator);
             var result = await routeSegmentFactory.Create(routeSegment);
 
-            var expected = new NewRouteSegmentBetweenTwoExistingNodesCommand
+            var expected = new NewRouteSegmentBetweenTwoExistingNodes
             {
                 RouteSegment = routeSegment,
                 StartRouteNode = intersectingStartRouteNodes.FirstOrDefault(),
@@ -120,7 +120,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentFactory = new RouteSegmentCommandFactory(mediator);
             var result = await routeSegmentFactory.Create(routeSegment);
 
-            var expected = new NewRouteSegmentToExistingNodeCommand
+            var expected = new NewRouteSegmentToExistingNode
             {
                 RouteSegment = routeSegment,
                 StartRouteNode = intersectingStartRouteNodes.FirstOrDefault(),
@@ -151,7 +151,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentFactory = new RouteSegmentCommandFactory(mediator);
             var result = await routeSegmentFactory.Create(routeSegment);
 
-            var expected = new NewRouteSegmentToExistingNodeCommand
+            var expected = new NewRouteSegmentToExistingNode
             {
                 RouteSegment = routeSegment,
                 StartRouteNode = intersectingStartRouteNodes.FirstOrDefault(),

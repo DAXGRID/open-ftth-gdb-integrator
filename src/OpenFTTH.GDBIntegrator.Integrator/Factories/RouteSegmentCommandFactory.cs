@@ -28,11 +28,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (totalIntersectingNodes == 0)
             {
-                return new NewLonelyRouteSegmentCommand { RouteSegment = routeSegment };
+                return new NewLonelyRouteSegment { RouteSegment = routeSegment };
             }
             else if (intersectingStartNodes.Count == 1 && intersectingEndNodes.Count == 1)
             {
-                return new NewRouteSegmentBetweenTwoExistingNodesCommand
+                return new NewRouteSegmentBetweenTwoExistingNodes
                 {
                     RouteSegment = routeSegment,
                     StartRouteNode = intersectingStartNodes.FirstOrDefault(),
@@ -41,7 +41,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             }
             else if (totalIntersectingNodes == 1)
             {
-                return new NewRouteSegmentToExistingNodeCommand
+                return new NewRouteSegmentToExistingNode
                 {
                     RouteSegment = routeSegment,
                     StartRouteNode = intersectingStartNodes.FirstOrDefault(),

@@ -10,17 +10,17 @@ using FluentAssertions;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
 {
-    public class GdbCreatedEntityCommandHandlerTest
+    public class GdbCreatedEntityHandlerTest
     {
         [Fact]
         public async Task Handle_ShouldJustExecute_OnBeingCalled()
         {
-            var logger = A.Fake<ILogger<GdbCreatedEntityCommandHandler>>();
+            var logger = A.Fake<ILogger<GdbCreatedEntityHandler>>();
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
 
-            var gdbCommandHandler = new GdbCreatedEntityCommandHandler(logger, applicationSetting);
+            var gdbCommandHandler = new GdbCreatedEntityHandler(logger, applicationSetting);
 
-            var result = await gdbCommandHandler.Handle(new GdbCreatedEntityCommand(), new CancellationToken());
+            var result = await gdbCommandHandler.Handle(new GdbCreatedEntity(), new CancellationToken());
 
             result.Should().NotBeNull();
         }

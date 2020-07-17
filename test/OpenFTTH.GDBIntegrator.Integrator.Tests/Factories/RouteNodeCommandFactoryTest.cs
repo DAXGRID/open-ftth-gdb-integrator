@@ -44,7 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await routeNodeCommandFactory.Create(routeNode);
 
-            var expected = new NewLonelyRouteNodeCommand { RouteNode = routeNode };
+            var expected = new NewLonelyRouteNode { RouteNode = routeNode };
             result.Should().BeEquivalentTo(expected);
         }
 
@@ -63,7 +63,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await routeNodeCommandFactory.Create(routeNode);
 
-            var expected = new InvalidRouteNodeOperationCommand { RouteNode = routeNode };
+            var expected = new InvalidRouteNodeOperation { RouteNode = routeNode };
             result.Should().BeEquivalentTo(expected);
         }
 
@@ -87,7 +87,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await routeNodeCommandFactory.Create(routeNode);
 
-            result.Should().BeOfType(typeof(GdbCreatedEntityCommand));
+            result.Should().BeOfType(typeof(GdbCreatedEntity));
         }
     }
 }

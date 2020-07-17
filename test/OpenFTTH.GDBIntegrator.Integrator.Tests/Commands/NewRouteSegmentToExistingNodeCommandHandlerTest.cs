@@ -16,17 +16,17 @@ using Microsoft.Extensions.Options;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
 {
-    public class NewRouteSegmentToExistingNodeCommandHandlerTest
+    public class NewRouteSegmentToExistingNodeHandlerTest
     {
         [Fact]
         public async Task Handle_ShouldCallInsertEndRouteNode_OnBeingCalledWithEndRouteNodeBeingNullAndStartNodeIsSet()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
-            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeHandler>>();
             var producer = A.Fake<IProducer>();
             var kafkaSettings = A.Fake<IOptions<KafkaSetting>>();
 
-            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, producer, kafkaSettings);
+            var commandHandler = new NewRouteSegmentToExistingNodeHandler(geoDatabase, logger, producer, kafkaSettings);
             var routeSegment = A.Fake<RouteSegment>();
             var startNode = A.Fake<RouteNode>();
             var endNode = A.Fake<RouteNode>();
@@ -35,7 +35,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
             A.CallTo(() => endNode.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
             A.CallTo(() => routeSegment.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
 
-            var command = new NewRouteSegmentToExistingNodeCommand
+            var command = new NewRouteSegmentToExistingNode
             {
                 RouteSegment = routeSegment,
                 StartRouteNode = startNode,
@@ -55,11 +55,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
         public async Task Handle_ShouldCallInsertStartRouteNode_OnBeingCalledWithStartRouteNodeBeingNullAndEndNodeIsSet()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
-            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeHandler>>();
             var producer = A.Fake<IProducer>();
             var kafkaSettings = A.Fake<IOptions<KafkaSetting>>();
 
-            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, producer, kafkaSettings);
+            var commandHandler = new NewRouteSegmentToExistingNodeHandler(geoDatabase, logger, producer, kafkaSettings);
             var routeSegment = A.Fake<RouteSegment>();
             var startNode = A.Fake<RouteNode>();
             var endNode = A.Fake<RouteNode>();
@@ -68,7 +68,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
             A.CallTo(() => startNode.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
             A.CallTo(() => routeSegment.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
 
-            var command = new NewRouteSegmentToExistingNodeCommand
+            var command = new NewRouteSegmentToExistingNode
             {
                 RouteSegment = routeSegment,
                 StartRouteNode = null,
@@ -88,12 +88,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
         public async Task Handle_ShouldThrowNullArgumentException_OnRouteSegmentBeingNull()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
-            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeHandler>>();
             var producer = A.Fake<IProducer>();
             var kafkaSettings = A.Fake<IOptions<KafkaSetting>>();
 
-            var command = new NewRouteSegmentToExistingNodeCommand { RouteSegment = null };
-            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, producer, kafkaSettings);
+            var command = new NewRouteSegmentToExistingNode { RouteSegment = null };
+            var commandHandler = new NewRouteSegmentToExistingNodeHandler(geoDatabase, logger, producer, kafkaSettings);
 
             Func<Task> act = async () => { await commandHandler.Handle(command, new CancellationToken()); };
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
@@ -103,18 +103,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
         public async Task Handle_ShouldThrowArgumentException_OnBothStartAndEndNodeBeingNull()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
-            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeHandler>>();
             var producer = A.Fake<IProducer>();
             var kafkaSettings = A.Fake<IOptions<KafkaSetting>>();
 
-            var command = new NewRouteSegmentToExistingNodeCommand
+            var command = new NewRouteSegmentToExistingNode
             {
                 RouteSegment = A.Fake<RouteSegment>(),
                 StartRouteNode = null,
                 EndRouteNode = null
             };
 
-            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, producer, kafkaSettings);
+            var commandHandler = new NewRouteSegmentToExistingNodeHandler(geoDatabase, logger, producer, kafkaSettings);
 
             Func<Task> act = async () => { await commandHandler.Handle(command, new CancellationToken()); };
             await act.Should().ThrowExactlyAsync<ArgumentException>();
@@ -124,11 +124,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
         public async Task Handle_ShouldCallRouteNodeAddedCommandOnce_OnBeingCalledWithEndRouteNodeBeingNullAndStartNodeIsSet()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
-            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeHandler>>();
             var producer = A.Fake<IProducer>();
             var kafkaSettings = A.Fake<IOptions<KafkaSetting>>();
 
-            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, producer, kafkaSettings);
+            var commandHandler = new NewRouteSegmentToExistingNodeHandler(geoDatabase, logger, producer, kafkaSettings);
             var routeSegment = A.Fake<RouteSegment>();
             var startNode = A.Fake<RouteNode>();
             var endNode = A.Fake<RouteNode>();
@@ -137,7 +137,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
             A.CallTo(() => endNode.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
             A.CallTo(() => routeSegment.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
 
-            var command = new NewRouteSegmentToExistingNodeCommand
+            var command = new NewRouteSegmentToExistingNode
             {
                 RouteSegment = routeSegment,
                 StartRouteNode = startNode,
@@ -156,11 +156,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
         public async Task Handle_ShouldCallRouteNodeAddedOnce_OnBeingCalledWithStartRouteNodeBeingNullAndEndNodeIsSet()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
-            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeHandler>>();
             var producer = A.Fake<IProducer>();
             var kafkaSettings = A.Fake<IOptions<KafkaSetting>>();
 
-            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, producer, kafkaSettings);
+            var commandHandler = new NewRouteSegmentToExistingNodeHandler(geoDatabase, logger, producer, kafkaSettings);
             var routeSegment = A.Fake<RouteSegment>();
             var startNode = A.Fake<RouteNode>();
             var endNode = A.Fake<RouteNode>();
@@ -169,7 +169,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
             A.CallTo(() => startNode.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
             A.CallTo(() => routeSegment.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
 
-            var command = new NewRouteSegmentToExistingNodeCommand
+            var command = new NewRouteSegmentToExistingNode
             {
                 RouteSegment = routeSegment,
                 StartRouteNode = null,
@@ -188,11 +188,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
         public async Task Handle_ShouldCallRouteSegmentAddedCommandOnce_OnBeingCalledWithEndRouteNodeBeingNullAndStartNodeIsSet()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
-            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeHandler>>();
             var producer = A.Fake<IProducer>();
             var kafkaSettings = A.Fake<IOptions<KafkaSetting>>();
 
-            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, producer, kafkaSettings);
+            var commandHandler = new NewRouteSegmentToExistingNodeHandler(geoDatabase, logger, producer, kafkaSettings);
             var routeSegment = A.Fake<RouteSegment>();
             var startNode = A.Fake<RouteNode>();
             var endNode = A.Fake<RouteNode>();
@@ -201,7 +201,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
             A.CallTo(() => endNode.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
             A.CallTo(() => routeSegment.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
 
-            var command = new NewRouteSegmentToExistingNodeCommand
+            var command = new NewRouteSegmentToExistingNode
             {
                 RouteSegment = routeSegment,
                 StartRouteNode = startNode,
@@ -220,11 +220,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
         public async Task Handle_ShouldCallRouteSegmentAddedCommandOnce_OnBeingCalledWithStartRouteNodeBeingNullAndEndNodeIsSet()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
-            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeCommandHandler>>();
+            var logger = A.Fake<ILogger<NewRouteSegmentToExistingNodeHandler>>();
             var producer = A.Fake<IProducer>();
             var kafkaSettings = A.Fake<IOptions<KafkaSetting>>();
 
-            var commandHandler = new NewRouteSegmentToExistingNodeCommandHandler(geoDatabase, logger, producer, kafkaSettings);
+            var commandHandler = new NewRouteSegmentToExistingNodeHandler(geoDatabase, logger, producer, kafkaSettings);
             var routeSegment = A.Fake<RouteSegment>();
             var startNode = A.Fake<RouteNode>();
             var endNode = A.Fake<RouteNode>();
@@ -233,7 +233,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
             A.CallTo(() => startNode.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
             A.CallTo(() => routeSegment.GetGeoJsonCoordinate()).Returns(A.Dummy<string>());
 
-            var command = new NewRouteSegmentToExistingNodeCommand
+            var command = new NewRouteSegmentToExistingNode
             {
                 RouteSegment = routeSegment,
                 StartRouteNode = null,

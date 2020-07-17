@@ -9,18 +9,18 @@ using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Commands
 {
-    public class InvalidRouteNodeOperationCommandHandlerTest
+    public class InvalidRouteNodeOperationHandlerTest
     {
         [Fact]
         public async Task Handle_ShouldCallGeoDatabaseDelete_OnBeingSuppliedRouteNode()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
-            var logger = A.Fake<ILogger<InvalidRouteNodeOperationCommandHandler>>();
+            var logger = A.Fake<ILogger<InvalidRouteNodeOperationHandler>>();
             var routeNode = A.Fake<RouteNode>();
 
-            var request = new InvalidRouteNodeOperationCommand { RouteNode = routeNode };
+            var request = new InvalidRouteNodeOperation { RouteNode = routeNode };
 
-            var invalidRouteNodeOperationHandler = new InvalidRouteNodeOperationCommandHandler(geoDatabase, logger);
+            var invalidRouteNodeOperationHandler = new InvalidRouteNodeOperationHandler(geoDatabase, logger);
             await invalidRouteNodeOperationHandler.Handle(request, new CancellationToken());
 
             A.CallTo(() => geoDatabase.DeleteRouteNode(routeNode.Mrid)).MustHaveHappenedOnceExactly();

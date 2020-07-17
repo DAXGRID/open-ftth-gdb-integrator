@@ -4,32 +4,32 @@ using System.Threading;
 using System.Threading.Tasks;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
+using OpenFTTH.GDBIntegrator.Integrator.EventMessages;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Producer;
-using OpenFTTH.GDBIntegrator.Integrator.EventMessages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
-    public class NewRouteSegmentToExistingNodeCommand : IRequest
+    public class NewRouteSegmentToExistingNode : IRequest
     {
         public RouteSegment RouteSegment { get; set; }
         public RouteNode StartRouteNode { get; set; }
         public RouteNode EndRouteNode { get; set; }
     }
 
-    public class NewRouteSegmentToExistingNodeCommandHandler : IRequestHandler<NewRouteSegmentToExistingNodeCommand, Unit>
+    public class NewRouteSegmentToExistingNodeHandler : IRequestHandler<NewRouteSegmentToExistingNode, Unit>
     {
         private readonly IGeoDatabase _geoDatabase;
-        private readonly ILogger<NewRouteSegmentToExistingNodeCommandHandler> _logger;
+        private readonly ILogger<NewRouteSegmentToExistingNodeHandler> _logger;
         private readonly IProducer _producer;
         private readonly KafkaSetting _kafkaSettings;
 
 
-        public NewRouteSegmentToExistingNodeCommandHandler(
+        public NewRouteSegmentToExistingNodeHandler(
             IGeoDatabase geoDatabase,
-            ILogger<NewRouteSegmentToExistingNodeCommandHandler> logger,
+            ILogger<NewRouteSegmentToExistingNodeHandler> logger,
             IProducer producer,
             IOptions<KafkaSetting> kafkaSettings
             )
@@ -40,7 +40,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _kafkaSettings = kafkaSettings.Value;
         }
 
-        public async Task<Unit> Handle(NewRouteSegmentToExistingNodeCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(NewRouteSegmentToExistingNode request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting - new routesegment to existing node.");
 

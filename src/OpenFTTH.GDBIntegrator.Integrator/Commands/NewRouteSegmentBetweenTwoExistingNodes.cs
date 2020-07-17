@@ -11,21 +11,21 @@ using Microsoft.Extensions.Options;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
-    public class NewRouteSegmentBetweenTwoExistingNodesCommand : IRequest
+    public class NewRouteSegmentBetweenTwoExistingNodes : IRequest
     {
         public RouteSegment RouteSegment { get; set; }
         public RouteNode StartRouteNode { get; set; }
         public RouteNode EndRouteNode { get; set; }
     }
 
-    public class NewRouteSegmentBetweenTwoExistingNodesCommandHandler : IRequestHandler<NewRouteSegmentBetweenTwoExistingNodesCommand, Unit>
+    public class NewRouteSegmentBetweenTwoExistingNodesHandler : IRequestHandler<NewRouteSegmentBetweenTwoExistingNodes, Unit>
     {
-        private readonly ILogger<NewRouteSegmentBetweenTwoExistingNodesCommandHandler> _logger;
+        private readonly ILogger<NewRouteSegmentBetweenTwoExistingNodesHandler> _logger;
         private readonly IProducer _producer;
         private readonly IOptions<KafkaSetting> _kafkaSetting;
 
-        public NewRouteSegmentBetweenTwoExistingNodesCommandHandler(
-            ILogger<NewRouteSegmentBetweenTwoExistingNodesCommandHandler> logger,
+        public NewRouteSegmentBetweenTwoExistingNodesHandler(
+            ILogger<NewRouteSegmentBetweenTwoExistingNodesHandler> logger,
             IProducer producer,
             IOptions<KafkaSetting> kafkaSetting
             )
@@ -35,7 +35,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _kafkaSetting = kafkaSetting;
         }
 
-        public async Task<Unit> Handle(NewRouteSegmentBetweenTwoExistingNodesCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(NewRouteSegmentBetweenTwoExistingNodes request, CancellationToken cancellationToken)
         {
             if (request.RouteSegment is null)
                 throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");

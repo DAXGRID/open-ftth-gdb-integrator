@@ -32,14 +32,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             // If the GDB integrator produced the message do nothing
             if (routeNode.ApplicationName == _applicationSetting.ApplicationName)
-                return new GdbCreatedEntityCommand();
+                return new GdbCreatedEntity();
 
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
 
             if (intersectingRouteSegments.Count == 0)
-                return new NewLonelyRouteNodeCommand { RouteNode = routeNode };
+                return new NewLonelyRouteNode { RouteNode = routeNode };
 
-            return new InvalidRouteNodeOperationCommand { RouteNode = routeNode };
+            return new InvalidRouteNodeOperation { RouteNode = routeNode };
         }
     }
 }

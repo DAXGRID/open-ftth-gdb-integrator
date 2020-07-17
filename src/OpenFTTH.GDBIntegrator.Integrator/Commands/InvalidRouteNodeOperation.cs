@@ -7,23 +7,23 @@ using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
-    public class InvalidRouteNodeOperationCommand : IRequest
+    public class InvalidRouteNodeOperation : IRequest
     {
         public RouteNode RouteNode { get; set; }
     }
 
-    public class InvalidRouteNodeOperationCommandHandler : IRequestHandler<InvalidRouteNodeOperationCommand, Unit>
+    public class InvalidRouteNodeOperationHandler : IRequestHandler<InvalidRouteNodeOperation, Unit>
     {
         private readonly IGeoDatabase _geoDatabase;
-        private readonly ILogger<InvalidRouteNodeOperationCommandHandler> _logger;
+        private readonly ILogger<InvalidRouteNodeOperationHandler> _logger;
 
-        public InvalidRouteNodeOperationCommandHandler(IGeoDatabase geoDatabase, ILogger<InvalidRouteNodeOperationCommandHandler> logger)
+        public InvalidRouteNodeOperationHandler(IGeoDatabase geoDatabase, ILogger<InvalidRouteNodeOperationHandler> logger)
         {
             _geoDatabase = geoDatabase;
             _logger = logger;
         }
 
-        public async Task<Unit> Handle(InvalidRouteNodeOperationCommand request, CancellationToken token)
+        public async Task<Unit> Handle(InvalidRouteNodeOperation request, CancellationToken token)
         {
             _logger.LogInformation($"Deleteting {nameof(RouteNode)} with mrid '{request.RouteNode.Mrid}'");
             await _geoDatabase.DeleteRouteNode(request.RouteNode.Mrid);

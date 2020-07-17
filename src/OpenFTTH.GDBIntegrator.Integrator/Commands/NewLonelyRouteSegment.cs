@@ -12,21 +12,21 @@ using Microsoft.Extensions.Options;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
-    public class NewLonelyRouteSegmentCommand : IRequest
+    public class NewLonelyRouteSegment : IRequest
     {
         public RouteSegment RouteSegment { get; set; }
     }
 
-    public class NewLonelyRouteSegmentCommandHandler : IRequestHandler<NewLonelyRouteSegmentCommand, Unit>
+    public class NewLonelyRouteSegmentHandler : IRequestHandler<NewLonelyRouteSegment, Unit>
     {
         private readonly IGeoDatabase _geoDatabase;
-        private readonly ILogger<NewLonelyRouteSegmentCommandHandler> _logger;
+        private readonly ILogger<NewLonelyRouteSegmentHandler> _logger;
         private readonly IProducer _producer;
         private readonly KafkaSetting _kafkaSetting;
 
-        public NewLonelyRouteSegmentCommandHandler(
+        public NewLonelyRouteSegmentHandler(
             IGeoDatabase geoDatabase,
-            ILogger<NewLonelyRouteSegmentCommandHandler> logger,
+            ILogger<NewLonelyRouteSegmentHandler> logger,
             IProducer producer,
             IOptions<KafkaSetting> kafkaSetting)
         {
@@ -36,7 +36,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _kafkaSetting = kafkaSetting.Value;
         }
 
-        public async Task<Unit> Handle(NewLonelyRouteSegmentCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(NewLonelyRouteSegment request, CancellationToken cancellationToken)
         {
             if (request.RouteSegment is null)
                 throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");
