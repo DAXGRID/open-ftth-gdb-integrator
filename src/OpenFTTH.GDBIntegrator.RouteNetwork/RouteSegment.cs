@@ -52,7 +52,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
             };
         }
 
-        public LineString GetLineString()
+        public virtual LineString GetLineString()
         {
             var wkbReader = new WKBReader();
             var geometry = wkbReader.Read(Coord);

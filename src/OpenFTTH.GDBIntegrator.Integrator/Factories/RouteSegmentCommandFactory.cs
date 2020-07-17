@@ -1,5 +1,6 @@
 using MediatR;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
 using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using OpenFTTH.GDBIntegrator.Integrator.Queries;
 using System;
@@ -11,14 +12,19 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
     public class RouteSegmentCommandFactory : IRouteSegmentCommandFactory
     {
         private readonly IMediator _mediator;
+        private readonly IRouteSegmentValidator _routeSegmentValidator;
 
-        public RouteSegmentCommandFactory(IMediator mediator)
+        public RouteSegmentCommandFactory(IMediator mediator, IRouteSegmentValidator routeSegmentValidator)
         {
             _mediator = mediator;
+            _routeSegmentValidator = routeSegmentValidator;
         }
 
         public async Task<IRequest> Create(RouteSegment routeSegment)
         {
+            if (!_routeSegmentValidator.LineIsValid(routeSegment.GetLineString()))
+                return new InvalidRouteSegmentOperation { RouteSegment = routeSegment };
+
             var intersectingStartNodes = await _mediator.Send(
                 new GetIntersectingStartRouteNodes { RouteSegment = routeSegment });
             var intersectingEndNodes = await _mediator.Send(
