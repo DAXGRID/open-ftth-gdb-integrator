@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using OpenFTTH.GDBIntegrator.Config;
@@ -82,6 +83,18 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 var result = await connection.QueryAsync<RouteSegment>(query, routeNode);
 
                 return result.AsList();
+            }
+        }
+
+        public async Task DeleteRouteNode(Guid mrid)
+        {
+            using ( var connection = GetNpgsqlConnection())
+            {
+                var query = @"DELETE FROM route_network.route_node
+                    WHERE mrid = @mrid";
+
+                await connection.OpenAsync();
+                await connection.ExecuteAsync(query, mrid);
             }
         }
 
