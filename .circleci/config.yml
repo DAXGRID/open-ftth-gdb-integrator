@@ -22,6 +22,9 @@ jobs:
           name: Install taskfile
           command: curl -sL https://taskfile.dev/install.sh | sh
       - run:
+          name: export taskfile
+          command: export PATH=$PATH:~/bin
+      - run:
           name: Restore
           command: task restore
       - run:
@@ -38,6 +41,9 @@ jobs:
       - run:
           name: Install taskrunner
           command: curl -sL https://taskfile.dev/install.sh | sh
+      - run:
+          name: export taskfile
+          command: export PATH=$PATH:~/bin
       - run:
           name: Test
           command: task test-verbose
