@@ -85,7 +85,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 await connection.OpenAsync();
                 var result = await connection.QueryAsync<RouteSegment>(query, new { routeNode.Mrid, _applicationSettings.Tolerance });
 
-                Console.WriteLine("First: " + result.FirstOrDefault().Mrid);
                 return result.AsList();
             }
         }

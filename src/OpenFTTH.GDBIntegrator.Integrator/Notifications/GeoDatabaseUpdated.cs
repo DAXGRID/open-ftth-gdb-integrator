@@ -2,6 +2,7 @@ using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Producer;
+using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.Integrator.Queries;
 using MediatR;
 using System;
@@ -26,6 +27,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         private readonly IRouteSegmentValidator _routeSegmentValidator;
         private readonly IMediator _mediator;
         private readonly ApplicationSetting _applicationSettings;
+        private readonly IGeoDatabase _geoDatabase;
 
         public GeoDatabaseUpdatedHandler(
             ILogger<RouteNodeAddedHandler> logger,
@@ -33,7 +35,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             IProducer producer,
             IRouteSegmentValidator routeSegmentValidator,
             IMediator mediator,
-            IOptions<ApplicationSetting> applicationSettings)
+            IOptions<ApplicationSetting> applicationSettings,
+            IGeoDatabase geoDatabase)
         {
             _logger = logger;
             _kafkaSettings = kafkaSettings.Value;
@@ -41,8 +44,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _routeSegmentValidator = routeSegmentValidator;
             _mediator = mediator;
             _applicationSettings = applicationSettings.Value;
+            _geoDatabase = geoDatabase;
         }
-
 
         public async Task Handle(GeoDatabaseUpdated request, CancellationToken token)
         {
@@ -52,69 +55,64 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             }
             else if (request.UpdatedEntity is RouteSegment)
             {
-                await HandleRouteSegmentUpdated((RouteSegment)request.UpdatedEntity);
+                var notificationEvent = await HandleRouteSegmentUpdated((RouteSegment)request.UpdatedEntity);
+                await _mediator.Publish(notificationEvent);
             }
         }
 
-        private async Task HandleRouteNodeUpdated(RouteNode routeNode)
+        private async Task<INotification> HandleRouteNodeUpdated(RouteNode routeNode)
         {
+            var eventId = Guid.NewGuid();
+
             if (routeNode is null)
                 throw new ArgumentNullException($"Parameter {nameof(routeNode)} cannot be null");
 
             // If the GDB integrator produced the message do nothing
             if (routeNode.ApplicationName == _applicationSettings.ApplicationName)
-                return;
+                return null;
 
-            var intersectingRouteSegments = await _mediator.Send(new GetIntersectingRouteSegmentsOnRouteNode { RouteNode = routeNode });
+            var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
 
             if (intersectingRouteSegments.Count == 0)
-            {
-                await _mediator.Publish(new NewLonelyRouteNode { RouteNode = routeNode });
-                return;
-            }
+                return new RouteNodeAdded { EventId = eventId, RouteNode = routeNode };
 
             if (intersectingRouteSegments.Count == 1)
             {
                 await _mediator.Publish(new ExistingRouteSegmentSplittedByUser
                 {
                     RouteNode = routeNode,
-                    IntersectingRouteSegment = intersectingRouteSegments.FirstOrDefault()
+                    IntersectingRouteSegment = intersectingRouteSegments.FirstOrDefault(),
+                    EventId = eventId
                 });
-
-                return;
             }
 
-            await _mediator.Publish(new InvalidRouteNodeOperation { RouteNode = routeNode });
+            return new InvalidRouteNodeOperation { RouteNode = routeNode, EventId = eventId };
         }
 
-        private async Task HandleRouteSegmentUpdated(RouteSegment routeSegment)
+        private async Task<INotification> HandleRouteSegmentUpdated(RouteSegment routeSegment)
         {
-            if (!_routeSegmentValidator.LineIsValid(routeSegment.GetLineString()))
-            {
-                await _mediator.Publish(new InvalidRouteSegmentOperation { RouteSegment = routeSegment });
-                return;
-            }
+            var eventId = Guid.NewGuid();
 
-            var intersectingStartNodes = await _mediator.Send(
-                new GetIntersectingStartRouteNodes { RouteSegment = routeSegment });
-            var intersectingEndNodes = await _mediator.Send(
-                new GetIntersectingEndRouteNodes { RouteSegment = routeSegment });
+            if (!_routeSegmentValidator.LineIsValid(routeSegment.GetLineString()))
+                return new InvalidRouteSegmentOperation { RouteSegment = routeSegment };
+
+            var intersectingStartNodes = await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment);
+            var intersectingEndNodes = await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment);
 
             var totalIntersectingNodes = intersectingStartNodes.Count + intersectingEndNodes.Count;
 
             if (intersectingStartNodes.Count <= 1 && intersectingEndNodes.Count <= 1)
             {
-                await _mediator.Publish(new NewRouteSegmentDigitizedByUser
+                return new NewRouteSegmentDigitizedByUser
                 {
                     RouteSegment = routeSegment,
                     StartRouteNode = intersectingStartNodes.FirstOrDefault(),
-                    EndRouteNode = intersectingEndNodes.FirstOrDefault()
-                });
-
-                return;
+                    EndRouteNode = intersectingEndNodes.FirstOrDefault(),
+                    EventId = eventId
+                };
             }
 
-            await _mediator.Publish(new InvalidRouteSegmentOperation { RouteSegment = routeSegment });
+            return new InvalidRouteSegmentOperation { RouteSegment = routeSegment, EventId = eventId };
         }
     }
 }

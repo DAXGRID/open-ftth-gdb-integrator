@@ -13,6 +13,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         public RouteNode StartRouteNode { get; set; }
         public RouteNode EndRouteNode { get; set; }
         public RouteSegment RouteSegment { get; set; }
+        public Guid EventId { get; set; }
     }
 
     public class NewRouteSegmentDigitizedByUserHandler : INotificationHandler<NewRouteSegmentDigitizedByUser>
@@ -38,7 +39,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting - {nameof(NewRouteSegmentDigitizedByUser)}\n");
 
-            var eventId = Guid.NewGuid();
+            var eventId = request.EventId;
 
             var routeSegment = request.RouteSegment;
 

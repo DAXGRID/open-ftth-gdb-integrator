@@ -11,6 +11,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     public class InvalidRouteNodeOperation : INotification
     {
         public RouteNode RouteNode { get; set; }
+        public Guid EventId { get; set; }
     }
 
     public class InvalidRouteNodeOperationHandler : INotificationHandler<InvalidRouteNodeOperation>
