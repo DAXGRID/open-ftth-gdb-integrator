@@ -5,7 +5,7 @@ using MediatR;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.Integrator.Factories;
+using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -18,19 +18,16 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
         private readonly KafkaSetting _kafkaSetting;
         private readonly IMediator _mediator;
         private readonly ILogger _logger;
-        private readonly IRouteSegmentCommandFactory _routeSegmentCommandFactory;
 
         public PostgresRouteSegmentSubscriber(
             IOptions<KafkaSetting> kafkaSetting,
             IMediator mediator,
-            ILogger<PostgresRouteSegmentSubscriber> logger,
-            IRouteSegmentCommandFactory routeSegmentCommandFactory
+            ILogger<PostgresRouteSegmentSubscriber> logger
             )
         {
             _kafkaSetting = kafkaSetting.Value;
             _mediator = mediator;
             _logger = logger;
-            _routeSegmentCommandFactory = routeSegmentCommandFactory;
         }
 
         public void Subscribe()
@@ -60,8 +57,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
 
             if (routeSegment.Mrid != Guid.Empty)
             {
-                var command = await _routeSegmentCommandFactory.Create(routeSegment);
-                await _mediator.Send(command);
+                await _mediator.Publish(new GeoDatabaseUpdated { UpdatedEntity = routeSegment });
             }
             else
             {
