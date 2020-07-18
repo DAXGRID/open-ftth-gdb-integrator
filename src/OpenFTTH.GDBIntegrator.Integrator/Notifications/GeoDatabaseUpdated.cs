@@ -3,7 +3,6 @@ using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
-using OpenFTTH.GDBIntegrator.Integrator.Queries;
 using MediatR;
 using System;
 using System.Threading;

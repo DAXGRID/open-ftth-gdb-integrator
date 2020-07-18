@@ -10,8 +10,8 @@ using OpenFTTH.GDBIntegrator.Subscriber;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres;
-using OpenFTTH.GDBIntegrator.Integrator.Queries;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
+using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using MediatR;
 
 namespace OpenFTTH.GDBIntegrator.Internal
@@ -44,7 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
             {
                 services.AddOptions();
                 services.AddLogging();
-                services.AddMediatR(typeof(GetIntersectingStartRouteNodesHandler).GetTypeInfo().Assembly);
+                services.AddMediatR(typeof(GeoDatabaseUpdated).GetTypeInfo().Assembly);
 
                 services.AddHostedService<Startup>();
                 services.AddSingleton<IRouteSegmentSubscriber, PostgresRouteSegmentSubscriber>();
