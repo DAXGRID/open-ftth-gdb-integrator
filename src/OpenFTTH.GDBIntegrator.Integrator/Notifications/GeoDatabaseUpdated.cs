@@ -49,19 +49,25 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(GeoDatabaseUpdated request, CancellationToken token)
         {
-            _pool.WaitOne();
-
-            if (request.UpdatedEntity is RouteNode)
+            try
             {
-                await HandleRouteNodeUpdated((RouteNode)request.UpdatedEntity);
+                _pool.WaitOne();
+                if (request.UpdatedEntity is RouteNode)
+                {
+                    var notificationEvent = await HandleRouteNodeUpdated((RouteNode)request.UpdatedEntity);
+                    await _mediator.Publish(notificationEvent);
+                }
+                else if (request.UpdatedEntity is RouteSegment)
+                {
+                    var notificationEvent = await HandleRouteSegmentUpdated((RouteSegment)request.UpdatedEntity);
+                    await _mediator.Publish(notificationEvent);
+                }
+                _pool.Release();
             }
-            else if (request.UpdatedEntity is RouteSegment)
+            catch
             {
-                var notificationEvent = await HandleRouteSegmentUpdated((RouteSegment)request.UpdatedEntity);
-                await _mediator.Publish(notificationEvent);
+                _pool.Release();
             }
-
-            _pool.Release();
         }
 
         private async Task<INotification> HandleRouteNodeUpdated(RouteNode routeNode)
@@ -76,18 +82,19 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 return null;
 
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
+            _logger.LogWarning("Count" + intersectingRouteSegments.Count);
 
             if (intersectingRouteSegments.Count == 0)
                 return new RouteNodeAdded { EventId = eventId, RouteNode = routeNode };
 
             if (intersectingRouteSegments.Count == 1)
             {
-                await _mediator.Publish(new ExistingRouteSegmentSplittedByUser
+                return new ExistingRouteSegmentSplittedByUser
                 {
                     RouteNode = routeNode,
                     IntersectingRouteSegment = intersectingRouteSegments.FirstOrDefault(),
                     EventId = eventId
-                });
+                };
             }
 
             return new InvalidRouteNodeOperation { RouteNode = routeNode, EventId = eventId };
@@ -97,8 +104,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             var eventId = Guid.NewGuid();
 
+            if (routeSegment.ApplicationName == _applicationSettings.ApplicationName)
+                return null;
+
             if (!_routeSegmentValidator.LineIsValid(routeSegment.GetLineString()))
-                return new InvalidRouteSegmentOperation { RouteSegment = routeSegment };
+                return new InvalidRouteSegmentOperation { RouteSegment = routeSegment, EventId = eventId };
 
             var intersectingStartNodes = await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment);
             var intersectingEndNodes = await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment);

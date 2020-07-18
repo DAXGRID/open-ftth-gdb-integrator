@@ -34,7 +34,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                           ),
                         @tolerance
                       ),
-                      coord)
+                      coord) AND marked_to_be_deleted = false
                     ";
 
                 await connection.OpenAsync();
@@ -58,7 +58,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                           ),
                         @tolerance
                       ),
-                      coord)
+                      coord) AND marked_to_be_deleted = false
                     ";
 
                 await connection.OpenAsync();
@@ -80,7 +80,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                           WHERE mrid = @mrid),
                         @tolerance
                       ),
-                      coord)";
+                      coord) AND marked_to_be_deleted = false";
 
                 await connection.OpenAsync();
                 var result = await connection.QueryAsync<RouteSegment>(query, new { routeNode.Mrid, _applicationSettings.Tolerance });
@@ -156,14 +156,16 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     coord,
                     work_task_mrid,
                     user_name,
-                    application_name
+                    application_name,
+                    marked_to_be_deleted
                     )
                     VALUES(
                     @mrid,
                     ST_GeomFromWKB(@coord, 25832),
                     @workTaskMrid,
                     @username,
-                    @applicationName
+                    @applicationName,
+                    false
                     );";
 
                 await connection.OpenAsync();
@@ -180,14 +182,16 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     coord,
                     work_task_mrid,
                     user_name,
-                    application_name
+                    application_name,
+                    marked_to_be_deleted
                     )
                     VALUES(
                     @mrid,
                     ST_GeomFromWKB(@coord, 25832),
                     @workTaskMrid,
                     @username,
-                    @applicationName
+                    @applicationName,
+                    false
                     );";
 
                 await connection.OpenAsync();
@@ -209,7 +213,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                             ST_GeomFromWKB(@coord, 25832)
                         )
                     )
-                    FROM route_network.route_segment WHERE mrid = @mrid";
+                    FROM route_network.route_segment WHERE mrid = @mrid AND marked_to_be_deleted = false";
 
                 await connection.OpenAsync();
                 var result = await connection.QueryAsync<string>(query, new { routeNode.Coord, intersectingRouteSegment.Mrid });

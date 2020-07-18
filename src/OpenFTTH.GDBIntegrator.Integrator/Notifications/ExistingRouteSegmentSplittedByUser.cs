@@ -47,17 +47,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             {
                 _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Inserting routesegment: {routeSegment.Mrid}");
                 await _geoDatabase.InsertRouteSegment(routeSegment);
-                await _mediator.Publish(new RouteSegmentAdded
-                    {
-                        EventId = request.EventId,
-                        RouteSegment = routeSegment,
-                        StartRouteNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment)).FirstOrDefault(),
-                        EndRouteNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).FirstOrDefault()
-                    });
+                // await _mediator.Publish(new RouteSegmentAdded
+                //     {
+                //         EventId = request.EventId,
+                //         RouteSegment = routeSegment,
+                //         StartRouteNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment)).FirstOrDefault(),
+                //         EndRouteNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).FirstOrDefault()
+                //     });
             }
 
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Deleting routesegment: {request.IntersectingRouteSegment.Mrid}");
-            await _geoDatabase.MarkDeleteRouteSegment(request.IntersectingRouteSegment.Mrid);
+            await _geoDatabase.DeleteRouteSegment(request.IntersectingRouteSegment.Mrid);
             await _mediator.Publish(
                 new RouteSegmentRemoved
                 { EventId = request.EventId,
