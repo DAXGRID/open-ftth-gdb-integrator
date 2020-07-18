@@ -12,28 +12,17 @@ file, after that fill out all the empty fields in the appsettings file.
 
 ## Requirements running the application
 
-* gnumake
+* [Taskfile](https://taskfile.dev/#/installation)
 * dotnet runtime 3.1
-
-### Note
-
-On windows it can be done using chocolatey with the following command:
-
-``` sh
-choco install make
-```
 
 ## Running
 
 Running the application
 
 ``` makefile
-make start
+task start
 ```
 
 ## Node Editing
 
 Info about node editing can be found here [Link](https://github.com/DAXGRID/open-ftth-overview/tree/master/Route%20Network%20Editing%20Details)
-
-Proposed features of the node editing commands
-![Overview of the node editing](https://raw.githubusercontent.com/DAXGRID/open-ftth-overview/master/Brainstorm%20Material/Route%20Network%20Editing%20Commands%20Proposal.jpg)

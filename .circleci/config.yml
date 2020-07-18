@@ -19,14 +19,14 @@ jobs:
           name: Apt update
           command: apt-get update;
       - run:
-          name: Install make
-          command: apt-get install make
+          name: Install taskfile
+          command: curl -sL https://taskfile.dev/install.sh | sh
       - run:
           name: Restore
-          command: make restore
+          command: task restore
       - run:
           name: Build
-          command: make build-release
+          command: task build-release
 
   test-app:
     executor: dotnet-core-sdk
@@ -36,11 +36,11 @@ jobs:
           name: Apt update
           command: apt-get update;
       - run:
-          name: Install make
-          command: apt-get install make
+          name: Install taskrunner
+          command: curl -sL https://taskfile.dev/install.sh | sh
       - run:
           name: Test
-          command: make test-verbose
+          command: task test-verbose
 
   build-docker-image:
     executor: docker-publisher

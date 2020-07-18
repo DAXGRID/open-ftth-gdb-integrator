@@ -1,0 +1,24 @@
+version: '2'
+
+tasks:
+  build:
+    cmds:
+     - dotnet build
+  build-release:
+    cmds:
+     - dotnet build -c Release
+  clean:
+    cmds:
+     - dotnet clean
+  restore:
+    cmds:
+     - dotnet restore
+  start:
+    cmds:
+     - dotnet run -p src/OpenFTTH.GDBIntegrator/OpenFTTH.GDBIntegrator.csproj
+  test:
+    cmds:
+     - dotnet test
+  test-verbose:
+    cmds:
+     - dotnet test /p:CollectCoverage=true -l "console;verbosity=detailed"
