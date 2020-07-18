@@ -20,6 +20,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
     public class GeoDatabaseUpdatedHandler : INotificationHandler<GeoDatabaseUpdated>
     {
+        private static Semaphore _pool = new Semaphore(1, 1);
         private readonly ILogger<RouteNodeAddedHandler> _logger;
         private readonly KafkaSetting _kafkaSettings;
         private readonly IProducer _producer;
@@ -48,6 +49,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(GeoDatabaseUpdated request, CancellationToken token)
         {
+            _pool.WaitOne();
+
             if (request.UpdatedEntity is RouteNode)
             {
                 await HandleRouteNodeUpdated((RouteNode)request.UpdatedEntity);
@@ -57,6 +60,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 var notificationEvent = await HandleRouteSegmentUpdated((RouteSegment)request.UpdatedEntity);
                 await _mediator.Publish(notificationEvent);
             }
+
+            _pool.Release();
         }
 
         private async Task<INotification> HandleRouteNodeUpdated(RouteNode routeNode)
