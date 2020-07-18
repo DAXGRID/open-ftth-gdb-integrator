@@ -14,7 +14,6 @@ jobs:
   build-app:
     executor: dotnet-core-sdk
     steps:
-      - checkout
       - run:
           name: Apt update
           command: apt-get update;
@@ -28,6 +27,7 @@ jobs:
       - run:
           name: Restore
           command: task restore
+      - checkout
       - run:
           name: Build
           command: task build-release
@@ -35,7 +35,6 @@ jobs:
   test-app:
     executor: dotnet-core-sdk
     steps:
-      - checkout
       - run:
           name: Apt update
           command: apt-get update;
@@ -46,6 +45,7 @@ jobs:
           name: Export taskrunner
           command: |
             echo 'export PATH=$HOME/bin:$PATH' >> $BASH_ENV
+      - checkout
       - run:
           name: Test
           command: task test-verbose
