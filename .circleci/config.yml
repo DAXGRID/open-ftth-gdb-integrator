@@ -22,15 +22,11 @@ jobs:
           name: Install taskfile
           command: curl -sL https://taskfile.dev/install.sh | sh
       - run:
-          name: Export taskrunner
-          command: |
-            echo 'export PATH=$HOME/bin/project:$PATH' >> $BASH_ENV
-      - run:
           name: Restore
-          command: task restore
+          command: ./bin/task restore
       - run:
           name: Build
-          command: task build-release
+          command: ./bin/task build-release
 
   test-app:
     executor: dotnet-core-sdk
@@ -43,12 +39,8 @@ jobs:
           name: Install taskrunner
           command: curl -sL https://taskfile.dev/install.sh | sh
       - run:
-          name: Export taskrunner
-          command: |
-            echo 'export PATH=$HOME/project/bin:$PATH' >> $BASH_ENV
-      - run:
           name: Test
-          command: task test-verbose
+          command: ./bin/task test-verbose
 
   build-docker-image:
     executor: docker-publisher
