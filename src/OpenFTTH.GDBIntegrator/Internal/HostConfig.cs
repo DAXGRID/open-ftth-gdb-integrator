@@ -12,6 +12,7 @@ using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.Commands;
+using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using MediatR;
 
 namespace OpenFTTH.GDBIntegrator.Internal
@@ -53,6 +54,9 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddTransient<IGeoDatabase, Postgis>();
                 services.AddTransient<IRouteSegmentValidator, RouteSegmentValidator>();
                 services.AddTransient<IRouteSegmentFactory, RouteSegmentFactory>();
+                services.AddTransient<IRouteSegmentFactory, RouteSegmentFactory>();
+                services.AddTransient<IRouteSegmentEventFactory, RouteSegmentEventFactory>();
+                services.AddTransient<IRouteNodeEventFactory, RouteNodeEventFactory>();
 
                 services.Configure<KafkaSetting>(kafkaSettings =>
                                                  hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));
