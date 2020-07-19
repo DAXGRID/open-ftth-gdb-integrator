@@ -41,7 +41,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 _pool.WaitOne();
                 if (request.UpdatedEntity is RouteNode)
                 {
-
                     var notificationEvent = await _routeNodeEventFactory.Create((RouteNode)request.UpdatedEntity);
                     await _mediator.Publish(notificationEvent);
                 }
