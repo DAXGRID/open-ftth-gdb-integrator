@@ -3,6 +3,7 @@ using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
+using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using MediatR;
 using System;
 using System.Threading;
@@ -11,14 +12,14 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
+namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
-    public class GeoDatabaseUpdated : INotification
+    public class GeoDatabaseUpdated : IRequest
     {
         public object UpdatedEntity { get; set; }
     }
 
-    public class GeoDatabaseUpdatedHandler : INotificationHandler<GeoDatabaseUpdated>
+    public class GeoDatabaseUpdatedHandler : IRequestHandler<GeoDatabaseUpdated, Unit>
     {
         private static Semaphore _pool = new Semaphore(1, 1);
         private readonly ILogger<RouteNodeAddedHandler> _logger;
@@ -47,7 +48,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _geoDatabase = geoDatabase;
         }
 
-        public async Task Handle(GeoDatabaseUpdated request, CancellationToken token)
+        public async Task<Unit> Handle(GeoDatabaseUpdated request, CancellationToken token)
         {
             try
             {
@@ -64,10 +65,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 }
                 _pool.Release();
             }
-            catch
+            catch(Exception e)
             {
+                _logger.LogError(e.Message);
                 _pool.Release();
             }
+
+            return await Task.FromResult(new Unit());
         }
 
         private async Task<INotification> HandleRouteNodeUpdated(RouteNode routeNode)

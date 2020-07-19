@@ -5,7 +5,7 @@ using MediatR;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.Integrator.Notifications;
+using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -57,7 +57,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
 
             if (routeSegment.Mrid != Guid.Empty)
             {
-                await _mediator.Publish(new GeoDatabaseUpdated { UpdatedEntity = routeSegment });
+                await _mediator.Send(new GeoDatabaseUpdated { UpdatedEntity = routeSegment });
             }
             else
             {

@@ -11,7 +11,7 @@ using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
-using OpenFTTH.GDBIntegrator.Integrator.Notifications;
+using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using MediatR;
 
 namespace OpenFTTH.GDBIntegrator.Internal
