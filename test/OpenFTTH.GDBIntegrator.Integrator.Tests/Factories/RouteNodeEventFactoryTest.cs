@@ -10,7 +10,6 @@ using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
 using OpenFTTH.GDBIntegrator.Config;
 using Microsoft.Extensions.Options;
 
@@ -22,10 +21,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         public async Task Create_ShouldThrowArgumentNullException_OnBeingPassedNullRouteNode()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
-            var routeSegmentValidator = A.Fake<RouteSegmentValidator>();
             var geoDatabase = A.Fake<IGeoDatabase>();
 
-            var factory = new RouteNodeEventFactory(applicationSetting, routeSegmentValidator, geoDatabase);
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
             Func<Task> act = async () => await factory.Create(null);
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
@@ -35,12 +33,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         public async Task Create_ShouldReturnNull_OnRouteNodeApplicationNameBeingSettingsApplicationName()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
-            var routeSegmentValidator = A.Fake<RouteSegmentValidator>();
             var geoDatabase = A.Fake<IGeoDatabase>();
 
             A.CallTo(() => applicationSetting.Value).Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
-            var factory = new RouteNodeEventFactory(applicationSetting, routeSegmentValidator, geoDatabase);
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
             var routeNode = new RouteNode(Guid.Empty, null, Guid.Empty, String.Empty, "GDB_INTEGRATOR");
             var result = await factory.Create(routeNode);
@@ -52,14 +49,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         public async Task Create_ShouldReturnRouteNodeAdded_OnIntersectingRouteSegmentsCountBeingZero()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
-            var routeSegmentValidator = A.Fake<RouteSegmentValidator>();
             var geoDatabase = A.Fake<IGeoDatabase>();
             var routeNode = A.Fake<RouteNode>();
 
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(routeNode))
                 .Returns(new List<RouteSegment>());
 
-            var factory = new RouteNodeEventFactory(applicationSetting, routeSegmentValidator, geoDatabase);
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
             var result = (RouteNodeAdded)(await factory.Create(routeNode));
 
@@ -74,7 +70,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         public async Task Create_ShouldReturnExistingRouteSegmentSplittedByUser_OnIntersectingRouteSegmentsCountBeingOne()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
-            var routeSegmentValidator = A.Fake<RouteSegmentValidator>();
             var geoDatabase = A.Fake<IGeoDatabase>();
             var routeNode = A.Fake<RouteNode>();
             var routeSegments = new List<RouteSegment> { new RouteSegment() };
@@ -82,7 +77,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(routeNode))
                 .Returns(routeSegments);
 
-            var factory = new RouteNodeEventFactory(applicationSetting, routeSegmentValidator, geoDatabase);
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
             var result = (ExistingRouteSegmentSplittedByUser)(await factory.Create(routeNode));
 
@@ -98,7 +93,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         public async Task Create_ShouldRetrunInvalidRouteNodeOperation_OnIntersectingRouteSegmentsCountBeingGreaterThanOne()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
-            var routeSegmentValidator = A.Fake<RouteSegmentValidator>();
             var geoDatabase = A.Fake<IGeoDatabase>();
             var routeNode = A.Fake<RouteNode>();
             var routeSegments = new List<RouteSegment> { new RouteSegment(), new RouteSegment() };
@@ -106,7 +100,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(routeNode))
                 .Returns(routeSegments);
 
-            var factory = new RouteNodeEventFactory(applicationSetting, routeSegmentValidator, geoDatabase);
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
             var result = (InvalidRouteNodeOperation)(await factory.Create(routeNode));
 

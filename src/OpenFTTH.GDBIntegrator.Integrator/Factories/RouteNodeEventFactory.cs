@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using OpenFTTH.GDBIntegrator.Config;
@@ -14,16 +13,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
     public class RouteNodeEventFactory : IRouteNodeEventFactory
     {
         private readonly ApplicationSetting _applicationSettings;
-        private readonly IRouteSegmentValidator _routeSegmentValidator;
         private readonly IGeoDatabase _geoDatabase;
 
         public RouteNodeEventFactory(
             IOptions<ApplicationSetting> applicationSettings,
-            IRouteSegmentValidator routeSegmentValidator,
             IGeoDatabase geoDatabase)
         {
             _applicationSettings = applicationSettings.Value;
-            _routeSegmentValidator = routeSegmentValidator;
             _geoDatabase = geoDatabase;
         }
 

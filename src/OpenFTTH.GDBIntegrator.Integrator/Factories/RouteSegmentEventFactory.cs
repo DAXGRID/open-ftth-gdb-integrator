@@ -28,10 +28,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         public async Task<object> Create(RouteSegment routeSegment)
         {
-            var eventId = Guid.NewGuid();
+            if (routeSegment is null)
+                throw new ArgumentNullException($"Parameter {nameof(routeSegment)} must not be null");
 
             if (routeSegment.ApplicationName == _applicationSettings.ApplicationName)
                 return null;
+
+            var eventId = Guid.NewGuid();
 
             if (!_routeSegmentValidator.LineIsValid(routeSegment.GetLineString()))
                 return new InvalidRouteSegmentOperation { RouteSegment = routeSegment, EventId = eventId };
