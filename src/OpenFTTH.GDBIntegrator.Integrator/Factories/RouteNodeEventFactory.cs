@@ -29,10 +29,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         public async Task<object> Create(RouteNode routeNode)
         {
-            var eventId = Guid.NewGuid();
-
             if (routeNode is null)
                 throw new ArgumentNullException($"Parameter {nameof(routeNode)} cannot be null");
+
+            var eventId = Guid.NewGuid();
 
             // If the GDB integrator produced the message do nothing
             if (routeNode.ApplicationName == _applicationSettings.ApplicationName)
