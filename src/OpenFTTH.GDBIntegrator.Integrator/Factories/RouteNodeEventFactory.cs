@@ -1,10 +1,10 @@
-using MediatR;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
+using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using Microsoft.Extensions.Options;
@@ -27,7 +27,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             _geoDatabase = geoDatabase;
         }
 
-        public async Task<INotification> Create(RouteNode routeNode)
+        public async Task<object> Create(RouteNode routeNode)
         {
             var eventId = Guid.NewGuid();
 

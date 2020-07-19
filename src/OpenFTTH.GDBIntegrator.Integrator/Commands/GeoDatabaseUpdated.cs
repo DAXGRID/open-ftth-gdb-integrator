@@ -1,8 +1,4 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
-using OpenFTTH.GDBIntegrator.Config;
-using OpenFTTH.GDBIntegrator.Producer;
-using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using MediatR;
 using System;
@@ -28,10 +24,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         public GeoDatabaseUpdatedHandler(
             ILogger<RouteNodeAddedHandler> logger,
-            IMediator mediator)
+            IMediator mediator,
+            IRouteSegmentEventFactory routeSegmentEventFactory,
+            IRouteNodeEventFactory routeNodeEventFactory)
         {
             _logger = logger;
             _mediator = mediator;
+            _routeSegmentEventFactory = routeSegmentEventFactory;
+            _routeNodeEventFactory = routeNodeEventFactory;
         }
 
         public async Task<Unit> Handle(GeoDatabaseUpdated request, CancellationToken token)
@@ -41,17 +41,25 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 _pool.WaitOne();
                 if (request.UpdatedEntity is RouteNode)
                 {
-                    var notificationEvent = await _routeNodeEventFactory.Create((RouteNode)request.UpdatedEntity);
-                    await _mediator.Publish(notificationEvent);
+                    var routeNodeEvent = await _routeNodeEventFactory.Create((RouteNode)request.UpdatedEntity);
+
+                    if (routeNodeEvent is INotification)
+                        await _mediator.Publish(routeNodeEvent);
+                    else if (routeNodeEvent is IRequest)
+                        await _mediator.Send(routeNodeEvent);
                 }
                 else if (request.UpdatedEntity is RouteSegment)
                 {
-                    var notificationEvent = await _routeSegmentEventFactory.Create((RouteSegment)request.UpdatedEntity);
-                    await _mediator.Publish(notificationEvent);
+                    var routeSegmentEvent = await _routeSegmentEventFactory.Create((RouteSegment)request.UpdatedEntity);
+
+                    if (routeSegmentEvent is INotification)
+                        await _mediator.Publish(routeSegmentEvent);
+                    else if (routeSegmentEvent is IRequest)
+                        await _mediator.Send(routeSegmentEvent);
                 }
                 _pool.Release();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 _pool.Release();

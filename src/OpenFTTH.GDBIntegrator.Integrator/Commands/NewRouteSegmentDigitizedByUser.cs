@@ -1,14 +1,15 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
+using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
+namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
-    public class NewRouteSegmentDigitizedByUser : INotification
+    public class NewRouteSegmentDigitizedByUser : IRequest
     {
         public RouteNode StartRouteNode { get; set; }
         public RouteNode EndRouteNode { get; set; }
@@ -16,7 +17,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         public Guid EventId { get; set; }
     }
 
-    public class NewRouteSegmentDigitizedByUserHandler : INotificationHandler<NewRouteSegmentDigitizedByUser>
+    public class NewRouteSegmentDigitizedByUserHandler : IRequestHandler<NewRouteSegmentDigitizedByUser, Unit>
     {
         private readonly IMediator _mediator;
         private readonly ILogger<NewRouteSegmentDigitizedByUserHandler> _logger;
@@ -32,7 +33,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _geoDatabase = geoDatabase;
         }
 
-        public async Task Handle(NewRouteSegmentDigitizedByUser request, CancellationToken token)
+        public async Task<Unit> Handle(NewRouteSegmentDigitizedByUser request, CancellationToken token)
         {
             if (request.RouteSegment is null)
                 throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");
@@ -61,6 +62,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             await _mediator.Publish(new RouteSegmentAdded
                 { EventId = eventId, RouteSegment = routeSegment, StartRouteNode = startNode, EndRouteNode = endNode });
+
+            return await Task.FromResult(new Unit());
         }
     }
 }

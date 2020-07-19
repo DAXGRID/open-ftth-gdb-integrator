@@ -6,6 +6,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
     public interface IRouteNodeEventFactory
     {
-        Task<INotification> Create(RouteNode routeNode);
+        Task<object> Create(RouteNode routeNode);
     }
 }
