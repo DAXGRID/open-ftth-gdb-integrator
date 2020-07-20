@@ -89,6 +89,26 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             }
         }
 
+        public async Task<List<RouteSegment>> GetIntersectingRouteSegments(RouteNode routeNode, RouteSegment notInclude)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_segment
+                    WHERE ST_Intersects(
+                      ST_Buffer(
+                          (SELECT coord FROM route_network.route_node
+                          WHERE mrid = @mrid),
+                        @tolerance
+                      ),
+                      coord) AND mrid != @sMrid  AND marked_to_be_deleted = false";
+
+                await connection.OpenAsync();
+                var result = await connection.QueryAsync<RouteSegment>(query, new { sMrid = notInclude.Mrid, routeNode.Mrid, _applicationSettings.Tolerance });
+
+                return result.AsList();
+            }
+        }
+
         public async Task<List<RouteSegment>> GetIntersectingStartRouteSegments(RouteSegment routeSegment)
         {
             using (var connection = GetNpgsqlConnection())

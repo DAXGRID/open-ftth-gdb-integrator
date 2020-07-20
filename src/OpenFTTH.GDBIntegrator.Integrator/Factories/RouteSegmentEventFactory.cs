@@ -48,7 +48,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingEndSegments = await _geoDatabase.GetIntersectingEndRouteSegments(routeSegment);
 
             // Case 5, 6
-            if (intersectingStartSegments.Count == 1 || intersectingEndSegments.Count == 1)
+            if (intersectingStartNodes.Count == 0 && intersectingEndNodes.Count == 0 && intersectingStartSegments.Count == 1 || intersectingEndSegments.Count == 1)
             {
                 var notifications = new List<INotification>();
 
@@ -58,7 +58,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                     {
                         RouteNode = routeSegment.FindStartNode(),
                         EventId = eventId,
-                        InsertRouteNode = true
+                        InsertRouteNode = true,
+                        CreatedRouteSegment = routeSegment
                     });
                 }
 
@@ -68,7 +69,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                     {
                         RouteNode = routeSegment.FindEndNode(),
                         EventId = eventId,
-                        InsertRouteNode = true
+                        InsertRouteNode = true,
+                        CreatedRouteSegment = routeSegment
                     });
                 }
 
@@ -81,8 +83,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return notifications;
             }
 
-            var totalIntersectingNodes = intersectingStartNodes.Count + intersectingEndNodes.Count;
-
             // Case 1-3
             if (intersectingStartNodes.Count <= 1 && intersectingEndNodes.Count <= 1)
             {
@@ -91,7 +91,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                     RouteSegment = routeSegment,
                     EventId = eventId
                 }};
-            }
+            }           
 
             return new List<INotification> { new InvalidRouteSegmentOperation { RouteSegment = routeSegment, EventId = eventId } };
         }
