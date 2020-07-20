@@ -3,6 +3,7 @@ using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Generic;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
@@ -15,7 +16,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         public RouteNode RouteNode { get; set; }
         public Guid EventId { get; set; }
         public bool InsertRouteNode { get; set; }
-        public RouteSegment CreatedRouteSegment { get; set; }
+        public RouteSegment RouteSegmentDigitizedByUser { get; set; }
     }
 
     public class ExistingRouteSegmentSplittedByUserHandler : INotificationHandler<ExistingRouteSegmentSplittedByUser>
@@ -42,42 +43,61 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting Existing route segment splitted by route node");
 
             if (request.InsertRouteNode)
-            {
-                _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Inserting routeNode: {request.RouteNode.Mrid}");
-                await _geoDatabase.InsertRouteNode(request.RouteNode);
-                await _mediator.Publish(new RouteNodeAdded { RouteNode = request.RouteNode, EventId = request.EventId });
-            }
+                await InsertNewNode(request.RouteNode, request.EventId);
 
-            RouteSegment intersectingRouteSegment;
-
-            // This is required in case that this event was triggered by RouteSegmentDigtizedByUser
-            if (request.CreatedRouteSegment is null)
-                intersectingRouteSegment = (await _geoDatabase.GetIntersectingRouteSegments(request.RouteNode)).First();
-            else
-                intersectingRouteSegment = (await _geoDatabase.GetIntersectingRouteSegments(request.RouteNode, request.CreatedRouteSegment)).First();
+            var intersectingRouteSegment = await GetIntersectingRouteSegment(request.RouteSegmentDigitizedByUser, request.RouteNode);
 
             var routeSegmentsWkt = await _geoDatabase.GetRouteSegmentsSplittedByRouteNode(request.RouteNode, intersectingRouteSegment);
             var routeSegments = _routeSegmentFactory.Create(routeSegmentsWkt);
 
+            await InsertReplacementRouteSegments(routeSegments, request.EventId);
+
+            await DeleteExistingRouteSegment(intersectingRouteSegment, request.EventId, routeSegments);
+        }
+
+        private async Task InsertNewNode(RouteNode routeNode, Guid eventId)
+        {
+            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Inserting routeNode: {routeNode.Mrid}");
+            await _geoDatabase.InsertRouteNode(routeNode);
+            await _mediator.Publish(new RouteNodeAdded { RouteNode = routeNode, EventId = eventId });
+        }
+
+        private async Task<RouteSegment> GetIntersectingRouteSegment(RouteSegment routeSegmentDigitizedByUser, RouteNode routeNode)
+        {
+            RouteSegment intersectingRouteSegment;
+            // This is required in case that this event was triggered by RouteSegmentDigtizedByUser
+            if (routeSegmentDigitizedByUser is null)
+                intersectingRouteSegment = (await _geoDatabase.GetIntersectingRouteSegments(routeNode)).First();
+            else
+                intersectingRouteSegment = (await _geoDatabase.GetIntersectingRouteSegments(routeNode, routeSegmentDigitizedByUser)).First();
+
+            return intersectingRouteSegment;
+        }
+
+        private async Task InsertReplacementRouteSegments(List<RouteSegment> routeSegments, Guid eventId)
+        {
             foreach (var routeSegment in routeSegments)
             {
                 _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Inserting routesegment: {routeSegment.Mrid}");
                 await _geoDatabase.InsertRouteSegment(routeSegment);
                 await _mediator.Publish(new RouteSegmentAdded
                 {
-                    EventId = request.EventId,
+                    EventId = eventId,
                     RouteSegment = routeSegment,
                     StartRouteNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment)).FirstOrDefault(),
                     EndRouteNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).FirstOrDefault()
                 });
             }
+        }
 
-            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Deleting routesegment: {intersectingRouteSegment.Mrid}");
+        private async Task DeleteExistingRouteSegment(RouteSegment intersectingRouteSegment, Guid eventId, List<RouteSegment> routeSegments)
+        {
+           _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Deleting routesegment: {intersectingRouteSegment.Mrid}");
             await _geoDatabase.DeleteRouteSegment(intersectingRouteSegment.Mrid);
             await _mediator.Publish(
                 new RouteSegmentRemoved
                 {
-                    EventId = request.EventId,
+                    EventId = eventId,
                     RouteSegment = intersectingRouteSegment,
                     ReplacedBySegments = routeSegments.Select(x => x.Mrid)
                 });

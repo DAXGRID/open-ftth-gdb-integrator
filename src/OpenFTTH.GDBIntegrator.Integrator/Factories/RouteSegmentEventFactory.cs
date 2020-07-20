@@ -59,7 +59,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                         RouteNode = routeSegment.FindStartNode(),
                         EventId = eventId,
                         InsertRouteNode = true,
-                        CreatedRouteSegment = routeSegment
+                        RouteSegmentDigitizedByUser = routeSegment
                     });
                 }
 
@@ -70,7 +70,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                         RouteNode = routeSegment.FindEndNode(),
                         EventId = eventId,
                         InsertRouteNode = true,
-                        CreatedRouteSegment = routeSegment
+                        RouteSegmentDigitizedByUser = routeSegment
                     });
                 }
 
