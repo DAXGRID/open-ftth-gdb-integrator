@@ -84,7 +84,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             {
                 result.RouteNode.Should().BeEquivalentTo(routeNode);
                 result.EventId.Should().NotBeEmpty();
-                result.CreatedRouteSegment = routeSegments[0];
             }
         }
 
