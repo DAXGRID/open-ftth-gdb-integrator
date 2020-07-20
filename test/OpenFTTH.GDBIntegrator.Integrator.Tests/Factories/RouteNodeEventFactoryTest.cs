@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
-using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;

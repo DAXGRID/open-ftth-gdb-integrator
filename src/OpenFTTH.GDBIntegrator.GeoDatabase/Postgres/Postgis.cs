@@ -89,6 +89,54 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             }
         }
 
+        public async Task<List<RouteSegment>> GetIntersectingStartRouteSegments(RouteSegment routeSegment)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_segment
+                    WHERE ST_Intersects(
+                      ST_Buffer(
+                        ST_EndPoint(
+                          (SELECT coord FROM route_network.route_segment
+                          WHERE mrid = @mrid)
+                          ),
+                        @tolerance
+                      ),
+                      coord) AND marked_to_be_deleted = false
+                    ";
+
+                await connection.OpenAsync();
+
+                var routeSegments = await connection.QueryAsync<RouteSegment>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
+
+                return routeSegments.AsList();
+            }
+        }
+
+        public async Task<List<RouteSegment>> GetIntersectingEndRouteSegments(RouteSegment routeSegment)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_segment
+                    WHERE ST_Intersects(
+                      ST_Buffer(
+                        ST_StartPoint(
+                          (SELECT coord FROM route_network.route_segment
+                          WHERE mrid = @mrid)
+                          ),
+                        @tolerance
+                      ),
+                      coord) AND marked_to_be_deleted = false
+                    ";
+
+                await connection.OpenAsync();
+
+                var routeSegments = await connection.QueryAsync<RouteSegment>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
+
+                return routeSegments.AsList();
+            }
+        }
+
         public async Task DeleteRouteNode(Guid mrid)
         {
             var applicationName = _applicationSettings.ApplicationName;
