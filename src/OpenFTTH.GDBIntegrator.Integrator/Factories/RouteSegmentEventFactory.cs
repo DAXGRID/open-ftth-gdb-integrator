@@ -3,10 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
-using OpenFTTH.GDBIntegrator.Integrator.Commands;
+using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using Microsoft.Extensions.Options;
+using MediatR;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
@@ -26,7 +27,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             _geoDatabase = geoDatabase;
         }
 
-        public async Task<object> Create(RouteSegment routeSegment)
+        public async Task<INotification> Create(RouteSegment routeSegment)
         {
             if (routeSegment is null)
                 throw new ArgumentNullException($"Parameter {nameof(routeSegment)} must not be null");

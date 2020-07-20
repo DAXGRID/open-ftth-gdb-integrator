@@ -6,15 +6,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace OpenFTTH.GDBIntegrator.Integrator.Commands
+namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
-    public class InvalidRouteNodeOperation : IRequest
+    public class InvalidRouteNodeOperation : INotification
     {
         public RouteNode RouteNode { get; set; }
         public Guid EventId { get; set; }
     }
 
-    public class InvalidRouteNodeOperationHandler : IRequestHandler<InvalidRouteNodeOperation>
+    public class InvalidRouteNodeOperationHandler : INotificationHandler<InvalidRouteNodeOperation>
     {
         private readonly IGeoDatabase _geoDatabase;
         private readonly ILogger<InvalidRouteNodeOperationHandler> _logger;
@@ -25,12 +25,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _logger = logger;
         }
 
-        public async Task<Unit> Handle(InvalidRouteNodeOperation request, CancellationToken token)
+        public async Task Handle(InvalidRouteNodeOperation request, CancellationToken token)
         {
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Deleteting {nameof(RouteNode)} with mrid '{request.RouteNode.Mrid}'");
             await _geoDatabase.DeleteRouteNode(request.RouteNode.Mrid);
-
-            return await Task.FromResult(new Unit());
         }
     }
 }
