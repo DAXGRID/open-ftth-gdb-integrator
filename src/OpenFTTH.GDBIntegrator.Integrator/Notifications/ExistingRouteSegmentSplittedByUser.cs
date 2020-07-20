@@ -13,8 +13,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     public class ExistingRouteSegmentSplittedByUser : INotification
     {
         public RouteNode RouteNode { get; set; }
-        public RouteSegment IntersectingRouteSegment { get; set; }
         public Guid EventId { get; set; }
+        public bool InsertRouteNode { get; set; }
     }
 
     public class ExistingRouteSegmentSplittedByUserHandler : INotificationHandler<ExistingRouteSegmentSplittedByUser>
@@ -40,7 +40,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting Existing route segment splitted by route node");
 
-            var routeSegmentsWkt = await _geoDatabase.GetRouteSegmentsSplittedByRouteNode(request.RouteNode, request.IntersectingRouteSegment);
+            if (request.InsertRouteNode)
+            {
+                await _geoDatabase.InsertRouteNode(request.RouteNode);
+                await _mediator.Publish(new RouteNodeAdded { RouteNode = request.RouteNode, EventId = request.EventId });
+            }
+
+            var intersectingRouteSegment = (await _geoDatabase.GetIntersectingRouteSegments(request.RouteNode)).First();
+            var routeSegmentsWkt = await _geoDatabase.GetRouteSegmentsSplittedByRouteNode(request.RouteNode, intersectingRouteSegment);
             var routeSegments = _routeSegmentFactory.Create(routeSegmentsWkt);
 
             foreach (var routeSegment in routeSegments)
@@ -56,12 +63,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     });
             }
 
-            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Deleting routesegment: {request.IntersectingRouteSegment.Mrid}");
-            await _geoDatabase.DeleteRouteSegment(request.IntersectingRouteSegment.Mrid);
+            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Deleting routesegment: {intersectingRouteSegment.Mrid}");
+            await _geoDatabase.DeleteRouteSegment(intersectingRouteSegment.Mrid);
             await _mediator.Publish(
                 new RouteSegmentRemoved
                 { EventId = request.EventId,
-                  RouteSegment = request.IntersectingRouteSegment,
+                  RouteSegment = intersectingRouteSegment,
                   ReplacedBySegments = routeSegments.Select(x => x.Mrid)
                 });
         }

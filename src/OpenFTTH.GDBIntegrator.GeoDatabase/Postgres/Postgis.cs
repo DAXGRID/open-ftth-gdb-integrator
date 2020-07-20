@@ -96,13 +96,13 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
-                        ST_EndPoint(
+                        ST_StartPoint(
                           (SELECT coord FROM route_network.route_segment
                           WHERE mrid = @mrid)
                           ),
                         @tolerance
                       ),
-                      coord) AND marked_to_be_deleted = false
+                      coord) AND mrid != @mrid AND marked_to_be_deleted = false
                     ";
 
                 await connection.OpenAsync();
@@ -120,13 +120,13 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
-                        ST_StartPoint(
+                        ST_EndPoint(
                           (SELECT coord FROM route_network.route_segment
                           WHERE mrid = @mrid)
                           ),
                         @tolerance
                       ),
-                      coord) AND marked_to_be_deleted = false
+                      coord) AND mrid != @mrid AND marked_to_be_deleted = false
                     ";
 
                 await connection.OpenAsync();

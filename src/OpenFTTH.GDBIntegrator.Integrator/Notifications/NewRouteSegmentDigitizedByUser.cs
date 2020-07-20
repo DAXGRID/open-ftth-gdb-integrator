@@ -5,14 +5,13 @@ using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
     public class NewRouteSegmentDigitizedByUser : INotification
     {
-        public RouteNode StartRouteNode { get; set; }
-        public RouteNode EndRouteNode { get; set; }
         public RouteSegment RouteSegment { get; set; }
         public Guid EventId { get; set; }
     }
@@ -43,9 +42,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             var eventId = request.EventId;
 
             var routeSegment = request.RouteSegment;
-
-            var startNode = request.StartRouteNode;
-            var endNode = request.EndRouteNode;
+            var startNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment)).FirstOrDefault();
+            var endNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).FirstOrDefault();
 
             if (startNode is null)
             {
@@ -61,7 +59,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             }
 
             await _mediator.Publish(new RouteSegmentAdded
-                { EventId = eventId, RouteSegment = routeSegment, StartRouteNode = startNode, EndRouteNode = endNode });
+            { EventId = eventId, RouteSegment = routeSegment, StartRouteNode = startNode, EndRouteNode = endNode });
         }
     }
 }

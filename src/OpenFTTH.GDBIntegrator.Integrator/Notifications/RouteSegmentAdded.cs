@@ -37,8 +37,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(RouteSegmentAdded request, CancellationToken token)
         {
-            _logger.LogInformation($"Information gathered "+ JsonConvert.SerializeObject(request));
-
             _logger.LogInformation($"Sending {nameof(RouteSegmentAdded)} with mrid '{request.RouteSegment.Mrid}' to producer");
 
             await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
-using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using Microsoft.Extensions.Options;
@@ -29,11 +28,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (routeNode is null)
                 throw new ArgumentNullException($"Parameter {nameof(routeNode)} cannot be null");
 
-            var eventId = Guid.NewGuid();
-
             // If the GDB integrator produced the message do nothing
             if (routeNode.ApplicationName == _applicationSettings.ApplicationName)
                 return null;
+
+            var eventId = Guid.NewGuid();
 
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
 
@@ -45,7 +44,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return new ExistingRouteSegmentSplittedByUser
                 {
                     RouteNode = routeNode,
-                    IntersectingRouteSegment = intersectingRouteSegments.FirstOrDefault(),
                     EventId = eventId
                 };
             }

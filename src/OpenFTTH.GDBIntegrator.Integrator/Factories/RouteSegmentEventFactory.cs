@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
@@ -27,37 +28,72 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             _geoDatabase = geoDatabase;
         }
 
-        public async Task<INotification> Create(RouteSegment routeSegment)
+        public async Task<IEnumerable<INotification>> Create(RouteSegment routeSegment)
         {
             if (routeSegment is null)
                 throw new ArgumentNullException($"Parameter {nameof(routeSegment)} must not be null");
 
+            // Do nothing created by application
             if (routeSegment.ApplicationName == _applicationSettings.ApplicationName)
-                return null;
+                return new List<INotification>();
 
             var eventId = Guid.NewGuid();
 
             if (!_routeSegmentValidator.LineIsValid(routeSegment.GetLineString()))
-                return new InvalidRouteSegmentOperation { RouteSegment = routeSegment, EventId = eventId };
+                return new List<INotification> { new InvalidRouteSegmentOperation { RouteSegment = routeSegment, EventId = eventId } };
 
             var intersectingStartNodes = await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment);
             var intersectingEndNodes = await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment);
-            var intersectingRouteSegments = await _geoDatabase.Get
+            var intersectingStartSegments = await _geoDatabase.GetIntersectingStartRouteSegments(routeSegment);
+            var intersectingEndSegments = await _geoDatabase.GetIntersectingEndRouteSegments(routeSegment);
+
+            // Case 5, 6
+            if (intersectingStartSegments.Count == 1 || intersectingEndSegments.Count == 1)
+            {
+                var notifications = new List<INotification>();
+
+                if (intersectingStartSegments.Count == 1)
+                {
+                    notifications.Add(new ExistingRouteSegmentSplittedByUser
+                    {
+                        RouteNode = routeSegment.FindStartNode(),
+                        EventId = eventId,
+                        InsertRouteNode = true
+                    });
+                }
+
+                if (intersectingEndSegments.Count == 1)
+                {
+                    notifications.Add(new ExistingRouteSegmentSplittedByUser
+                    {
+                        RouteNode = routeSegment.FindEndNode(),
+                        EventId = eventId,
+                        InsertRouteNode = true
+                    });
+                }
+
+                notifications.Add(new NewRouteSegmentDigitizedByUser
+                {
+                    RouteSegment = routeSegment,
+                    EventId = eventId
+                });
+
+                return notifications;
+            }
 
             var totalIntersectingNodes = intersectingStartNodes.Count + intersectingEndNodes.Count;
 
+            // Case 1-3
             if (intersectingStartNodes.Count <= 1 && intersectingEndNodes.Count <= 1)
             {
-                return new NewRouteSegmentDigitizedByUser
+                return new List<INotification> { new NewRouteSegmentDigitizedByUser
                 {
                     RouteSegment = routeSegment,
-                    StartRouteNode = intersectingStartNodes.FirstOrDefault(),
-                    EndRouteNode = intersectingEndNodes.FirstOrDefault(),
                     EventId = eventId
-                };
+                }};
             }
 
-            return new InvalidRouteSegmentOperation { RouteSegment = routeSegment, EventId = eventId };
+            return new List<INotification> { new InvalidRouteSegmentOperation { RouteSegment = routeSegment, EventId = eventId } };
         }
     }
 }

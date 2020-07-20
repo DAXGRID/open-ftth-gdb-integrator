@@ -39,29 +39,32 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             try
             {
                 _pool.WaitOne();
+
                 if (request.UpdatedEntity is RouteNode)
                 {
                     var routeNodeEvent = await _routeNodeEventFactory.Create((RouteNode)request.UpdatedEntity);
 
-                    if (routeNodeEvent is INotification)
+                    if (!(routeNodeEvent is null))
                         await _mediator.Publish(routeNodeEvent);
-                    else if (routeNodeEvent is IRequest)
-                        await _mediator.Send(routeNodeEvent);
                 }
                 else if (request.UpdatedEntity is RouteSegment)
                 {
-                    var routeSegmentEvent = await _routeSegmentEventFactory.Create((RouteSegment)request.UpdatedEntity);
+                    var routeSegmentEvents = await _routeSegmentEventFactory.Create((RouteSegment)request.UpdatedEntity);
 
-                    if (routeSegmentEvent is INotification)
-                        await _mediator.Publish(routeSegmentEvent);
-                    else if (routeSegmentEvent is IRequest)
-                        await _mediator.Send(routeSegmentEvent);
+                    foreach (var routeSegmentEvent in routeSegmentEvents)
+                    {
+                        if (!(routeSegmentEvent is null))
+                        {
+                            await _mediator.Publish(routeSegmentEvent);
+                        }
+                    }
                 }
+
                 _pool.Release();
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e.ToString());
                 _pool.Release();
             }
 
