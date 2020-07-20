@@ -214,39 +214,5 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.EventId.Should().NotBeEmpty();
             }
         }
-
-        [Fact]
-        public async Task Create_ShouldReturnInvalidRouteSegmentOperation_OnIntersectingRouteNodesCountBeingGreatThanOne()
-        {
-            var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
-            var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
-            var geoDatabase = A.Fake<IGeoDatabase>();
-            var routeSegment = A.Fake<RouteSegment>();
-            var lineString = A.Fake<LineString>();
-            var intersectingStartNodes = new List<RouteNode> { A.Fake<RouteNode>(), A.Fake<RouteNode>() };
-            var intersectingEndNodes = new List<RouteNode> { A.Fake<RouteNode>(), A.Fake<RouteNode>() };
-
-            A.CallTo(() => applicationSettings.Value)
-                .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
-
-            A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
-            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
-
-            A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegment))
-                .Returns(intersectingStartNodes);
-            A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegment))
-                .Returns(intersectingEndNodes);
-
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase);
-
-            var result = (InvalidRouteSegmentOperation)(await factory.Create(routeSegment)).First();
-
-            using (var scope = new AssertionScope())
-            {
-                result.Should().BeOfType<InvalidRouteSegmentOperation>();
-                result.RouteSegment.Should().Be(routeSegment);
-                result.EventId.Should().NotBeEmpty();
-            }
-        }
     }
 }

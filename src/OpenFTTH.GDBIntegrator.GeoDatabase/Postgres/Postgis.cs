@@ -25,7 +25,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_node
+                var query = $@"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_StartPoint(
@@ -49,7 +49,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_node
+                var query = $@"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_EndPoint(
@@ -73,7 +73,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_segment
+                var query = $@"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                           (SELECT coord FROM route_network.route_node
@@ -93,17 +93,37 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_segment
+                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                           (SELECT coord FROM route_network.route_node
                           WHERE mrid = @mrid),
                         @tolerance
                       ),
-                      coord) AND mrid != @sMrid  AND marked_to_be_deleted = false";
+                      coord) AND mrid != @sMrid AND marked_to_be_deleted = false";
 
                 await connection.OpenAsync();
                 var result = await connection.QueryAsync<RouteSegment>(query, new { sMrid = notInclude.Mrid, routeNode.Mrid, _applicationSettings.Tolerance });
+
+                return result.AsList();
+            }
+        }
+
+        public async Task<List<RouteNode>> GetAllIntersectingRouteNodes(RouteSegment routeSegment)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var query = @"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network.route_node
+                    WHERE ST_Intersects(
+                      ST_Buffer(
+                          (SELECT coord FROM route_network.route_segment
+                          WHERE mrid = @mrid),
+                        0.01
+                      ),
+                      coord) AND marked_to_be_deleted = false";
+
+                await connection.OpenAsync();
+                var result = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
                 return result.AsList();
             }
@@ -113,7 +133,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_segment
+                var query = $@"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_StartPoint(
@@ -137,7 +157,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT ST_AsText(coord), mrid FROM route_network.route_segment
+                var query = $@"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_EndPoint(
