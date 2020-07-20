@@ -42,32 +42,32 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (!_routeSegmentValidator.LineIsValid(routeSegment.GetLineString()))
                 return new List<INotification> { new InvalidRouteSegmentOperation { RouteSegment = routeSegment, EventId = eventId } };
 
-            var intersectingStartNodes = await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment);
-            var intersectingEndNodes = await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment);
-            var intersectingStartSegments = await _geoDatabase.GetIntersectingStartRouteSegments(routeSegment);
-            var intersectingEndSegments = await _geoDatabase.GetIntersectingEndRouteSegments(routeSegment);
+            var intersectingStartNodesTask = _geoDatabase.GetIntersectingStartRouteNodes(routeSegment);
+            var intersectingEndNodesTask = _geoDatabase.GetIntersectingEndRouteNodes(routeSegment);
+            var intersectingStartSegmentsTask = _geoDatabase.GetIntersectingStartRouteSegments(routeSegment);
+            var intersectingEndSegmentsTask = _geoDatabase.GetIntersectingEndRouteSegments(routeSegment);
+
+            await Task.WhenAll(intersectingEndSegmentsTask, intersectingEndNodesTask, intersectingStartNodesTask, intersectingStartSegmentsTask);
+
+            var intersectingStartNodes = intersectingStartNodesTask.Result;
+            var intersectingEndNodes = intersectingEndNodesTask.Result;
+            var intersectingStartSegments = intersectingStartSegmentsTask.Result;
+            var intersectingEndSegments = intersectingEndSegmentsTask.Result;
 
             var notifications = new List<INotification>();
 
             if (intersectingStartSegments.Count == 1 && intersectingStartNodes.Count == 0)
             {
-                var intersectingStart = intersectingStartSegments.FirstOrDefault();
-                var intersectingStartIntersectionStart = (await _geoDatabase.GetIntersectingStartRouteSegments(intersectingStart)).FirstOrDefault();
-                var intersectingStartIntersectionEnd = (await _geoDatabase.GetIntersectingEndRouteSegments(intersectingStart)).FirstOrDefault();
-
-                if ((intersectingStartIntersectionStart is null || intersectingStartIntersectionStart.Mrid != routeSegment.Mrid)
-                    && (intersectingStartIntersectionEnd is null || intersectingStartIntersectionEnd.Mrid != routeSegment.Mrid))
-                    notifications.Add(CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, routeSegment.FindStartNode()));
+                var routeSegmentSplitted = await CreateExistingRouteSegmentSplittedByUser(intersectingStartSegments, routeSegment, eventId, routeSegment.FindStartNode());
+                if (!(routeSegmentSplitted is null))
+                    notifications.Add(routeSegmentSplitted);
             }
 
             if (intersectingEndSegments.Count == 1 && intersectingEndNodes.Count == 0)
             {
-                var intersectingEnd = intersectingEndSegments.FirstOrDefault();
-                var intersectingEndIntersectionStart = (await _geoDatabase.GetIntersectingStartRouteSegments(intersectingEnd)).FirstOrDefault();
-                var intersectingEndIntersectionEnd = (await _geoDatabase.GetIntersectingEndRouteSegments(intersectingEnd)).FirstOrDefault();
-                if ((intersectingEndIntersectionStart is null || intersectingEndIntersectionStart.Mrid != routeSegment.Mrid)
-                    && (intersectingEndIntersectionEnd is null || intersectingEndIntersectionEnd.Mrid != routeSegment.Mrid))
-                    notifications.Add(CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, routeSegment.FindEndNode()));
+                var routeSegmentSplitted = await CreateExistingRouteSegmentSplittedByUser(intersectingEndSegments, routeSegment, eventId, routeSegment.FindEndNode());
+                if (!(routeSegmentSplitted is null))
+                    notifications.Add(routeSegmentSplitted);
             }
 
             notifications.Add(CreateNewRouteSegmentDigitizedByUser(routeSegment, eventId));
@@ -75,23 +75,38 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return notifications;
         }
 
+        private async Task<INotification> CreateExistingRouteSegmentSplittedByUser(List<RouteSegment> intersectingSegments, RouteSegment routeSegment, Guid eventId, RouteNode routeNode)
+        {
+            var intersectings = intersectingSegments.FirstOrDefault();
+            var intersectionsStart = (await _geoDatabase.GetIntersectingStartRouteSegments(intersectings)).FirstOrDefault();
+            var intersectionsEnd = (await _geoDatabase.GetIntersectingEndRouteSegments(intersectings)).FirstOrDefault();
+
+            var isIntersectingStartPoint = (intersectionsStart is null || intersectionsStart.Mrid != routeSegment.Mrid);
+            var isIntersectingEndPoint = (intersectionsEnd is null || intersectionsEnd.Mrid != routeSegment.Mrid);
+
+            if (isIntersectingStartPoint && isIntersectingEndPoint)
+            {
+                return new ExistingRouteSegmentSplittedByUser
+                {
+                    RouteNode = routeNode,
+                    EventId = eventId,
+                    InsertRouteNode = true,
+                    RouteSegmentDigitizedByUser = routeSegment
+                };
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
         private INotification CreateNewRouteSegmentDigitizedByUser(RouteSegment routeSegment, Guid eventId)
         {
             return new NewRouteSegmentDigitizedByUser
             {
                 RouteSegment = routeSegment,
                 EventId = eventId
-            };
-        }
-
-        private INotification CreateExistingRouteSegmentSplittedByUser(RouteSegment routeSegment, Guid eventId, RouteNode routeNode)
-        {
-            return new ExistingRouteSegmentSplittedByUser
-            {
-                RouteNode = routeNode,
-                EventId = eventId,
-                InsertRouteNode = true,
-                RouteSegmentDigitizedByUser = routeSegment
             };
         }
     }
