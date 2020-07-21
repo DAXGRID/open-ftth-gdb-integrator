@@ -2,7 +2,6 @@ using System;
 using Xunit;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using NetTopologySuite.Geometries;
 
 namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
 {

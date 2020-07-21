@@ -92,8 +92,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         private async Task DeleteExistingRouteSegment(RouteSegment intersectingRouteSegment, Guid eventId, List<RouteSegment> routeSegments)
         {
-           _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Deleting routesegment: {intersectingRouteSegment.Mrid}");
-            await _geoDatabase.DeleteRouteSegment(intersectingRouteSegment.Mrid);
+            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Deleting routesegment: {intersectingRouteSegment.Mrid}");
+            await _geoDatabase.MarkDeleteRouteSegment(intersectingRouteSegment.Mrid);
             await _mediator.Publish(
                 new RouteSegmentRemoved
                 {
