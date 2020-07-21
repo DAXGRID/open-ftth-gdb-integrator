@@ -39,6 +39,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             var eventId = Guid.NewGuid();
 
+            // Update integrator table
+            await _geoDatabase.InsertRouteSegmentIntegrator(routeSegment);
+
             if (!_routeSegmentValidator.LineIsValid(routeSegment.GetLineString()))
                 return new List<INotification> { new InvalidRouteSegmentOperation { RouteSegment = routeSegment, EventId = eventId } };
 
@@ -99,7 +102,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return null;
             }
         }
-
 
         private INotification CreateNewRouteSegmentDigitizedByUser(RouteSegment routeSegment, Guid eventId)
         {

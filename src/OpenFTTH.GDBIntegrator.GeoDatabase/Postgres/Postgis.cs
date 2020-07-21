@@ -25,11 +25,11 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network.route_node
+                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_StartPoint(
-                          (SELECT coord FROM route_network.route_segment
+                          (SELECT coord FROM route_network_integrator.route_segment
                           WHERE mrid = @mrid)
                           ),
                         @tolerance
@@ -38,7 +38,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     ";
 
                 await connection.OpenAsync();
-
                 var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
                 return routeNodes.AsList();
@@ -49,11 +48,11 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network.route_node
+                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_EndPoint(
-                          (SELECT coord FROM route_network.route_segment
+                          (SELECT coord FROM route_network_integrator.route_segment
                           WHERE mrid = @mrid)
                           ),
                         @tolerance
@@ -62,7 +61,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     ";
 
                 await connection.OpenAsync();
-
                 var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
                 return routeNodes.AsList();
@@ -73,10 +71,10 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network.route_segment
+                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
-                          (SELECT coord FROM route_network.route_node
+                          (SELECT coord FROM route_network_integrator.route_node
                           WHERE mrid = @mrid),
                         @tolerance
                       ),
@@ -93,10 +91,10 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network.route_segment
+                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
-                          (SELECT coord FROM route_network.route_node
+                          (SELECT coord FROM route_network_integrator.route_node
                           WHERE mrid = @mrid),
                         @tolerance
                       ),
@@ -113,12 +111,12 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = @"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network.route_node
+                var query = @"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
-                          (SELECT coord FROM route_network.route_segment
+                          (SELECT coord FROM route_network_integrator.route_segment
                           WHERE mrid = @mrid),
-                        0.01
+                        @tolerance
                       ),
                       coord) AND marked_to_be_deleted = false";
 
@@ -133,11 +131,11 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network.route_segment
+                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_StartPoint(
-                          (SELECT coord FROM route_network.route_segment
+                          (SELECT coord FROM route_network_integrator.route_segment
                           WHERE mrid = @mrid)
                           ),
                         @tolerance
@@ -146,7 +144,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     ";
 
                 await connection.OpenAsync();
-
                 var routeSegments = await connection.QueryAsync<RouteSegment>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
                 return routeSegments.AsList();
@@ -157,11 +154,11 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network.route_segment
+                var query = @"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_EndPoint(
-                          (SELECT coord FROM route_network.route_segment
+                          (SELECT coord FROM route_network_integrator.route_segment
                           WHERE mrid = @mrid)
                           ),
                         @tolerance
@@ -170,7 +167,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     ";
 
                 await connection.OpenAsync();
-
                 var routeSegments = await connection.QueryAsync<RouteSegment>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
                 return routeSegments.AsList();
@@ -183,12 +179,22 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
             using (var connection = GetNpgsqlConnection())
             {
-                var query = @"UPDATE route_network.route_node
+                var intergratorQuery = @"
+                    UPDATE route_network_integrator.route_node
                     SET
                       delete_me = true
-                    WHERE mrid = @mrid";
+                    WHERE mrid = @mrid;
+                    ";
+
+                var query = @"
+                    UPDATE route_network.route_node
+                    SET
+                       delete_me = true
+                    WHERE mrid = @mrid;
+                    ";
 
                 await connection.OpenAsync();
+                await connection.ExecuteAsync(intergratorQuery, new { mrid });
                 await connection.ExecuteAsync(query, new { mrid });
             }
         }
@@ -197,12 +203,20 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = @"UPDATE route_network.route_segment
+                var intergratorQuery = @"
+                    UPDATE route_network_integrator.route_segment
+                    SET
+                      delete_me = true
+                    WHERE mrid = @mrid;";
+
+                var query = @"
+                    UPDATE route_network.route_segment
                     SET
                       delete_me = true
                     WHERE mrid = @mrid";
 
                 await connection.OpenAsync();
+                await connection.ExecuteAsync(intergratorQuery, new { mrid });
                 await connection.ExecuteAsync(query, new { mrid });
             }
         }
@@ -211,12 +225,20 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = @"UPDATE route_network.route_segment
+                var intergratorQuery = @"
+                    UPDATE route_network_integrator.route_segment
                     SET
                       marked_to_be_deleted = true
-                    WHERE mrid = @mrid";
+                    WHERE mrid = @mrid;";
+
+                var query = @"
+                    UPDATE route_network.route_segment
+                    SET
+                      marked_to_be_deleted = true
+                    WHERE mrid = @mrid;";
 
                 await connection.OpenAsync();
+                await connection.ExecuteAsync(intergratorQuery, new { mrid });
                 await connection.ExecuteAsync(query, new { mrid });
             }
         }
@@ -225,12 +247,20 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = @"UPDATE route_network.route_node
+                var intergratorQuery = @"
+                    UPDATE route_network_integrator.route_node
                     SET
                       marked_to_be_deleted = true
-                    WHERE mrid = @mrid";
+                    WHERE mrid = @mrid;";
+
+                var query = @"
+                    UPDATE route_network.route_node
+                    SET
+                      marked_to_be_deleted = true
+                    WHERE mrid = @mrid;";
 
                 await connection.OpenAsync();
+                await connection.ExecuteAsync(intergratorQuery, new { mrid });
                 await connection.ExecuteAsync(query, new { mrid });
             }
         }
@@ -239,7 +269,26 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"INSERT INTO route_network.route_node(
+                var intergratorQuery = @"
+                    INSERT INTO route_network_integrator.route_node(
+                    mrid,
+                    coord,
+                    work_task_mrid,
+                    user_name,
+                    application_name,
+                    marked_to_be_deleted
+                    )
+                    VALUES(
+                    @mrid,
+                    ST_GeomFromWKB(@coord, 25832),
+                    @workTaskMrid,
+                    @username,
+                    @applicationName,
+                    false
+                    );";
+
+                var query = @"
+                    INSERT INTO route_network.route_node(
                     mrid,
                     coord,
                     work_task_mrid,
@@ -257,7 +306,62 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     );";
 
                 await connection.OpenAsync();
+                await connection.ExecuteAsync(intergratorQuery, routeNode);
                 await connection.ExecuteAsync(query, routeNode);
+            }
+        }
+
+        public async Task InsertRouteNodeIntegrator(RouteNode routeNode)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var query = @"
+                    INSERT INTO route_network_integrator.route_node(
+                    mrid,
+                    coord,
+                    work_task_mrid,
+                    user_name,
+                    application_name,
+                    marked_to_be_deleted
+                    )
+                    VALUES(
+                    @mrid,
+                    ST_GeomFromWKB(@coord, 25832),
+                    @workTaskMrid,
+                    @username,
+                    @applicationName,
+                    false
+                    ) ON CONFLICT ON CONSTRAINT route_node_pkey DO NOTHING;";
+
+                await connection.OpenAsync();
+                await connection.ExecuteAsync(query, routeNode);
+            }
+        }
+
+        public async Task InsertRouteSegmentIntegrator(RouteSegment routeSegment)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var query = @"
+                    INSERT INTO route_network_integrator.route_segment(
+                    mrid,
+                    coord,
+                    work_task_mrid,
+                    user_name,
+                    application_name,
+                    marked_to_be_deleted
+                    )
+                    VALUES(
+                    @mrid,
+                    ST_GeomFromWKB(@coord, 25832),
+                    @workTaskMrid,
+                    @username,
+                    @applicationName,
+                    false
+                    ) ON CONFLICT ON CONSTRAINT route_segment_pkey DO NOTHING;";
+
+                await connection.OpenAsync();
+                await connection.ExecuteAsync(query, routeSegment);
             }
         }
 
@@ -265,7 +369,26 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = $@"INSERT INTO route_network.route_segment(
+                var integratorQuery = @"
+                    INSERT INTO route_network_integrator.route_segment(
+                    mrid,
+                    coord,
+                    work_task_mrid,
+                    user_name,
+                    application_name,
+                    marked_to_be_deleted
+                    )
+                    VALUES(
+                    @mrid,
+                    ST_GeomFromWKB(@coord, 25832),
+                    @workTaskMrid,
+                    @username,
+                    @applicationName,
+                    false
+                    );";
+
+                var query = @"
+                    INSERT INTO route_network.route_segment(
                     mrid,
                     coord,
                     work_task_mrid,
@@ -283,6 +406,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     );";
 
                 await connection.OpenAsync();
+                await connection.ExecuteAsync(integratorQuery, routeSegment);
                 await connection.ExecuteAsync(query, routeSegment);
             }
         }
@@ -291,7 +415,8 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = @"SELECT ST_AsText(
+                var query = @"
+                    SELECT ST_AsText(
                         ST_Split(
                             ST_Snap(
                                 route_segment.coord,
@@ -301,7 +426,8 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                             ST_GeomFromWKB(@coord, 25832)
                         )
                     )
-                    FROM route_network.route_segment WHERE mrid = @mrid AND marked_to_be_deleted = false";
+                    FROM route_network_integrator.route_segment WHERE mrid = @mrid AND marked_to_be_deleted = false;
+                ";
 
                 await connection.OpenAsync();
                 var result = await connection.QueryAsync<string>(query, new { routeNode.Coord, intersectingRouteSegment.Mrid });
@@ -309,7 +435,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 return result.First();
             }
         }
-
 
         private NpgsqlConnection GetNpgsqlConnection()
         {

@@ -33,6 +33,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             var eventId = Guid.NewGuid();
 
+            // Update integrator table
+            await _geoDatabase.InsertRouteNodeIntegrator(routeNode);
+
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
 
             if (intersectingRouteSegments.Count == 0)
