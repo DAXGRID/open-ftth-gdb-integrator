@@ -1,6 +1,5 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
-using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using MediatR;
 using System;
 using System.Threading;

@@ -5,7 +5,6 @@ using NetTopologySuite.Geometries;
 using OpenFTTH.GDBIntegrator.Config;
 using Microsoft.Extensions.Options;
 
-
 namespace OpenFTTH.GDBIntegrator.RouteNetwork.Factories
 {
     public class RouteSegmentFactory : IRouteSegmentFactory
