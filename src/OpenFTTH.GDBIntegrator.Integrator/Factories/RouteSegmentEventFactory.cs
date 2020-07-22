@@ -48,23 +48,31 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingEndNodesTask = _geoDatabase.GetIntersectingEndRouteNodes(routeSegment);
             var intersectingStartSegmentsTask = _geoDatabase.GetIntersectingStartRouteSegments(routeSegment);
             var intersectingEndSegmentsTask = _geoDatabase.GetIntersectingEndRouteSegments(routeSegment);
+            var allIntersectingRouteNodesTask = _geoDatabase.GetAllIntersectingRouteNodes(routeSegment);
 
             var intersectingStartNodes = await intersectingStartNodesTask;
             var intersectingEndNodes = await intersectingEndNodesTask;
             var intersectingStartSegments = await intersectingStartSegmentsTask;
             var intersectingEndSegments = await intersectingEndSegmentsTask;
+            var allIntersectingRouteNodes = await allIntersectingRouteNodesTask;
 
             var notifications = new List<INotification>();
 
             if (intersectingStartSegments.Count == 1 && intersectingStartNodes.Count == 0)
             {
-                var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, routeSegment.FindStartNode());
+                var startNode = routeSegment.FindStartNode();
+                notifications.Add(new InsertRouteNode { EventId = eventId, RouteNode = startNode });
+
+                var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, startNode);
                 notifications.Add(routeSegmentSplitted);
             }
 
             if (intersectingEndSegments.Count == 1 && intersectingEndNodes.Count == 0)
             {
-                var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, routeSegment.FindEndNode());
+                var endNode = routeSegment.FindEndNode();
+                notifications.Add(new InsertRouteNode { EventId = eventId, RouteNode = endNode });
+
+                var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, endNode);
                 notifications.Add(routeSegmentSplitted);
             }
 
@@ -84,8 +92,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             {
                 RouteNode = routeNode,
                 EventId = eventId,
-                InsertRouteNode = true,
-                RouteSegmentDigitizedByUser = routeSegment
+                RouteSegmentDigitizedByUser = routeSegment,
             };
         }
 

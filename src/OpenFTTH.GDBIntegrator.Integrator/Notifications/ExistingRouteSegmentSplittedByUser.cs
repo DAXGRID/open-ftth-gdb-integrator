@@ -15,7 +15,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         public RouteNode RouteNode { get; set; }
         public Guid EventId { get; set; }
-        public bool InsertRouteNode { get; set; }
         public RouteSegment RouteSegmentDigitizedByUser { get; set; }
     }
 
@@ -42,9 +41,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting Existing route segment splitted by route node");
 
-            if (request.InsertRouteNode)
-                await InsertNewNode(request.RouteNode, request.EventId);
-
             var intersectingRouteSegment = await GetIntersectingRouteSegment(request.RouteSegmentDigitizedByUser, request.RouteNode);
 
             var routeSegmentsWkt = await _geoDatabase.GetRouteSegmentsSplittedByRouteNode(request.RouteNode, intersectingRouteSegment);
@@ -53,13 +49,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             await InsertReplacementRouteSegments(routeSegments, request.EventId);
 
             await DeleteExistingRouteSegment(intersectingRouteSegment, request.EventId, routeSegments);
-        }
-
-        private async Task InsertNewNode(RouteNode routeNode, Guid eventId)
-        {
-            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Inserting routeNode: {routeNode.Mrid}");
-            await _geoDatabase.InsertRouteNode(routeNode);
-            await _mediator.Publish(new RouteNodeAdded { RouteNode = routeNode, EventId = eventId });
         }
 
         private async Task<RouteSegment> GetIntersectingRouteSegment(RouteSegment routeSegmentDigitizedByUser, RouteNode routeNode)
