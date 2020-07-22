@@ -48,15 +48,25 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             await InsertReplacementRouteSegments(routeSegments, request.EventId);
 
-            await DeleteExistingRouteSegment(intersectingRouteSegment, request.EventId, routeSegments);
+            await MarkExistingRouteSegmentForDeletion(intersectingRouteSegment, request.EventId, routeSegments);
         }
 
         private async Task<RouteSegment> GetIntersectingRouteSegment(RouteSegment routeSegmentDigitizedByUser, RouteNode routeNode)
         {
-            RouteSegment intersectingRouteSegment;
-            // This is required in case that this event was triggered by RouteSegmentDigtizedByUser
+            RouteSegment intersectingRouteSegment = null;
             if (routeSegmentDigitizedByUser is null)
-                intersectingRouteSegment = (await _geoDatabase.GetIntersectingRouteSegments(routeNode)).First();
+            {
+                var intersectingRouteSegments = (await _geoDatabase.GetIntersectingRouteSegments(routeNode));
+                foreach(var individualIntersectingRouteSegment in intersectingRouteSegments)
+                {
+                    intersectingRouteSegment = individualIntersectingRouteSegment;
+                    var intersectingRouteNodesCount = (await _geoDatabase.GetAllIntersectingRouteNodes(individualIntersectingRouteSegment)).Count;
+
+                    if (intersectingRouteNodesCount >= 3)
+                        break;
+                }
+            }
+            // This is required in case that this event was triggered by RouteSegmentDigtizedByUser
             else
                 intersectingRouteSegment = (await _geoDatabase.GetIntersectingRouteSegments(routeNode, routeSegmentDigitizedByUser)).First();
 
@@ -79,7 +89,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             }
         }
 
-        private async Task DeleteExistingRouteSegment(RouteSegment intersectingRouteSegment, Guid eventId, List<RouteSegment> routeSegments)
+        private async Task MarkExistingRouteSegmentForDeletion(RouteSegment intersectingRouteSegment, Guid eventId, List<RouteSegment> routeSegments)
         {
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Deleting routesegment: {intersectingRouteSegment.Mrid}");
             await _geoDatabase.MarkDeleteRouteSegment(intersectingRouteSegment.Mrid);
