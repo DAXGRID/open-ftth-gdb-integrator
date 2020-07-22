@@ -55,11 +55,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             RouteSegment intersectingRouteSegment = null;
             if (routeSegmentDigitizedByUser is null)
+            {
                 intersectingRouteSegment = await HandleIntersectionSplit(routeNode);
+            }
             // This is required in case that this event was triggered by RouteSegmentDigtizedByUser
             else
-                intersectingRouteSegment =
-                    (await _geoDatabase.GetIntersectingRouteSegments(routeNode, routeSegmentDigitizedByUser)).First();
+            {
+                intersectingRouteSegment = (await _geoDatabase.GetIntersectingRouteSegments(routeNode, routeSegmentDigitizedByUser)).First();
+            }
 
             return intersectingRouteSegment;
         }

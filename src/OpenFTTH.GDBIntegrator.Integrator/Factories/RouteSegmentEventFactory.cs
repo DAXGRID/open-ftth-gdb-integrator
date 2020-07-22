@@ -61,7 +61,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (allIntersectingRouteNodes.Count > 0)
             {
                 notifications.Add(CreateNewRouteSegmentDigitizedByUser(routeSegment, eventId));
-                foreach(var intersectingRouteNode in allIntersectingRouteNodes)
+                foreach (var intersectingRouteNode in allIntersectingRouteNodes)
                 {
                     var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(null, eventId, intersectingRouteNode);
                     notifications.Add(routeSegmentSplitted);
