@@ -55,20 +55,27 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             RouteSegment intersectingRouteSegment = null;
             if (routeSegmentDigitizedByUser is null)
-            {
-                var intersectingRouteSegments = (await _geoDatabase.GetIntersectingRouteSegments(routeNode));
-                foreach(var individualIntersectingRouteSegment in intersectingRouteSegments)
-                {
-                    intersectingRouteSegment = individualIntersectingRouteSegment;
-                    var intersectingRouteNodesCount = (await _geoDatabase.GetAllIntersectingRouteNodes(individualIntersectingRouteSegment)).Count;
-
-                    if (intersectingRouteNodesCount >= 3)
-                        break;
-                }
-            }
+                intersectingRouteSegment = await HandleIntersectionSplit(routeNode);
             // This is required in case that this event was triggered by RouteSegmentDigtizedByUser
             else
-                intersectingRouteSegment = (await _geoDatabase.GetIntersectingRouteSegments(routeNode, routeSegmentDigitizedByUser)).First();
+                intersectingRouteSegment =
+                    (await _geoDatabase.GetIntersectingRouteSegments(routeNode, routeSegmentDigitizedByUser)).First();
+
+            return intersectingRouteSegment;
+        }
+
+        private async Task<RouteSegment> HandleIntersectionSplit(RouteNode routeNode)
+        {
+            RouteSegment intersectingRouteSegment = null;
+            var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
+            foreach (var individualIntersectingRouteSegment in intersectingRouteSegments)
+            {
+                intersectingRouteSegment = individualIntersectingRouteSegment;
+                var intersectingRouteNodesCount = (await _geoDatabase.GetAllIntersectingRouteNodes(individualIntersectingRouteSegment)).Count;
+
+                if (intersectingRouteNodesCount >= 3)
+                    break;
+            }
 
             return intersectingRouteSegment;
         }
