@@ -242,7 +242,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task Create_ShouldContainStartCreateExistingRouteSegmentSplittedByUserForStartNode_On()
+        public async Task Create_ShouldContainStartCreateExistingRouteSegmentSplittedByUserForStartNode_OnStartSegmentCountBeingOneAndStartNodesCountBeingZero()
         {
             var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
@@ -254,7 +254,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var intersectingEndNodes = new List<RouteNode>();
             var intersectingStartSegments = new List<RouteSegment> { A.Fake<RouteSegment>() };
             var intersectingEndSegments = new List<RouteSegment>();
-           
+
             A.CallTo(() => applicationSettings.Value)
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
@@ -286,6 +286,116 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 existingRouteSegmentSplittedByUser.RouteNode.Should().Be(startRouteNode);
                 existingRouteSegmentSplittedByUser.InsertRouteNode.Should().BeTrue();
                 existingRouteSegmentSplittedByUser.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
+
+                newRouteSegmentDigitizedByUser.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitizedByUser.RouteSegment.Should().Be(routeSegment);
+            }
+        }
+
+        [Fact]
+        public async Task Create_ShouldContainEndCreateExistingRouteSegmentSplittedByUserForStartNode_OnEndSegmentCountBeingOneAndStartNodesCountBeingZero()
+        {
+            var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
+            var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeSegment = A.Fake<RouteSegment>();
+            var endNode = A.Fake<RouteNode>();
+            var lineString = A.Fake<LineString>();
+            var intersectingStartNodes = new List<RouteNode>();
+            var intersectingEndNodes = new List<RouteNode>();
+            var intersectingStartSegments = new List<RouteSegment>();
+            var intersectingEndSegments = new List<RouteSegment> { A.Fake<RouteSegment>() };
+
+            A.CallTo(() => applicationSettings.Value)
+                .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
+
+            A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
+
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegment))
+                .Returns(intersectingStartNodes);
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegment))
+                .Returns(intersectingEndNodes);
+
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(routeSegment))
+                .Returns(intersectingStartSegments);
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(routeSegment))
+                .Returns(intersectingEndSegments);
+
+            A.CallTo(() => routeSegment.FindEndNode()).Returns(endNode);
+
+            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase);
+
+            var result = await factory.Create(routeSegment);
+
+            var existingRouteSegmentSplittedByUser = (ExistingRouteSegmentSplittedByUser)result.ToList()[0];
+            var newRouteSegmentDigitizedByUser = (NewRouteSegmentDigitizedByUser)result.ToList()[1];
+
+            using (var scope = new AssertionScope())
+            {
+                existingRouteSegmentSplittedByUser.EventId.Should().NotBeEmpty();
+                existingRouteSegmentSplittedByUser.RouteNode.Should().Be(endNode);
+                existingRouteSegmentSplittedByUser.InsertRouteNode.Should().BeTrue();
+                existingRouteSegmentSplittedByUser.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
+
+                newRouteSegmentDigitizedByUser.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitizedByUser.RouteSegment.Should().Be(routeSegment);
+            }
+        }
+
+        [Fact]
+        public async Task Create_ShouldContainEndCreateExistingRouteSegmentSplittedByUserForStartNode_OnStartAndEndSegmentCountBeingOneAndStartAndEndNodesCountBeingZero()
+        {
+            var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
+            var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeSegment = A.Fake<RouteSegment>();
+            var startNode = A.Fake<RouteNode>();
+            var endNode = A.Fake<RouteNode>();
+            var lineString = A.Fake<LineString>();
+            var intersectingStartNodes = new List<RouteNode>();
+            var intersectingEndNodes = new List<RouteNode>();
+            var intersectingStartSegments = new List<RouteSegment> { A.Fake<RouteSegment>() };
+            var intersectingEndSegments = new List<RouteSegment> { A.Fake<RouteSegment>() };
+
+            A.CallTo(() => applicationSettings.Value)
+                .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
+
+            A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
+
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegment))
+                .Returns(intersectingStartNodes);
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegment))
+                .Returns(intersectingEndNodes);
+
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(routeSegment))
+                .Returns(intersectingStartSegments);
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(routeSegment))
+                .Returns(intersectingEndSegments);
+
+            A.CallTo(() => routeSegment.FindStartNode()).Returns(startNode);
+            A.CallTo(() => routeSegment.FindEndNode()).Returns(endNode);
+
+            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase);
+
+            var result = await factory.Create(routeSegment);
+
+            var startExistingRouteSegmentSplittedByUser = (ExistingRouteSegmentSplittedByUser)result.ToList()[0];
+            var endExistingRouteSegmentSplittedByUser = (ExistingRouteSegmentSplittedByUser)result.ToList()[1];
+            var newRouteSegmentDigitizedByUser = (NewRouteSegmentDigitizedByUser)result.ToList()[2];
+
+            using (var scope = new AssertionScope())
+            {
+                startExistingRouteSegmentSplittedByUser.EventId.Should().NotBeEmpty();
+                startExistingRouteSegmentSplittedByUser.RouteNode.Should().Be(startNode);
+                startExistingRouteSegmentSplittedByUser.InsertRouteNode.Should().BeTrue();
+                startExistingRouteSegmentSplittedByUser.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
+
+                endExistingRouteSegmentSplittedByUser.EventId.Should().NotBeEmpty();
+                endExistingRouteSegmentSplittedByUser.RouteNode.Should().Be(endNode);
+                endExistingRouteSegmentSplittedByUser.InsertRouteNode.Should().BeTrue();
+                endExistingRouteSegmentSplittedByUser.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
 
                 newRouteSegmentDigitizedByUser.EventId.Should().NotBeEmpty();
                 newRouteSegmentDigitizedByUser.RouteSegment.Should().Be(routeSegment);
