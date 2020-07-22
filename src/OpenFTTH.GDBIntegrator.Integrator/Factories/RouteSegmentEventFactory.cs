@@ -33,14 +33,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (routeSegment is null)
                 throw new ArgumentNullException($"Parameter {nameof(routeSegment)} must not be null");
 
-            // Do nothing created by application
-            if (routeSegment.ApplicationName == _applicationSettings.ApplicationName)
+            if (IsCreatedByApplication(routeSegment))
                 return new List<INotification>();
 
-            var eventId = Guid.NewGuid();
-
-            // Update integrator table
+            // Update integrator "shadow table"
             await _geoDatabase.InsertRouteSegmentIntegrator(routeSegment);
+
+            var eventId = Guid.NewGuid();
 
             if (!_routeSegmentValidator.LineIsValid(routeSegment.GetLineString()))
                 return new List<INotification> { new InvalidRouteSegmentOperation { RouteSegment = routeSegment, EventId = eventId } };
@@ -59,16 +58,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (intersectingStartSegments.Count == 1 && intersectingStartNodes.Count == 0)
             {
-                var routeSegmentSplitted = await CreateExistingRouteSegmentSplittedByUser(intersectingStartSegments, routeSegment, eventId, routeSegment.FindStartNode());
-                if (!(routeSegmentSplitted is null))
-                    notifications.Add(routeSegmentSplitted);
+                var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, routeSegment.FindStartNode());
+                notifications.Add(routeSegmentSplitted);
             }
 
             if (intersectingEndSegments.Count == 1 && intersectingEndNodes.Count == 0)
             {
-                var routeSegmentSplitted = await CreateExistingRouteSegmentSplittedByUser(intersectingEndSegments, routeSegment, eventId, routeSegment.FindEndNode());
-                if (!(routeSegmentSplitted is null))
-                    notifications.Add(routeSegmentSplitted);
+                var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, routeSegment.FindEndNode());
+                notifications.Add(routeSegmentSplitted);
             }
 
             notifications.Add(CreateNewRouteSegmentDigitizedByUser(routeSegment, eventId));
@@ -76,32 +73,23 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return notifications;
         }
 
-        private async Task<INotification> CreateExistingRouteSegmentSplittedByUser(List<RouteSegment> intersectingSegments, RouteSegment routeSegment, Guid eventId, RouteNode routeNode)
+        private bool IsCreatedByApplication(RouteSegment routeSegment)
         {
-            var intersectings = intersectingSegments.FirstOrDefault();
-            var intersectionsStart = (await _geoDatabase.GetIntersectingStartRouteSegments(intersectings)).FirstOrDefault();
-            var intersectionsEnd = (await _geoDatabase.GetIntersectingEndRouteSegments(intersectings)).FirstOrDefault();
-
-            var isIntersectingStartPoint = (intersectionsStart is null || intersectionsStart.Mrid != routeSegment.Mrid);
-            var isIntersectingEndPoint = (intersectionsEnd is null || intersectionsEnd.Mrid != routeSegment.Mrid);
-
-            if (isIntersectingStartPoint && isIntersectingEndPoint)
-            {
-                return new ExistingRouteSegmentSplittedByUser
-                {
-                    RouteNode = routeNode,
-                    EventId = eventId,
-                    InsertRouteNode = true,
-                    RouteSegmentDigitizedByUser = routeSegment
-                };
-            }
-            else
-            {
-                return null;
-            }
+            return routeSegment.ApplicationName == _applicationSettings.ApplicationName;
         }
 
-        private INotification CreateNewRouteSegmentDigitizedByUser(RouteSegment routeSegment, Guid eventId)
+        private ExistingRouteSegmentSplittedByUser CreateExistingRouteSegmentSplittedByUser(RouteSegment routeSegment, Guid eventId, RouteNode routeNode)
+        {
+            return new ExistingRouteSegmentSplittedByUser
+            {
+                RouteNode = routeNode,
+                EventId = eventId,
+                InsertRouteNode = true,
+                RouteSegmentDigitizedByUser = routeSegment
+            };
+        }
+
+        private NewRouteSegmentDigitizedByUser CreateNewRouteSegmentDigitizedByUser(RouteSegment routeSegment, Guid eventId)
         {
             return new NewRouteSegmentDigitizedByUser
             {
