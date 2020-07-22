@@ -36,7 +36,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (IsCreatedByApplication(routeSegment))
                 return new List<INotification>();
 
-            // Update integrator "shadow table"
+            // Update integrator "shadow table" with the used digitized segment
             await _geoDatabase.InsertRouteSegmentIntegrator(routeSegment);
 
             var eventId = Guid.NewGuid();
