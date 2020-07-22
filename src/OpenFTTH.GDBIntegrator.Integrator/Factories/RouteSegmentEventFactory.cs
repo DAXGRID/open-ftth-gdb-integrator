@@ -48,7 +48,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingEndNodesTask = _geoDatabase.GetIntersectingEndRouteNodes(routeSegment);
             var intersectingStartSegmentsTask = _geoDatabase.GetIntersectingStartRouteSegments(routeSegment);
             var intersectingEndSegmentsTask = _geoDatabase.GetIntersectingEndRouteSegments(routeSegment);
-            var allIntersectingRouteNodesTask = _geoDatabase.GetAllIntersectingRouteNodesNotIncludedEdges(routeSegment);
+            var allIntersectingRouteNodesTask = _geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(routeSegment);
 
             var intersectingStartNodes = await intersectingStartNodesTask;
             var intersectingEndNodes = await intersectingEndNodesTask;

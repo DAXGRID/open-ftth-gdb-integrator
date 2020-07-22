@@ -90,7 +90,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var intersectingEndNodes = new List<RouteNode>();
             var allIntersectingRouteNodes = new List<RouteNode>();
 
-            A.CallTo(() => geoDatabase.GetAllIntersectingRouteNodesNotIncludedEdges(routeSegment))
+            A.CallTo(() => geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(routeSegment))
                 .Returns(allIntersectingRouteNodes);
 
             A.CallTo(() => applicationSettings.Value)
@@ -131,7 +131,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var intersectingEndNodes = new List<RouteNode>();
             var allIntersectingRouteNodes = new List<RouteNode>();
 
-            A.CallTo(() => geoDatabase.GetAllIntersectingRouteNodesNotIncludedEdges(routeSegment))
+            A.CallTo(() => geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(routeSegment))
                 .Returns(allIntersectingRouteNodes);
 
             A.CallTo(() => applicationSettings.Value)
@@ -172,7 +172,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var intersectingEndNodes = new List<RouteNode> { A.Fake<RouteNode>() };
             var allIntersectingRouteNodes = new List<RouteNode>();
 
-            A.CallTo(() => geoDatabase.GetAllIntersectingRouteNodesNotIncludedEdges(routeSegment))
+            A.CallTo(() => geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(routeSegment))
                 .Returns(allIntersectingRouteNodes);
 
             A.CallTo(() => applicationSettings.Value)
@@ -213,7 +213,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var intersectingEndNodes = new List<RouteNode> { A.Fake<RouteNode>() };
             var allIntersectingRouteNodes = new List<RouteNode>();
 
-            A.CallTo(() => geoDatabase.GetAllIntersectingRouteNodesNotIncludedEdges(routeSegment))
+            A.CallTo(() => geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(routeSegment))
                 .Returns(allIntersectingRouteNodes);
 
             A.CallTo(() => applicationSettings.Value)
@@ -464,7 +464,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
             A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
 
-            A.CallTo(() => geoDatabase.GetAllIntersectingRouteNodesNotIncludedEdges(routeSegment))
+            A.CallTo(() => geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(routeSegment))
                 .Returns(allIntersectingRouteNodes);
 
             var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase);
