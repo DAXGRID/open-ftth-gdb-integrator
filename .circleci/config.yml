@@ -89,7 +89,7 @@ workflows:
             - test-app
           filters:
             tags:
-              only: /^v.*/
+              only: /^v*/
             branches:
               ignore: /.*/
       - docker-publish-image:
@@ -97,6 +97,6 @@ workflows:
            - build-docker-image
           filters:
             tags:
-              only: /^v.*/
+              only: /^v*/
             branches:
               ignore: /.*/
