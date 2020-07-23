@@ -28,7 +28,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 throw new ArgumentNullException($"Parameter {nameof(routeNode)} cannot be null");
 
             // If the GDB integrator produced the message do nothing
-            if (routeNode.ApplicationName == _applicationSettings.ApplicationName)
+            if (IsCreatedByApplication(routeNode))
                 return null;
 
             var eventId = Guid.NewGuid();
@@ -51,6 +51,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             }
 
             return new InvalidRouteNodeOperation { RouteNode = routeNode, EventId = eventId };
+        }
+
+        private bool IsCreatedByApplication(RouteNode routeNode)
+        {
+            return routeSegment.ApplicationName == _applicationSettings.ApplicationName;
         }
     }
 }
