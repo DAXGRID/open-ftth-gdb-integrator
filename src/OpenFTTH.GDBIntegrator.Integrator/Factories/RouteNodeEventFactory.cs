@@ -55,7 +55,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         private bool IsCreatedByApplication(RouteNode routeNode)
         {
-            return routeSegment.ApplicationName == _applicationSettings.ApplicationName;
+            return routeNode.ApplicationName == _applicationSettings.ApplicationName;
         }
     }
 }
