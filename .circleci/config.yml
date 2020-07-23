@@ -90,13 +90,9 @@ workflows:
           filters:
             tags:
               only: /^v*/
-            branches:
-              ignore: /.*/
       - docker-publish-image:
           requires:
            - build-docker-image
           filters:
             tags:
               only: /^v*/
-            branches:
-              ignore: /.*/
