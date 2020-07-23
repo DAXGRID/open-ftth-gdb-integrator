@@ -71,7 +71,7 @@ jobs:
      - run:
          name: Publish Docker Image to Docker Hub
          command: |
-           echo "$GDB_INTEGRATOR_DOCKER_PASSWORD" | docker login -u "$GDB_INTEGRATOR_DOCKER_LOGIN" --password-stdin
+           echo $GDB_INTEGRATOR_DOCKER_PASSWORD | docker login -u $GDB_INTEGRATOR_DOCKER_LOGIN --password-stdin
            IMAGE_TAG=$(CIRCLE_TAG/v/'')
            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
            docker push $IMAGE_NAME:latest
@@ -89,10 +89,14 @@ workflows:
             - test-app
           filters:
             tags:
-              only: /^v*/
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - docker-publish-image:
           requires:
            - build-docker-image
           filters:
             tags:
-              only: /^v*/
+              only: /^v.*/
+            branches:
+              ignore: /.*/
