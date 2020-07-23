@@ -80,7 +80,7 @@ jobs:
 workflows:
   build-test-upload_image:
     jobs:
-      - build-app
+      - build-app:
           filters:
             tags:
               only: /.*/
