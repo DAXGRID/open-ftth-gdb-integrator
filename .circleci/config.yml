@@ -81,9 +81,15 @@ workflows:
   build-test-upload_image:
     jobs:
       - build-app
+          filters: # required filter for docker publish
+            tags:
+              only: /.*/
       - test-app:
-          requires:
+          requires: # required filter for docker publish
             - build-app
+          filters:
+            tags:
+              only: /.*/
       - build-docker-image:
           requires:
             - test-app
