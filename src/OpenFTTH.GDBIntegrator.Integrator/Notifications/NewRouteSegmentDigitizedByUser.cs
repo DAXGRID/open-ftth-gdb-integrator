@@ -1,4 +1,5 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using MediatR;
 using System;
@@ -20,15 +21,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         private readonly IMediator _mediator;
         private readonly ILogger<NewRouteSegmentDigitizedByUserHandler> _logger;
         private readonly IGeoDatabase _geoDatabase;
+        private readonly IRouteNodeFactory _routeNodeFactory;
 
         public NewRouteSegmentDigitizedByUserHandler(
             IMediator mediator,
             ILogger<NewRouteSegmentDigitizedByUserHandler> logger,
-            IGeoDatabase geoDatabase)
+            IGeoDatabase geoDatabase,
+            IRouteNodeFactory routeNodeFactory)
         {
             _mediator = mediator;
             _logger = logger;
             _geoDatabase = geoDatabase;
+            _routeNodeFactory = routeNodeFactory;
         }
 
         public async Task Handle(NewRouteSegmentDigitizedByUser request, CancellationToken token)
@@ -46,13 +50,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             if (startNode is null)
             {
-                startNode = routeSegment.FindStartNode();
+                var startPoint = routeSegment.FindStartPoint();
+                startNode = _routeNodeFactory.Create(startPoint);
                 await _geoDatabase.InsertRouteNode(startNode);
                 await _mediator.Publish(new RouteNodeAdded { RouteNode = startNode, EventId = eventId });
             }
             if (endNode is null)
             {
-                endNode = routeSegment.FindEndNode();
+                var endPoint = routeSegment.FindStartPoint();
+                endNode = _routeNodeFactory.Create(endPoint);
                 await _geoDatabase.InsertRouteNode(endNode);
                 await _mediator.Publish(new RouteNodeAdded { RouteNode = endNode, EventId = eventId });
             }

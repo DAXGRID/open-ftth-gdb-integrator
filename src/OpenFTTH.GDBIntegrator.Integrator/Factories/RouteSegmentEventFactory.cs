@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
@@ -16,15 +17,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         private readonly ApplicationSetting _applicationSettings;
         private readonly IRouteSegmentValidator _routeSegmentValidator;
         private readonly IGeoDatabase _geoDatabase;
+        private readonly IRouteNodeFactory _routeNodeFactory;
 
         public RouteSegmentEventFactory(
             IOptions<ApplicationSetting> applicationSettings,
             IRouteSegmentValidator routeSegmentValidator,
-            IGeoDatabase geoDatabase)
+            IGeoDatabase geoDatabase,
+            IRouteNodeFactory routeNodeFactory)
         {
             _applicationSettings = applicationSettings.Value;
             _routeSegmentValidator = routeSegmentValidator;
             _geoDatabase = geoDatabase;
+            _routeNodeFactory = routeNodeFactory;
         }
 
         public async Task<IEnumerable<INotification>> Create(RouteSegment routeSegment)
@@ -71,7 +75,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (intersectingStartSegments.Count == 1 && intersectingStartNodes.Count == 0)
             {
-                var startNode = routeSegment.FindStartNode();
+                var startPoint = routeSegment.FindStartPoint();
+                var startNode = _routeNodeFactory.Create(startPoint);
                 notifications.Add(new InsertRouteNode { EventId = eventId, RouteNode = startNode });
 
                 var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, startNode);
@@ -80,7 +85,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (intersectingEndSegments.Count == 1 && intersectingEndNodes.Count == 0)
             {
-                var endNode = routeSegment.FindEndNode();
+                var endPoint = routeSegment.FindEndPoint();
+                var endNode = _routeNodeFactory.Create(endPoint);
                 notifications.Add(new InsertRouteNode { EventId = eventId, RouteNode = endNode });
 
                 var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, endNode);

@@ -54,7 +54,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddTransient<IGeoDatabase, Postgis>();
                 services.AddTransient<IRouteSegmentValidator, RouteSegmentValidator>();
                 services.AddTransient<IRouteSegmentFactory, RouteSegmentFactory>();
-                services.AddTransient<IRouteSegmentFactory, RouteSegmentFactory>();
+                services.AddTransient<IRouteNodeFactory, RouteNodeFactory>();
                 services.AddTransient<IRouteSegmentEventFactory, RouteSegmentEventFactory>();
                 services.AddTransient<IRouteNodeEventFactory, RouteNodeEventFactory>();
 

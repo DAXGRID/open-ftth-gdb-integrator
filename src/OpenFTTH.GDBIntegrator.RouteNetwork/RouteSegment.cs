@@ -15,27 +15,22 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
         public string Username { get; set; }
         public string ApplicationName { get; set; }
 
-        public virtual RouteNode FindStartNode()
+        public virtual Point FindStartPoint()
         {
             var lineString = GetLineString();
 
             var startPoint = new Point(lineString.StartPoint.X, lineString.StartPoint.Y);
-            var wkbWriter = new WKBWriter();
 
-            var startNode = new RouteNode(Guid.NewGuid(), wkbWriter.Write(startPoint), Guid.NewGuid(), "GDB_INTEGRATOR", "GDB_INTEGRATOR");
-
-            return startNode;
+            return startPoint;
         }
 
-        public virtual RouteNode FindEndNode()
+        public virtual Point FindEndPoint()
         {
             var lineString = GetLineString();
-            var wkbWriter = new WKBWriter();
 
             var endPoint = new Point(lineString.EndPoint.X, lineString.EndPoint.Y);
-            var endNode = new RouteNode(Guid.NewGuid(), wkbWriter.Write(endPoint), Guid.NewGuid(), "GDB_INTEGRATOR", "GDB_INTEGRATOR");
 
-            return endNode;
+            return endPoint;
         }
 
         public virtual string GetGeoJsonCoordinate()

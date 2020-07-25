@@ -2,6 +2,7 @@ using System;
 using Xunit;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using NetTopologySuite.Geometries;
 
 namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
 {
@@ -36,42 +37,38 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
         }
 
         [Fact]
-        public void FindStartNode_ShouldReturnNewRouteNodeWithCalculatedCoord_OnBeingCalled()
+        public void FindStartPoint_ShouldReturnNewRouteNodeWithCalculatedCoord_OnBeingCalled()
         {
             var routeSegment = new RouteSegment
             {
                 Coord = Convert.FromBase64String("AQIAACDoZAAABgAAALx5ruNWRSFBsc8ScAykV0HZ6xJ8lEUhQYU+y98RpFdBILoYecJFIUEVfnDVB6RXQZH1zbVhRSFBTFhvegSkV0G/QerRbkUhQYWC7LEKpFdB/e8AFj1FIUG8d8O9BqRXQQ=="),
             };
 
-            var startNode = routeSegment.FindStartNode();
+            var startPoint = routeSegment.FindStartPoint();
+
+            var expected = new Point(565931.4446905176, 6197297.75114815);
 
             using (new AssertionScope())
             {
-                startNode.Mrid.Should().NotBeEmpty();
-                startNode.ApplicationName.Should().BeEquivalentTo("GDB_INTEGRATOR");
-                startNode.Username.Should().BeEquivalentTo("GDB_INTEGRATOR");
-                startNode.WorkTaskMrid.Should().NotBeEmpty();
-                startNode.Coord.Should().BeEquivalentTo(Convert.FromBase64String("AQEAAAC8ea7jVkUhQbHPEnAMpFdB"));
+                startPoint.Should().BeEquivalentTo(expected);
             }
         }
 
         [Fact]
-        public void FindEndNode_ShouldReturnNewRouteNodeWithCalculatedCoord_OnBeingCalled()
+        public void FindEndPoint_ShouldReturnNewRouteNodeWithCalculatedCoord_OnBeingCalled()
         {
             var routeSegment = new RouteSegment
             {
                 Coord = Convert.FromBase64String("AQIAACDoZAAABgAAALx5ruNWRSFBsc8ScAykV0HZ6xJ8lEUhQYU+y98RpFdBILoYecJFIUEVfnDVB6RXQZH1zbVhRSFBTFhvegSkV0G/QerRbkUhQYWC7LEKpFdB/e8AFj1FIUG8d8O9BqRXQQ=="),
             };
 
-            var endNode = routeSegment.FindEndNode();
+            var endNode = routeSegment.FindEndPoint();
+
+            var expected = new Point(565918.5429759022, 6197274.965055402);
 
             using (new AssertionScope())
             {
-                endNode.Mrid.Should().NotBeEmpty();
-                endNode.ApplicationName.Should().BeEquivalentTo("GDB_INTEGRATOR");
-                endNode.Username.Should().BeEquivalentTo("GDB_INTEGRATOR");
-                endNode.WorkTaskMrid.Should().NotBeEmpty();
-                endNode.Coord.Should().BeEquivalentTo(Convert.FromBase64String("AQEAAAD97wAWPUUhQbx3w70GpFdB"));
+                endNode.Should().BeEquivalentTo(expected);
             }
         }
 
