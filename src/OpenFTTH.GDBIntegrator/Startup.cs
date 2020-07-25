@@ -2,6 +2,7 @@ using OpenFTTH.GDBIntegrator.Subscriber;
 using OpenFTTH.GDBIntegrator.Producer;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -36,6 +37,8 @@ namespace OpenFTTH.GDBIntegrator
             _applicationLifetime.ApplicationStarted.Register(OnStarted);
             _applicationLifetime.ApplicationStopping.Register(OnStopped);
 
+            MarkAsReady();
+
             return Task.CompletedTask;
         }
 
@@ -43,6 +46,11 @@ namespace OpenFTTH.GDBIntegrator
         {
             _logger.LogInformation("Stopping");
             return Task.CompletedTask;
+        }
+
+        private void MarkAsReady()
+        {
+            File.Create("/tmp/healthy");
         }
 
         private void OnStarted()
