@@ -58,8 +58,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Validators
 
         private void LogValidationError(string errorName, LineString lineString)
         {
-            // TODO change to log geojson
-            _logger.LogError($"Validation failed on '{errorName}'. GeoJson: '{lineString.ToString()}'");
+            _logger.LogError($"Validation failed on '{errorName}'. WkbString: '{lineString.ToString()}'");
         }
     }
 }
