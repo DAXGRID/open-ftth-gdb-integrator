@@ -1,4 +1,6 @@
+using System;
 using System.Reflection;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
@@ -10,10 +12,12 @@ using OpenFTTH.GDBIntegrator.Subscriber;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres;
+using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres.SchemaMigration;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using MediatR;
+using FluentMigrator.Runner;
 
 namespace OpenFTTH.GDBIntegrator.Internal
 {
@@ -34,8 +38,8 @@ namespace OpenFTTH.GDBIntegrator.Internal
         {
             hostBuilder.ConfigureAppConfiguration((hostingContext, config) =>
             {
-                config.AddEnvironmentVariables();
                 config.AddJsonFile("appsettings.json", true, true);
+                config.AddEnvironmentVariables();
             });
         }
 
@@ -46,6 +50,13 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddOptions();
                 services.AddLogging();
                 services.AddMediatR(typeof(GeoDatabaseUpdated).GetTypeInfo().Assembly);
+
+                services.AddFluentMigratorCore()
+                .ConfigureRunner(rb => rb
+                                 .AddPostgres()
+                                 .WithGlobalConnectionString(CreatePostgresConnectionString())
+                                 .ScanIn(typeof(InitialDatabaseSetup).Assembly).For.Migrations())
+                .AddLogging(lb => lb.AddFluentMigratorConsole());
 
                 services.AddHostedService<Startup>();
                 services.AddSingleton<IRouteSegmentSubscriber, PostgresRouteSegmentSubscriber>();
@@ -67,6 +78,18 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.Configure<ApplicationSetting>(applicationSettings =>
                                                  hostContext.Configuration.GetSection("application").Bind(applicationSettings));
             });
+        }
+
+        private static string CreatePostgresConnectionString()
+        {
+            var host = Environment.GetEnvironmentVariable("POSTGIS__HOST");
+            var port = Environment.GetEnvironmentVariable("POSTGIS__PORT");
+            var username = Environment.GetEnvironmentVariable("POSTGIS__USERNAME");
+            var password = Environment.GetEnvironmentVariable("POSTGIS__PASSWORD");
+            var database = Environment.GetEnvironmentVariable("POSTGIS__DATABASE");
+
+            var connectionString = $"Host={host};Port={port};Username={username};Password={password};Database={database}";
+            return connectionString;
         }
 
         private static void ConfigureLogging(IHostBuilder hostBuilder)

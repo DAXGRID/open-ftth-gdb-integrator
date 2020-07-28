@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using FluentMigrator.Runner;
 
 namespace OpenFTTH.GDBIntegrator
 {
@@ -15,24 +16,29 @@ namespace OpenFTTH.GDBIntegrator
         private readonly IProducer _producer;
         private readonly ILogger _logger;
         private readonly IHostApplicationLifetime _applicationLifetime;
+        private readonly IMigrationRunner _migrationRunner;
 
         public Startup(
             IRouteSegmentSubscriber routeSegmentSubscriber,
             IRouteNodeSubscriber routeNodeSubscriber,
             IProducer producer,
             ILogger<Startup> logger,
-            IHostApplicationLifetime applicationLifetime)
+            IHostApplicationLifetime applicationLifetime,
+            IMigrationRunner migrationRunner)
         {
             _routeSegmentSubscriber = routeSegmentSubscriber;
             _routeNodeSubscriber = routeNodeSubscriber;
             _producer = producer;
             _logger = logger;
             _applicationLifetime = applicationLifetime;
+            _migrationRunner = migrationRunner;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting");
+
+            _migrationRunner.MigrateUp();
 
             _applicationLifetime.ApplicationStarted.Register(OnStarted);
             _applicationLifetime.ApplicationStopping.Register(OnStopped);
