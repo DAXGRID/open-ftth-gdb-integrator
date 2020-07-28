@@ -317,7 +317,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await factory.Create(routeSegment);
 
-            var startInsertRouteNode = (InsertRouteNode)result.ToList()[0];
+            var startInsertRouteNode = (NewRouteNodeDigitized)result.ToList()[0];
             var existingRouteSegmentSplitted = (ExistingRouteSegmentSplitted)result.ToList()[1];
             var newRouteSegmentDigitized = (NewRouteSegmentDigitized)result.ToList()[2];
 
@@ -374,7 +374,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await factory.Create(routeSegment);
 
-            var endInsertNode = (InsertRouteNode)result.ToList()[0];
+            var endInsertNode = (NewRouteNodeDigitized)result.ToList()[0];
             var existingRouteSegmentSplitted = (ExistingRouteSegmentSplitted)result.ToList()[1];
             var newRouteSegmentDigitized = (NewRouteSegmentDigitized)result.ToList()[2];
 
@@ -436,10 +436,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await factory.Create(routeSegment);
 
-            var startInsertNode = (InsertRouteNode)result.ToList()[0];
+            var startInsertNode = (NewRouteNodeDigitized)result.ToList()[0];
             var startExistingRouteSegmentSplitted = (ExistingRouteSegmentSplitted)result.ToList()[1];
 
-            var endInsertNode = (InsertRouteNode)result.ToList()[2];
+            var endInsertNode = (NewRouteNodeDigitized)result.ToList()[2];
             var endExistingRouteSegmentSplitted = (ExistingRouteSegmentSplitted)result.ToList()[3];
 
             var newRouteSegmentDigitized = (NewRouteSegmentDigitized)result.ToList()[4];

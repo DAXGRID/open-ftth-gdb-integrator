@@ -77,7 +77,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             {
                 var startPoint = routeSegment.FindStartPoint();
                 var startNode = _routeNodeFactory.Create(startPoint);
-                notifications.Add(new InsertRouteNode { EventId = eventId, RouteNode = startNode });
+                notifications.Add(new NewRouteNodeDigitized { EventId = eventId, RouteNode = startNode });
 
                 var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, startNode);
                 notifications.Add(routeSegmentSplitted);
@@ -87,7 +87,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             {
                 var endPoint = routeSegment.FindEndPoint();
                 var endNode = _routeNodeFactory.Create(endPoint);
-                notifications.Add(new InsertRouteNode { EventId = eventId, RouteNode = endNode });
+                notifications.Add(new NewRouteNodeDigitized { EventId = eventId, RouteNode = endNode });
 
                 var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, endNode);
                 notifications.Add(routeSegmentSplitted);

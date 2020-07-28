@@ -10,21 +10,21 @@ using Microsoft.Extensions.Options;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
-    public class InsertRouteNode : INotification
+    public class NewRouteNodeDigitized : INotification
     {
         public RouteNode RouteNode { get; set; }
         public Guid EventId { get; set; }
     }
 
-    public class InsertRouteNodeHandler : INotificationHandler<InsertRouteNode>
+    public class NewRouteNodeDigitizedHandler : INotificationHandler<NewRouteNodeDigitized>
     {
-        private readonly ILogger<InsertRouteNodeHandler> _logger;
+        private readonly ILogger<NewRouteNodeDigitizedHandler> _logger;
         private readonly KafkaSetting _kafkaSettings;
         private readonly IMediator _mediator;
         private readonly IGeoDatabase _geoDatabase;
 
-        public InsertRouteNodeHandler(
-            ILogger<InsertRouteNodeHandler> logger,
+        public NewRouteNodeDigitizedHandler(
+            ILogger<NewRouteNodeDigitizedHandler> logger,
             IOptions<KafkaSetting> kafkaSettings,
             IMediator mediator,
             IGeoDatabase geoDatabase)
@@ -36,16 +36,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         }
 
 
-        public async Task Handle(InsertRouteNode request, CancellationToken token)
+        public async Task Handle(NewRouteNodeDigitized request, CancellationToken token)
         {
-            _logger.LogInformation($"Sending {nameof(InsertRouteNode)} with mrid '{request.RouteNode.Mrid}' to producer");
+            _logger.LogInformation($"Sending {nameof(NewRouteNodeDigitized)} with mrid '{request.RouteNode.Mrid}' to producer");
 
             await _geoDatabase.InsertRouteNode(request.RouteNode);
             await _mediator.Publish(new RouteNodeAdded
                 {
                     RouteNode = request.RouteNode,
                     EventId = request.EventId,
-                    CmdType = nameof(InsertRouteNode)
+                    CmdType = nameof(NewRouteNodeDigitized)
                 });
         }
     }
