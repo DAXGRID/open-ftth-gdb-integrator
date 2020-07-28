@@ -35,7 +35,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _geoDatabase = geoDatabase;
         }
 
-
         public async Task Handle(NewRouteNodeDigitized request, CancellationToken token)
         {
             _logger.LogInformation($"Sending {nameof(NewRouteNodeDigitized)} with mrid '{request.RouteNode.Mrid}' to producer");
