@@ -16,6 +16,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         public RouteNode StartRouteNode { get; set; }
         public RouteNode EndRouteNode { get; set; }
         public Guid EventId { get; set; }
+        public string CmdType { get; set; }
     }
 
     public class RouteSegmentAddedHandler : INotificationHandler<RouteSegmentAdded>
@@ -44,7 +45,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                                         request.RouteSegment.Mrid,
                                         request.StartRouteNode.Mrid,
                                         request.EndRouteNode.Mrid,
-                                        request.RouteSegment.GetGeoJsonCoordinate()));
+                                        request.RouteSegment.GetGeoJsonCoordinate(),
+                                        request.CmdType
+                                        ));
         }
     }
 }

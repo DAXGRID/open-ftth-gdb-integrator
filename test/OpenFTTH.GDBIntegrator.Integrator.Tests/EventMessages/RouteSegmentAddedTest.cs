@@ -17,6 +17,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
             var toNodeId = Guid.NewGuid();
             var geometry = "[565931.444690517626197297.75114815,565962.242331857916197319.4967800425,565985.236516777436197279.3349909978,"
                 + "565936.855086969336197265.913045954,565943.409990362716197290.7800604152,565918.542975902216197274.9650554024]";
+            var cmdType = "RouteSegmentDigitized";
 
             var routeSegmentAdded = new RouteSegmentAdded
                 (
@@ -24,7 +25,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
                     segmentId,
                     fromNodeId,
                     toNodeId,
-                    geometry
+                    geometry,
+                    cmdType
                 );
 
             using (new AssertionScope())
@@ -35,8 +37,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
                 routeSegmentAdded.FromNodeId.Should().Be(fromNodeId);
                 routeSegmentAdded.ToNodeId.Should().Be(toNodeId);
                 routeSegmentAdded.EventId.Should().Be(eventId);
-                routeSegmentAdded.EventType.Should().Be("RouteSegmentAddedCommand");
+                routeSegmentAdded.EventType.Should().Be("RouteSegmentAdded");
                 routeSegmentAdded.EventTs.Should().NotBeEmpty();
+                routeSegmentAdded.CmdType.Should().Be(cmdType);
             }
         }
     }

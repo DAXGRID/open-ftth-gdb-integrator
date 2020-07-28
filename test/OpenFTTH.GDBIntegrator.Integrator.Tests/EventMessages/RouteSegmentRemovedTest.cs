@@ -15,8 +15,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
             var eventId = Guid.NewGuid();
             var segmentId = Guid.NewGuid();
             var replacedBySegments = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+            var cmdType = "RouteSegmentRemoved";
 
-            var routeSegment = new RouteSegmentRemoved(eventId, segmentId, replacedBySegments);
+            var routeSegment = new RouteSegmentRemoved(eventId, segmentId, replacedBySegments, cmdType);
 
             using (new AssertionScope())
             {
@@ -26,6 +27,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
                 routeSegment.EventTs.Should().NotBeEmpty();
                 routeSegment.ReplacedBySegments.Should().BeEquivalentTo(replacedBySegments);
                 routeSegment.SegmentId.Should().Be(segmentId);
+                routeSegment.CmdType.Should().Be(cmdType);
             }
         }
 
@@ -35,8 +37,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
             var eventId = Guid.NewGuid();
             var segmentId = Guid.NewGuid();
             var replacedBySegments = new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
+            var cmdType = "RouteSegmentRemoved";
 
-            Action act = () => new RouteSegmentRemoved(eventId, segmentId, replacedBySegments);
+            Action act = () => new RouteSegmentRemoved(eventId, segmentId, replacedBySegments, cmdType);
 
             act.Should().ThrowExactly<ArgumentOutOfRangeException>();
         }

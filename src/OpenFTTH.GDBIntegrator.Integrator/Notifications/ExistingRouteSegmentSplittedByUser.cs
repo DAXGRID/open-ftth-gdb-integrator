@@ -94,7 +94,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     EventId = eventId,
                     RouteSegment = routeSegment,
                     StartRouteNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment)).FirstOrDefault(),
-                    EndRouteNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).FirstOrDefault()
+                    EndRouteNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).FirstOrDefault(),
+                    CmdType = nameof(ExistingRouteSegmentSplittedByUser)
                 });
             }
         }
@@ -108,7 +109,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 {
                     EventId = eventId,
                     RouteSegment = intersectingRouteSegment,
-                    ReplacedBySegments = routeSegments.Select(x => x.Mrid)
+                    ReplacedBySegments = routeSegments.Select(x => x.Mrid),
+                    CmdType = nameof(ExistingRouteSegmentSplittedByUser)
                 });
         }
     }

@@ -53,14 +53,24 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 var startPoint = routeSegment.FindStartPoint();
                 startNode = _routeNodeFactory.Create(startPoint);
                 await _geoDatabase.InsertRouteNode(startNode);
-                await _mediator.Publish(new RouteNodeAdded { RouteNode = startNode, EventId = eventId });
+                await _mediator.Publish(new RouteNodeAdded
+                    {
+                        RouteNode = startNode,
+                        EventId = eventId,
+                        CmdType = nameof(NewRouteSegmentDigitizedByUser)
+                    });
             }
             if (endNode is null)
             {
                 var endPoint = routeSegment.FindStartPoint();
                 endNode = _routeNodeFactory.Create(endPoint);
                 await _geoDatabase.InsertRouteNode(endNode);
-                await _mediator.Publish(new RouteNodeAdded { RouteNode = endNode, EventId = eventId });
+                await _mediator.Publish(new RouteNodeAdded
+                    {
+                        RouteNode = endNode,
+                        EventId = eventId,
+                        CmdType = nameof(NewRouteSegmentDigitizedByUser)
+                    });
             }
 
             await _mediator.Publish(new RouteSegmentAdded
@@ -68,7 +78,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 EventId = eventId,
                 RouteSegment = routeSegment,
                 StartRouteNode = startNode,
-                EndRouteNode = endNode
+                EndRouteNode = endNode,
+                CmdType = nameof(NewRouteSegmentDigitizedByUser)
             });
         }
     }

@@ -16,6 +16,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         public RouteSegment RouteSegment { get; set; }
         public Guid EventId { get; set; }
         public IEnumerable<Guid> ReplacedBySegments { get; set; }
+        public string CmdType { get; set; }
     }
 
     public class RouteSegmentRemovedHandler : INotificationHandler<RouteSegmentRemoved>
@@ -42,7 +43,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                                     new EventMessages.RouteSegmentRemoved(
                                         request.EventId,
                                         request.RouteSegment.Mrid,
-                                        request.ReplacedBySegments
+                                        request.ReplacedBySegments,
+                                        request.CmdType
                                         ));
         }
     }

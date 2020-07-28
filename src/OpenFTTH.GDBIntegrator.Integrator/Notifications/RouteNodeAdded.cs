@@ -15,6 +15,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         public RouteNode RouteNode { get; set; }
         public Guid EventId { get; set; }
+        public string CmdType { get; set; }
     }
 
     public class RouteNodeAddedHandler : INotificationHandler<RouteNodeAdded>
@@ -39,7 +40,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _logger.LogInformation($"Sending {nameof(RouteNodeAdded)} with mrid '{request.RouteNode.Mrid}' to producer");
 
             await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
-                                    new EventMessages.RouteNodeAdded(request.EventId, request.RouteNode.Mrid, request.RouteNode.GetGeoJsonCoordinate()));
+                                    new EventMessages.RouteNodeAdded(
+                                        request.EventId,
+                                        request.RouteNode.Mrid,
+                                        request.RouteNode.GetGeoJsonCoordinate(),
+                                        request.CmdType
+                                        ));
         }
     }
 }

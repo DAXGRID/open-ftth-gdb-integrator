@@ -41,7 +41,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _logger.LogInformation($"Sending {nameof(InsertRouteNode)} with mrid '{request.RouteNode.Mrid}' to producer");
 
             await _geoDatabase.InsertRouteNode(request.RouteNode);
-            await _mediator.Publish(new RouteNodeAdded { RouteNode = request.RouteNode, EventId = request.EventId });
+            await _mediator.Publish(new RouteNodeAdded
+                {
+                    RouteNode = request.RouteNode,
+                    EventId = request.EventId,
+                    CmdType = nameof(InsertRouteNode)
+                });
         }
     }
 }
