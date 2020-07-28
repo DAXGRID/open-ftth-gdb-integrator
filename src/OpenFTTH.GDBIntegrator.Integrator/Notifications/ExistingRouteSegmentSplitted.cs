@@ -11,22 +11,22 @@ using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
-    public class ExistingRouteSegmentSplittedByUser : INotification
+    public class ExistingRouteSegmentSplitted : INotification
     {
         public RouteNode RouteNode { get; set; }
         public Guid EventId { get; set; }
         public RouteSegment RouteSegmentDigitizedByUser { get; set; }
     }
 
-    public class ExistingRouteSegmentSplittedByUserHandler : INotificationHandler<ExistingRouteSegmentSplittedByUser>
+    public class ExistingRouteSegmentSplittedHandler : INotificationHandler<ExistingRouteSegmentSplitted>
     {
-        private readonly ILogger<ExistingRouteSegmentSplittedByUserHandler> _logger;
+        private readonly ILogger<ExistingRouteSegmentSplittedHandler> _logger;
         private readonly IGeoDatabase _geoDatabase;
         private readonly IRouteSegmentFactory _routeSegmentFactory;
         private readonly IMediator _mediator;
 
-        public ExistingRouteSegmentSplittedByUserHandler(
-            ILogger<ExistingRouteSegmentSplittedByUserHandler> logger,
+        public ExistingRouteSegmentSplittedHandler(
+            ILogger<ExistingRouteSegmentSplittedHandler> logger,
             IGeoDatabase geoDatabase,
             IRouteSegmentFactory routeSegmentFactory,
             IMediator mediator)
@@ -37,7 +37,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _mediator = mediator;
         }
 
-        public async Task Handle(ExistingRouteSegmentSplittedByUser request, CancellationToken token)
+        public async Task Handle(ExistingRouteSegmentSplitted request, CancellationToken token)
         {
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting Existing route segment splitted by route node");
 
@@ -95,7 +95,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     RouteSegment = routeSegment,
                     StartRouteNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment)).FirstOrDefault(),
                     EndRouteNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).FirstOrDefault(),
-                    CmdType = nameof(ExistingRouteSegmentSplittedByUser)
+                    CmdType = nameof(ExistingRouteSegmentSplitted)
                 });
             }
         }
@@ -110,7 +110,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     EventId = eventId,
                     RouteSegment = intersectingRouteSegment,
                     ReplacedBySegments = routeSegments.Select(x => x.Mrid),
-                    CmdType = nameof(ExistingRouteSegmentSplittedByUser)
+                    CmdType = nameof(ExistingRouteSegmentSplitted)
                 });
         }
     }

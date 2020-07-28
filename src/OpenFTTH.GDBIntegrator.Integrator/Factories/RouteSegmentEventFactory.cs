@@ -103,9 +103,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return routeSegment.ApplicationName == _applicationSettings.ApplicationName;
         }
 
-        private ExistingRouteSegmentSplittedByUser CreateExistingRouteSegmentSplittedByUser(RouteSegment routeSegment, Guid eventId, RouteNode routeNode)
+        private ExistingRouteSegmentSplitted CreateExistingRouteSegmentSplittedByUser(RouteSegment routeSegment, Guid eventId, RouteNode routeNode)
         {
-            return new ExistingRouteSegmentSplittedByUser
+            return new ExistingRouteSegmentSplitted
             {
                 RouteNode = routeNode,
                 EventId = eventId,
@@ -113,9 +113,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             };
         }
 
-        private NewRouteSegmentDigitizedByUser CreateNewRouteSegmentDigitizedByUser(RouteSegment routeSegment, Guid eventId)
+        private NewRouteSegmentDigitized CreateNewRouteSegmentDigitizedByUser(RouteSegment routeSegment, Guid eventId)
         {
-            return new NewRouteSegmentDigitizedByUser
+            return new NewRouteSegmentDigitized
             {
                 RouteSegment = routeSegment,
                 EventId = eventId

@@ -66,7 +66,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task Create_ShouldReturnExistingRouteSegmentSplittedByUser_OnIntersectingRouteSegmentsCountBeingOne()
+        public async Task Create_ShouldReturnExistingRouteSegmentSplitted_OnIntersectingRouteSegmentsCountBeingOne()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -78,7 +78,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            var result = (ExistingRouteSegmentSplittedByUser)(await factory.Create(routeNode));
+            var result = (ExistingRouteSegmentSplitted)(await factory.Create(routeNode));
 
             using (new AssertionScope())
             {

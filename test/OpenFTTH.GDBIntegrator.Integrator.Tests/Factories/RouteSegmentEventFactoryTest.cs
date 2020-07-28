@@ -83,7 +83,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task Create_ShouldReturnNewRouteSegmentDigitizedByUser_OnIntersectingStartAndEndRouteNodeBeingZero()
+        public async Task Create_ShouldReturnNewRouteSegmentDigitized_OnIntersectingStartAndEndRouteNodeBeingZero()
         {
             var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
@@ -113,19 +113,19 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await factory.Create(routeSegment);
 
-            var newRouteSegmentDigitizedByUser = (NewRouteSegmentDigitizedByUser)result.ToList()[0];
+            var newRouteSegmentDigitized = (NewRouteSegmentDigitized)result.ToList()[0];
 
             using (var scope = new AssertionScope())
             {
                 result.Count().Should().Be(1);
-                newRouteSegmentDigitizedByUser.Should().BeOfType<NewRouteSegmentDigitizedByUser>();
-                newRouteSegmentDigitizedByUser.RouteSegment.Should().Be(routeSegment);
-                newRouteSegmentDigitizedByUser.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.Should().BeOfType<NewRouteSegmentDigitized>();
+                newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
+                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
             }
         }
 
         [Fact]
-        public async Task Create_ShouldReturnNewRouteSegmentDigitizedByUser_OnIntersectingStartNodeCountBeingOne()
+        public async Task Create_ShouldReturnNewRouteSegmentDigitized_OnIntersectingStartNodeCountBeingOne()
         {
             var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
@@ -155,19 +155,19 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await factory.Create(routeSegment);
 
-            var newRouteSegmentDigitizedByUser = (NewRouteSegmentDigitizedByUser)result.ToList()[0];
+            var newRouteSegmentDigitized = (NewRouteSegmentDigitized)result.ToList()[0];
 
             using (var scope = new AssertionScope())
             {
                 result.Count().Should().Be(1);
-                newRouteSegmentDigitizedByUser.Should().BeOfType<NewRouteSegmentDigitizedByUser>();
-                newRouteSegmentDigitizedByUser.RouteSegment.Should().Be(routeSegment);
-                newRouteSegmentDigitizedByUser.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.Should().BeOfType<NewRouteSegmentDigitized>();
+                newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
+                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
             }
         }
 
         [Fact]
-        public async Task Create_ShouldReturnNewRouteSegmentDigitizedByUser_OnIntersectingEndNodeCountBeingOne()
+        public async Task Create_ShouldReturnNewRouteSegmentDigitized_OnIntersectingEndNodeCountBeingOne()
         {
             var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
@@ -197,19 +197,19 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await factory.Create(routeSegment);
 
-            var newRouteSegmentDigitizedByUser = (NewRouteSegmentDigitizedByUser)result.ToList()[0];
+            var newRouteSegmentDigitized = (NewRouteSegmentDigitized)result.ToList()[0];
 
             using (var scope = new AssertionScope())
             {
                 result.Count().Should().Be(1);
-                newRouteSegmentDigitizedByUser.Should().BeOfType<NewRouteSegmentDigitizedByUser>();
-                newRouteSegmentDigitizedByUser.RouteSegment.Should().Be(routeSegment);
-                newRouteSegmentDigitizedByUser.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.Should().BeOfType<NewRouteSegmentDigitized>();
+                newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
+                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
             }
         }
 
         [Fact]
-        public async Task Create_ShouldReturnNewRouteSegmentDigitizedByUser_OnIntersectingStartAndEndNodeCountBeingOne()
+        public async Task Create_ShouldReturnNewRouteSegmentDigitized_OnIntersectingStartAndEndNodeCountBeingOne()
         {
             var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
@@ -239,14 +239,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await factory.Create(routeSegment);
 
-            var newRouteSegmentDigitizedByUser = (NewRouteSegmentDigitizedByUser)result.ToList()[0];
+            var newRouteSegmentDigitized = (NewRouteSegmentDigitized)result.ToList()[0];
 
             using (var scope = new AssertionScope())
             {
                 result.Count().Should().Be(1);
-                newRouteSegmentDigitizedByUser.Should().BeOfType<NewRouteSegmentDigitizedByUser>();
-                newRouteSegmentDigitizedByUser.RouteSegment.Should().Be(routeSegment);
-                newRouteSegmentDigitizedByUser.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.Should().BeOfType<NewRouteSegmentDigitized>();
+                newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
+                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
             }
         }
 
@@ -270,7 +270,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
-            var result = (NewRouteSegmentDigitizedByUser)(await factory.Create(routeSegment)).First();
+            var result = (NewRouteSegmentDigitized)(await factory.Create(routeSegment)).First();
 
             using (var scope = new AssertionScope())
             {
@@ -279,7 +279,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task Create_ShouldContainStartCreateExistingRouteSegmentSplittedByUserForStartNode_OnStartSegmentCountBeingOneAndStartNodesCountBeingZero()
+        public async Task Create_ShouldContainStartCreateExistingRouteSegmentSplittedForStartNode_OnStartSegmentCountBeingOneAndStartNodesCountBeingZero()
         {
             var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
@@ -318,25 +318,25 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var result = await factory.Create(routeSegment);
 
             var startInsertRouteNode = (InsertRouteNode)result.ToList()[0];
-            var existingRouteSegmentSplittedByUser = (ExistingRouteSegmentSplittedByUser)result.ToList()[1];
-            var newRouteSegmentDigitizedByUser = (NewRouteSegmentDigitizedByUser)result.ToList()[2];
+            var existingRouteSegmentSplitted = (ExistingRouteSegmentSplitted)result.ToList()[1];
+            var newRouteSegmentDigitized = (NewRouteSegmentDigitized)result.ToList()[2];
 
             using (var scope = new AssertionScope())
             {
                 startInsertRouteNode.RouteNode.Should().Be(startRouteNode);
                 startInsertRouteNode.EventId.Should().NotBeEmpty();
 
-                existingRouteSegmentSplittedByUser.EventId.Should().NotBeEmpty();
-                existingRouteSegmentSplittedByUser.RouteNode.Should().Be(startRouteNode);
-                existingRouteSegmentSplittedByUser.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
+                existingRouteSegmentSplitted.EventId.Should().NotBeEmpty();
+                existingRouteSegmentSplitted.RouteNode.Should().Be(startRouteNode);
+                existingRouteSegmentSplitted.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
 
-                newRouteSegmentDigitizedByUser.EventId.Should().NotBeEmpty();
-                newRouteSegmentDigitizedByUser.RouteSegment.Should().Be(routeSegment);
+                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
             }
         }
 
         [Fact]
-        public async Task Create_ShouldContainEndCreateExistingRouteSegmentSplittedByUserForStartNode_OnEndSegmentCountBeingOneAndStartNodesCountBeingZero()
+        public async Task Create_ShouldContainEndCreateExistingRouteSegmentSplittedForStartNode_OnEndSegmentCountBeingOneAndStartNodesCountBeingZero()
         {
             var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
@@ -375,25 +375,25 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var result = await factory.Create(routeSegment);
 
             var endInsertNode = (InsertRouteNode)result.ToList()[0];
-            var existingRouteSegmentSplittedByUser = (ExistingRouteSegmentSplittedByUser)result.ToList()[1];
-            var newRouteSegmentDigitizedByUser = (NewRouteSegmentDigitizedByUser)result.ToList()[2];
+            var existingRouteSegmentSplitted = (ExistingRouteSegmentSplitted)result.ToList()[1];
+            var newRouteSegmentDigitized = (NewRouteSegmentDigitized)result.ToList()[2];
 
             using (var scope = new AssertionScope())
             {
                 endInsertNode.RouteNode.Should().Be(endNode);
                 endInsertNode.EventId.Should().NotBeEmpty();
 
-                existingRouteSegmentSplittedByUser.EventId.Should().NotBeEmpty();
-                existingRouteSegmentSplittedByUser.RouteNode.Should().Be(endNode);
-                existingRouteSegmentSplittedByUser.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
+                existingRouteSegmentSplitted.EventId.Should().NotBeEmpty();
+                existingRouteSegmentSplitted.RouteNode.Should().Be(endNode);
+                existingRouteSegmentSplitted.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
 
-                newRouteSegmentDigitizedByUser.EventId.Should().NotBeEmpty();
-                newRouteSegmentDigitizedByUser.RouteSegment.Should().Be(routeSegment);
+                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
             }
         }
 
         [Fact]
-        public async Task Create_ShouldContainEndCreateExistingRouteSegmentSplittedByUserForStartNode_OnStartAndEndSegmentCountBeingOneAndStartAndEndNodesCountBeingZero()
+        public async Task Create_ShouldContainEndCreateExistingRouteSegmentSplittedForStartNode_OnStartAndEndSegmentCountBeingOneAndStartAndEndNodesCountBeingZero()
         {
             var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
@@ -437,31 +437,31 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var result = await factory.Create(routeSegment);
 
             var startInsertNode = (InsertRouteNode)result.ToList()[0];
-            var startExistingRouteSegmentSplittedByUser = (ExistingRouteSegmentSplittedByUser)result.ToList()[1];
+            var startExistingRouteSegmentSplitted = (ExistingRouteSegmentSplitted)result.ToList()[1];
 
             var endInsertNode = (InsertRouteNode)result.ToList()[2];
-            var endExistingRouteSegmentSplittedByUser = (ExistingRouteSegmentSplittedByUser)result.ToList()[3];
+            var endExistingRouteSegmentSplitted = (ExistingRouteSegmentSplitted)result.ToList()[3];
 
-            var newRouteSegmentDigitizedByUser = (NewRouteSegmentDigitizedByUser)result.ToList()[4];
+            var newRouteSegmentDigitized = (NewRouteSegmentDigitized)result.ToList()[4];
 
             using (var scope = new AssertionScope())
             {
-                startExistingRouteSegmentSplittedByUser.EventId.Should().NotBeEmpty();
-                startExistingRouteSegmentSplittedByUser.RouteNode.Should().Be(startNode);
-                startExistingRouteSegmentSplittedByUser.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
+                startExistingRouteSegmentSplitted.EventId.Should().NotBeEmpty();
+                startExistingRouteSegmentSplitted.RouteNode.Should().Be(startNode);
+                startExistingRouteSegmentSplitted.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
 
                 startInsertNode.RouteNode.Should().Be(startNode);
                 startInsertNode.EventId.Should().NotBeEmpty();
 
-                endExistingRouteSegmentSplittedByUser.EventId.Should().NotBeEmpty();
-                endExistingRouteSegmentSplittedByUser.RouteNode.Should().Be(endNode);
-                endExistingRouteSegmentSplittedByUser.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
+                endExistingRouteSegmentSplitted.EventId.Should().NotBeEmpty();
+                endExistingRouteSegmentSplitted.RouteNode.Should().Be(endNode);
+                endExistingRouteSegmentSplitted.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
 
                 endInsertNode.RouteNode.Should().Be(endNode);
                 endInsertNode.EventId.Should().NotBeEmpty();
 
-                newRouteSegmentDigitizedByUser.EventId.Should().NotBeEmpty();
-                newRouteSegmentDigitizedByUser.RouteSegment.Should().Be(routeSegment);
+                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
             }
         }
 
@@ -493,9 +493,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = (await factory.Create(routeSegment)).ToList();
 
-            var newSegmentNotification = (NewRouteSegmentDigitizedByUser)result[0];
-            var splittedRouteSegmentNotificationOne = (ExistingRouteSegmentSplittedByUser)result[1];
-            var splittedRouteSegmentNotificationTwo = (ExistingRouteSegmentSplittedByUser)result[2];
+            var newSegmentNotification = (NewRouteSegmentDigitized)result[0];
+            var splittedRouteSegmentNotificationOne = (ExistingRouteSegmentSplitted)result[1];
+            var splittedRouteSegmentNotificationTwo = (ExistingRouteSegmentSplitted)result[2];
 
             using (var scope = new AssertionScope())
             {

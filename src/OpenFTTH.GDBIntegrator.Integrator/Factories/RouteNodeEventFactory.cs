@@ -43,7 +43,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (intersectingRouteSegments.Count == 1)
             {
-                return new ExistingRouteSegmentSplittedByUser
+                return new ExistingRouteSegmentSplitted
                 {
                     RouteNode = routeNode,
                     EventId = eventId

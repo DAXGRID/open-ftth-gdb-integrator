@@ -10,22 +10,22 @@ using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
-    public class NewRouteSegmentDigitizedByUser : INotification
+    public class NewRouteSegmentDigitized : INotification
     {
         public RouteSegment RouteSegment { get; set; }
         public Guid EventId { get; set; }
     }
 
-    public class NewRouteSegmentDigitizedByUserHandler : INotificationHandler<NewRouteSegmentDigitizedByUser>
+    public class NewRouteSegmentDigitizedHandler : INotificationHandler<NewRouteSegmentDigitized>
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<NewRouteSegmentDigitizedByUserHandler> _logger;
+        private readonly ILogger<NewRouteSegmentDigitizedHandler> _logger;
         private readonly IGeoDatabase _geoDatabase;
         private readonly IRouteNodeFactory _routeNodeFactory;
 
-        public NewRouteSegmentDigitizedByUserHandler(
+        public NewRouteSegmentDigitizedHandler(
             IMediator mediator,
-            ILogger<NewRouteSegmentDigitizedByUserHandler> logger,
+            ILogger<NewRouteSegmentDigitizedHandler> logger,
             IGeoDatabase geoDatabase,
             IRouteNodeFactory routeNodeFactory)
         {
@@ -35,12 +35,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _routeNodeFactory = routeNodeFactory;
         }
 
-        public async Task Handle(NewRouteSegmentDigitizedByUser request, CancellationToken token)
+        public async Task Handle(NewRouteSegmentDigitized request, CancellationToken token)
         {
             if (request.RouteSegment is null)
                 throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");
 
-            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting - {nameof(NewRouteSegmentDigitizedByUser)}\n");
+            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting - {nameof(NewRouteSegmentDigitized)}\n");
 
             var eventId = request.EventId;
 
@@ -57,7 +57,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     {
                         RouteNode = startNode,
                         EventId = eventId,
-                        CmdType = nameof(NewRouteSegmentDigitizedByUser)
+                        CmdType = nameof(NewRouteSegmentDigitized)
                     });
             }
             if (endNode is null)
@@ -69,7 +69,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     {
                         RouteNode = endNode,
                         EventId = eventId,
-                        CmdType = nameof(NewRouteSegmentDigitizedByUser)
+                        CmdType = nameof(NewRouteSegmentDigitized)
                     });
             }
 
@@ -79,7 +79,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 RouteSegment = routeSegment,
                 StartRouteNode = startNode,
                 EndRouteNode = endNode,
-                CmdType = nameof(NewRouteSegmentDigitizedByUser)
+                CmdType = nameof(NewRouteSegmentDigitized)
             });
         }
     }
