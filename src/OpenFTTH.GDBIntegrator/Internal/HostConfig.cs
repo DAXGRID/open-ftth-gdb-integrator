@@ -38,7 +38,6 @@ namespace OpenFTTH.GDBIntegrator.Internal
         {
             hostBuilder.ConfigureAppConfiguration((hostingContext, config) =>
             {
-                config.AddJsonFile("appsettings.json", true, true);
                 config.AddEnvironmentVariables();
             });
         }
