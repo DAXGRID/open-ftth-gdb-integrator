@@ -108,5 +108,27 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.EventId.Should().NotBeEmpty();
             }
         }
+
+        [Fact]
+        public async Task Create_ShouldRetrunInvalidRouteNodeOperation_OnIntersectingRouteNodeCountBeingGreaterThanZero()
+        {
+            var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeNode = A.Fake<RouteNode>();
+            var intersectingRouteNodes = new List<RouteNode> { A.Fake<RouteNode>() };
+
+            A.CallTo(() => geoDatabase.GetIntersectingRouteNodes(routeNode))
+                .Returns(intersectingRouteNodes);
+
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+
+            var result = (InvalidRouteNodeOperation)(await factory.Create(routeNode));
+
+            using (new AssertionScope())
+            {
+                result.RouteNode.Should().BeEquivalentTo(routeNode);
+                result.EventId.Should().NotBeEmpty();
+            }
+        }
     }
 }
