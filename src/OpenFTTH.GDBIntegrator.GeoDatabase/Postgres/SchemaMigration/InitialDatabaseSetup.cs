@@ -1,8 +1,5 @@
 using FluentMigrator;
-using FluentMigrator.Expressions;
-using System;
 using System.IO;
-using System.Reflection;
 
 namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres.SchemaMigration
 {
