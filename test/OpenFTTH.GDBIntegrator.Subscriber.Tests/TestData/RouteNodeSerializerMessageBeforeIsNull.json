@@ -136,22 +136,13 @@
     "name": "postgres.route_network.route_node.Envelope"
   },
   "payload": {
-    "before": {
-      "mrid": "de39df61-8e2b-4132-a7c2-c55c77b98578",
-      "coord": { "wkb": "AQEAACDoZAAA4tDwso11IEGdihg1rXlXQQ==", "srid": 25832 },
-      "node_name": null,
-      "node_kind": null,
-      "marked_to_be_deleted": false,
-      "work_task_mrid": null,
-      "user_name": null,
-      "application_name": null
-    },
+    "before": null,
     "after": {
       "mrid": "de39df61-8e2b-4132-a7c2-c55c77b98578",
       "coord": { "wkb": "AQEAACDoZAAA4tDwso11IEGdihg1rXlXQQ==", "srid": 25832 },
       "node_name": null,
       "node_kind": null,
-      "marked_to_be_deleted": true,
+      "marked_to_be_deleted": false,
       "work_task_mrid": null,
       "user_name": null,
       "application_name": null

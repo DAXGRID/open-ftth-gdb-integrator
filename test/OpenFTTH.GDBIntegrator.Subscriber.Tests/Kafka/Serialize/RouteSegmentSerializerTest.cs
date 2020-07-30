@@ -76,7 +76,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 Coord = Convert.FromBase64String("AQIAACDoZAAAAgAAAM8G4/JefCBBjzUaLet5V0HDwDo5pH0gQdhEy5rqeVdB"),
                 WorkTaskMrid = Guid.Empty,
                 ApplicationName = string.Empty,
-                Username = string.Empty
+                Username = string.Empty,
+                MarkAsDeleted = false,
             };
 
             var expectedRouteSegmentAfter = new RouteSegment
@@ -85,7 +86,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 Coord = Convert.FromBase64String("AQIAACDoZAAAAgAAAM8G3/JefCBBjzUaLet5V0HDwDo5pH0gQdhEy5rqeVdB"),
                 WorkTaskMrid = new Guid("bfa35619-e60c-4393-99d1-fb21abce702f"),
                 ApplicationName = "GDB_INTEGRATOR",
-                Username = "GDB_INTEGRATOR"
+                Username = "GDB_INTEGRATOR",
+                MarkAsDeleted = false
             };
 
             var expectedMessage = new RouteSegmentMessage(expectedRouteSegmentBefore, expectedRouteSegmentAfter);
@@ -98,7 +100,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
 
         [Theory]
         [JsonFileData("TestData/RouteSegmentSerializerMessageBeforeIsNull.json")]
-        public void Deserialize_ShouldReturnDeserializedMessageWithBeforeBeingNull_OnValidReceivedTransportMessage(string fileData)
+        public void Deserialize_ShouldReturnDeserializedMessageWithBeforeBeingNull_OnValidReceivedTransportMessageOnBeforeBeingNull(string fileData)
         {
             var routeSegmentSerializer = new RouteSegmentSerializer();
 
@@ -116,7 +118,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 Coord = Convert.FromBase64String("AQIAACDoZAAAAgAAAM8G3/JefCBBjzUaLet5V0HDwDo5pH0gQdhEy5rqeVdB"),
                 WorkTaskMrid = new Guid("bfa35619-e60c-4393-99d1-fb21abce702f"),
                 ApplicationName = "GDB_INTEGRATOR",
-                Username = "GDB_INTEGRATOR"
+                Username = "GDB_INTEGRATOR",
+                MarkAsDeleted = false
             };
 
             var expectedMessage = new RouteSegmentMessage(expectedRouteSegmentBefore, expectedRouteSegmentAfter);

@@ -3,6 +3,7 @@ using System.Text;
 using Topos.Serialization;
 using Newtonsoft.Json.Linq;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Messages;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 {
@@ -14,7 +15,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 throw new ArgumentNullException($"{nameof(ReceivedTransportMessage)} is null");
 
             if (message.Body is null || message.Body.Length == 0)
-                return new ReceivedLogicalMessage(message.Headers, new RouteSegment(), message.Position);
+                return new ReceivedLogicalMessage(message.Headers, new RouteNodeMessage(), message.Position);
 
             var messageBody = Encoding.UTF8.GetString(message.Body, 0, message.Body.Length);
 
@@ -22,7 +23,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
             var payload = routeSegmentMessage.payload;
 
             if (IsTombStoneMessage(payload))
-                return new ReceivedLogicalMessage(message.Headers, new RouteSegment(), message.Position);
+                return new ReceivedLogicalMessage(message.Headers, new RouteNodeMessage(), message.Position);
 
             var routeNode = CreateRouteNodeOnPayload(payload);
 
@@ -35,17 +36,30 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
             return afterPayload.Type == JTokenType.Null;
         }
 
-        private RouteNode CreateRouteNodeOnPayload(dynamic payload)
+        private RouteNodeMessage CreateRouteNodeOnPayload(dynamic payload)
         {
+            var payloadBefore = payload.before;
             var payloadAfter = payload.after;
 
+            RouteNode routeNodeBefore = null;
+            if ((JObject)payloadBefore != null)
+                routeNodeBefore = CreateRouteNode(payloadBefore);
+
+            var routeNodeAfter = CreateRouteNode(payloadAfter);
+
+            return new RouteNodeMessage(routeNodeBefore, routeNodeAfter);
+        }
+
+        private RouteNode CreateRouteNode(dynamic routeNode)
+        {
             return new RouteNode
                 (
-                    new Guid(payloadAfter.mrid.ToString()),
-                    Convert.FromBase64String(payloadAfter.coord.wkb.ToString()),
-                    payloadAfter.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(payloadAfter.work_task_mrid.ToString()),
-                    payloadAfter.user_name.ToString(),
-                    payloadAfter.application_name.ToString()
+                    new Guid(routeNode.mrid.ToString()),
+                    Convert.FromBase64String(routeNode.coord.wkb.ToString()),
+                    routeNode.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(routeNode.work_task_mrid.ToString()),
+                    routeNode.user_name.ToString(),
+                    routeNode.application_name.ToString(),
+                    (bool)routeNode.marked_to_be_deleted
                 );
         }
 

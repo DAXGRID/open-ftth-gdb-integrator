@@ -4,6 +4,7 @@ using Topos.Config;
 using MediatR;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
+using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Messages;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using Microsoft.Extensions.Options;
@@ -41,23 +42,23 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
                 {
                     foreach (var message in messages)
                     {
-                        if (message.Body is RouteNode)
+                        if (message.Body is RouteNodeMessage)
                         {
                             _logger.LogInformation($"Received {nameof(RouteNode)}");
-                            var routeNode = (RouteNode)message.Body;
+                            var routeNode = (RouteNodeMessage)message.Body;
                             await HandleSubscribedEvent(routeNode);
                         }
                     }
                 }).Start();
         }
 
-        private async Task HandleSubscribedEvent(RouteNode routeNode)
+        private async Task HandleSubscribedEvent(RouteNodeMessage routeNodeMessage)
         {
-            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Received message {JsonConvert.SerializeObject(routeNode, Formatting.Indented)}");
+            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Received message {JsonConvert.SerializeObject(routeNodeMessage, Formatting.Indented)}");
 
-            if (!String.IsNullOrEmpty(routeNode.Mrid.ToString()))
+            if (!String.IsNullOrEmpty(routeNodeMessage.After.Mrid.ToString()))
             {
-                await _mediator.Send(new GeoDatabaseUpdated { UpdatedEntity = routeNode });
+                await _mediator.Send(new GeoDatabaseUpdated { UpdatedEntity = routeNodeMessage.After });
             }
             else
             {

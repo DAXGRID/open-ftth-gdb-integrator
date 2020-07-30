@@ -14,6 +14,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
         public Guid WorkTaskMrid { get; }
         public string Username { get; }
         public virtual string ApplicationName { get; }
+        public bool MarkAsDeleted { get; }
 
         // Default constructor is needed for serialization
         public RouteNode() {}
@@ -25,6 +26,16 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
             WorkTaskMrid = workTaskMrid;
             Username = username;
             ApplicationName = applicationName;
+        }
+
+        public RouteNode(Guid mrid, byte[] coord, Guid workTaskMrid, string username, string applicationName, bool markedAsDeleted)
+        {
+            Mrid = mrid;
+            Coord = coord;
+            WorkTaskMrid = workTaskMrid;
+            Username = username;
+            ApplicationName = applicationName;
+            MarkAsDeleted = markedAsDeleted;
         }
 
         public virtual string GetGeoJsonCoordinate()

@@ -14,6 +14,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
         public Guid WorkTaskMrid { get; set; }
         public string Username { get; set; }
         public string ApplicationName { get; set; }
+        public bool MarkAsDeleted { get; set; }
 
         public virtual Point FindStartPoint()
         {

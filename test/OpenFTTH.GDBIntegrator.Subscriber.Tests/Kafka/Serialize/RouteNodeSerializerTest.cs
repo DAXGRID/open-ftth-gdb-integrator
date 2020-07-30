@@ -1,6 +1,7 @@
 using Xunit;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
+using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Messages;
 using Topos.Serialization;
 using Topos.Consumer;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             byte[] body = null;
 
             var receivedTransportMessage = new ReceivedTransportMessage(position, headers, body);
-            var expected = new ReceivedLogicalMessage(headers, new RouteNode(), position);
+            var expected = new ReceivedLogicalMessage(headers, new RouteNodeMessage(), position);
 
             var result = routeSegmentSerializer.Deserialize(receivedTransportMessage);
 
@@ -43,16 +44,48 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void Deserialize_ShouldReturnEmptyReceivedLogicalMessage_OnMessageBodyLengthIsZero()
         {
-            var routeSegmentSerializer = new RouteNodeSerializer();
+            var routeNodeSerializer = new RouteNodeSerializer();
 
             var position = new Position();
             var headers = new Dictionary<string, string>();
             var body = new byte[0];
 
             var receivedTransportMessage = new ReceivedTransportMessage(position, headers, null);
-            var expected = new ReceivedLogicalMessage(headers, new RouteNode(), position);
+            var expected = new ReceivedLogicalMessage(headers, new RouteNodeMessage(), position);
 
-            var result = routeSegmentSerializer.Deserialize(receivedTransportMessage);
+            var result = routeNodeSerializer.Deserialize(receivedTransportMessage);
+
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Theory]
+        [JsonFileData("TestData/RouteNodeSerializerMessageBeforeIsNull.json")]
+        public void Deserialize_ShouldReturnDeserializedMessageWithBeforebeingNull_OnValidReceivedTransportMessageWithBeforeBeingNull(string fileData)
+        {
+            var routeNodeSerializer = new RouteNodeSerializer();
+
+            var position = new Position();
+            var headers = new Dictionary<string, string>();
+            var body = Encoding.UTF8.GetBytes(fileData);
+
+            var receivedTransportMessage = new ReceivedTransportMessage(position, headers, body);
+
+            RouteNode expectedRouteNodeBefore = null;
+
+            var expectedRouteNodeAfter = new RouteNode
+            (
+                new Guid("de39df61-8e2b-4132-a7c2-c55c77b98578"),
+                Convert.FromBase64String("AQEAACDoZAAA4tDwso11IEGdihg1rXlXQQ=="),
+                Guid.Empty,
+                string.Empty,
+                string.Empty,
+                false
+            );
+
+            var expectedBody = new RouteNodeMessage(expectedRouteNodeBefore, expectedRouteNodeAfter);
+
+            var expected = new ReceivedLogicalMessage(headers, expectedBody, position);
+            var result = routeNodeSerializer.Deserialize(receivedTransportMessage);
 
             result.Should().BeEquivalentTo(expected);
         }
@@ -61,7 +94,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [JsonFileData("TestData/RouteNodeSerializerMessage.json")]
         public void Deserialize_ShouldReturnDeserializedMessage_OnValidReceivedTransportMessage(string fileData)
         {
-            var routeSegmentSerializer = new RouteNodeSerializer();
+            var routeNodeSerializer = new RouteNodeSerializer();
 
             var position = new Position();
             var headers = new Dictionary<string, string>();
@@ -69,17 +102,30 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
 
             var receivedTransportMessage = new ReceivedTransportMessage(position, headers, body);
 
-            var expectedRouteSegment = new RouteSegment
-            {
-                Mrid = new Guid("de39df61-8e2b-4132-a7c2-c55c77b98578"),
-                Coord = Convert.FromBase64String("AQEAACDoZAAA4tDwso11IEGdihg1rXlXQQ=="),
-                WorkTaskMrid = Guid.Empty,
-                ApplicationName = string.Empty,
-                Username = string.Empty
-            };
+            var expectedRouteNodeBefore = new RouteNode
+            (
+                new Guid("de39df61-8e2b-4132-a7c2-c55c77b98578"),
+                Convert.FromBase64String("AQEAACDoZAAA4tDwso11IEGdihg1rXlXQQ=="),
+                Guid.Empty,
+                string.Empty,
+                string.Empty,
+                false
+            );
 
-            var expected = new ReceivedLogicalMessage(headers, expectedRouteSegment, position);
-            var result = routeSegmentSerializer.Deserialize(receivedTransportMessage);
+            var expectedRouteNodeAfter = new RouteNode
+            (
+                new Guid("de39df61-8e2b-4132-a7c2-c55c77b98578"),
+                Convert.FromBase64String("AQEAACDoZAAA4tDwso11IEGdihg1rXlXQQ=="),
+                Guid.Empty,
+                string.Empty,
+                string.Empty,
+                true
+            );
+
+            var expectedBody = new RouteNodeMessage(expectedRouteNodeBefore, expectedRouteNodeAfter);
+
+            var expected = new ReceivedLogicalMessage(headers, expectedBody, position);
+            var result = routeNodeSerializer.Deserialize(receivedTransportMessage);
 
             result.Should().BeEquivalentTo(expected);
         }
