@@ -63,10 +63,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         private async Task HandleRouteNode(RouteNodeMessage routeNodeMessage)
         {
-            var routeNodeEvent = await _routeNodeEventFactory.CreateDigitizedEvent((RouteNode)routeNodeMessage.After);
-
-            if (!(routeNodeEvent is null))
-                await _mediator.Publish(routeNodeEvent);
+            if (IsNodeNewlyDigitized(routeNodeMessage))
+            {
+                var routeNodeDigitizedEvent = await _routeNodeEventFactory.CreateDigitizedEvent((RouteNode)routeNodeMessage.After);
+                if (!(routeNodeDigitizedEvent is null))
+                    await _mediator.Publish(routeNodeDigitizedEvent);
+            }
+            else if(IsNodeUpdated(routeNodeMessage))
+            {
+                var routeNodeUpdatedEvent = await _routeNodeEventFactory.CreateUpdatedEvent(routeNodeMessage.Before, routeNodeMessage.After);
+                if (!(routeNodeUpdatedEvent is null))
+                    await _mediator.Publish(routeNodeUpdatedEvent);
+            }
+            else
+            {
+                _logger.LogInformation("RouteNode was deleted");
+            }
         }
 
         private async Task HandleRouteSegment(RouteSegmentMessage routeSegmentMessage)
@@ -92,6 +104,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
         }
 
+        private bool IsNodeNewlyDigitized(RouteNodeMessage routeNodeMessage)
+        {
+            return routeNodeMessage.Before is null && routeNodeMessage.After.Mrid.ToString() != string.Empty;
+        }
+
         private bool IsSegmentNewlyDigitized(RouteSegmentMessage routeSegmentMessage)
         {
             return routeSegmentMessage.Before is null && routeSegmentMessage.After.Mrid.ToString() != string.Empty;
@@ -100,6 +117,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         private bool IsSegmentUpdated(RouteSegmentMessage routeSegmentMessage)
         {
             return !(routeSegmentMessage.Before is null);
+        }
+
+        private bool IsNodeUpdated(RouteNodeMessage routeNodeMessage)
+        {
+            return !(routeNodeMessage.Before is null);
         }
     }
 }

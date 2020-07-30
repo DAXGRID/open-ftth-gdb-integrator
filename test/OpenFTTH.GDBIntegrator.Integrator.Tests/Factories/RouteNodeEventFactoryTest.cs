@@ -17,7 +17,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
     public class RouteNodeEventFactoryTest
     {
         [Fact]
-        public async Task Create_ShouldThrowArgumentNullException_OnBeingPassedNullRouteNode()
+        public async Task CreateDigitizedEvent_ShouldThrowArgumentNullException_OnBeingPassedNullRouteNode()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -29,7 +29,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task Create_ShouldReturnNull_OnRouteNodeApplicationNameBeingSettingsApplicationName()
+        public async Task CreateDigitizedEvent_ShouldReturnNull_OnRouteNodeApplicationNameBeingSettingsApplicationName()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -45,7 +45,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task Create_ShouldReturnRouteNodeAdded_OnIntersectingRouteSegmentsCountBeingZero()
+        public async Task CreateDigitizedEvent_ShouldReturnRouteNodeAdded_OnIntersectingRouteSegmentsCountBeingZero()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -66,7 +66,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task Create_ShouldReturnExistingRouteSegmentSplitted_OnIntersectingRouteSegmentsCountBeingOne()
+        public async Task CreateDigitizedEvent_ShouldReturnExistingRouteSegmentSplitted_OnIntersectingRouteSegmentsCountBeingOne()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -88,7 +88,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task Create_ShouldRetrunInvalidRouteNodeOperation_OnIntersectingRouteSegmentsCountBeingGreaterThanOne()
+        public async Task CreateDigitizedEvent_ShouldRetrunInvalidRouteNodeOperation_OnIntersectingRouteSegmentsCountBeingGreaterThanOne()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -110,7 +110,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task Create_ShouldRetrunInvalidRouteNodeOperation_OnIntersectingRouteNodeCountBeingGreaterThanZero()
+        public async Task CreateDigitizedEvent_ShouldRetrunInvalidRouteNodeOperation_OnIntersectingRouteNodeCountBeingGreaterThanZero()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -129,6 +129,48 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.RouteNode.Should().BeEquivalentTo(routeNode);
                 result.EventId.Should().NotBeEmpty();
             }
+        }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldReturnRouteNodeRemovedEvent_OnRouteNodeMarkAsDeletedSetAndNoIntersectingSegments()
+        {
+            var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var beforeNode = A.Fake<RouteNode>();
+            var afterNode = A.Fake<RouteNode>();
+
+            A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
+
+            A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode))
+                .Returns(new List<RouteSegment> { });
+
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var result = (RouteNodeDeleted)(await factory.CreateUpdatedEvent(beforeNode, afterNode));
+
+            using (new AssertionScope())
+            {
+                result.RouteNode.Should().Be(afterNode);
+                result.EventId.Should().NotBeEmpty();
+            }
+        }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldReturnNull_OnRouteNodeMarkAsDeletedSetAndInsectsWithAnyRouteSegments()
+        {
+            var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var beforeNode = A.Fake<RouteNode>();
+            var afterNode = A.Fake<RouteNode>();
+
+            A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
+
+            A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode))
+                .Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
+
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var result = (RouteNodeDeleted)(await factory.CreateUpdatedEvent(beforeNode, afterNode));
+
+            result.Should().BeNull();
         }
     }
 }

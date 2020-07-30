@@ -23,7 +23,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Factories
                 (
                     Guid.NewGuid(),
                     wkbWriter.Write(point),
-                    Guid.NewGuid(),
+                    Guid.Empty,
                     _applicationSettings.ApplicationName,
                     _applicationSettings.ApplicationName
                 );

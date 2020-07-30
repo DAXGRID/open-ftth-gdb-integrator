@@ -22,6 +22,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             _geoDatabase = geoDatabase;
         }
 
+
+        public async Task<INotification> CreateUpdatedEvent(RouteNode before, RouteNode after)
+        {
+            var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
+
+            var eventId = Guid.NewGuid();
+            if (after.MarkAsDeleted && intersectingRouteSegments.Count == 0)
+                return new RouteNodeDeleted { EventId = eventId, RouteNode = after };
+
+            return null;
+        }
+
         public async Task<INotification> CreateDigitizedEvent(RouteNode routeNode)
         {
             if (routeNode is null)
