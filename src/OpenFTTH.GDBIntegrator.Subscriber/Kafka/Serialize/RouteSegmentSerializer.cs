@@ -44,27 +44,23 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 
             RouteSegment routeSegmentBefore = null;
             if ((JObject)payloadBefore != null)
-            {
-                routeSegmentBefore = new RouteSegment
-                {
-                    Mrid = new Guid(payloadBefore.mrid.ToString()),
-                    Coord = Convert.FromBase64String(payloadBefore.coord.wkb.ToString()),
-                    Username = payloadBefore.user_name.ToString(),
-                    WorkTaskMrid = payloadBefore.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(payloadBefore.work_task_mrid.ToString()),
-                    ApplicationName = payloadBefore.application_name.ToString()
-                };
-            }
+                routeSegmentBefore = CreateRouteSegment(payloadBefore);
 
-            var routeSegmentAfter = new RouteSegment
-            {
-                Mrid = new Guid(payloadAfter.mrid.ToString()),
-                Coord = Convert.FromBase64String(payloadAfter.coord.wkb.ToString()),
-                Username = payloadAfter.user_name.ToString(),
-                WorkTaskMrid = payloadAfter.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(payloadAfter.work_task_mrid.ToString()),
-                ApplicationName = payloadAfter.application_name.ToString()
-            };
+            var routeSegmentAfter = CreateRouteSegment(payloadAfter);
 
             return new RouteSegmentMessage(routeSegmentBefore, routeSegmentAfter);
+        }
+
+        private RouteSegment CreateRouteSegment(dynamic routeSegment)
+        {
+           return new RouteSegment
+            {
+                Mrid = new Guid(routeSegment.mrid.ToString()),
+                Coord = Convert.FromBase64String(routeSegment.coord.wkb.ToString()),
+                Username = routeSegment.user_name.ToString(),
+                WorkTaskMrid = routeSegment.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(routeSegment.work_task_mrid.ToString()),
+                ApplicationName = routeSegment.application_name.ToString()
+            };
         }
 
         public TransportMessage Serialize(LogicalMessage message)
