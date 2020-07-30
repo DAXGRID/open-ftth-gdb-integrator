@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Update="TestData/RouteSegmentSerializerMessage.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="TestData/RouteSegmentSerializerMessageBeforeIsNull.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData/RouteNodeSerializerMessage.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
