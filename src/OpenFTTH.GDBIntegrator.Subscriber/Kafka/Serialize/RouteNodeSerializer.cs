@@ -25,9 +25,9 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
             if (IsTombStoneMessage(payload))
                 return new ReceivedLogicalMessage(message.Headers, new RouteNodeMessage(), message.Position);
 
-            var routeNode = CreateRouteNodeOnPayload(payload);
+            var routeNodeMessage = CreateRouteNodeMessage(payload);
 
-            return new ReceivedLogicalMessage(message.Headers, routeNode, message.Position);
+            return new ReceivedLogicalMessage(message.Headers, routeNodeMessage, message.Position);
         }
 
         private bool IsTombStoneMessage(dynamic payload)
@@ -36,7 +36,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
             return afterPayload.Type == JTokenType.Null;
         }
 
-        private RouteNodeMessage CreateRouteNodeOnPayload(dynamic payload)
+        private RouteNodeMessage CreateRouteNodeMessage(dynamic payload)
         {
             var payloadBefore = payload.before;
             var payloadAfter = payload.after;

@@ -24,7 +24,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            Func<Task> act = async () => await factory.Create(null);
+            Func<Task> act = async () => await factory.CreateDigitizedEvent(null);
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
         }
 
@@ -39,7 +39,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
             var routeNode = new RouteNode(Guid.Empty, null, Guid.Empty, String.Empty, "GDB_INTEGRATOR");
-            var result = await factory.Create(routeNode);
+            var result = await factory.CreateDigitizedEvent(routeNode);
 
             result.Should().BeNull();
         }
@@ -56,7 +56,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            var result = (RouteNodeAdded)(await factory.Create(routeNode));
+            var result = (RouteNodeAdded)(await factory.CreateDigitizedEvent(routeNode));
 
             using (new AssertionScope())
             {
@@ -78,7 +78,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            var result = (ExistingRouteSegmentSplitted)(await factory.Create(routeNode));
+            var result = (ExistingRouteSegmentSplitted)(await factory.CreateDigitizedEvent(routeNode));
 
             using (new AssertionScope())
             {
@@ -100,7 +100,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            var result = (InvalidRouteNodeOperation)(await factory.Create(routeNode));
+            var result = (InvalidRouteNodeOperation)(await factory.CreateDigitizedEvent(routeNode));
 
             using (new AssertionScope())
             {
@@ -122,7 +122,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            var result = (InvalidRouteNodeOperation)(await factory.Create(routeNode));
+            var result = (InvalidRouteNodeOperation)(await factory.CreateDigitizedEvent(routeNode));
 
             using (new AssertionScope())
             {

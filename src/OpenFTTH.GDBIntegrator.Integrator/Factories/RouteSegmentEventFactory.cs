@@ -31,7 +31,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             _routeNodeFactory = routeNodeFactory;
         }
 
-        public async Task<IEnumerable<INotification>> Create(RouteSegment routeSegment)
+        public async Task<INotification> CreateUpdatedEvent(RouteSegment before, RouteSegment after)
+        {
+            var eventId = Guid.NewGuid();
+            if (after.MarkAsDeleted)
+            {
+                return new RouteSegmentDeleted
+                {
+                    RouteSegment = after,
+                    EventId = eventId
+                };
+            }
+
+            return new InvalidRouteSegmentOperation();
+        }
+
+        public async Task<IEnumerable<INotification>> CreateDigitizedEvent(RouteSegment routeSegment)
         {
             if (routeSegment is null)
                 throw new ArgumentNullException($"Parameter {nameof(routeSegment)} must not be null");

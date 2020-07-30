@@ -47,7 +47,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 }
                 else if (request.UpdateMessage is RouteSegmentMessage)
                 {
-                   await HandleRouteSegment((RouteSegmentMessage)request.UpdateMessage);
+                    await HandleRouteSegment((RouteSegmentMessage)request.UpdateMessage);
                 }
 
                 _pool.Release();
@@ -63,7 +63,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         private async Task HandleRouteNode(RouteNodeMessage routeNodeMessage)
         {
-            var routeNodeEvent = await _routeNodeEventFactory.Create((RouteNode)routeNodeMessage.After);
+            var routeNodeEvent = await _routeNodeEventFactory.CreateDigitizedEvent((RouteNode)routeNodeMessage.After);
 
             if (!(routeNodeEvent is null))
                 await _mediator.Publish(routeNodeEvent);
@@ -71,15 +71,35 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         private async Task HandleRouteSegment(RouteSegmentMessage routeSegmentMessage)
         {
-            var routeSegmentEvents = await _routeSegmentEventFactory.Create(routeSegmentMessage.After);
-
-            foreach (var routeSegmentEvent in routeSegmentEvents)
+            if (IsSegmentNewlyDigitized(routeSegmentMessage))
             {
-                if (!(routeSegmentEvent is null))
+                var routeSegmentDigitizedEvents = await _routeSegmentEventFactory.CreateDigitizedEvent(routeSegmentMessage.After);
+                foreach (var routeSegmentDigitizedEvent in routeSegmentDigitizedEvents)
                 {
-                    await _mediator.Publish(routeSegmentEvent);
+                    if (!(routeSegmentDigitizedEvent is null))
+                        await _mediator.Publish(routeSegmentDigitizedEvent);
                 }
             }
+            else if (IsSegmentUpdated(routeSegmentMessage))
+            {
+                var routeSegmentUpdatedEvent = await _routeSegmentEventFactory.CreateUpdatedEvent(routeSegmentMessage.Before, routeSegmentMessage.After);
+                if (!(routeSegmentUpdatedEvent is null))
+                    await _mediator.Publish(routeSegmentUpdatedEvent);
+            }
+            else
+            {
+                _logger.LogInformation("RouteSegment was deleted");
+            }
+        }
+
+        private bool IsSegmentNewlyDigitized(RouteSegmentMessage routeSegmentMessage)
+        {
+            return routeSegmentMessage.Before is null && routeSegmentMessage.After.Mrid.ToString() != string.Empty;
+        }
+
+        private bool IsSegmentUpdated(RouteSegmentMessage routeSegmentMessage)
+        {
+            return !(routeSegmentMessage.Before is null);
         }
     }
 }

@@ -22,16 +22,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             _geoDatabase = geoDatabase;
         }
 
-        public async Task<INotification> Create(RouteNode routeNode)
+        public async Task<INotification> CreateDigitizedEvent(RouteNode routeNode)
         {
             if (routeNode is null)
                 throw new ArgumentNullException($"Parameter {nameof(routeNode)} cannot be null");
 
-            // If the GDB integrator produced the message do nothing
             if (IsCreatedByApplication(routeNode))
                 return null;
 
-            // Update integrator table
+            // Update the 'shadow' table
             await _geoDatabase.InsertRouteNodeIntegrator(routeNode);
 
             var eventId = Guid.NewGuid();

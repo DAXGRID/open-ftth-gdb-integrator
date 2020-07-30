@@ -7,6 +7,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
     public interface IRouteSegmentEventFactory
     {
-        Task<IEnumerable<INotification>> Create(RouteSegment routeSegment);
+        Task<IEnumerable<INotification>> CreateDigitizedEvent(RouteSegment routeSegment);
+        Task<INotification> CreateUpdatedEvent(RouteSegment before, RouteSegment after);
     }
 }
