@@ -1,6 +1,6 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 
-namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Messages
+namespace OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages
 {
     public class RouteSegmentMessage
     {

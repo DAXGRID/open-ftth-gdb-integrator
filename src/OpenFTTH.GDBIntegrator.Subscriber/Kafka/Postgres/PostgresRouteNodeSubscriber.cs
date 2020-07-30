@@ -4,7 +4,7 @@ using Topos.Config;
 using MediatR;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
-using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Messages;
+using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using Microsoft.Extensions.Options;
@@ -55,15 +55,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
         private async Task HandleSubscribedEvent(RouteNodeMessage routeNodeMessage)
         {
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Received message {JsonConvert.SerializeObject(routeNodeMessage, Formatting.Indented)}");
-
-            if (!String.IsNullOrEmpty(routeNodeMessage.After.Mrid.ToString()))
-            {
-                await _mediator.Send(new GeoDatabaseUpdated { UpdatedEntity = routeNodeMessage.After });
-            }
-            else
-            {
-                _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Received message" + "RouteSegment deleted");
-            }
+            await _mediator.Send(new GeoDatabaseUpdated { UpdateMessage = routeNodeMessage });
         }
 
         public void Dispose()

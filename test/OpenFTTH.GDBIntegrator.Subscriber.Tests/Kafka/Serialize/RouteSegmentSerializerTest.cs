@@ -1,7 +1,7 @@
 using Xunit;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
-using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Messages;
+using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
 using Topos.Serialization;
 using Topos.Consumer;
 using System.Collections.Generic;

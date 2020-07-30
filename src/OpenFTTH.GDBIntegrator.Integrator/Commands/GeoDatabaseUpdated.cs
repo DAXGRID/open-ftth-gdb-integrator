@@ -1,17 +1,18 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
+using OpenFTTH.GDBIntegrator.Integrator.Factories;
+using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
 using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using OpenFTTH.GDBIntegrator.Integrator.Factories;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
     public class GeoDatabaseUpdated : IRequest
     {
-        public object UpdatedEntity { get; set; }
+        public object UpdateMessage { get; set; }
     }
 
     public class GeoDatabaseUpdatedHandler : IRequestHandler<GeoDatabaseUpdated, Unit>
@@ -40,24 +41,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             {
                 _pool.WaitOne();
 
-                if (request.UpdatedEntity is RouteNode)
+                if (request.UpdateMessage is RouteNodeMessage)
                 {
-                    var routeNodeEvent = await _routeNodeEventFactory.Create((RouteNode)request.UpdatedEntity);
-
-                    if (!(routeNodeEvent is null))
-                        await _mediator.Publish(routeNodeEvent);
+                    await HandleRouteNode((RouteNodeMessage)request.UpdateMessage);
                 }
-                else if (request.UpdatedEntity is RouteSegment)
+                else if (request.UpdateMessage is RouteSegmentMessage)
                 {
-                    var routeSegmentEvents = await _routeSegmentEventFactory.Create((RouteSegment)request.UpdatedEntity);
-
-                    foreach (var routeSegmentEvent in routeSegmentEvents)
-                    {
-                        if (!(routeSegmentEvent is null))
-                        {
-                            await _mediator.Publish(routeSegmentEvent);
-                        }
-                    }
+                   await HandleRouteSegment((RouteSegmentMessage)request.UpdateMessage);
                 }
 
                 _pool.Release();
@@ -69,6 +59,27 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
 
             return await Task.FromResult(new Unit());
+        }
+
+        private async Task HandleRouteNode(RouteNodeMessage routeNodeMessage)
+        {
+            var routeNodeEvent = await _routeNodeEventFactory.Create((RouteNode)routeNodeMessage.After);
+
+            if (!(routeNodeEvent is null))
+                await _mediator.Publish(routeNodeEvent);
+        }
+
+        private async Task HandleRouteSegment(RouteSegmentMessage routeSegmentMessage)
+        {
+            var routeSegmentEvents = await _routeSegmentEventFactory.Create(routeSegmentMessage.After);
+
+            foreach (var routeSegmentEvent in routeSegmentEvents)
+            {
+                if (!(routeSegmentEvent is null))
+                {
+                    await _mediator.Publish(routeSegmentEvent);
+                }
+            }
         }
     }
 }
