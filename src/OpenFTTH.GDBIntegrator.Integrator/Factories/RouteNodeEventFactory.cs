@@ -22,14 +22,20 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             _geoDatabase = geoDatabase;
         }
 
-
         public async Task<INotification> CreateUpdatedEvent(RouteNode before, RouteNode after)
         {
             await _geoDatabase.UpdateRouteNodeIntegrator(after);
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
 
+            // Rollback invalid operation
+            if (intersectingRouteSegments.Count > 0)
+            {
+                await _geoDatabase.UpdateRouteNode(before);
+                return null;
+            }
+
             var eventId = Guid.NewGuid();
-            if (after.MarkAsDeleted && intersectingRouteSegments.Count == 0)
+            if (after.MarkAsDeleted)
                 return new RouteNodeDeleted { EventId = eventId, RouteNode = after };
 
             return null;

@@ -7,6 +7,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
@@ -69,7 +70,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 if (!(routeNodeDigitizedEvent is null))
                     await _mediator.Publish(routeNodeDigitizedEvent);
             }
-            else if(IsNodeUpdated(routeNodeMessage))
+            else if (IsNodeUpdated(routeNodeMessage))
             {
                 var routeNodeUpdatedEvent = await _routeNodeEventFactory.CreateUpdatedEvent(routeNodeMessage.Before, routeNodeMessage.After);
                 if (!(routeNodeUpdatedEvent is null))
@@ -116,12 +117,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         private bool IsSegmentUpdated(RouteSegmentMessage routeSegmentMessage)
         {
-            return !(routeSegmentMessage.Before is null);
+            return !(routeSegmentMessage.Before is null) && ObjectsEqual(routeSegmentMessage.Before, routeSegmentMessage.After);
         }
 
         private bool IsNodeUpdated(RouteNodeMessage routeNodeMessage)
         {
-            return !(routeNodeMessage.Before is null);
+            return !(routeNodeMessage.Before is null) && ObjectsEqual(routeNodeMessage.Before, routeNodeMessage.After);
+        }
+
+        private bool ObjectsEqual(object first, object second)
+        {
+            return JsonConvert.SerializeObject(first) == JsonConvert.SerializeObject(second);
         }
     }
 }

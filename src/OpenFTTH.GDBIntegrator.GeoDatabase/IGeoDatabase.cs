@@ -21,6 +21,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase
         Task MarkDeleteRouteSegment(Guid mrid);
         Task MarkDeleteRouteNode(Guid mrid);
         Task InsertRouteNode(RouteNode routeNode);
+        Task UpdateRouteNode(RouteNode routeNode);
         Task InsertRouteNodeIntegrator(RouteNode routeNode);
         Task UpdateRouteNodeIntegrator(RouteNode routeNode);
         Task InsertRouteSegment(RouteSegment routeSegment);
