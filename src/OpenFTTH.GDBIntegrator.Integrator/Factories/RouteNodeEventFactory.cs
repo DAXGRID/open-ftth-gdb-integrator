@@ -25,6 +25,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         public async Task<INotification> CreateUpdatedEvent(RouteNode before, RouteNode after)
         {
+            await _geoDatabase.UpdateRouteNodeIntegrator(after);
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
 
             var eventId = Guid.NewGuid();

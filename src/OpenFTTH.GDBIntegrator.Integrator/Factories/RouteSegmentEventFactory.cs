@@ -33,6 +33,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         public async Task<INotification> CreateUpdatedEvent(RouteSegment before, RouteSegment after)
         {
+            await _geoDatabase.UpdateRouteSegmentIntegrator(after);
             var eventId = Guid.NewGuid();
             if (after.MarkAsDeleted)
             {

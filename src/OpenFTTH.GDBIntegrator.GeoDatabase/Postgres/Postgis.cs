@@ -423,6 +423,44 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             }
         }
 
+        public async Task UpdateRouteSegmentIntegrator(RouteSegment routeSegment)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var query = @"
+                    UPDATE route_network_integrator.route_segment
+                    SET
+                      coord = ST_GeomFromWKB(@coord, 25832),
+                      work_task_mrid = @workTaskMrId,
+                      user_name = @username,
+                      application_name = @applicationName,
+                      marked_to_be_deleted = @markAsDeleted
+                    WHERE mrid = @mrid;";
+
+                await connection.OpenAsync();
+                await connection.ExecuteAsync(query, routeSegment);
+            }
+        }
+
+        public async Task UpdateRouteNodeIntegrator(RouteNode routeNode)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var query = @"
+                    UPDATE route_network_integrator.route_node
+                    SET
+                      coord = ST_GeomFromWKB(@coord, 25832),
+                      work_task_mrid = @workTaskMrId,
+                      user_name = @username,
+                      application_name = @applicationName,
+                      marked_to_be_deleted = @markAsDeleted
+                    WHERE mrid = @mrid;";
+
+                await connection.OpenAsync();
+                await connection.ExecuteAsync(query, routeNode);
+            }
+        }
+
         public async Task InsertRouteSegment(RouteSegment routeSegment)
         {
             using (var connection = GetNpgsqlConnection())

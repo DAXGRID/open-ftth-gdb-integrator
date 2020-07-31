@@ -53,8 +53,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 .ConfigureRunner(rb => rb
                                  .AddPostgres()
                                  .WithGlobalConnectionString(CreatePostgresConnectionString())
-                                 .ScanIn(typeof(InitialDatabaseSetup).Assembly).For.Migrations())
-                .AddLogging(lb => lb.AddFluentMigratorConsole());
+                                 .ScanIn(typeof(InitialDatabaseSetup).Assembly).For.Migrations());
 
                 services.AddHostedService<Startup>();
                 services.AddSingleton<IRouteSegmentSubscriber, PostgresRouteSegmentSubscriber>();
