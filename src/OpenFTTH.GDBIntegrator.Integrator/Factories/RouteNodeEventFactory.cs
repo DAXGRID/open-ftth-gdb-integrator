@@ -27,24 +27,20 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var integratorRouteNode = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid);
 
             if (AlreadyUpdated(after, integratorRouteNode))
-                return null;
+                return new DoNothing($"{nameof(RouteNode)} with id: '{after.Mrid}' was already updated therefore do nothing.");
 
             await _geoDatabase.UpdateRouteNodeShadowTable(after);
 
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
 
-            // Rollback invalid operation
             if (intersectingRouteSegments.Count > 0)
-            {
-                await RollbackInvalidOperation(before);
-                return null;
-            }
+                return new RollbackInvalidRouteNodeOperation(before);
 
             var eventId = Guid.NewGuid();
             if (after.MarkAsDeleted)
                 return new RouteNodeDeleted { EventId = eventId, RouteNode = after };
 
-            return null;
+            return new DoNothing($"{nameof(RouteNode)} with id: '{after.Mrid}' found not suitable action for {nameof(CreateUpdatedEvent)}.");
         }
 
         public async Task<INotification> CreateDigitizedEvent(RouteNode routeNode)
@@ -53,7 +49,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 throw new ArgumentNullException($"Parameter {nameof(routeNode)} cannot be null");
 
             if (IsCreatedByApplication(routeNode))
-                return null;
+                return new DoNothing($"{nameof(RouteNode)} with id: '{routeNode.Mrid}' was created by nothing therefore do nothing.");
 
             // Update the 'shadow' table
             await _geoDatabase.InsertRouteNodeShadowTable(routeNode);
@@ -88,7 +84,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             await _geoDatabase.UpdateRouteNode(rollbackToNode);
         }
 
-        // this is needed to avoid never ending loops of updated routenodes
         private bool AlreadyUpdated(RouteNode routeNode, RouteNode integratorRouteNode)
         {
             return routeNode.MarkAsDeleted == integratorRouteNode.MarkAsDeleted && routeNode.GetGeoJsonCoordinate() == integratorRouteNode.GetGeoJsonCoordinate();

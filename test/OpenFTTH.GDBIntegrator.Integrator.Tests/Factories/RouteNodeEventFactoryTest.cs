@@ -41,7 +41,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeNode = new RouteNode(Guid.Empty, null, Guid.Empty, String.Empty, "GDB_INTEGRATOR");
             var result = await factory.CreateDigitizedEvent(routeNode);
 
-            result.Should().BeNull();
+            result.Should().BeOfType<DoNothing>();
         }
 
         [Fact]
@@ -155,7 +155,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task CreateUpdatedEvent_ShouldReturnNull_OnRouteNodeMarkAsDeletedSetAndInsectsWithAnyRouteSegments()
+        public async Task CreateUpdatedEvent_ShouldReturnRollbackInvalidRouteNodeOperation_OnRouteNodeMarkAsDeletedSetAndInsectsWithAnyRouteSegments()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -168,13 +168,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
-            var result = (RouteNodeDeleted)(await factory.CreateUpdatedEvent(beforeNode, afterNode));
+            var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
 
-            result.Should().BeNull();
+            var expected = new RollbackInvalidRouteNodeOperation(beforeNode);
+
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Fact]
-        public async Task CreateUpdatedEvent_ShouldReturnNull_OnRouteNodeMarkedAsDeletedAndCoordBeingTheSame()
+        public async Task CreateUpdatedEvent_ShouldReturnDoNothing_OnRouteNodeMarkedAsDeletedAndCoordBeingTheSame()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -199,7 +201,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
 
-            result.Should().BeNull();
+            result.Should().BeOfType<DoNothing>();
         }
     }
 }
