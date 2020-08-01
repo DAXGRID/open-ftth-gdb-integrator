@@ -274,7 +274,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             using (var scope = new AssertionScope())
             {
-                A.CallTo(() => geoDatabase.InsertRouteSegmentIntegrator(routeSegment));
+                A.CallTo(() => geoDatabase.InsertRouteSegmentShadowTable(routeSegment));
             }
         }
 

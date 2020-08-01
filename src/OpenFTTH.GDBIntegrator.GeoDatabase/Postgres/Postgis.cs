@@ -22,7 +22,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         }
 
 
-        public async Task<RouteNode> GetIntegratorRouteNode(Guid mrid)
+        public async Task<RouteNode> GetRouteNodeShadowTable(Guid mrid)
         {
             using (var connection = GetNpgsqlConnection())
             {
@@ -421,7 +421,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             }
         }
 
-        public async Task UpdateRouteNodeIntegrator(RouteNode routeNode)
+        public async Task UpdateRouteNodeShadowTable(RouteNode routeNode)
         {
             using (var connection = GetNpgsqlConnection())
             {
@@ -440,7 +440,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             }
         }
 
-        public async Task InsertRouteNodeIntegrator(RouteNode routeNode)
+        public async Task InsertRouteNodeShadowTable(RouteNode routeNode)
         {
             using (var connection = GetNpgsqlConnection())
             {
@@ -467,7 +467,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             }
         }
 
-        public async Task InsertRouteSegmentIntegrator(RouteSegment routeSegment)
+        public async Task InsertRouteSegmentShadowTable(RouteSegment routeSegment)
         {
             using (var connection = GetNpgsqlConnection())
             {
@@ -494,7 +494,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             }
         }
 
-        public async Task UpdateRouteSegmentIntegrator(RouteSegment routeSegment)
+        public async Task UpdateRouteSegmentShadowTable(RouteSegment routeSegment)
         {
             using (var connection = GetNpgsqlConnection())
             {

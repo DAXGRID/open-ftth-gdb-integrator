@@ -184,7 +184,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
 
-            A.CallTo(() => geoDatabase.GetIntegratorRouteNode(afterNode.Mrid))
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid))
                 .Returns(integratorRouteNode);
 
             A.CallTo(() => afterNode.GetGeoJsonCoordinate())

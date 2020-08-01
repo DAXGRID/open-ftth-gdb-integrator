@@ -24,12 +24,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         public async Task<INotification> CreateUpdatedEvent(RouteNode before, RouteNode after)
         {
-            var integratorRouteNode = await _geoDatabase.GetIntegratorRouteNode(after.Mrid);
+            var integratorRouteNode = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid);
 
             if (AlreadyUpdated(after, integratorRouteNode))
                 return null;
 
-            await _geoDatabase.UpdateRouteNodeIntegrator(after);
+            await _geoDatabase.UpdateRouteNodeShadowTable(after);
 
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
 
@@ -56,7 +56,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return null;
 
             // Update the 'shadow' table
-            await _geoDatabase.InsertRouteNodeIntegrator(routeNode);
+            await _geoDatabase.InsertRouteNodeShadowTable(routeNode);
 
             var eventId = Guid.NewGuid();
             var intersectingRouteSegmentsTask = _geoDatabase.GetIntersectingRouteSegments(routeNode);

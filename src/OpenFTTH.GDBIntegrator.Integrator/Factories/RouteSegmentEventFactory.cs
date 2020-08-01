@@ -33,7 +33,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         public async Task<INotification> CreateUpdatedEvent(RouteSegment before, RouteSegment after)
         {
-            await _geoDatabase.UpdateRouteSegmentIntegrator(after);
+            await _geoDatabase.UpdateRouteSegmentShadowTable(after);
             var eventId = Guid.NewGuid();
             if (after.MarkAsDeleted)
             {
@@ -56,7 +56,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return new List<INotification>();
 
             // Update integrator "shadow table" with the used digitized segment
-            await _geoDatabase.InsertRouteSegmentIntegrator(routeSegment);
+            await _geoDatabase.InsertRouteSegmentShadowTable(routeSegment);
 
             var eventId = Guid.NewGuid();
 
