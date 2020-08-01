@@ -64,6 +64,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         private async Task HandleRouteNode(RouteNodeMessage routeNodeMessage)
         {
+            if (IsRouteNodeDeleted(routeNodeMessage))
+                return;
+
             if (IsNodeNewlyDigitized(routeNodeMessage))
             {
                 var routeNodeDigitizedEvent = await _routeNodeEventFactory.CreateDigitizedEvent((RouteNode)routeNodeMessage.After);
@@ -84,6 +87,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         private async Task HandleRouteSegment(RouteSegmentMessage routeSegmentMessage)
         {
+            if (IsRouteSegmentedDeleted(routeSegmentMessage))
+                return;
+
             if (IsSegmentNewlyDigitized(routeSegmentMessage))
             {
                 var routeSegmentDigitizedEvents = await _routeSegmentEventFactory.CreateDigitizedEvent(routeSegmentMessage.After);
@@ -99,10 +105,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 if (!(routeSegmentUpdatedEvent is null))
                     await _mediator.Publish(routeSegmentUpdatedEvent);
             }
-            else
-            {
-                _logger.LogInformation("RouteSegment was deleted");
-            }
+        }
+
+        private bool IsRouteSegmentedDeleted(RouteSegmentMessage routeSegmentMessage)
+        {
+            return routeSegmentMessage.Before is null && routeSegmentMessage.After is null;
+        }
+
+        private bool IsRouteNodeDeleted(RouteNodeMessage routeNodeMessage)
+        {
+            return routeNodeMessage.Before is null && routeNodeMessage.After is null;
         }
 
         private bool IsNodeNewlyDigitized(RouteNodeMessage routeNodeMessage)
