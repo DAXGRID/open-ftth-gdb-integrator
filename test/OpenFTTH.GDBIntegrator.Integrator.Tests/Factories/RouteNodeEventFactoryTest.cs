@@ -172,5 +172,34 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             result.Should().BeNull();
         }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldReturnNull_OnRouteNodeMarkedAsDeletedAndCoordBeingTheSame()
+        {
+            var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var integratorRouteNode = A.Fake<RouteNode>();
+            var beforeNode = A.Fake<RouteNode>();
+            var afterNode = A.Fake<RouteNode>();
+
+            A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
+
+            A.CallTo(() => geoDatabase.GetIntegratorRouteNode(afterNode.Mrid))
+                .Returns(integratorRouteNode);
+
+            A.CallTo(() => afterNode.GetGeoJsonCoordinate())
+                .Returns("[565931.4446905176,6197297.75114815]");
+            A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
+
+            A.CallTo(() => integratorRouteNode.GetGeoJsonCoordinate())
+                .Returns("[565931.4446905176,6197297.75114815]");
+            A.CallTo(() => integratorRouteNode.MarkAsDeleted).Returns(true);
+
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+
+            var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
+
+            result.Should().BeNull();
+        }
     }
 }

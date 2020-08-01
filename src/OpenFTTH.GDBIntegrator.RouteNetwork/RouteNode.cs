@@ -9,7 +9,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
 {
     public class RouteNode
     {
-        public Guid Mrid { get; }
+        public virtual Guid Mrid { get; }
         public byte[] Coord { get; }
         public Guid WorkTaskMrid { get; }
         public string Username { get; }
