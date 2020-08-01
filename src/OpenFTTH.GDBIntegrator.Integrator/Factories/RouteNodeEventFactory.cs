@@ -36,7 +36,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             // Rollback invalid operation
             if (intersectingRouteSegments.Count > 0)
             {
-                await _geoDatabase.UpdateRouteNode(before);
+                await RollbackInvalidOperation(before);
                 return null;
             }
 
@@ -81,6 +81,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             }
 
             return new InvalidRouteNodeOperation { RouteNode = routeNode, EventId = eventId };
+        }
+
+        private async Task RollbackInvalidOperation(RouteNode rollbackToNode)
+        {
+            await _geoDatabase.UpdateRouteNode(rollbackToNode);
         }
 
         // this is needed to avoid never ending loops of updated routenodes
