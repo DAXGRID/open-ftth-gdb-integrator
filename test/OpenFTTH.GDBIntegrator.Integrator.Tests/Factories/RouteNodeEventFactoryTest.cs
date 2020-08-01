@@ -203,5 +203,47 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             result.Should().BeOfType<DoNothing>();
         }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldThrowArgumentNullException_OnBeingPassedNullArguments()
+        {
+            var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            RouteNode beforeNode = null;
+            RouteNode afterNode = null;
+
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+
+            Func<Task> act = async () => await factory.CreateUpdatedEvent(beforeNode, afterNode);
+            await act.Should().ThrowExactlyAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldThrowArgumentNullException_OnBeingPassedBeforeRouteNodeBeingNull()
+        {
+            var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            RouteNode beforeNode = null;
+            var afterNode = A.Fake<RouteNode>();
+
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+
+            Func<Task> act = async () => await factory.CreateUpdatedEvent(beforeNode, afterNode);
+            await act.Should().ThrowExactlyAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldThrowArgumentNullException_OnBeingPassedAfterNodeBeingNull()
+        {
+            var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var beforeNode = A.Fake<RouteNode>();
+            RouteNode afterNode = null;
+
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+
+            Func<Task> act = async () => await factory.CreateUpdatedEvent(beforeNode, afterNode);
+            await act.Should().ThrowExactlyAsync<ArgumentNullException>();
+        }
     }
 }

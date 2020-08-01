@@ -24,6 +24,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         public async Task<INotification> CreateUpdatedEvent(RouteNode before, RouteNode after)
         {
+            if (before is null || after is null)
+                throw new ArgumentNullException($"Parameter {nameof(before)} or {nameof(after)} cannot be null");
+
             var integratorRouteNode = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid);
 
             if (AlreadyUpdated(after, integratorRouteNode))
