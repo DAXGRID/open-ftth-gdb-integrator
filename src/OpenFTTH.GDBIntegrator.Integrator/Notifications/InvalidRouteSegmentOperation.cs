@@ -27,7 +27,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(InvalidRouteSegmentOperation request, CancellationToken token)
         {
-            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Deleteting {nameof(RouteSegment)} with mrid '{request.RouteSegment.Mrid}'");
+            _logger.LogError($"{DateTime.UtcNow.ToString("o")}: Deleteting {nameof(RouteSegment)} with mrid '{request.RouteSegment.Mrid}'");
             await _geoDatabase.DeleteRouteSegment(request.RouteSegment.Mrid);
         }
     }

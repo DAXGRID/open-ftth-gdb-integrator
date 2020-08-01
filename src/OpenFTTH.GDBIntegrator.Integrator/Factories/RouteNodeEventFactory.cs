@@ -24,7 +24,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         public async Task<INotification> CreateUpdatedEvent(RouteNode before, RouteNode after)
         {
+            var integratorRouteNode = await _geoDatabase.GetIntegratorRouteNode(after.Mrid);
+
+            if (AlreadyUpdated(after, integratorRouteNode))
+                return null;
+
             await _geoDatabase.UpdateRouteNodeIntegrator(after);
+
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
 
             // Rollback invalid operation
@@ -75,6 +81,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             }
 
             return new InvalidRouteNodeOperation { RouteNode = routeNode, EventId = eventId };
+        }
+
+        // this is needed to avoid never ending loops of updated routenodes
+        private bool AlreadyUpdated(RouteNode routeNode, RouteNode integratorRouteNode)
+        {
+            return routeNode.MarkAsDeleted == integratorRouteNode.MarkAsDeleted && routeNode.GetGeoJsonCoordinate() == integratorRouteNode.GetGeoJsonCoordinate();
         }
 
         private bool IsCreatedByApplication(RouteNode routeNode)

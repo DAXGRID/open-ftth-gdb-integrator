@@ -21,6 +21,28 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             _applicationSettings = applicationSettings.Value;
         }
 
+
+        public async Task<RouteNode> GetIntegratorRouteNode(Guid mrid)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var query = @"SELECT
+                              ST_AsBinary(coord) AS coord,
+                              mrid,
+                              marked_to_be_deleted AS markedToBeDeleted,
+                              work_task_mrid AS workTaskMrid,
+                              user_name AS userName,
+                              application_name AS applicationName
+                              FROM route_network_integrator.route_node WHERE mrid = @mrid";
+
+                await connection.OpenAsync();
+
+                var routeNode = await connection.QueryAsync<RouteNode>(query, new { mrid });
+
+                return routeNode.FirstOrDefault();
+            }
+        }
+
         public async Task<List<RouteNode>> GetIntersectingStartRouteNodes(RouteSegment routeSegment)
         {
             using (var connection = GetNpgsqlConnection())

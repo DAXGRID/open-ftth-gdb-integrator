@@ -7,7 +7,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
@@ -81,7 +80,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             else
             {
-                _logger.LogInformation("RouteNode was deleted");
+                await _mediator.Publish(new InvalidRouteNodeOperation { RouteNode = routeNodeMessage.After, EventId = Guid.NewGuid() } );
             }
         }
 
@@ -104,6 +103,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 var routeSegmentUpdatedEvent = await _routeSegmentEventFactory.CreateUpdatedEvent(routeSegmentMessage.Before, routeSegmentMessage.After);
                 if (!(routeSegmentUpdatedEvent is null))
                     await _mediator.Publish(routeSegmentUpdatedEvent);
+            }
+            else
+            {
+                await _mediator.Publish(new InvalidRouteSegmentOperation { RouteSegment = routeSegmentMessage.After, EventId = Guid.NewGuid() } );
             }
         }
 
@@ -129,17 +132,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         private bool IsSegmentUpdated(RouteSegmentMessage routeSegmentMessage)
         {
-            return !(routeSegmentMessage.Before is null) && ObjectsEqual(routeSegmentMessage.Before, routeSegmentMessage.After);
+            return !(routeSegmentMessage.Before is null);
         }
 
         private bool IsNodeUpdated(RouteNodeMessage routeNodeMessage)
         {
-            return !(routeNodeMessage.Before is null) && ObjectsEqual(routeNodeMessage.Before, routeNodeMessage.After);
-        }
-
-        private bool ObjectsEqual(object first, object second)
-        {
-            return JsonConvert.SerializeObject(first) == JsonConvert.SerializeObject(second);
+            return !(routeNodeMessage.Before is null);
         }
     }
 }
