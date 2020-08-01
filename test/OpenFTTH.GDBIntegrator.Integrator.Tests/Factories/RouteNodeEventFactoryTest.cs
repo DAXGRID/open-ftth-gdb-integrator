@@ -61,7 +61,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (new AssertionScope())
             {
                 result.RouteNode.Should().BeEquivalentTo(routeNode);
-                result.EventId.Should().NotBeEmpty();
+                result.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -83,7 +83,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (new AssertionScope())
             {
                 result.RouteNode.Should().BeEquivalentTo(routeNode);
-                result.EventId.Should().NotBeEmpty();
+                result.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -105,7 +105,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (new AssertionScope())
             {
                 result.RouteNode.Should().BeEquivalentTo(routeNode);
-                result.EventId.Should().NotBeEmpty();
+                result.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -127,7 +127,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (new AssertionScope())
             {
                 result.RouteNode.Should().BeEquivalentTo(routeNode);
-                result.EventId.Should().NotBeEmpty();
+                result.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -150,7 +150,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (new AssertionScope())
             {
                 result.RouteNode.Should().Be(afterNode);
-                result.EventId.Should().NotBeEmpty();
+                result.CmdId.Should().NotBeEmpty();
             }
         }
 

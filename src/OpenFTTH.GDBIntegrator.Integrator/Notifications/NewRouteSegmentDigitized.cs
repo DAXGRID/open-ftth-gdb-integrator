@@ -56,7 +56,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 await _mediator.Publish(new RouteNodeAdded
                     {
                         RouteNode = startNode,
-                        EventId = eventId,
+                        CmdId = eventId,
                         CmdType = nameof(NewRouteSegmentDigitized)
                     });
             }
@@ -68,7 +68,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 await _mediator.Publish(new RouteNodeAdded
                     {
                         RouteNode = endNode,
-                        EventId = eventId,
+                        CmdId = eventId,
                         CmdType = nameof(NewRouteSegmentDigitized)
                     });
             }

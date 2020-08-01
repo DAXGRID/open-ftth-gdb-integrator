@@ -12,17 +12,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
         [Fact]
         public void RouteSegmentRemoved_ShouldSetInitialValues_OnConstruction()
         {
-            var eventId = Guid.NewGuid();
+            var cmdId = Guid.NewGuid();
             var segmentId = Guid.NewGuid();
             var replacedBySegments = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
             var cmdType = "RouteSegmentRemoved";
 
-            var routeSegment = new RouteSegmentRemoved(eventId, segmentId, replacedBySegments, cmdType);
+            var routeSegment = new RouteSegmentRemoved(cmdId, segmentId, replacedBySegments, cmdType);
 
             using (new AssertionScope())
             {
-                routeSegment.CmdId.Should().NotBeEmpty();
-                routeSegment.EventId.Should().Be(eventId);
+                routeSegment.EventId.Should().NotBeEmpty();
+                routeSegment.CmdId.Should().Be(cmdId);
                 routeSegment.EventType.Should().Be("RouteSegmentRemoved");
                 routeSegment.EventTs.Should().NotBeEmpty();
                 routeSegment.ReplacedBySegments.Should().BeEquivalentTo(replacedBySegments);
@@ -34,12 +34,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
         [Fact]
         public void RouteSegmentRemoved_ShouldThrowArgumentOutOfRangeException_OnReplacedBySegmentCountBeingGreaterThanTwo()
         {
-            var eventId = Guid.NewGuid();
+            var cmdId = Guid.NewGuid();
             var segmentId = Guid.NewGuid();
             var replacedBySegments = new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
             var cmdType = "RouteSegmentRemoved";
 
-            Action act = () => new RouteSegmentRemoved(eventId, segmentId, replacedBySegments, cmdType);
+            Action act = () => new RouteSegmentRemoved(cmdId, segmentId, replacedBySegments, cmdType);
 
             act.Should().ThrowExactly<ArgumentOutOfRangeException>();
         }

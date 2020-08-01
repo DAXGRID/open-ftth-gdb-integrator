@@ -78,7 +78,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             {
                 result.Should().BeOfType<InvalidRouteSegmentOperation>();
                 result.RouteSegment.Should().Be(routeSegment);
-                result.EventId.Should().NotBeEmpty();
+                result.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -324,9 +324,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (var scope = new AssertionScope())
             {
                 startInsertRouteNode.RouteNode.Should().Be(startRouteNode);
-                startInsertRouteNode.EventId.Should().NotBeEmpty();
+                startInsertRouteNode.CmdId.Should().NotBeEmpty();
 
-                existingRouteSegmentSplitted.EventId.Should().NotBeEmpty();
+                existingRouteSegmentSplitted.CmdId.Should().NotBeEmpty();
                 existingRouteSegmentSplitted.RouteNode.Should().Be(startRouteNode);
                 existingRouteSegmentSplitted.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
 
@@ -381,9 +381,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (var scope = new AssertionScope())
             {
                 endInsertNode.RouteNode.Should().Be(endNode);
-                endInsertNode.EventId.Should().NotBeEmpty();
+                endInsertNode.CmdId.Should().NotBeEmpty();
 
-                existingRouteSegmentSplitted.EventId.Should().NotBeEmpty();
+                existingRouteSegmentSplitted.CmdId.Should().NotBeEmpty();
                 existingRouteSegmentSplitted.RouteNode.Should().Be(endNode);
                 existingRouteSegmentSplitted.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
 
@@ -446,19 +446,19 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             using (var scope = new AssertionScope())
             {
-                startExistingRouteSegmentSplitted.EventId.Should().NotBeEmpty();
+                startExistingRouteSegmentSplitted.CmdId.Should().NotBeEmpty();
                 startExistingRouteSegmentSplitted.RouteNode.Should().Be(startNode);
                 startExistingRouteSegmentSplitted.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
 
                 startInsertNode.RouteNode.Should().Be(startNode);
-                startInsertNode.EventId.Should().NotBeEmpty();
+                startInsertNode.CmdId.Should().NotBeEmpty();
 
-                endExistingRouteSegmentSplitted.EventId.Should().NotBeEmpty();
+                endExistingRouteSegmentSplitted.CmdId.Should().NotBeEmpty();
                 endExistingRouteSegmentSplitted.RouteNode.Should().Be(endNode);
                 endExistingRouteSegmentSplitted.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
 
                 endInsertNode.RouteNode.Should().Be(endNode);
-                endInsertNode.EventId.Should().NotBeEmpty();
+                endInsertNode.CmdId.Should().NotBeEmpty();
 
                 newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
                 newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
@@ -503,11 +503,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 newSegmentNotification.RouteSegment.Should().BeEquivalentTo(routeSegment);
                 newSegmentNotification.EventId.Should().NotBeEmpty();
 
-                splittedRouteSegmentNotificationOne.EventId.Should().NotBeEmpty();
+                splittedRouteSegmentNotificationOne.CmdId.Should().NotBeEmpty();
                 splittedRouteSegmentNotificationOne.RouteNode.Should().BeEquivalentTo(allIntersectingRouteNodes[0]);
                 splittedRouteSegmentNotificationOne.RouteSegmentDigitizedByUser.Should().BeNull();
 
-                splittedRouteSegmentNotificationTwo.EventId.Should().NotBeEmpty();
+                splittedRouteSegmentNotificationTwo.CmdId.Should().NotBeEmpty();
                 splittedRouteSegmentNotificationTwo.RouteNode.Should().BeEquivalentTo(allIntersectingRouteNodes[1]);
                 splittedRouteSegmentNotificationTwo.RouteSegmentDigitizedByUser.Should().BeNull();
             }
@@ -531,7 +531,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             using (var scope = new AssertionScope())
             {
-                result.EventId.Should().NotBeEmpty();
+                result.CmdId.Should().NotBeEmpty();
                 result.RouteSegment.Should().Be(routeSegmentAfter);
             }
         }

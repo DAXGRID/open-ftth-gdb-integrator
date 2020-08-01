@@ -11,7 +11,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
         [Fact]
         public void RouteSegmentAdded_ShouldSetInitialValues_OnConstruction()
         {
-            var eventId = Guid.NewGuid();
+            var cmdId = Guid.NewGuid();
             var segmentId = Guid.NewGuid();
             var fromNodeId = Guid.NewGuid();
             var toNodeId = Guid.NewGuid();
@@ -21,7 +21,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
 
             var routeSegmentAdded = new RouteSegmentAdded
                 (
-                    eventId,
+                    cmdId,
                     segmentId,
                     fromNodeId,
                     toNodeId,
@@ -32,11 +32,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
             using (new AssertionScope())
             {
                 routeSegmentAdded.Geometry.Should().Be(geometry);
-                routeSegmentAdded.CmdId.Should().NotBeEmpty();
+                routeSegmentAdded.EventId.Should().NotBeEmpty();
                 routeSegmentAdded.SegmentId.Should().Be(segmentId);
                 routeSegmentAdded.FromNodeId.Should().Be(fromNodeId);
                 routeSegmentAdded.ToNodeId.Should().Be(toNodeId);
-                routeSegmentAdded.EventId.Should().Be(eventId);
+                routeSegmentAdded.CmdId.Should().Be(cmdId);
                 routeSegmentAdded.EventType.Should().Be("RouteSegmentAdded");
                 routeSegmentAdded.EventTs.Should().NotBeEmpty();
                 routeSegmentAdded.CmdType.Should().Be(cmdType);

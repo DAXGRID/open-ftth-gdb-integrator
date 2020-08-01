@@ -11,22 +11,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
         [Fact]
         public void RouteNodeMarkedForDeletion_ShouldSetInitialValues_OnConstruction()
         {
-            var eventId = Guid.NewGuid();
+            var cmdId = Guid.NewGuid();
             var nodeId = Guid.NewGuid();
             var cmdType = "RouteNodeDeleted";
 
             var routeNodeMarkedForDeletion = new RouteNodeMarkedForDeletion
                 (
-                    eventId,
+                    cmdId,
                     nodeId,
                     cmdType
                 );
 
             using (new AssertionScope())
             {
-                routeNodeMarkedForDeletion.CmdId.Should().NotBeEmpty();
+                routeNodeMarkedForDeletion.EventId.Should().NotBeEmpty();
                 routeNodeMarkedForDeletion.NodeId.Should().Be(nodeId);
-                routeNodeMarkedForDeletion.EventId.Should().Be(eventId);
+                routeNodeMarkedForDeletion.CmdId.Should().Be(cmdId);
                 routeNodeMarkedForDeletion.EventType.Should().Be(nameof(RouteNodeMarkedForDeletion));
                 routeNodeMarkedForDeletion.EventTs.Should().NotBeEmpty();
                 routeNodeMarkedForDeletion.CmdType.Should().Be(cmdType);

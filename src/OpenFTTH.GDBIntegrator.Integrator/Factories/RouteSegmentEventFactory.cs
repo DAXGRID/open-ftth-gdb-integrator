@@ -34,13 +34,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         public async Task<INotification> CreateUpdatedEvent(RouteSegment before, RouteSegment after)
         {
             await _geoDatabase.UpdateRouteSegmentShadowTable(after);
-            var eventId = Guid.NewGuid();
+            var cmdId = Guid.NewGuid();
             if (after.MarkAsDeleted)
             {
                 return new RouteSegmentDeleted
                 {
                     RouteSegment = after,
-                    EventId = eventId
+                    CmdId = cmdId
                 };
             }
 
@@ -58,10 +58,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             // Update integrator "shadow table" with the used digitized segment
             await _geoDatabase.InsertRouteSegmentShadowTable(routeSegment);
 
-            var eventId = Guid.NewGuid();
+            var cmdId = Guid.NewGuid();
 
             if (!_routeSegmentValidator.LineIsValid(routeSegment.GetLineString()))
-                return new List<INotification> { new InvalidRouteSegmentOperation { RouteSegment = routeSegment, EventId = eventId } };
+                return new List<INotification> { new InvalidRouteSegmentOperation { RouteSegment = routeSegment, CmdId = cmdId } };
 
             var intersectingStartNodesTask = _geoDatabase.GetIntersectingStartRouteNodes(routeSegment);
             var intersectingEndNodesTask = _geoDatabase.GetIntersectingEndRouteNodes(routeSegment);
@@ -79,10 +79,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (allIntersectingRouteNodes.Count > 0)
             {
-                notifications.Add(CreateNewRouteSegmentDigitizedByUser(routeSegment, eventId));
+                notifications.Add(CreateNewRouteSegmentDigitizedByUser(routeSegment, cmdId));
                 foreach (var intersectingRouteNode in allIntersectingRouteNodes)
                 {
-                    var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(null, eventId, intersectingRouteNode);
+                    var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(null, cmdId, intersectingRouteNode);
                     notifications.Add(routeSegmentSplitted);
                 }
 
@@ -93,9 +93,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             {
                 var startPoint = routeSegment.FindStartPoint();
                 var startNode = _routeNodeFactory.Create(startPoint);
-                notifications.Add(new NewRouteNodeDigitized { EventId = eventId, RouteNode = startNode });
+                notifications.Add(new NewRouteNodeDigitized { CmdId = cmdId, RouteNode = startNode });
 
-                var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, startNode);
+                var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, cmdId, startNode);
                 notifications.Add(routeSegmentSplitted);
             }
 
@@ -103,13 +103,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             {
                 var endPoint = routeSegment.FindEndPoint();
                 var endNode = _routeNodeFactory.Create(endPoint);
-                notifications.Add(new NewRouteNodeDigitized { EventId = eventId, RouteNode = endNode });
+                notifications.Add(new NewRouteNodeDigitized { CmdId = cmdId, RouteNode = endNode });
 
-                var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, eventId, endNode);
+                var routeSegmentSplitted = CreateExistingRouteSegmentSplittedByUser(routeSegment, cmdId, endNode);
                 notifications.Add(routeSegmentSplitted);
             }
 
-            notifications.Add(CreateNewRouteSegmentDigitizedByUser(routeSegment, eventId));
+            notifications.Add(CreateNewRouteSegmentDigitizedByUser(routeSegment, cmdId));
 
             return notifications;
         }
@@ -119,22 +119,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return routeSegment.ApplicationName == _applicationSettings.ApplicationName;
         }
 
-        private ExistingRouteSegmentSplitted CreateExistingRouteSegmentSplittedByUser(RouteSegment routeSegment, Guid eventId, RouteNode routeNode)
+        private ExistingRouteSegmentSplitted CreateExistingRouteSegmentSplittedByUser(RouteSegment routeSegment, Guid cmdId, RouteNode routeNode)
         {
             return new ExistingRouteSegmentSplitted
             {
                 RouteNode = routeNode,
-                EventId = eventId,
+                CmdId = cmdId,
                 RouteSegmentDigitizedByUser = routeSegment,
             };
         }
 
-        private NewRouteSegmentDigitized CreateNewRouteSegmentDigitizedByUser(RouteSegment routeSegment, Guid eventId)
+        private NewRouteSegmentDigitized CreateNewRouteSegmentDigitizedByUser(RouteSegment routeSegment, Guid cmdId)
         {
             return new NewRouteSegmentDigitized
             {
                 RouteSegment = routeSegment,
-                EventId = eventId
+                EventId = cmdId
             };
         }
     }

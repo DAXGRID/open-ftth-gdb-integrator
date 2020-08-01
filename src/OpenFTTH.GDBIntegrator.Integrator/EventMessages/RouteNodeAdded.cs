@@ -6,15 +6,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.EventMessages
     {
         public readonly string EventType = nameof(RouteNodeAdded);
         public readonly string EventTs = DateTime.UtcNow.ToString("o");
-        public readonly Guid CmdId = Guid.NewGuid();
+        public readonly Guid EventId = Guid.NewGuid();
         public string CmdType { get; }
-        public Guid EventId { get; }
+        public Guid CmdId { get; }
         public Guid NodeId { get; }
         public string Geometry { get; }
 
-        public RouteNodeAdded(Guid eventId, Guid nodeId, string geometry, string cmdType)
+        public RouteNodeAdded(Guid cmdId, Guid nodeId, string geometry, string cmdType)
         {
-            EventId = eventId;
+            CmdId = cmdId;
             NodeId = nodeId;
             Geometry = geometry;
             CmdType = cmdType;

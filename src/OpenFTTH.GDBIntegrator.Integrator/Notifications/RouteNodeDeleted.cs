@@ -14,7 +14,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     public class RouteNodeDeleted : INotification
     {
         public RouteNode RouteNode { get; set; }
-        public Guid EventId { get; set; }
+        public Guid CmdId { get; set; }
     }
 
     public class RouteNodeDeletedHandler : INotificationHandler<RouteNodeDeleted>
@@ -41,7 +41,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 _kafkaSettings.EventRouteNetworkTopicName,
                 new EventMessages.RouteNodeMarkedForDeletion
                 (
-                    request.EventId,
+                    request.CmdId,
                     request.RouteNode.Mrid,
                     nameof(RouteSegmentDeleted)
                 ));

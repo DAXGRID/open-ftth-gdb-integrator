@@ -13,7 +13,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     public class NewRouteNodeDigitized : INotification
     {
         public RouteNode RouteNode { get; set; }
-        public Guid EventId { get; set; }
+        public Guid CmdId { get; set; }
     }
 
     public class NewRouteNodeDigitizedHandler : INotificationHandler<NewRouteNodeDigitized>
@@ -43,7 +43,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             await _mediator.Publish(new RouteNodeAdded
                 {
                     RouteNode = request.RouteNode,
-                    EventId = request.EventId,
+                    CmdId = request.CmdId,
                     CmdType = nameof(NewRouteNodeDigitized)
                 });
         }

@@ -39,9 +39,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (intersectingRouteSegments.Count > 0)
                 return new RollbackInvalidRouteNodeOperation(before);
 
-            var eventId = Guid.NewGuid();
+            var cmdId = Guid.NewGuid();
             if (after.MarkAsDeleted)
-                return new RouteNodeDeleted { EventId = eventId, RouteNode = after };
+                return new RouteNodeDeleted { CmdId = cmdId, RouteNode = after };
 
             return new DoNothing($"{nameof(RouteNode)} with id: '{after.Mrid}' found not suitable action for {nameof(CreateUpdatedEvent)}.");
         }
@@ -54,10 +54,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (IsCreatedByApplication(routeNode))
                 return new DoNothing($"{nameof(RouteNode)} with id: '{routeNode.Mrid}' was created by nothing therefore do nothing.");
 
-            // Update the 'shadow' table
+            // Uipdate the 'shadow' table
             await _geoDatabase.InsertRouteNodeShadowTable(routeNode);
 
-            var eventId = Guid.NewGuid();
+            var cmdId = Guid.NewGuid();
             var intersectingRouteSegmentsTask = _geoDatabase.GetIntersectingRouteSegments(routeNode);
             var intersectingRouteNodesTask = _geoDatabase.GetIntersectingRouteNodes(routeNode);
 
@@ -65,21 +65,21 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingRouteNodes = await intersectingRouteNodesTask;
 
             if (intersectingRouteNodes.Count > 0)
-                return new InvalidRouteNodeOperation { RouteNode = routeNode, EventId = eventId };
+                return new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId };
 
             if (intersectingRouteSegments.Count == 0)
-                return new RouteNodeAdded { EventId = eventId, RouteNode = routeNode };
+                return new RouteNodeAdded { CmdId = cmdId, RouteNode = routeNode };
 
             if (intersectingRouteSegments.Count == 1)
             {
                 return new ExistingRouteSegmentSplitted
                 {
                     RouteNode = routeNode,
-                    EventId = eventId
+                    CmdId = cmdId
                 };
             }
 
-            return new InvalidRouteNodeOperation { RouteNode = routeNode, EventId = eventId };
+            return new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId };
         }
 
         private async Task RollbackInvalidOperation(RouteNode rollbackToNode)

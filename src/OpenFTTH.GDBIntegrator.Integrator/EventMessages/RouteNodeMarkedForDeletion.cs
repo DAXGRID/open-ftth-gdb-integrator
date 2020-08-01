@@ -6,14 +6,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.EventMessages
     {
         public readonly string EventType = nameof(RouteNodeMarkedForDeletion);
         public readonly string EventTs = DateTime.UtcNow.ToString("o");
-        public readonly Guid CmdId = Guid.NewGuid();
-        public Guid EventId { get; }
+        public readonly Guid EventId = Guid.NewGuid();
+        public Guid CmdId { get; }
         public string CmdType { get; }
         public Guid NodeId { get; }
 
-        public RouteNodeMarkedForDeletion(Guid eventId, Guid segmentId, string cmdType)
+        public RouteNodeMarkedForDeletion(Guid cmdId, Guid segmentId, string cmdType)
         {
-            EventId = eventId;
+            CmdId = cmdId;
             NodeId = segmentId;
             CmdType = cmdType;
         }
