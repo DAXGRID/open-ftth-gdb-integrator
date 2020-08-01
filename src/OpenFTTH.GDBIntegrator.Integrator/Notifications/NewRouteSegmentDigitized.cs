@@ -75,7 +75,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             await _mediator.Publish(new RouteSegmentAdded
             {
-                EventId = eventId,
+                CmdId = eventId,
                 RouteSegment = routeSegment,
                 StartRouteNode = startNode,
                 EndRouteNode = endNode,

@@ -14,7 +14,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     public class RouteSegmentRemoved : INotification
     {
         public RouteSegment RouteSegment { get; set; }
-        public Guid EventId { get; set; }
+        public Guid CmdId { get; set; }
         public IEnumerable<Guid> ReplacedBySegments { get; set; }
         public string CmdType { get; set; }
     }
@@ -41,7 +41,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
                                     new EventMessages.RouteSegmentRemoved(
-                                        request.EventId,
+                                        request.CmdId,
                                         request.RouteSegment.Mrid,
                                         request.ReplacedBySegments,
                                         request.CmdType

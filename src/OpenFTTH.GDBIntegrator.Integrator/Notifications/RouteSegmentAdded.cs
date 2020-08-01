@@ -15,7 +15,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         public RouteSegment RouteSegment { get; set; }
         public RouteNode StartRouteNode { get; set; }
         public RouteNode EndRouteNode { get; set; }
-        public Guid EventId { get; set; }
+        public Guid CmdId { get; set; }
         public string CmdType { get; set; }
     }
 
