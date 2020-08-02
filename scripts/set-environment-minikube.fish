@@ -4,7 +4,7 @@
 
 # Application
 export APPLICATION__APPLICATIONNAME="GDB_INTEGRATOR"
-export APPLICATION__TOLERANCE="0.1"
+export APPLICATION__TOLERANCE="0.01"
 
 # Postgres
 export POSTGIS__HOST=(minikube ip)

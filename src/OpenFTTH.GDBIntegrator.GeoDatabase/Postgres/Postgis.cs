@@ -120,7 +120,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                           WHERE mrid = @mrid),
                         @tolerance
                       ),
-                      coord) AND marked_to_be_deleted = false";
+                      coord) AND marked_to_be_deleted = false AND mrid != @sMrid";
 
                 await connection.OpenAsync();
                 var result = await connection.QueryAsync<RouteSegment>(query, new { sMrid = notInclude.Mrid, routeNode.Mrid, _applicationSettings.Tolerance });
