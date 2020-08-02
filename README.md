@@ -25,4 +25,4 @@ task start
 
 ## Node Editing
 
-Info about node editing can be found here [Link](https://github.com/DAXGRID/open-ftth-overview/tree/master/Route%20Network%20Editing%20Details)
+Info about node editing can be found here [Link](https://github.com/DAXGRID/open-ftth-overview/blob/master/Route%20Network%20Editing%20Details/Overview.md)
