@@ -62,7 +62,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             else
             {
                 intersectingRouteSegment = (await _geoDatabase.GetIntersectingRouteSegments(routeNode, routeSegmentDigitizedByUser)).First();
-                _logger.LogWarning("Look here!" + Newtonsoft.Json.JsonConvert.SerializeObject(intersectingRouteSegment, Newtonsoft.Json.Formatting.Indented));
             }
 
             return intersectingRouteSegment;
