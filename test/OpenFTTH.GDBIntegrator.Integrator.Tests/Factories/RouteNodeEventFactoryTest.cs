@@ -245,5 +245,24 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             Func<Task> act = async () => await factory.CreateUpdatedEvent(beforeNode, afterNode);
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
         }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldReturnDoNothing_OnShadowTableRouteNodeBeingNull()
+        {
+            var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var beforeNode = A.Fake<RouteNode>();
+            var afterNode = A.Fake<RouteNode>();
+            RouteNode shadowTableRouteNode = null;
+
+            A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid)).Returns(shadowTableRouteNode);
+
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+
+            var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
+
+            result.Should().BeOfType(typeof(DoNothing));
+        }
     }
 }

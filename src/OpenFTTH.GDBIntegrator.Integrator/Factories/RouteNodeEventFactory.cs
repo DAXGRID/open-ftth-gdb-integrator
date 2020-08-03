@@ -29,6 +29,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             var shadowTableNode = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid);
 
+            if (shadowTableNode is null)
+                return new DoNothing($"{nameof(RouteNode)} is already deleted, so do nothing.");
+
             if (AlreadyUpdated(after, shadowTableNode))
                 return new DoNothing($"{nameof(RouteNode)} with id: '{after.Mrid}' was already updated therefore do nothing.");
 

@@ -59,12 +59,41 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             var endNode = (await _geoDatabase.GetIntersectingEndRouteNodes(request.After)).FirstOrDefault();
 
             if (startNode is null)
-                await InsertRouteNode(_routeNodeFactory.Create(request.After.FindStartPoint()), request.CmdId);
+            {
+                startNode = _routeNodeFactory.Create(request.After.FindStartPoint());
+                await InsertRouteNode(startNode, request.CmdId);
+            }
             if (endNode is null)
-                await InsertRouteNode(_routeNodeFactory.Create(request.After.FindEndPoint()), request.CmdId);
+            {
+                endNode = _routeNodeFactory.Create(request.After.FindEndPoint());
+                await InsertRouteNode(endNode, request.CmdId);
+            }
 
             var routeSegmentClone = await InsertRouteSegmentClone(request.After, request.CmdId);
             await RevertAndMarkExistingRouteSegmentForDeletion(request.Before, request.CmdId, routeSegmentClone);
+
+            await MarkDeadRouteNodesForDeletion(request.Before, request.CmdId);
+        }
+
+        private async Task MarkDeadRouteNodesForDeletion(RouteSegment routeSegment, Guid cmdId)
+        {
+            var startNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment)).FirstOrDefault();
+            var endNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).FirstOrDefault();
+
+            await MarkDeleteRouteNode(startNode, cmdId);
+            await MarkDeleteRouteNode(endNode, cmdId);
+        }
+
+        private async Task MarkDeleteRouteNode(RouteNode routeNode, Guid cmdId)
+        {
+            var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
+            var isDeleteable = String.IsNullOrEmpty(routeNode.NodeKind) && String.IsNullOrEmpty(routeNode.NodeName) && intersectingRouteSegments.Count == 0;
+
+            if (isDeleteable)
+            {
+                await _geoDatabase.MarkDeleteRouteNode(routeNode.Mrid);
+                await _mediator.Publish(new RouteNodeDeleted { CmdId = cmdId, RouteNode = routeNode });
+            }
         }
 
         private async Task InsertRouteNode(RouteNode routeNode, Guid cmdId)
