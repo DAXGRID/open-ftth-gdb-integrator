@@ -523,6 +523,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentBefore = A.Fake<RouteSegment>();
             var routeSegmentAfter = A.Fake<RouteSegment>();
 
+            A.CallTo(() => routeSegmentAfter.GetLineString()).Returns(A.Fake<LineString>());
             A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(true);
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(true);
 

@@ -41,7 +41,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
                                     new EventMessages.RouteSegmentAdded(
-                                        Guid.NewGuid(),
+                                        request.CmdId,
                                         request.RouteSegment.Mrid,
                                         request.StartRouteNode.Mrid,
                                         request.EndRouteNode.Mrid,

@@ -27,9 +27,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (before is null || after is null)
                 throw new ArgumentNullException($"Parameter {nameof(before)} or {nameof(after)} cannot be null");
 
-            var integratorRouteNode = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid);
+            var shadowTableNode = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid);
 
-            if (AlreadyUpdated(after, integratorRouteNode))
+            if (AlreadyUpdated(after, shadowTableNode))
                 return new DoNothing($"{nameof(RouteNode)} with id: '{after.Mrid}' was already updated therefore do nothing.");
 
             await _geoDatabase.UpdateRouteNodeShadowTable(after);

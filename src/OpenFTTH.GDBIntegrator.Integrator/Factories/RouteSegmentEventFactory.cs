@@ -35,25 +35,19 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         {
             var routeSegmentShadowTableBeforeUpdate = await _geoDatabase.GetRouteSegmentShadowTable(after.Mrid);
 
-            if (AlreadyUpdated(after, routeSegmentShadowTableBeforeUpdate))
+            if (routeSegmentShadowTableBeforeUpdate is null || AlreadyUpdated(after, routeSegmentShadowTableBeforeUpdate))
                 return new DoNothing($"{nameof(RouteSegment)} is already updated, therefore do nothing.");
 
-            if (_routeSegmentValidator.LineIsValid(after.GetLineString()))
+            if (!_routeSegmentValidator.LineIsValid(after.GetLineString()))
                 return new RollbackInvalidRouteSegment(before);
 
             await _geoDatabase.UpdateRouteSegmentShadowTable(after);
 
             var cmdId = Guid.NewGuid();
             if (after.MarkAsDeleted)
-            {
-                return new RouteSegmentDeleted
-                {
-                    RouteSegment = after,
-                    CmdId = cmdId
-                };
-            }
+                return CreateRouteSegmentDeleted(after, cmdId);
 
-            return new RollbackInvalidRouteSegment(before);
+            return new RouteSegmentConnectivityChanged(before, after, cmdId);
         }
 
         public async Task<IEnumerable<INotification>> CreateDigitizedEvent(RouteSegment routeSegment)
@@ -131,6 +125,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         private bool IsCreatedByApplication(RouteSegment routeSegment)
         {
             return routeSegment.ApplicationName == _applicationSettings.ApplicationName;
+        }
+
+        private RouteSegmentDeleted CreateRouteSegmentDeleted(RouteSegment routeSegment, Guid cmdId)
+        {
+            return new RouteSegmentDeleted
+            {
+                RouteSegment = routeSegment,
+                CmdId = cmdId
+            };
         }
 
         private ExistingRouteSegmentSplitted CreateExistingRouteSegmentSplitted(RouteSegment routeSegment, Guid cmdId, RouteNode routeNode)

@@ -32,7 +32,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                               work_task_mrid AS workTaskMrid,
                               user_name AS userName,
                               application_name AS applicationName
-                              FROM route_network_integrator.route_node WHERE mrid = @mrid";
+                              FROM route_network_integrator.route_node WHERE mrid = @mrid AND marked_to_be_deleted = false";
 
                 await connection.OpenAsync();
 
@@ -53,7 +53,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                               work_task_mrid AS workTaskMrid,
                               user_name AS userName,
                               application_name AS applicationName
-                              FROM route_network_integrator.route_segment WHERE mrid = @mrid";
+                              FROM route_network_integrator.route_segment WHERE mrid = @mrid AND marked_to_be_deleted = false";
 
                 await connection.OpenAsync();
                 var routeSegment = await connection.QueryAsync<RouteSegment>(query, new { mrid });

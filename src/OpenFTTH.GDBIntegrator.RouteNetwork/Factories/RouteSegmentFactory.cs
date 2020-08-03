@@ -33,5 +33,15 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Factories
 
             return routeSegments;
         }
+
+        public RouteSegment Create(LineString lineString)
+        {
+            return new RouteSegment
+            {
+                Mrid = Guid.NewGuid(),
+                Coord = lineString.AsBinary(),
+                ApplicationName = _applicationSettings.ApplicationName
+            };
+        }
     }
 }
