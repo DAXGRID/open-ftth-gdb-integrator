@@ -9,6 +9,7 @@ using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using Microsoft.Extensions.Options;
 using MediatR;
+using NetTopologySuite.Geometries;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
@@ -31,26 +32,38 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             _routeNodeFactory = routeNodeFactory;
         }
 
-        public async Task<INotification> CreateUpdatedEvent(RouteSegment before, RouteSegment after)
+        public async Task<IEnumerable<INotification>> CreateUpdatedEvent(RouteSegment before, RouteSegment after)
         {
             var routeSegmentShadowTableBeforeUpdate = await _geoDatabase.GetRouteSegmentShadowTable(after.Mrid);
 
             if (routeSegmentShadowTableBeforeUpdate is null)
-                return new DoNothing($"{nameof(RouteSegment)} is already deleted, therefore do nothing");
+                return new List<INotification> { new DoNothing($"{nameof(RouteSegment)} is already deleted, therefore do nothing") };
 
             if (AlreadyUpdated(after, routeSegmentShadowTableBeforeUpdate))
-                return new DoNothing($"{nameof(RouteSegment)} is already updated, therefore do nothing.");
+                return new List<INotification> { new DoNothing($"{nameof(RouteSegment)} is already updated, therefore do nothing.") };
 
             if (!_routeSegmentValidator.LineIsValid(after.GetLineString()))
-                return new RollbackInvalidRouteSegment(before);
+                return new List<INotification> { new RollbackInvalidRouteSegment(before) };
 
             await _geoDatabase.UpdateRouteSegmentShadowTable(after);
 
             var cmdId = Guid.NewGuid();
-            if (after.MarkAsDeleted)
-                return CreateRouteSegmentDeleted(after, cmdId);
 
-            return new RouteSegmentConnectivityChanged(before, after, cmdId);
+            if (after.MarkAsDeleted)
+                return new List<INotification> { CreateRouteSegmentDeleted(after, cmdId) };
+
+            var intersectingStartSegments = await _geoDatabase.GetIntersectingStartRouteSegments(after);
+            var intersectingEndSegments = await _geoDatabase.GetIntersectingEndRouteSegments(after);
+            var intersectingStartNodes = await _geoDatabase.GetIntersectingStartRouteNodes(after);
+            var intersectingEndNodes = await _geoDatabase.GetIntersectingEndRouteNodes(after);
+
+            var notifications = new List<INotification>();
+            notifications.AddRange(HandleExistingRouteSegmentSplitted(intersectingStartSegments.Count, intersectingStartNodes.Count, cmdId, after.FindStartPoint(), after));
+            notifications.AddRange(HandleExistingRouteSegmentSplitted(intersectingEndSegments.Count, intersectingEndNodes.Count, cmdId, after.FindEndPoint(), after));
+
+            notifications.Add(new RouteSegmentConnectivityChanged(before, after, cmdId));
+
+            return notifications;
         }
 
         public async Task<IEnumerable<INotification>> CreateDigitizedEvent(RouteSegment routeSegment)
@@ -95,34 +108,32 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return notifications;
             }
 
-            if (intersectingStartSegments.Count == 1 && intersectingStartNodes.Count == 0)
-            {
-                var startPoint = routeSegment.FindStartPoint();
-                var startNode = _routeNodeFactory.Create(startPoint);
-                notifications.Add(new NewRouteNodeDigitized { CmdId = cmdId, RouteNode = startNode });
-
-                var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(routeSegment, cmdId, startNode);
-                notifications.Add(routeSegmentSplitted);
-            }
-
-            if (intersectingEndSegments.Count == 1 && intersectingEndNodes.Count == 0)
-            {
-                var endPoint = routeSegment.FindEndPoint();
-                var endNode = _routeNodeFactory.Create(endPoint);
-                notifications.Add(new NewRouteNodeDigitized { CmdId = cmdId, RouteNode = endNode });
-
-                var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(routeSegment, cmdId, endNode);
-                notifications.Add(routeSegmentSplitted);
-            }
+            notifications.AddRange(HandleExistingRouteSegmentSplitted(intersectingStartSegments.Count, intersectingStartNodes.Count, cmdId, routeSegment.FindStartPoint(), routeSegment));
+            notifications.AddRange(HandleExistingRouteSegmentSplitted(intersectingEndSegments.Count, intersectingEndNodes.Count, cmdId, routeSegment.FindEndPoint(), routeSegment));
 
             notifications.Add(CreateNewRouteSegmentDigitized(routeSegment, cmdId));
 
             return notifications;
         }
 
+        private List<INotification> HandleExistingRouteSegmentSplitted(int intersectingSegmentsCount, int intersectingNodesCount, Guid cmdId, Point point, RouteSegment routeSegment)
+        {
+            var notifications = new List<INotification>();
+
+            if (intersectingSegmentsCount == 1 && intersectingNodesCount == 0)
+            {
+                var startNode = _routeNodeFactory.Create(point);
+                notifications.Add(new NewRouteNodeDigitized { CmdId = cmdId, RouteNode = startNode });
+
+                var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(routeSegment, cmdId, startNode);
+                notifications.Add(routeSegmentSplitted);
+            }
+
+            return notifications;
+        }
+
         private bool AlreadyUpdated(RouteSegment routeSegment, RouteSegment shadowTableRouteSegment)
         {
-            Console.Write(routeSegment.GetGeoJsonCoordinate());
             return routeSegment.MarkAsDeleted == shadowTableRouteSegment.MarkAsDeleted && routeSegment.GetGeoJsonCoordinate() == shadowTableRouteSegment.GetGeoJsonCoordinate();
         }
 

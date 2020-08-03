@@ -80,7 +80,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             else
             {
-                await _mediator.Publish(new InvalidRouteNodeOperation { RouteNode = routeNodeMessage.After, CmdId = Guid.NewGuid() } );
+                await _mediator.Publish(new InvalidRouteNodeOperation { RouteNode = routeNodeMessage.After, CmdId = Guid.NewGuid() });
             }
         }
 
@@ -100,13 +100,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             else if (IsSegmentUpdated(routeSegmentMessage))
             {
-                var routeSegmentUpdatedEvent = await _routeSegmentEventFactory.CreateUpdatedEvent(routeSegmentMessage.Before, routeSegmentMessage.After);
-                if (!(routeSegmentUpdatedEvent is null))
-                    await _mediator.Publish(routeSegmentUpdatedEvent);
+                var routeSegmentUpdatedEvents = await _routeSegmentEventFactory.CreateUpdatedEvent(routeSegmentMessage.Before, routeSegmentMessage.After);
+                foreach (var routeSegmentUpdatedEvent in routeSegmentUpdatedEvents)
+                {
+                    if (!(routeSegmentUpdatedEvent is null))
+                        await _mediator.Publish(routeSegmentUpdatedEvent);
+                }
             }
             else
             {
-                await _mediator.Publish(new InvalidRouteSegmentOperation { RouteSegment = routeSegmentMessage.After, CmdId = Guid.NewGuid() } );
+                await _mediator.Publish(new InvalidRouteSegmentOperation { RouteSegment = routeSegmentMessage.After, CmdId = Guid.NewGuid() });
             }
         }
 
