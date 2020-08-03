@@ -21,7 +21,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             _applicationSettings = applicationSettings.Value;
         }
 
-
         public async Task<RouteNode> GetRouteNodeShadowTable(Guid mrid)
         {
             using (var connection = GetNpgsqlConnection())
@@ -40,6 +39,26 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 var routeNode = await connection.QueryAsync<RouteNode>(query, new { mrid });
 
                 return routeNode.FirstOrDefault();
+            }
+        }
+
+        public async Task<RouteSegment> GetRouteSegmentShadowTable(Guid mrid)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var query = @"SELECT
+                              ST_AsBinary(coord) AS coord,
+                              mrid,
+                              marked_to_be_deleted AS markedToBeDeleted,
+                              work_task_mrid AS workTaskMrid,
+                              user_name AS userName,
+                              application_name AS applicationName
+                              FROM route_network_integrator.route_segment WHERE mrid = @mrid";
+
+                await connection.OpenAsync();
+                var routeSegment = await connection.QueryAsync<RouteSegment>(query, new { mrid });
+
+                return routeSegment.FirstOrDefault();
             }
         }
 
@@ -581,6 +600,36 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 var result = await connection.QueryAsync<string>(query, new { routeNode.Coord, intersectingRouteSegment.Mrid });
 
                 return result.First();
+            }
+        }
+
+        public async Task UpdateRouteSegment(RouteSegment routeSegment)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var integratorQuery = @"
+                    UPDATE route_network_integrator.route_segment
+                    SET
+                      coord = ST_GeomFromWKB(@coord, 25832),
+                      work_task_mrid = @workTaskMrId,
+                      user_name = @username,
+                      application_name = @applicationName,
+                      marked_to_be_deleted = @markAsDeleted
+                    WHERE mrid = @mrid;";
+
+                var query = @"
+                    UPDATE route_network.route_segment
+                    SET
+                      coord = ST_GeomFromWKB(@coord, 25832),
+                      work_task_mrid = @workTaskMrId,
+                      user_name = @username,
+                      application_name = @applicationName,
+                      marked_to_be_deleted = @markAsDeleted
+                    WHERE mrid = @mrid;";
+
+                await connection.OpenAsync();
+                await connection.ExecuteAsync(integratorQuery, routeSegment);
+                await connection.ExecuteAsync(query, routeSegment);
             }
         }
 

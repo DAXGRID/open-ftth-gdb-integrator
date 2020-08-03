@@ -523,6 +523,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentBefore = A.Fake<RouteSegment>();
             var routeSegmentAfter = A.Fake<RouteSegment>();
 
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(true);
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(true);
 
             var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
@@ -534,6 +535,58 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.CmdId.Should().NotBeEmpty();
                 result.RouteSegment.Should().Be(routeSegmentAfter);
             }
+        }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldReturnDoNothing_OnRouteSegmentAfterAndShadowTableBeforeBeingEqual()
+        {
+            var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
+            var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeNodeFactory = A.Fake<IRouteNodeFactory>();
+            var routeSegmentBefore = A.Fake<RouteSegment>();
+            var routeSegmentAfter = A.Fake<RouteSegment>();
+            var routeSegmentShadowTable = A.Fake<RouteSegment>();
+
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid)).Returns(routeSegmentShadowTable);
+
+            A.CallTo(() => routeSegmentAfter.Coord).Returns(Convert.FromBase64String("AQIAACDoZAAAAgAAAN98n5EmsyBBZairVceCV0Gs6ROHJrMgQehtFKzHgldB"));
+            A.CallTo(() => routeSegmentShadowTable.Coord).Returns(Convert.FromBase64String("AQIAACDoZAAAAgAAAN98n5EmsyBBZairVceCV0Gs6ROHJrMgQehtFKzHgldB"));
+            A.CallTo(()  => routeSegmentAfter.Mrid).Returns(Guid.NewGuid());
+            A.CallTo(()  => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
+
+            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+
+            var result = (DoNothing)(await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter));
+
+            result.Should().BeOfType(typeof(DoNothing));
+        }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldReturnRollbackSegment_OnGeometryBeingInvalid()
+        {
+            var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
+            var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeNodeFactory = A.Fake<IRouteNodeFactory>();
+            var routeSegmentBefore = A.Fake<RouteSegment>();
+            var routeSegmentAfter = A.Fake<RouteSegment>();
+            var routeSegmentShadowTable = A.Fake<RouteSegment>();
+
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid)).Returns(routeSegmentShadowTable);
+
+            A.CallTo(() => routeSegmentAfter.Coord).Returns(Convert.FromBase64String("AQIAACDoZAAAAgAAAN98n5EmsyBBZairVceCV0Gs6ROHJrMgQehtFKzHgldB"));
+            A.CallTo(() => routeSegmentShadowTable.Coord).Returns(Convert.FromBase64String("AQIAACDoZAAAAgAAAC352y4psyBBBXHFVseCV0Gs6ROHJrMgQehtFKzHgldB"));
+            A.CallTo(()  => routeSegmentAfter.Mrid).Returns(Guid.NewGuid());
+            A.CallTo(()  => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
+
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(false);
+
+            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+
+            var result = (DoNothing)(await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter));
+
+            result.Should().BeOfType(typeof(DoNothing));
         }
     }
 }

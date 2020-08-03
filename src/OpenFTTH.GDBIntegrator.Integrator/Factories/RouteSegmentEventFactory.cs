@@ -33,7 +33,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         public async Task<INotification> CreateUpdatedEvent(RouteSegment before, RouteSegment after)
         {
+            var routeSegmentShadowTableBeforeUpdate = await _geoDatabase.GetRouteSegmentShadowTable(after.Mrid);
+
+            if (AlreadyUpdated(after, routeSegmentShadowTableBeforeUpdate))
+                return new DoNothing($"{nameof(RouteSegment)} is already updated, therefore do nothing.");
+
+            if (_routeSegmentValidator.LineIsValid(after.GetLineString()))
+                return new RollbackInvalidRouteSegment(before);
+
             await _geoDatabase.UpdateRouteSegmentShadowTable(after);
+
             var cmdId = Guid.NewGuid();
             if (after.MarkAsDeleted)
             {
@@ -44,7 +53,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 };
             }
 
-            return new InvalidRouteSegmentOperation();
+            return new RollbackInvalidRouteSegment(before);
         }
 
         public async Task<IEnumerable<INotification>> CreateDigitizedEvent(RouteSegment routeSegment)
@@ -112,6 +121,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             notifications.Add(CreateNewRouteSegmentDigitized(routeSegment, cmdId));
 
             return notifications;
+        }
+
+        private bool AlreadyUpdated(RouteSegment routeSegment, RouteSegment shadowTableRouteSegment)
+        {
+            return routeSegment.MarkAsDeleted == shadowTableRouteSegment.MarkAsDeleted && routeSegment.GetGeoJsonCoordinate() == shadowTableRouteSegment.GetGeoJsonCoordinate();
         }
 
         private bool IsCreatedByApplication(RouteSegment routeSegment)

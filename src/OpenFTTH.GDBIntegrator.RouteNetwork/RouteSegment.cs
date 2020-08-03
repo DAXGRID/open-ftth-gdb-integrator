@@ -9,8 +9,8 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
 {
     public class RouteSegment
     {
-        public Guid Mrid { get; set; }
-        public byte[] Coord { get; set; }
+        public virtual Guid Mrid { get; set; }
+        public virtual byte[] Coord { get; set; }
         public Guid WorkTaskMrid { get; set; }
         public string Username { get; set; }
         public string ApplicationName { get; set; }

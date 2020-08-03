@@ -30,7 +30,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(RollbackInvalidRouteNodeOperation request, CancellationToken token)
         {
-            _logger.LogWarning($"Rollbacks invalid route node operation for RouteNode with id: '{request.RollbackToNode.Mrid}'");
+            _logger.LogWarning($"Rollbacks invalid {nameof(RouteNode)} with id: '{request.RollbackToNode.Mrid}'");
             await _geoDatabase.UpdateRouteNode(request.RollbackToNode);
         }
     }
