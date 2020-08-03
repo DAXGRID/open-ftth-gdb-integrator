@@ -549,12 +549,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentAfter = A.Fake<RouteSegment>();
             var routeSegmentShadowTable = A.Fake<RouteSegment>();
 
+            A.CallTo(() => routeSegmentAfter.Mrid).Returns(Guid.NewGuid());
+            A.CallTo(() => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
             A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid)).Returns(routeSegmentShadowTable);
-
-            A.CallTo(() => routeSegmentAfter.Coord).Returns(Convert.FromBase64String("AQIAACDoZAAAAgAAAN98n5EmsyBBZairVceCV0Gs6ROHJrMgQehtFKzHgldB"));
-            A.CallTo(() => routeSegmentShadowTable.Coord).Returns(Convert.FromBase64String("AQIAACDoZAAAAgAAAN98n5EmsyBBZairVceCV0Gs6ROHJrMgQehtFKzHgldB"));
-            A.CallTo(()  => routeSegmentAfter.Mrid).Returns(Guid.NewGuid());
-            A.CallTo(()  => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
+            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
+            A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
 
             var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
@@ -574,14 +575,38 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentAfter = A.Fake<RouteSegment>();
             var routeSegmentShadowTable = A.Fake<RouteSegment>();
 
+            A.CallTo(() => routeSegmentAfter.Mrid).Returns(Guid.NewGuid());
             A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid)).Returns(routeSegmentShadowTable);
+            A.CallTo(() => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
 
-            A.CallTo(() => routeSegmentAfter.Coord).Returns(Convert.FromBase64String("AQIAACDoZAAAAgAAAN98n5EmsyBBZairVceCV0Gs6ROHJrMgQehtFKzHgldB"));
-            A.CallTo(() => routeSegmentShadowTable.Coord).Returns(Convert.FromBase64String("AQIAACDoZAAAAgAAAC352y4psyBBBXHFVseCV0Gs6ROHJrMgQehtFKzHgldB"));
-            A.CallTo(()  => routeSegmentAfter.Mrid).Returns(Guid.NewGuid());
-            A.CallTo(()  => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
+            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
+            A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
 
             A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(false);
+
+            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+
+            var result = (await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter));
+
+            var expected = new RollbackInvalidRouteSegment(routeSegmentBefore);
+
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldReturnDoNothing_OnGetRouteSegmentFromShadowTableBeingNull()
+        {
+            var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
+            var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeNodeFactory = A.Fake<IRouteNodeFactory>();
+            var routeSegmentBefore = A.Fake<RouteSegment>();
+            var routeSegmentAfter = A.Fake<RouteSegment>();
+            RouteSegment routeSegmentShadowTable = null;
+
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid)).Returns(routeSegmentShadowTable);
 
             var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 

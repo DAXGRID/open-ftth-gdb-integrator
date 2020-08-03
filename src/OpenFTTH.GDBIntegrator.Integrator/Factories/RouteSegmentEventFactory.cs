@@ -35,7 +35,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         {
             var routeSegmentShadowTableBeforeUpdate = await _geoDatabase.GetRouteSegmentShadowTable(after.Mrid);
 
-            if (routeSegmentShadowTableBeforeUpdate is null || AlreadyUpdated(after, routeSegmentShadowTableBeforeUpdate))
+            if (routeSegmentShadowTableBeforeUpdate is null)
+                return new DoNothing($"{nameof(RouteSegment)} is already deleted, therefore do nothing");
+
+            if (AlreadyUpdated(after, routeSegmentShadowTableBeforeUpdate))
                 return new DoNothing($"{nameof(RouteSegment)} is already updated, therefore do nothing.");
 
             if (!_routeSegmentValidator.LineIsValid(after.GetLineString()))
@@ -119,6 +122,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         private bool AlreadyUpdated(RouteSegment routeSegment, RouteSegment shadowTableRouteSegment)
         {
+            Console.Write(routeSegment.GetGeoJsonCoordinate());
             return routeSegment.MarkAsDeleted == shadowTableRouteSegment.MarkAsDeleted && routeSegment.GetGeoJsonCoordinate() == shadowTableRouteSegment.GetGeoJsonCoordinate();
         }
 

@@ -31,8 +31,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Validators
             result.Should().BeTrue();
         }
 
-
-
         [Fact]
         public void LineIsValid_ShouldReturnFalse_OnEndsSnappedLine()
         {
@@ -54,7 +52,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Validators
             var result = routeSegmentValidator.LineIsValid(line);
             result.Should().BeFalse();
         }
-
 
         [Fact]
         public void LineIsValid_ShouldReturnFalse_OnSelfIntersectingLine()
@@ -79,7 +76,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Validators
             var result = routeSegmentValidator.LineIsValid(line);
             result.Should().BeFalse();
         }
-
 
         [Fact]
         public void LineIsValid_ShouldReturnFalse_OnEndSnappedToEdge()
