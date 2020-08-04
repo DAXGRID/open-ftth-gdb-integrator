@@ -35,18 +35,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (AlreadyUpdated(after, shadowTableNode))
                 return new DoNothing($"{nameof(RouteNode)} with id: '{after.Mrid}' was already updated therefore do nothing.");
 
+            var shadowTableNodeIntersectingSegments = await _geoDatabase.GetIntersectingRouteSegments(shadowTableNode);
+            if (shadowTableNodeIntersectingSegments.Count > 0)
+                return new RollbackInvalidRouteNodeOperation(before);
+
             await _geoDatabase.UpdateRouteNodeShadowTable(after);
 
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
-
-            if (intersectingRouteSegments.Count > 0)
+            var intersectingRouteNodes = await _geoDatabase.GetIntersectingRouteNodes(after);
+            if (intersectingRouteSegments.Count > 0 || intersectingRouteNodes.Count > 0)
                 return new RollbackInvalidRouteNodeOperation(before);
 
             var cmdId = Guid.NewGuid();
             if (after.MarkAsDeleted)
                 return new RouteNodeDeleted { CmdId = cmdId, RouteNode = after };
 
-            return new DoNothing($"{nameof(RouteNode)} with id: '{after.Mrid}' found not suitable action for {nameof(CreateUpdatedEvent)}.");
+            return new RouteNodeLocationChanged { CmdId = cmdId, RouteNode = after };
         }
 
         public async Task<INotification> CreateDigitizedEvent(RouteNode routeNode)

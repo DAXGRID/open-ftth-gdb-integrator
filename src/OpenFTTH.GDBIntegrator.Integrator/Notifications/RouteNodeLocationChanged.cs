@@ -10,19 +10,19 @@ using Microsoft.Extensions.Options;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
-    public class RouteSegmentLocationChanged : INotification
+    public class RouteNodeLocationChanged : INotification
     {
-        public RouteSegment RouteSegment { get; set; }
+        public RouteNode RouteNode { get; set; }
         public Guid CmdId { get; set; }
     }
 
-    public class RouteSegmentLocationChangedHandler : INotificationHandler<RouteSegmentLocationChanged>
+    public class RouteNodeLocationChangedHandler : INotificationHandler<RouteNodeLocationChanged>
     {
         private readonly ILogger<RouteNodeAddedHandler> _logger;
         private readonly KafkaSetting _kafkaSettings;
         private readonly IProducer _producer;
 
-        public RouteSegmentLocationChangedHandler(
+        public RouteNodeLocationChangedHandler(
             ILogger<RouteNodeAddedHandler> logger,
             IOptions<KafkaSetting> kafkaSettings,
             IProducer producer)
@@ -32,17 +32,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _producer = producer;
         }
 
-        public async Task Handle(RouteSegmentLocationChanged request, CancellationToken token)
+        public async Task Handle(RouteNodeLocationChanged request, CancellationToken token)
         {
-            _logger.LogInformation($"Sending {nameof(RouteSegmentLocationChanged)} with mrid '{request.RouteSegment.Mrid}' to producer");
+            _logger.LogInformation($"Sending {nameof(RouteNodeLocationChanged)} with mrid '{request.RouteNode.Mrid}' to producer");
 
             await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
-                                    new EventMessages.RouteSegmentGeometryModified
+                                    new EventMessages.RouteNodeGeometryModified
                                     (
                                         request.CmdId,
-                                        request.RouteSegment.Mrid,
-                                        nameof(RouteSegmentLocationChanged),
-                                        request.RouteSegment.GetGeoJsonCoordinate()
+                                        request.RouteNode.Mrid,
+                                        nameof(RouteNodeLocationChanged),
+                                        request.RouteNode.GetGeoJsonCoordinate()
                                     ));
         }
     }
