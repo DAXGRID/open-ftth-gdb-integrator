@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
@@ -57,6 +58,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingStartNodes = await _geoDatabase.GetIntersectingStartRouteNodes(after);
             var intersectingEndNodes = await _geoDatabase.GetIntersectingEndRouteNodes(after);
 
+            if (await IsGeometryChanged(intersectingStartNodes.FirstOrDefault(), intersectingEndNodes.FirstOrDefault(), before))
+                return new List<INotification> { new RouteSegmentLocationChanged { CmdId = cmdId, RouteSegment = after } };
+
             var notifications = new List<INotification>();
             notifications.AddRange(HandleExistingRouteSegmentSplitted(intersectingStartSegments.Count, intersectingStartNodes.Count, cmdId, after.FindStartPoint(), after));
             notifications.AddRange(HandleExistingRouteSegmentSplitted(intersectingEndSegments.Count, intersectingEndNodes.Count, cmdId, after.FindEndPoint(), after));
@@ -64,6 +68,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             notifications.Add(new RouteSegmentConnectivityChanged(before, after, cmdId));
 
             return notifications;
+        }
+
+        public async Task<bool> IsGeometryChanged(RouteNode startNode, RouteNode endNode, RouteSegment before)
+        {
+            if (startNode is null || endNode is null)
+                return false;
+
+            var previousStartNode = (await _geoDatabase.GetIntersectingStartRouteNodes(before)).First();
+            var previousEndNode = (await _geoDatabase.GetIntersectingEndRouteNodes(before)).First();
+
+            var routeSegmentHasSameStartRouteNode = startNode.Mrid == previousStartNode.Mrid;
+            var routeSegmentHasSameEndRouteNode = endNode.Mrid == previousEndNode.Mrid;
+            if (routeSegmentHasSameStartRouteNode && routeSegmentHasSameEndRouteNode)
+                return true;
+
+            return false;
         }
 
         public async Task<IEnumerable<INotification>> CreateDigitizedEvent(RouteSegment routeSegment)

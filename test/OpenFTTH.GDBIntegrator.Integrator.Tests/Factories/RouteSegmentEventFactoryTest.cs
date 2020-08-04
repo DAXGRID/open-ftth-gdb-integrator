@@ -658,5 +658,61 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result[4].Should().BeOfType(typeof(RouteSegmentConnectivityChanged));
             }
         }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldReturnRouteSegmentLocationChanged_OnGeometryChangedAndNodesBeingSameAsBeforeUpdate()
+        {
+            var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
+            var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeNodeFactory = A.Fake<IRouteNodeFactory>();
+            var routeSegmentBefore = A.Fake<RouteSegment>();
+            var routeSegmentAfter = A.Fake<RouteSegment>();
+            var routeSegmentShadowTable = A.Fake<RouteSegment>();
+            var currentStartNode = A.Fake<RouteNode>();
+            var currentEndNode = A.Fake<RouteNode>();
+            var previousStartNode = A.Fake<RouteNode>();
+            var previousEndNode = A.Fake<RouteNode>();
+
+            A.CallTo(() => routeSegmentAfter.Mrid).Returns(Guid.NewGuid());
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid)).Returns(routeSegmentShadowTable);
+            A.CallTo(() => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
+            A.CallTo(() => routeSegmentAfter.GetLineString()).Returns(A.Fake<LineString>());
+
+            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
+            A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
+
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(true);
+
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(routeSegmentAfter)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(routeSegmentAfter)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });           
+
+            // Important for this test
+            var startNodeMrid = Guid.NewGuid();
+            var endNodeMrId = Guid.NewGuid();
+
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegmentAfter)).Returns(new List<RouteNode> { currentStartNode });
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegmentAfter)).Returns(new List<RouteNode> { currentEndNode });
+            A.CallTo(() => currentStartNode.Mrid).Returns(startNodeMrid);
+            A.CallTo(() => currentEndNode.Mrid).Returns(endNodeMrId);
+
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegmentBefore)).Returns(new List<RouteNode> { previousStartNode });
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegmentBefore)).Returns(new List<RouteNode> { previousEndNode });
+            A.CallTo(() => previousStartNode.Mrid).Returns(startNodeMrid);
+            A.CallTo(() => previousEndNode.Mrid).Returns(endNodeMrId);
+
+            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+
+            var result = (RouteSegmentLocationChanged)(await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter)).First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Should().BeOfType(typeof(RouteSegmentLocationChanged));
+                result.CmdId.Should().NotBeEmpty();
+                result.RouteSegment.Should().Be(routeSegmentAfter);
+            }
+        }
     }
 }
