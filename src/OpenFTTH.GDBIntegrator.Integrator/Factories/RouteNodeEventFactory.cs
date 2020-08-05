@@ -46,7 +46,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (after.MarkAsDeleted)
                 return new RouteNodeDeleted { CmdId = cmdId, RouteNode = after };
 
-            return new RouteNodeLocationChanged { CmdId = cmdId, RouteNode = after };
+            return new RouteNodeLocationChanged { CmdId = cmdId, RouteNodeAfter = after, RouteNodeBefore = before };
         }
 
         public async Task<INotification> CreateDigitizedEvent(RouteNode routeNode)

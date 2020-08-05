@@ -128,6 +128,25 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             }
         }
 
+        public async Task<List<RouteSegment>> GetIntersectingRouteSegments(byte[] coordinates)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
+                    WHERE ST_Intersects(
+                      ST_Buffer(
+                        ST_GeomFromWKB(@coordinates, 25832),
+                        @tolerance
+                      ),
+                      coord) AND marked_to_be_deleted = false";
+
+                await connection.OpenAsync();
+                var result = await connection.QueryAsync<RouteSegment>(query, new { coordinates, tolerance = _applicationSettings.Tolerance });
+
+                return result.AsList();
+            }
+        }
+
         public async Task<List<RouteSegment>> GetIntersectingRouteSegments(RouteNode routeNode, RouteSegment notInclude)
         {
             using (var connection = GetNpgsqlConnection())
@@ -195,11 +214,43 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                           (SELECT coord FROM route_network_integrator.route_segment
                           WHERE mrid = @mrid)
                           ),
-                        @tolerance),
+                          @tolerance),
                       coord)";
 
                 await connection.OpenAsync();
                 var result = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
+
+                return result.AsList();
+            }
+        }
+
+        public async Task<List<RouteNode>> GetAllIntersectingRouteNodesNotIncludingEdges(byte[] coordinates, Guid mrid)
+        {
+            using (var connection = GetNpgsqlConnection())
+            {
+                var query = @"
+                    SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_node
+                    WHERE ST_Intersects(
+                      ST_Buffer(
+                        ST_GeomFromWKB(@coordinates, 25832),
+                        @tolerance),
+                      coord)
+                      AND marked_to_be_deleted = false
+                      AND NOT ST_Intersects(
+                      ST_Buffer(
+                        ST_StartPoint(
+                          ST_GeomFromWKB(@coordinates, 25832)),
+                          @tolerance),
+                      coord)
+                      AND NOT ST_Intersects(
+                      ST_Buffer(
+                        ST_EndPoint(
+                          ST_GeomFromWKB(@coordinates, 25832)),
+                          @tolerance),
+                      coord)";
+
+                await connection.OpenAsync();
+                var result = await connection.QueryAsync<RouteNode>(query, new { mrid, coordinates, _applicationSettings.Tolerance });
 
                 return result.AsList();
             }

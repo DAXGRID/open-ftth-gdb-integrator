@@ -40,6 +40,13 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
             MarkAsDeleted = markedAsDeleted;
         }
 
+        public virtual Point GetPoint()
+        {
+            var wkbReader = new WKBReader();
+            var geometry = wkbReader.Read(Coord);
+            return (Point)geometry;
+        }
+
         public virtual string GetGeoJsonCoordinate()
         {
             var wkbReader = new WKBReader();

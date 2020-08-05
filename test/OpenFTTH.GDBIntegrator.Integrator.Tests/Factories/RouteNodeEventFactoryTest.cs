@@ -316,7 +316,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (var scope = new AssertionScope())
             {
                 result.Should().BeOfType(typeof(RouteNodeLocationChanged));
-                result.RouteNode.Should().Be(afterNode);
+                result.RouteNodeAfter.Should().Be(afterNode);
                 result.CmdId.Should().NotBeEmpty();
             }
         }
