@@ -588,7 +588,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                             ST_Snap(
                                 route_segment.coord,
                                 ST_GeomFromWKB(@coord, 25832),
-                                0.02
+                                @tolerance
                             ),
                             ST_GeomFromWKB(@coord, 25832)
                         )
@@ -597,7 +597,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 ";
 
                 await connection.OpenAsync();
-                var result = await connection.QueryAsync<string>(query, new { routeNode.Coord, intersectingRouteSegment.Mrid });
+                var result = await connection.QueryAsync<string>(query, new { routeNode.Coord, intersectingRouteSegment.Mrid, tolerance = _applicationSettings.Tolerance * 2 });
 
                 return result.First();
             }
