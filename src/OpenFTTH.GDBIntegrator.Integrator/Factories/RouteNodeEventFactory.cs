@@ -38,12 +38,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             await _geoDatabase.UpdateRouteNodeShadowTable(after);
 
-            var previousIntersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(before.Coord);
-            var intersectingRouteSegments = (await _geoDatabase.GetIntersectingRouteSegments(after))
-                .Where(x => !previousIntersectingRouteSegments.Any(y => y.Mrid == x.Mrid)).ToList();
-            var intersectingRouteNodes = await _geoDatabase.GetIntersectingRouteNodes(after);
-
-            if (intersectingRouteSegments.Count > 0 || intersectingRouteNodes.Count > 0)
+            if (!(await IsValidNodeUpdate(before, after)))
                 return new RollbackInvalidRouteNode(before);
 
             var cmdId = Guid.NewGuid();
@@ -86,6 +81,19 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             }
 
             return new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId };
+        }
+
+        private async Task<bool> IsValidNodeUpdate(RouteNode before, RouteNode after)
+        {
+            var previousIntersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(before.Coord);
+            var intersectingRouteSegments = (await _geoDatabase.GetIntersectingRouteSegments(after))
+                .Where(x => !previousIntersectingRouteSegments.Any(y => y.Mrid == x.Mrid)).ToList();
+            var intersectingRouteNodes = await _geoDatabase.GetIntersectingRouteNodes(after);
+
+            if (intersectingRouteSegments.Count > 0 || intersectingRouteNodes.Count > 0)
+                return false;
+
+            return true;
         }
 
         private async Task RollbackInvalidOperation(RouteNode rollbackToNode)
