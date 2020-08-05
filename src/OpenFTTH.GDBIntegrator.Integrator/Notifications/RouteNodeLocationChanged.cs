@@ -76,7 +76,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 // Rollback in case of segment intersecting with any route nodes
                 if (anySegmentIntersectRouteNode)
                 {
-                    await _mediator.Publish(new RollbackInvalidRouteNodeOperation(request.RouteNodeBefore));
+                    await _mediator.Publish(new RollbackInvalidRouteNode(request.RouteNodeBefore));
                     return;
                 }
             }

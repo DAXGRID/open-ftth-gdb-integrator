@@ -170,7 +170,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
 
-            var expected = new RollbackInvalidRouteNodeOperation(beforeNode);
+            var expected = new RollbackInvalidRouteNode(beforeNode);
 
             result.Should().BeEquivalentTo(expected);
         }
@@ -194,7 +194,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
 
-            var expected = new RollbackInvalidRouteNodeOperation(beforeNode);
+            var expected = new RollbackInvalidRouteNode(beforeNode);
 
             result.Should().BeEquivalentTo(expected);
         }

@@ -44,7 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingRouteNodes = await _geoDatabase.GetIntersectingRouteNodes(after);
 
             if (intersectingRouteSegments.Count > 0 || intersectingRouteNodes.Count > 0)
-                return new RollbackInvalidRouteNodeOperation(before);
+                return new RollbackInvalidRouteNode(before);
 
             var cmdId = Guid.NewGuid();
             if (after.MarkAsDeleted)
