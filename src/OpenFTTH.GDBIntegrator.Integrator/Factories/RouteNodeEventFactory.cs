@@ -35,10 +35,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (AlreadyUpdated(after, shadowTableNode))
                 return new DoNothing($"{nameof(RouteNode)} with id: '{after.Mrid}' was already updated therefore do nothing.");
 
-            var shadowTableNodeIntersectingSegments = await _geoDatabase.GetIntersectingRouteSegments(shadowTableNode);
-            if (shadowTableNodeIntersectingSegments.Count > 0)
-                return new RollbackInvalidRouteNodeOperation(before);
-
             await _geoDatabase.UpdateRouteNodeShadowTable(after);
 
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
@@ -61,7 +57,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (IsCreatedByApplication(routeNode))
                 return new DoNothing($"{nameof(RouteNode)} with id: '{routeNode.Mrid}' was created by nothing therefore do nothing.");
 
-            // Uipdate the 'shadow' table
             await _geoDatabase.InsertRouteNodeShadowTable(routeNode);
 
             var cmdId = Guid.NewGuid();

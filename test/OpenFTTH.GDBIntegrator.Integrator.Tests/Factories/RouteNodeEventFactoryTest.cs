@@ -290,39 +290,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task CreateUpdatedEvent_ShouldReturnRollbackRouteNode_OnShadowTableRouteNodeIntersectingWithSegment()
-        {
-            var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
-            var geoDatabase = A.Fake<IGeoDatabase>();
-            var beforeNode = A.Fake<RouteNode>();
-            var afterNode = A.Fake<RouteNode>();
-            var shadowTableRouteNode = A.Fake<RouteNode>();
-
-            A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
-            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid)).Returns(shadowTableRouteNode);
-            A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(shadowTableRouteNode))
-                .Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
-
-            A.CallTo(() => afterNode.GetGeoJsonCoordinate())
-                .Returns("[665931.4446905176,7197297.75114815]");
-            A.CallTo(() => afterNode.MarkAsDeleted).Returns(false);
-
-            A.CallTo(() => shadowTableRouteNode.GetGeoJsonCoordinate())
-                .Returns("[565931.4446905176,6197297.75114815]");
-            A.CallTo(() => shadowTableRouteNode.MarkAsDeleted).Returns(false);
-
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
-
-            var result = (RollbackInvalidRouteNodeOperation)(await factory.CreateUpdatedEvent(beforeNode, afterNode));
-
-            using (var scope = new AssertionScope())
-            {
-                result.Should().BeOfType(typeof(RollbackInvalidRouteNodeOperation));
-                result.RollbackToNode.Should().Be(beforeNode);
-            }
-        }
-
-        [Fact]
         public async Task CreateUpdatedEvent_ShouldReturnRouteNodeLocationChanged_OnRouteNodeChangedWithNoChecksFailing()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
@@ -333,8 +300,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid)).Returns(shadowTableRouteNode);
-            A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(shadowTableRouteNode))
-                .Returns(new List<RouteSegment>());
 
             A.CallTo(() => afterNode.GetGeoJsonCoordinate())
                 .Returns("[665931.4446905176,7197297.75114815]");
