@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.Config;
@@ -37,8 +38,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             await _geoDatabase.UpdateRouteNodeShadowTable(after);
 
-            var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
+            var previousIntersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(before.Coord);
+            var intersectingRouteSegments = (await _geoDatabase.GetIntersectingRouteSegments(after))
+                .Where(x => !previousIntersectingRouteSegments.Any(y => y.Mrid == x.Mrid)).ToList();
             var intersectingRouteNodes = await _geoDatabase.GetIntersectingRouteNodes(after);
+
             if (intersectingRouteSegments.Count > 0 || intersectingRouteNodes.Count > 0)
                 return new RollbackInvalidRouteNodeOperation(before);
 
