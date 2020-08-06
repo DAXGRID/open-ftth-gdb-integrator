@@ -15,13 +15,23 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
             var nodeId = Guid.NewGuid();
             var geometry = "[565931.44469051762,6197297.75114815]";
             var cmdType = "RouteNodeDigitized";
+            var applicationName = "GDB_INTEGRATOR";
+            var applicationInfo = "GDB_INTEGRATOR made this";
+            var nodeName = "Node134";
+            var nodeKind = "NodeType4";
+            var nodeFunction = "NodeFunction5";
 
             var routeSegment = new RouteNodeAdded
                 (
                     cmdId,
                     nodeId,
                     geometry,
-                    cmdType
+                    cmdType,
+                    applicationName,
+                    applicationInfo,
+                    nodeName,
+                    nodeKind,
+                    nodeFunction
                 );
 
             using (new AssertionScope())
@@ -33,6 +43,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
                 routeSegment.EventType.Should().Be("RouteNodeAdded");
                 routeSegment.EventTs.Should().NotBeEmpty();
                 routeSegment.CmdType.Should().Be(cmdType);
+                routeSegment.ApplicationName.Should().Be(applicationName);
+                routeSegment.ApplicationInfo.Should().Be(applicationInfo);
+                routeSegment.NodeName.Should().Be(nodeName);
+                routeSegment.NodeKind.Should().Be(nodeKind);
+                routeSegment.NodeFunction.Should().Be(nodeFunction);
             }
         }
     }
