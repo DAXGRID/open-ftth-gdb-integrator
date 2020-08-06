@@ -23,14 +23,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
     public class RouteNodeLocationChangedHandler : INotificationHandler<RouteNodeLocationChanged>
     {
-        private readonly ILogger<RouteNodeAddedHandler> _logger;
+        private readonly ILogger<RouteNodeLocationChangedHandler> _logger;
         private readonly KafkaSetting _kafkaSettings;
         private readonly IProducer _producer;
         private readonly IGeoDatabase _geoDatabase;
         private readonly IMediator _mediator;
 
         public RouteNodeLocationChangedHandler(
-            ILogger<RouteNodeAddedHandler> logger,
+            ILogger<RouteNodeLocationChangedHandler> logger,
             IOptions<KafkaSetting> kafkaSettings,
             IProducer producer,
             IGeoDatabase geoDatabase,

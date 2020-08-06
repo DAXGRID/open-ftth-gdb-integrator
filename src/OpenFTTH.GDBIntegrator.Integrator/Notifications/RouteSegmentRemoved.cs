@@ -21,12 +21,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
     public class RouteSegmentRemovedHandler : INotificationHandler<RouteSegmentRemoved>
     {
-        private readonly ILogger<RouteNodeAddedHandler> _logger;
+        private readonly ILogger<RouteSegmentRemovedHandler> _logger;
         private readonly KafkaSetting _kafkaSettings;
         private readonly IProducer _producer;
 
         public RouteSegmentRemovedHandler(
-            ILogger<RouteNodeAddedHandler> logger,
+            ILogger<RouteSegmentRemovedHandler> logger,
             IOptions<KafkaSetting> kafkaSettings,
             IProducer producer)
         {
