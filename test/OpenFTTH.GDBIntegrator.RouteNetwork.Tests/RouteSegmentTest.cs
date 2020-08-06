@@ -16,6 +16,9 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
             var username = "gdb-integrator";
             var workTaskMrid = Guid.Parse("8b97d7e6-7d45-4112-b3f3-2209fc3f27d5");
             var applicationName = "gdb-integrator";
+            var applicationInfo = "Info text";
+            var markAsDeleted = false;
+            var segmentKind = "Underground route";
 
             var routeSegment = new RouteSegment
             {
@@ -23,7 +26,10 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
                 Mrid = mrid,
                 Username = username,
                 WorkTaskMrid = workTaskMrid,
-                ApplicationName = applicationName
+                ApplicationName = applicationName,
+                ApplicationInfo = applicationInfo,
+                MarkAsDeleted = markAsDeleted,
+                SegmentKind = segmentKind
             };
 
             using (new AssertionScope())
@@ -33,6 +39,9 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
                 routeSegment.Username.Should().Be(username);
                 routeSegment.WorkTaskMrid.Should().Be(workTaskMrid);
                 routeSegment.ApplicationName.Should().Be(applicationName);
+                routeSegment.ApplicationInfo.Should().Be(applicationInfo);
+                routeSegment.MarkAsDeleted.Should().Be(markAsDeleted);
+                routeSegment.SegmentKind.Should().Be(segmentKind);
             }
         }
 
