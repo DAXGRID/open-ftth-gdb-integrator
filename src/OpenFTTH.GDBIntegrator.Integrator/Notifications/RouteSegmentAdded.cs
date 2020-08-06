@@ -46,7 +46,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                                         request.StartRouteNode.Mrid,
                                         request.EndRouteNode.Mrid,
                                         request.RouteSegment.GetGeoJsonCoordinate(),
-                                        request.CmdType
+                                        request.CmdType,
+                                        request.RouteSegment.SegmentKind,
+                                        request.RouteSegment.WorkTaskMrid,
+                                        request.RouteSegment.Username,
+                                        request.RouteSegment.ApplicationName,
+                                        request.RouteSegment.ApplicationInfo
                                         ));
         }
     }

@@ -18,6 +18,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
             var geometry = "[565931.444690517626197297.75114815,565962.242331857916197319.4967800425,565985.236516777436197279.3349909978,"
                 + "565936.855086969336197265.913045954,565943.409990362716197290.7800604152,565918.542975902216197274.9650554024]";
             var cmdType = "RouteSegmentDigitized";
+            var segmentKind = "Kind";
+            var workTaskMrid = Guid.NewGuid();
+            var username = "user123";
+            var applicationName = "GDB_INTEGRATOR";
+            var applicationInfo = "GDB_INTEGRATOR made this";
 
             var routeSegmentAdded = new RouteSegmentAdded
                 (
@@ -26,7 +31,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
                     fromNodeId,
                     toNodeId,
                     geometry,
-                    cmdType
+                    cmdType,
+                    segmentKind,
+                    workTaskMrid,
+                    username,
+                    applicationName,
+                    applicationInfo
                 );
 
             using (new AssertionScope())
@@ -40,6 +50,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
                 routeSegmentAdded.EventType.Should().Be("RouteSegmentAdded");
                 routeSegmentAdded.EventTs.Should().NotBeEmpty();
                 routeSegmentAdded.CmdType.Should().Be(cmdType);
+                routeSegmentAdded.SegmentKind.Should().Be(segmentKind);
+                routeSegmentAdded.WorkTaskMrid.Should().Be(workTaskMrid);
+                routeSegmentAdded.Username.Should().Be(username);
+                routeSegmentAdded.ApplicationName.Should().Be(applicationName);
+                routeSegmentAdded.ApplicationInfo.Should().Be(applicationInfo);
             }
         }
     }
