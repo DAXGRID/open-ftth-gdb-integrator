@@ -72,22 +72,28 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
 
             var expectedRouteSegmentBefore = new RouteSegment
             {
-                Mrid = new Guid("bfa35619-e60c-4393-99d1-fb21abce702e"),
-                Coord = Convert.FromBase64String("AQIAACDoZAAAAgAAAM8G4/JefCBBjzUaLet5V0HDwDo5pH0gQdhEy5rqeVdB"),
+                Mrid = new Guid("57fb87f5-093c-405d-b619-755e3f39073f"),
+                Coord = Convert.FromBase64String("AQIAACDoZAAAAgAAAO79HyV51h/B6DWfEXKJVEGgwmxDUMkfwXuWw252iVRB"),
                 WorkTaskMrid = Guid.Empty,
                 ApplicationName = string.Empty,
                 Username = string.Empty,
                 MarkAsDeleted = false,
+                ApplicationInfo = string.Empty,
+                DeleteMe = false,
+                SegmentKind = string.Empty
             };
 
             var expectedRouteSegmentAfter = new RouteSegment
             {
-                Mrid = new Guid("bfa35619-e60c-4393-99d1-fb21abce702e"),
-                Coord = Convert.FromBase64String("AQIAACDoZAAAAgAAAM8G3/JefCBBjzUaLet5V0HDwDo5pH0gQdhEy5rqeVdB"),
-                WorkTaskMrid = new Guid("bfa35619-e60c-4393-99d1-fb21abce702f"),
-                ApplicationName = "GDB_INTEGRATOR",
-                Username = "GDB_INTEGRATOR",
-                MarkAsDeleted = false
+                Mrid = new Guid("57fb87f5-093c-405d-b619-755e3f39073f"),
+                Coord = Convert.FromBase64String("AQIAACDoZAAAAgAAAO79HyV51h/B6DWfEXKJVEGgwmxDUMkfwXuWw252iVRB"),
+                WorkTaskMrid = Guid.Empty,
+                ApplicationName = string.Empty,
+                Username = string.Empty,
+                MarkAsDeleted = true,
+                ApplicationInfo = string.Empty,
+                DeleteMe = false,
+                SegmentKind = string.Empty
             };
 
             var expectedMessage = new RouteSegmentMessage(expectedRouteSegmentBefore, expectedRouteSegmentAfter);
@@ -114,12 +120,15 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
 
             var expectedRouteSegmentAfter = new RouteSegment
             {
-                Mrid = new Guid("bfa35619-e60c-4393-99d1-fb21abce702e"),
-                Coord = Convert.FromBase64String("AQIAACDoZAAAAgAAAM8G3/JefCBBjzUaLet5V0HDwDo5pH0gQdhEy5rqeVdB"),
-                WorkTaskMrid = new Guid("bfa35619-e60c-4393-99d1-fb21abce702f"),
-                ApplicationName = "GDB_INTEGRATOR",
-                Username = "GDB_INTEGRATOR",
-                MarkAsDeleted = false
+                Mrid = new Guid("57fb87f5-093c-405d-b619-755e3f39073f"),
+                Coord = Convert.FromBase64String("AQIAACDoZAAAAgAAAO79HyV51h/B6DWfEXKJVEGgwmxDUMkfwXuWw252iVRB"),
+                WorkTaskMrid = Guid.Empty,
+                ApplicationName = string.Empty,
+                Username = string.Empty,
+                MarkAsDeleted = false,
+                ApplicationInfo = string.Empty,
+                DeleteMe = false,
+                SegmentKind = string.Empty
             };
 
             var expectedMessage = new RouteSegmentMessage(expectedRouteSegmentBefore, expectedRouteSegmentAfter);

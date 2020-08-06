@@ -60,7 +60,10 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 Username = routeSegment.user_name.ToString(),
                 WorkTaskMrid = routeSegment.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(routeSegment.work_task_mrid.ToString()),
                 ApplicationName = routeSegment.application_name.ToString(),
-                MarkAsDeleted = (bool)routeSegment.marked_to_be_deleted
+                MarkAsDeleted = (bool)routeSegment.marked_to_be_deleted,
+                ApplicationInfo = routeSegment.application_info.ToString(),
+                DeleteMe = (bool)routeSegment.delete_me,
+                SegmentKind = routeSegment.segment_kind.ToString()
             };
         }
 

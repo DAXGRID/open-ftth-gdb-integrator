@@ -15,8 +15,16 @@
           {
             "type": "struct",
             "fields": [
-              { "type": "bytes", "optional": false, "field": "wkb" },
-              { "type": "int32", "optional": true, "field": "srid" }
+              {
+                "type": "bytes",
+                "optional": false,
+                "field": "wkb"
+              },
+              {
+                "type": "int32",
+                "optional": true,
+                "field": "srid"
+              }
             ],
             "optional": true,
             "name": "io.debezium.data.geometry.Geometry",
@@ -26,10 +34,19 @@
           },
           {
             "type": "boolean",
-            "optional": true,
+            "optional": false,
             "field": "marked_to_be_deleted"
           },
-          { "type": "string", "optional": true, "field": "segment_kind" },
+          {
+            "type": "boolean",
+            "optional": false,
+            "field": "delete_me"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "segment_kind"
+          },
           {
             "type": "string",
             "optional": true,
@@ -37,8 +54,21 @@
             "version": 1,
             "field": "work_task_mrid"
           },
-          { "type": "string", "optional": true, "field": "user_name" },
-          { "type": "string", "optional": true, "field": "application_name" }
+          {
+            "type": "string",
+            "optional": true,
+            "field": "user_name"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "application_name"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "application_info"
+          }
         ],
         "optional": true,
         "name": "postgres.route_network.route_segment.Value",
@@ -57,8 +87,16 @@
           {
             "type": "struct",
             "fields": [
-              { "type": "bytes", "optional": false, "field": "wkb" },
-              { "type": "int32", "optional": true, "field": "srid" }
+              {
+                "type": "bytes",
+                "optional": false,
+                "field": "wkb"
+              },
+              {
+                "type": "int32",
+                "optional": true,
+                "field": "srid"
+              }
             ],
             "optional": true,
             "name": "io.debezium.data.geometry.Geometry",
@@ -68,10 +106,19 @@
           },
           {
             "type": "boolean",
-            "optional": true,
+            "optional": false,
             "field": "marked_to_be_deleted"
           },
-          { "type": "string", "optional": true, "field": "segment_kind" },
+          {
+            "type": "boolean",
+            "optional": false,
+            "field": "delete_me"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "segment_kind"
+          },
           {
             "type": "string",
             "optional": true,
@@ -79,8 +126,21 @@
             "version": 1,
             "field": "work_task_mrid"
           },
-          { "type": "string", "optional": true, "field": "user_name" },
-          { "type": "string", "optional": true, "field": "application_name" }
+          {
+            "type": "string",
+            "optional": true,
+            "field": "user_name"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "application_name"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "application_info"
+          }
         ],
         "optional": true,
         "name": "postgres.route_network.route_segment.Value",
@@ -89,37 +149,95 @@
       {
         "type": "struct",
         "fields": [
-          { "type": "string", "optional": false, "field": "version" },
-          { "type": "string", "optional": false, "field": "connector" },
-          { "type": "string", "optional": false, "field": "name" },
-          { "type": "int64", "optional": false, "field": "ts_ms" },
+          {
+            "type": "string",
+            "optional": false,
+            "field": "version"
+          },
+          {
+            "type": "string",
+            "optional": false,
+            "field": "connector"
+          },
+          {
+            "type": "string",
+            "optional": false,
+            "field": "name"
+          },
+          {
+            "type": "int64",
+            "optional": false,
+            "field": "ts_ms"
+          },
           {
             "type": "string",
             "optional": true,
             "name": "io.debezium.data.Enum",
             "version": 1,
-            "parameters": { "allowed": "true,last,false" },
+            "parameters": {
+              "allowed": "true,last,false"
+            },
             "default": "false",
             "field": "snapshot"
           },
-          { "type": "string", "optional": false, "field": "db" },
-          { "type": "string", "optional": false, "field": "schema" },
-          { "type": "string", "optional": false, "field": "table" },
-          { "type": "int64", "optional": true, "field": "txId" },
-          { "type": "int64", "optional": true, "field": "lsn" },
-          { "type": "int64", "optional": true, "field": "xmin" }
+          {
+            "type": "string",
+            "optional": false,
+            "field": "db"
+          },
+          {
+            "type": "string",
+            "optional": false,
+            "field": "schema"
+          },
+          {
+            "type": "string",
+            "optional": false,
+            "field": "table"
+          },
+          {
+            "type": "int64",
+            "optional": true,
+            "field": "txId"
+          },
+          {
+            "type": "int64",
+            "optional": true,
+            "field": "lsn"
+          },
+          {
+            "type": "int64",
+            "optional": true,
+            "field": "xmin"
+          }
         ],
         "optional": false,
         "name": "io.debezium.connector.postgresql.Source",
         "field": "source"
       },
-      { "type": "string", "optional": false, "field": "op" },
-      { "type": "int64", "optional": true, "field": "ts_ms" },
+      {
+        "type": "string",
+        "optional": false,
+        "field": "op"
+      },
+      {
+        "type": "int64",
+        "optional": true,
+        "field": "ts_ms"
+      },
       {
         "type": "struct",
         "fields": [
-          { "type": "string", "optional": false, "field": "id" },
-          { "type": "int64", "optional": false, "field": "total_order" },
+          {
+            "type": "string",
+            "optional": false,
+            "field": "id"
+          },
+          {
+            "type": "int64",
+            "optional": false,
+            "field": "total_order"
+          },
           {
             "type": "int64",
             "optional": false,
@@ -136,32 +254,34 @@
   "payload": {
     "before": null,
     "after": {
-      "mrid": "bfa35619-e60c-4393-99d1-fb21abce702e",
+      "mrid": "57fb87f5-093c-405d-b619-755e3f39073f",
       "coord": {
-        "wkb": "AQIAACDoZAAAAgAAAM8G3/JefCBBjzUaLet5V0HDwDo5pH0gQdhEy5rqeVdB",
+        "wkb": "AQIAACDoZAAAAgAAAO79HyV51h/B6DWfEXKJVEGgwmxDUMkfwXuWw252iVRB",
         "srid": 25832
       },
       "marked_to_be_deleted": false,
+      "delete_me": false,
       "segment_kind": null,
-      "work_task_mrid": "bfa35619-e60c-4393-99d1-fb21abce702f",
-      "user_name": "GDB_INTEGRATOR",
-      "application_name": "GDB_INTEGRATOR"
+      "work_task_mrid": null,
+      "user_name": null,
+      "application_name": null,
+      "application_info": null
     },
     "source": {
       "version": "1.1.2.Final",
       "connector": "postgresql",
       "name": "postgres",
-      "ts_ms": 1594825815176,
+      "ts_ms": 1596713969671,
       "snapshot": "false",
       "db": "OPEN_FTTH",
       "schema": "route_network",
       "table": "route_segment",
-      "txId": 569,
-      "lsn": 46824584,
+      "txId": 626,
+      "lsn": 1094014728,
       "xmin": null
     },
     "op": "c",
-    "ts_ms": 1594825815312,
+    "ts_ms": 1596713969818,
     "transaction": null
   }
 }
