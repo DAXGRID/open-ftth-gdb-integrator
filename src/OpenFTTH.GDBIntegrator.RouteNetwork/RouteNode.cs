@@ -16,6 +16,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
         public virtual string ApplicationName { get; set; }
         public virtual string ApplicationInfo { get; set; }
         public virtual bool MarkAsDeleted { get; set; }
+        public virtual bool DeleteMe { get; set; }
         public virtual string NodeName { get; set; }
         public virtual string NodeKind { get; set; }
         public virtual string NodeFunction { get; set; }

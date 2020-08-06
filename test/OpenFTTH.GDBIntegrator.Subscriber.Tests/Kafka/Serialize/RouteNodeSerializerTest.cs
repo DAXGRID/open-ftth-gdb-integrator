@@ -73,14 +73,19 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             RouteNode expectedRouteNodeBefore = null;
 
             var expectedRouteNodeAfter = new RouteNode
-            (
-                new Guid("de39df61-8e2b-4132-a7c2-c55c77b98578"),
-                Convert.FromBase64String("AQEAACDoZAAA4tDwso11IEGdihg1rXlXQQ=="),
-                Guid.Empty,
-                string.Empty,
-                string.Empty,
-                false
-            );
+            {
+                ApplicationInfo = string.Empty,
+                ApplicationName = string.Empty,
+                Coord = Convert.FromBase64String("AQEAACDoZAAA6T+yMoa5H8Ho0nhvVIBUQQ=="),
+                DeleteMe = false,
+                MarkAsDeleted = false,
+                Mrid = new Guid("1932e878-9f40-477e-b372-23d202709e68"),
+                NodeFunction = string.Empty,
+                NodeKind = string.Empty,
+                NodeName = string.Empty,
+                Username = string.Empty,
+                WorkTaskMrid = Guid.Empty
+            };
 
             var expectedBody = new RouteNodeMessage(expectedRouteNodeBefore, expectedRouteNodeAfter);
 
@@ -103,24 +108,34 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             var receivedTransportMessage = new ReceivedTransportMessage(position, headers, body);
 
             var expectedRouteNodeBefore = new RouteNode
-            (
-                new Guid("de39df61-8e2b-4132-a7c2-c55c77b98578"),
-                Convert.FromBase64String("AQEAACDoZAAA4tDwso11IEGdihg1rXlXQQ=="),
-                Guid.Empty,
-                string.Empty,
-                string.Empty,
-                false
-            );
+            {
+                ApplicationInfo = string.Empty,
+                ApplicationName = string.Empty,
+                Coord = Convert.FromBase64String("AQEAACDoZAAAqxoVSPa2H8GsStinzINUQQ=="),
+                DeleteMe = false,
+                MarkAsDeleted = false,
+                Mrid = new Guid("9bffa519-c672-49fd-93d0-52cd22519346"),
+                NodeFunction = string.Empty,
+                NodeKind = string.Empty,
+                NodeName = string.Empty,
+                Username = string.Empty,
+                WorkTaskMrid = Guid.Empty
+            };
 
             var expectedRouteNodeAfter = new RouteNode
-            (
-                new Guid("de39df61-8e2b-4132-a7c2-c55c77b98578"),
-                Convert.FromBase64String("AQEAACDoZAAA4tDwso11IEGdihg1rXlXQQ=="),
-                Guid.Empty,
-                string.Empty,
-                string.Empty,
-                true
-            );
+            {
+                ApplicationInfo = string.Empty,
+                ApplicationName = string.Empty,
+                Coord = Convert.FromBase64String("AQEAACDoZAAAqxoVSPa2H8GsStinzINUQQ=="),
+                DeleteMe = false,
+                MarkAsDeleted = true,
+                Mrid = new Guid("9bffa519-c672-49fd-93d0-52cd22519346"),
+                NodeFunction = string.Empty,
+                NodeKind = string.Empty,
+                NodeName = string.Empty,
+                Username = string.Empty,
+                WorkTaskMrid = Guid.Empty
+            };
 
             var expectedBody = new RouteNodeMessage(expectedRouteNodeBefore, expectedRouteNodeAfter);
 

@@ -472,7 +472,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       work_task_mrid = @workTaskMrId,
                       user_name = @username,
                       application_name = @applicationName,
-                      marked_to_be_deleted = @markAsDeleted
+                      marked_to_be_deleted = @markAsDeleted,
                     WHERE mrid = @mrid;";
 
                 var query = @"
@@ -521,7 +521,12 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     work_task_mrid,
                     user_name,
                     application_name,
-                    marked_to_be_deleted
+                    application_info,
+                    marked_to_be_deleted,
+                    delete_me,
+                    node_name,
+                    node_kind,
+                    node_function
                     )
                     VALUES(
                     @mrid,
@@ -529,7 +534,12 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     @workTaskMrid,
                     @username,
                     @applicationName,
-                    false
+                    @applicationInfo,
+                    @markAsDeleted,
+                    @deleteMe,
+                    @nodeName,
+                    @nodeKind,
+                    @nodeFunction
                     ) ON CONFLICT ON CONSTRAINT route_node_pkey DO NOTHING;";
 
                 await connection.OpenAsync();

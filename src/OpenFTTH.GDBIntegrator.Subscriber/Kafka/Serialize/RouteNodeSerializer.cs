@@ -53,14 +53,19 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
         private RouteNode CreateRouteNode(dynamic routeNode)
         {
             return new RouteNode
-                (
-                    new Guid(routeNode.mrid.ToString()),
-                    Convert.FromBase64String(routeNode.coord.wkb.ToString()),
-                    routeNode.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(routeNode.work_task_mrid.ToString()),
-                    routeNode.user_name.ToString(),
-                    routeNode.application_name.ToString(),
-                    (bool)routeNode.marked_to_be_deleted
-                );
+            {
+                ApplicationInfo = routeNode.application_info.ToString(),
+                ApplicationName = routeNode.application_name.ToString(),
+                Coord = Convert.FromBase64String(routeNode.coord.wkb.ToString()),
+                MarkAsDeleted = (bool)routeNode.marked_to_be_deleted,
+                DeleteMe = (bool)routeNode.delete_me,
+                Mrid = new Guid(routeNode.mrid.ToString()),
+                NodeFunction = routeNode.node_function.ToString(),
+                NodeKind = routeNode.node_kind.ToString(),
+                NodeName = routeNode.node_name.ToString(),
+                Username = routeNode.user_name.ToString(),
+                WorkTaskMrid = routeNode.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(routeNode.work_task_mrid.ToString()),
+            };
         }
 
         public TransportMessage Serialize(LogicalMessage message)
