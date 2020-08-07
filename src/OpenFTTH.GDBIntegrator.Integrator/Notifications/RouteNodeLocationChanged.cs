@@ -102,7 +102,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                                             request.CmdId,
                                             routeSegmentToBeUpdated.Mrid,
                                             nameof(RouteNodeLocationChanged),
-                                            routeSegmentToBeUpdated.GetGeoJsonCoordinate()
+                                            routeSegmentToBeUpdated.GetGeoJsonCoordinate(),
+                                            true
                                         ));
             }
         }

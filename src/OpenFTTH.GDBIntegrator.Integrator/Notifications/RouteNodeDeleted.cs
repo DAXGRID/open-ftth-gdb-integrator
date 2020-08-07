@@ -5,7 +5,6 @@ using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -15,6 +14,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         public RouteNode RouteNode { get; set; }
         public Guid CmdId { get; set; }
+        public bool IsLastEventInCmd { get; set; }
     }
 
     public class RouteNodeDeletedHandler : INotificationHandler<RouteNodeDeleted>
@@ -43,7 +43,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 (
                     request.CmdId,
                     request.RouteNode.Mrid,
-                    nameof(RouteSegmentDeleted)
+                    nameof(RouteSegmentDeleted),
+                    request.IsLastEventInCmd
                 ));
         }
     }

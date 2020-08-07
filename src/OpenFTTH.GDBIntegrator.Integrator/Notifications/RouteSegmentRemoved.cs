@@ -17,6 +17,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         public Guid CmdId { get; set; }
         public IEnumerable<Guid> ReplacedBySegments { get; set; }
         public string CmdType { get; set; }
+        public bool IsLastEventInCmd { get; set; }
     }
 
     public class RouteSegmentRemovedHandler : INotificationHandler<RouteSegmentRemoved>
@@ -44,7 +45,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                                         request.CmdId,
                                         request.RouteSegment.Mrid,
                                         request.ReplacedBySegments,
-                                        request.CmdType
+                                        request.CmdType,
+                                        request.IsLastEventInCmd
                                         ));
         }
     }

@@ -110,7 +110,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     CmdId = cmdId,
                     RouteSegment = intersectingRouteSegment,
                     ReplacedBySegments = routeSegments.Select(x => x.Mrid),
-                    CmdType = nameof(ExistingRouteSegmentSplitted)
+                    CmdType = nameof(ExistingRouteSegmentSplitted),
+                    IsLastEventInCmd = true
                 });
         }
     }

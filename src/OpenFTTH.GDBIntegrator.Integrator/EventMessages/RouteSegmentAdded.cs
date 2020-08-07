@@ -18,6 +18,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.EventMessages
         public string Username { get; }
         public string ApplicationName { get; }
         public string ApplicationInfo { get; }
+        public bool IsLastEventInCmd { get; }
 
         public RouteSegmentAdded(
             Guid cmdId,
@@ -30,7 +31,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.EventMessages
             Guid workTaskMrid,
             string username,
             string applicationName,
-            string applicationInfo)
+            string applicationInfo,
+            bool isLastEventInCmd = false)
         {
             CmdId = cmdId;
             SegmentId = segmentId;
@@ -43,6 +45,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.EventMessages
             Username = username;
             ApplicationName = applicationName;
             ApplicationInfo = applicationInfo;
+            IsLastEventInCmd = isLastEventInCmd;
         }
     }
 }

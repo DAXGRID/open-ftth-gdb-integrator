@@ -43,7 +43,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             var cmdId = Guid.NewGuid();
             if (after.MarkAsDeleted)
-                return new RouteNodeDeleted { CmdId = cmdId, RouteNode = after };
+                return new RouteNodeDeleted { CmdId = cmdId, RouteNode = after, IsLastEventInCmd = true };
 
             return new RouteNodeLocationChanged { CmdId = cmdId, RouteNodeAfter = after, RouteNodeBefore = before };
         }

@@ -10,12 +10,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.EventMessages
         public Guid CmdId { get; }
         public string CmdType { get; }
         public Guid NodeId { get; }
+        public bool IsLastEventInCmd { get; }
 
-        public RouteNodeMarkedForDeletion(Guid cmdId, Guid segmentId, string cmdType)
+        public RouteNodeMarkedForDeletion(Guid cmdId, Guid segmentId, string cmdType, bool isLastEventInCmd = false)
         {
             CmdId = cmdId;
             NodeId = segmentId;
             CmdType = cmdType;
+            IsLastEventInCmd = isLastEventInCmd;
         }
     }
 }

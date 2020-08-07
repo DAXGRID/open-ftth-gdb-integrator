@@ -11,13 +11,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.EventMessages
         public string CmdType { get; }
         public Guid NodeId { get; }
         public string Geometry { get; }
+        public bool IsLastEventInCmd { get; }
 
-        public RouteNodeGeometryModified(Guid cmdId, Guid nodeId, string cmdType, string geometry)
+        public RouteNodeGeometryModified(Guid cmdId, Guid nodeId, string cmdType, string geometry, bool isLastEventInCmd = false)
         {
             CmdId = cmdId;
             NodeId = nodeId;
             CmdType = cmdType;
             Geometry = geometry;
+            IsLastEventInCmd = IsLastEventInCmd;
         }
     }
 }

@@ -79,7 +79,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 RouteSegment = routeSegment,
                 StartRouteNode = startNode,
                 EndRouteNode = endNode,
-                CmdType = nameof(NewRouteSegmentDigitized)
+                CmdType = nameof(NewRouteSegmentDigitized),
+                IsLastEventInCmd = true
             });
         }
     }

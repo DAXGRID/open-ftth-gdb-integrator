@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
@@ -16,6 +15,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         public RouteNode RouteNode { get; set; }
         public Guid CmdId { get; set; }
         public string CmdType { get; set; }
+        public bool IsLastEventInCmd { get; set; }
     }
 
     public class RouteNodeAddedHandler : INotificationHandler<RouteNodeAdded>
@@ -49,8 +49,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                                         request.RouteNode.ApplicationInfo,
                                         request.RouteNode.NodeName,
                                         request.RouteNode.NodeKind,
-                                        request.RouteNode.NodeFunction
+                                        request.RouteNode.NodeFunction,
+                                        request.IsLastEventInCmd
                                         ));
+
+            _logger.LogInformation($"Sending {nameof(RouteNodeAdded)} with mrid '{request.RouteNode.Mrid}' to producer");
         }
     }
 }

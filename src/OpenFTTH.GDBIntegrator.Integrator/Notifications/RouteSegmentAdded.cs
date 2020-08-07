@@ -17,6 +17,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         public RouteNode EndRouteNode { get; set; }
         public Guid CmdId { get; set; }
         public string CmdType { get; set; }
+        public bool IsLastEventInCmd { get; set; }
     }
 
     public class RouteSegmentAddedHandler : INotificationHandler<RouteSegmentAdded>
@@ -51,7 +52,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                                         request.RouteSegment.WorkTaskMrid,
                                         request.RouteSegment.Username,
                                         request.RouteSegment.ApplicationName,
-                                        request.RouteSegment.ApplicationInfo
+                                        request.RouteSegment.ApplicationInfo,
+                                        request.IsLastEventInCmd
                                         ));
         }
     }

@@ -1,7 +1,6 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.Config;
-using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using MediatR;
 using System;
@@ -70,69 +69,95 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             }
 
             var routeSegmentClone = await InsertRouteSegmentClone(request.After, request.CmdId);
-            await RevertAndMarkExistingRouteSegmentForDeletion(request.Before, request.CmdId, routeSegmentClone);
+            await MarkRouteSegmentForDeletion(request.Before);
 
-            await MarkDeadRouteNodesForDeletion(request.Before, request.CmdId);
+            var beforeStartNode = (await _geoDatabase.GetIntersectingStartRouteNodes(request.Before)).FirstOrDefault();
+            var beforeEndNode = (await _geoDatabase.GetIntersectingEndRouteNodes(request.Before)).FirstOrDefault();
+            var isBeforeStartNodeDeleteable = await IsDeleteable(beforeStartNode);
+            var isBeforeEndNodeDeletable = await IsDeleteable(beforeEndNode);
+
+            var isRevertAndDeleteLastEventInCmd = !isBeforeStartNodeDeleteable && !isBeforeEndNodeDeletable;
+            await PublishMarkedAsDeletedSegment(
+                request.Before,
+                request.CmdId,
+                routeSegmentClone,
+                isRevertAndDeleteLastEventInCmd);
+
+            if (isBeforeStartNodeDeleteable)
+                await MarkDeleteRouteNode(beforeStartNode, request.CmdId, !isBeforeEndNodeDeletable);
+
+            if (isBeforeEndNodeDeletable)
+                await MarkDeleteRouteNode(beforeEndNode, request.CmdId, true);
         }
 
-        private async Task MarkDeadRouteNodesForDeletion(RouteSegment routeSegment, Guid cmdId)
-        {
-            var startNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment)).FirstOrDefault();
-            var endNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).FirstOrDefault();
-
-            await MarkDeleteRouteNode(startNode, cmdId);
-            await MarkDeleteRouteNode(endNode, cmdId);
-        }
-
-        private async Task MarkDeleteRouteNode(RouteNode routeNode, Guid cmdId)
+        private async Task<bool> IsDeleteable(RouteNode routeNode)
         {
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
-            var isDeleteable = String.IsNullOrEmpty(routeNode.NodeKind) && String.IsNullOrEmpty(routeNode.NodeName) && intersectingRouteSegments.Count == 0;
+            return String.IsNullOrEmpty(routeNode.NodeKind)
+                && String.IsNullOrEmpty(routeNode.NodeName)
+                && intersectingRouteSegments.Count == 0;
+        }
 
-            if (isDeleteable)
+        private async Task MarkDeleteRouteNode(RouteNode routeNode, Guid cmdId, bool isLastEventInCmd)
+        {
+            await _geoDatabase.MarkDeleteRouteNode(routeNode.Mrid);
+            await _mediator.Publish(new RouteNodeDeleted
             {
-                await _geoDatabase.MarkDeleteRouteNode(routeNode.Mrid);
-                await _mediator.Publish(new RouteNodeDeleted { CmdId = cmdId, RouteNode = routeNode });
-            }
+                CmdId = cmdId,
+                RouteNode = routeNode,
+                IsLastEventInCmd = isLastEventInCmd
+            });
         }
 
         private async Task InsertRouteNode(RouteNode routeNode, Guid cmdId)
         {
             await _geoDatabase.InsertRouteNode(routeNode);
             await _mediator.Publish(new RouteNodeAdded
-                {
-                    CmdId = cmdId,
-                    CmdType = nameof(RouteSegmentConnectivityChanged),
-                    RouteNode = routeNode
-                });
+            {
+                CmdId = cmdId,
+                CmdType = nameof(RouteSegmentConnectivityChanged),
+                RouteNode = routeNode
+            });
         }
 
-        private async Task RevertAndMarkExistingRouteSegmentForDeletion(RouteSegment beforeRouteSegment, Guid cmdId, RouteSegment replacedBySegment)
+        private async Task MarkRouteSegmentForDeletion(RouteSegment beforeRouteSegment)
         {
             beforeRouteSegment.MarkAsDeleted = true;
             await _geoDatabase.UpdateRouteSegment(beforeRouteSegment);
+        }
+
+        private async Task PublishMarkedAsDeletedSegment
+        (
+            RouteSegment beforeRouteSegment,
+            Guid cmdId,
+            RouteSegment replacedBySegment,
+            bool isLastEventInCmd
+        )
+        {
             await _mediator.Publish(
                 new RouteSegmentRemoved
                 {
                     CmdId = cmdId,
                     RouteSegment = beforeRouteSegment,
                     ReplacedBySegments = new List<Guid> { replacedBySegment.Mrid },
-                    CmdType = nameof(RouteSegmentConnectivityChanged)
+                    CmdType = nameof(RouteSegmentConnectivityChanged),
+                    IsLastEventInCmd = isLastEventInCmd
                 });
         }
+
 
         private async Task<RouteSegment> InsertRouteSegmentClone(RouteSegment routeSegment, Guid cmdId)
         {
             var routeSegmentClone = _routeSegmentFactory.Create(routeSegment.GetLineString());
             await _geoDatabase.InsertRouteSegment(routeSegmentClone);
             await _mediator.Publish(new RouteSegmentAdded
-                {
-                    CmdId = cmdId,
-                    RouteSegment = routeSegmentClone,
-                    StartRouteNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegmentClone)).FirstOrDefault(),
-                    EndRouteNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegmentClone)).FirstOrDefault(),
-                    CmdType = nameof(RouteSegmentConnectivityChanged)
-                });
+            {
+                CmdId = cmdId,
+                RouteSegment = routeSegmentClone,
+                StartRouteNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegmentClone)).FirstOrDefault(),
+                EndRouteNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegmentClone)).FirstOrDefault(),
+                CmdType = nameof(RouteSegmentConnectivityChanged),
+            });
 
             return routeSegmentClone;
         }

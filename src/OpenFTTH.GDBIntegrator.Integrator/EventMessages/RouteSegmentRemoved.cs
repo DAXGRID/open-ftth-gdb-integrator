@@ -13,8 +13,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.EventMessages
         public Guid CmdId { get; }
         public Guid SegmentId { get; }
         public IEnumerable<Guid> ReplacedBySegments { get; }
+        public bool IsLastEventInCmd { get; }
 
-        public RouteSegmentRemoved(Guid cmdId, Guid segmentId, IEnumerable<Guid> replacedBySegments, string cmdType)
+        public RouteSegmentRemoved
+        (
+            Guid cmdId,
+            Guid segmentId,
+            IEnumerable<Guid> replacedBySegments,
+            string cmdType,
+            bool isLastEventInCmd = false
+        )
         {
             if (replacedBySegments.Count() > 2)
                 throw new ArgumentOutOfRangeException($"{nameof(ReplacedBySegments)} count cannot be more than 2");
@@ -23,6 +31,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.EventMessages
             SegmentId = segmentId;
             ReplacedBySegments = replacedBySegments;
             CmdType = cmdType;
+            IsLastEventInCmd = isLastEventInCmd;
         }
     }
 }

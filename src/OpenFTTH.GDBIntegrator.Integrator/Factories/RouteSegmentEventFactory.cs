@@ -51,7 +51,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var cmdId = Guid.NewGuid();
 
             if (after.MarkAsDeleted)
-                return new List<INotification> { CreateRouteSegmentDeleted(after, cmdId) };
+                return new List<INotification> { CreateRouteSegmentDeleted(after, cmdId, true) };
 
             var intersectingStartSegments = await _geoDatabase.GetIntersectingStartRouteSegments(after);
             var intersectingEndSegments = await _geoDatabase.GetIntersectingEndRouteSegments(after);
@@ -140,7 +140,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (intersectingSegmentsCount == 1 && intersectingNodesCount == 0)
             {
                 var startNode = _routeNodeFactory.Create(point);
-                notifications.Add(new NewRouteNodeDigitized { CmdId = cmdId, RouteNode = startNode });
+                notifications.Add(new NewRouteNodeDigitized
+                    {
+                        CmdId = cmdId,
+                        RouteNode = startNode,
+                        IsLastEventInCmd = false,
+                        CmdType = nameof(ExistingRouteSegmentSplitted)
+                    });
 
                 var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(routeSegment, cmdId, startNode);
                 notifications.Add(routeSegmentSplitted);
@@ -159,12 +165,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return routeSegment.ApplicationName == _applicationSettings.ApplicationName;
         }
 
-        private RouteSegmentDeleted CreateRouteSegmentDeleted(RouteSegment routeSegment, Guid cmdId)
+        private RouteSegmentDeleted CreateRouteSegmentDeleted(RouteSegment routeSegment, Guid cmdId, bool isLastEventInCommand)
         {
             return new RouteSegmentDeleted
             {
                 RouteSegment = routeSegment,
-                CmdId = cmdId
+                CmdId = cmdId,
+                IsLastEventInCmd = isLastEventInCommand
             };
         }
 

@@ -14,16 +14,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         public RouteSegment RouteSegment { get; set; }
         public Guid CmdId { get; set; }
+        public bool IsLastEventInCmd { get; set; }
     }
 
     public class RouteSegmentLocationChangedHandler : INotificationHandler<RouteSegmentLocationChanged>
     {
-        private readonly ILogger<RouteNodeAddedHandler> _logger;
+        private readonly ILogger<RouteSegmentLocationChangedHandler> _logger;
         private readonly KafkaSetting _kafkaSettings;
         private readonly IProducer _producer;
 
         public RouteSegmentLocationChangedHandler(
-            ILogger<RouteNodeAddedHandler> logger,
+            ILogger<RouteSegmentLocationChangedHandler> logger,
             IOptions<KafkaSetting> kafkaSettings,
             IProducer producer)
         {
@@ -42,7 +43,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                                         request.CmdId,
                                         request.RouteSegment.Mrid,
                                         nameof(RouteSegmentLocationChanged),
-                                        request.RouteSegment.GetGeoJsonCoordinate()
+                                        request.RouteSegment.GetGeoJsonCoordinate(),
+                                        request.IsLastEventInCmd
                                     ));
         }
     }

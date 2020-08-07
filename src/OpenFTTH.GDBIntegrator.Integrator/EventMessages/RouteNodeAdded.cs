@@ -16,6 +16,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.EventMessages
         public string NodeName { get; }
         public string NodeKind { get; }
         public string NodeFunction { get; }
+        public bool IsLastEventInCmd { get; }
 
         public RouteNodeAdded
         (
@@ -27,7 +28,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.EventMessages
             string applicationInfo,
             string nodeName,
             string nodeKind,
-            string nodeFunction
+            string nodeFunction,
+            bool isLastEventInCmd = false
         )
         {
             CmdId = cmdId;
@@ -39,6 +41,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.EventMessages
             NodeName = nodeName;
             NodeKind = nodeKind;
             NodeFunction = nodeFunction;
+            IsLastEventInCmd = isLastEventInCmd;
         }
     }
 }

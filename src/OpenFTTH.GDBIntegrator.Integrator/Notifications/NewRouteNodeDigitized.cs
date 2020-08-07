@@ -14,6 +14,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         public RouteNode RouteNode { get; set; }
         public Guid CmdId { get; set; }
+        public string CmdType { get; set; }
+        public bool? IsLastEventInCmd { get; set; }
     }
 
     public class NewRouteNodeDigitizedHandler : INotificationHandler<NewRouteNodeDigitized>
@@ -44,7 +46,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 {
                     RouteNode = request.RouteNode,
                     CmdId = request.CmdId,
-                    CmdType = nameof(NewRouteNodeDigitized)
+                    CmdType = request.CmdType ?? nameof(NewRouteNodeDigitized),
+                    IsLastEventInCmd = request.IsLastEventInCmd ?? true
                 });
         }
     }
