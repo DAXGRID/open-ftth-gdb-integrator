@@ -60,6 +60,7 @@ jobs:
           - ./image.tar
 
   docker-publish-image:
+    context: docker
     executor: docker-publisher
     steps:
      - attach_workspace:
@@ -71,7 +72,7 @@ jobs:
      - run:
          name: Publish Docker Image to Docker Hub
          command: |
-           echo "$GDB_INTEGRATOR_DOCKER_PASSWORD" | docker login -u $GDB_INTEGRATOR_DOCKER_LOGIN --password-stdin
+           echo "$DOCKER_ACCESSTOKEN" | docker login -u $DOCKER_LOGIN --password-stdin
            IMAGE_TAG=${CIRCLE_TAG}
            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
            docker push $IMAGE_NAME:latest
