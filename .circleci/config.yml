@@ -60,7 +60,6 @@ jobs:
           - ./image.tar
 
   docker-publish-image:
-    context: docker
     executor: docker-publisher
     steps:
      - attach_workspace:
@@ -100,6 +99,7 @@ workflows:
             branches:
               ignore: /.*/
       - docker-publish-image:
+          context: docker
           requires:
            - build-docker-image
           filters:
