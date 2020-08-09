@@ -4,7 +4,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.EventMessages
 {
     public class RouteNodeGeometryModified
     {
-        public readonly string EventType = nameof(RouteSegmentGeometryModified);
+        public readonly string EventType = nameof(RouteNodeGeometryModified);
         public readonly string EventTs = DateTime.UtcNow.ToString("o");
         public readonly Guid EventId = Guid.NewGuid();
         public Guid CmdId { get; }

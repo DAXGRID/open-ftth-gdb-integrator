@@ -14,7 +14,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
             var cmdId = Guid.NewGuid();
             var nodeId = Guid.NewGuid();
             var geometry = "[565931.444690517626197297.75114815]";
-            var cmdType = "RouteSegmentLocationChanged";
+            var cmdType = "RouteNodeLocationChanged";
 
             var routeNodeGeometryModified = new RouteNodeGeometryModified
                 (
@@ -30,7 +30,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.EventMessages
                 routeNodeGeometryModified.EventId.Should().NotBeEmpty();
                 routeNodeGeometryModified.NodeId.Should().Be(nodeId);
                 routeNodeGeometryModified.CmdId.Should().Be(cmdId);
-                routeNodeGeometryModified.EventType.Should().Be(nameof(RouteSegmentGeometryModified));
+                routeNodeGeometryModified.EventType.Should().Be(nameof(RouteNodeGeometryModified));
                 routeNodeGeometryModified.EventTs.Should().NotBeEmpty();
                 routeNodeGeometryModified.CmdType.Should().Be(cmdType);
             }
