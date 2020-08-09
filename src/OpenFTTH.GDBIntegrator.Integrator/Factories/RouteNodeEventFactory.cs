@@ -69,7 +69,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId };
 
             if (intersectingRouteSegments.Count == 0)
-                return new RouteNodeAdded { CmdId = cmdId, RouteNode = routeNode };
+                return new RouteNodeAdded { CmdId = cmdId, RouteNode = routeNode, IsLastEventInCmd = true };
 
             if (intersectingRouteSegments.Count == 1)
             {
