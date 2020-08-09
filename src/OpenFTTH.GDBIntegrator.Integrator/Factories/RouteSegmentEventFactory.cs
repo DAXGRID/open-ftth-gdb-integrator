@@ -59,7 +59,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingEndNodes = await _geoDatabase.GetIntersectingEndRouteNodes(after);
 
             if (await IsGeometryChanged(intersectingStartNodes.FirstOrDefault(), intersectingEndNodes.FirstOrDefault(), before))
-                return new List<INotification> { new RouteSegmentLocationChanged { CmdId = cmdId, RouteSegment = after } };
+                return new List<INotification> { new RouteSegmentLocationChanged { CmdId = cmdId, RouteSegment = after, IsLastEventInCmd = true } };
 
             var notifications = new List<INotification>();
             notifications.AddRange(HandleExistingRouteSegmentSplitted(intersectingStartSegments.Count, intersectingStartNodes.Count, cmdId, after.FindStartPoint(), after));
