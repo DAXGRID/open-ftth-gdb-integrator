@@ -48,7 +48,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             await InsertReplacementRouteSegments(routeSegments, request.CmdId);
 
-            await MarkExistingRouteSegmentForDeletion(intersectingRouteSegment, request.CmdId, routeSegments);
+            await DeleteRouteSegment(intersectingRouteSegment, request.CmdId, routeSegments);
         }
 
         private async Task<RouteSegment> GetIntersectingRouteSegment(RouteSegment routeSegmentDigitizedByUser, RouteNode routeNode)
@@ -100,10 +100,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             }
         }
 
-        private async Task MarkExistingRouteSegmentForDeletion(RouteSegment intersectingRouteSegment, Guid cmdId, List<RouteSegment> routeSegments)
+        private async Task DeleteRouteSegment(RouteSegment intersectingRouteSegment, Guid cmdId, List<RouteSegment> routeSegments)
         {
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Deleting routesegment: {intersectingRouteSegment.Mrid}");
-            await _geoDatabase.MarkDeleteRouteSegment(intersectingRouteSegment.Mrid);
+            await _geoDatabase.DeleteRouteSegment(intersectingRouteSegment.Mrid);
             await _mediator.Publish(
                 new RouteSegmentRemoved
                 {
