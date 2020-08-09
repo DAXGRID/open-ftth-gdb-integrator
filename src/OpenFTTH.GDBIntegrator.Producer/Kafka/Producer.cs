@@ -3,6 +3,8 @@ using Microsoft.Extensions.Options;
 using Topos.Config;
 using Topos.Producer;
 using OpenFTTH.GDBIntegrator.Config;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace OpenFTTH.GDBIntegrator.Producer.Kafka
 {
@@ -10,10 +12,12 @@ namespace OpenFTTH.GDBIntegrator.Producer.Kafka
     {
         private readonly KafkaSetting _kafkaSetting;
         private IToposProducer _producer;
+        private readonly ILogger<Producer> _logger;
 
-        public Producer(IOptions<KafkaSetting> kafkaSetting)
+        public Producer(IOptions<KafkaSetting> kafkaSetting, ILogger<Producer> logger)
         {
             _kafkaSetting = kafkaSetting.Value;
+            _logger = logger;
         }
 
         public void Init()
@@ -28,6 +32,7 @@ namespace OpenFTTH.GDBIntegrator.Producer.Kafka
 
         public async Task Produce(string topicName, object toposMessage)
         {
+            _logger.LogInformation($"Sending message topicname: {topicName} and body {JsonConvert.SerializeObject(toposMessage, Formatting.Indented)}");
             await _producer.Send(topicName, new ToposMessage(toposMessage));
         }
 

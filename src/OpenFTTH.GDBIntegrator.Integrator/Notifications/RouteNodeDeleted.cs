@@ -15,6 +15,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         public RouteNode RouteNode { get; set; }
         public Guid CmdId { get; set; }
         public bool IsLastEventInCmd { get; set; }
+        public string CmdType { get; set; }
     }
 
     public class RouteNodeDeletedHandler : INotificationHandler<RouteNodeDeleted>
@@ -43,7 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 (
                     request.CmdId,
                     request.RouteNode.Mrid,
-                    nameof(RouteSegmentDeleted),
+                    string.IsNullOrEmpty(request.CmdType) ? nameof(RouteSegmentDeleted) : request.CmdType,
                     request.IsLastEventInCmd
                 ));
         }

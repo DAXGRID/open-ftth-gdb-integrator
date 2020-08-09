@@ -105,7 +105,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             {
                 CmdId = cmdId,
                 RouteNode = routeNode,
-                IsLastEventInCmd = isLastEventInCmd
+                IsLastEventInCmd = isLastEventInCmd,
+                CmdType = nameof(RouteSegmentConnectivityChanged)
             });
         }
 
@@ -135,16 +136,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         )
         {
             await _mediator.Publish(
-                new RouteSegmentRemoved
+                new RouteSegmentDeleted
                 {
                     CmdId = cmdId,
                     RouteSegment = beforeRouteSegment,
-                    ReplacedBySegments = new List<Guid> { replacedBySegment.Mrid },
+                    IsLastEventInCmd = isLastEventInCmd,
                     CmdType = nameof(RouteSegmentConnectivityChanged),
-                    IsLastEventInCmd = isLastEventInCmd
                 });
         }
-
 
         private async Task<RouteSegment> InsertRouteSegmentClone(RouteSegment routeSegment, Guid cmdId)
         {
