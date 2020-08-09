@@ -75,8 +75,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (startNode is null || endNode is null)
                 return false;
 
-            var previousStartNode = (await _geoDatabase.GetIntersectingStartRouteNodes(before)).First();
-            var previousEndNode = (await _geoDatabase.GetIntersectingEndRouteNodes(before)).First();
+            var previousStartNode = (await _geoDatabase.GetIntersectingStartRouteNodes(before.Coord)).First();
+            var previousEndNode = (await _geoDatabase.GetIntersectingEndRouteNodes(before.Coord)).First();
 
             var routeSegmentHasSameStartRouteNode = startNode.Mrid == previousStartNode.Mrid;
             var routeSegmentHasSameEndRouteNode = endNode.Mrid == previousEndNode.Mrid;

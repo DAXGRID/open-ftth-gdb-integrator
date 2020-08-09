@@ -85,6 +85,28 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             }
         }
 
+        public async Task<List<RouteNode>> GetIntersectingStartRouteNodes(byte[] coord)
+        {
+           using (var connection = GetNpgsqlConnection())
+            {
+                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
+                    WHERE ST_Intersects(
+                      ST_Buffer(
+                        ST_StartPoint(
+                            ST_GeomFromWKB(@coord, 25832)
+                          ),
+                        @tolerance
+                      ),
+                      coord) AND marked_to_be_deleted = false
+                    ";
+
+                await connection.OpenAsync();
+                var routeNodes = await connection.QueryAsync<RouteNode>(query, new { coord, _applicationSettings.Tolerance });
+
+                return routeNodes.AsList();
+            }
+        }
+
         public async Task<List<RouteNode>> GetIntersectingEndRouteNodes(RouteSegment routeSegment)
         {
             using (var connection = GetNpgsqlConnection())
@@ -103,6 +125,28 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
                 await connection.OpenAsync();
                 var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
+
+                return routeNodes.AsList();
+            }
+        }
+
+        public async Task<List<RouteNode>> GetIntersectingEndRouteNodes(byte[] coord)
+        {
+           using (var connection = GetNpgsqlConnection())
+            {
+                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
+                    WHERE ST_Intersects(
+                      ST_Buffer(
+                        ST_EndPoint(
+                            ST_GeomFromWKB(@coord, 25832)
+                          ),
+                        @tolerance
+                      ),
+                      coord) AND marked_to_be_deleted = false
+                    ";
+
+                await connection.OpenAsync();
+                var routeNodes = await connection.QueryAsync<RouteNode>(query, new { coord, _applicationSettings.Tolerance });
 
                 return routeNodes.AsList();
             }
