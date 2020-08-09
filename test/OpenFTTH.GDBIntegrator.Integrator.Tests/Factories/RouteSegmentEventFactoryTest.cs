@@ -698,8 +698,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => currentStartNode.Mrid).Returns(startNodeMrid);
             A.CallTo(() => currentEndNode.Mrid).Returns(endNodeMrId);
 
-            A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegmentBefore)).Returns(new List<RouteNode> { previousStartNode });
-            A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegmentBefore)).Returns(new List<RouteNode> { previousEndNode });
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegmentBefore.Coord)).Returns(new List<RouteNode> { previousStartNode });
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegmentBefore.Coord)).Returns(new List<RouteNode> { previousEndNode });
             A.CallTo(() => previousStartNode.Mrid).Returns(startNodeMrid);
             A.CallTo(() => previousEndNode.Mrid).Returns(endNodeMrId);
 
