@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediatR" Version="8.0.2" />
+    <PackageReference Include="MediatR" Version="8.1.0" />
     <PackageReference Include="Topos" Version="0.0.57" />
     <PackageReference Include="Topos.Kafka" Version="0.0.57" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.3" />
