@@ -40,21 +40,29 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             _logger.LogInformation($"Sending {nameof(RouteSegmentAdded)} with mrid '{request.RouteSegment.Mrid}' to producer");
 
-            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
-                                    new EventMessages.RouteSegmentAdded(
-                                        request.CmdId,
-                                        request.RouteSegment.Mrid,
-                                        request.StartRouteNode.Mrid,
-                                        request.EndRouteNode.Mrid,
-                                        request.RouteSegment.GetGeoJsonCoordinate(),
-                                        request.CmdType,
-                                        request.RouteSegment.SegmentKind,
-                                        request.RouteSegment.WorkTaskMrid,
-                                        request.RouteSegment.Username,
-                                        request.RouteSegment.ApplicationName,
-                                        request.RouteSegment.ApplicationInfo,
-                                        request.IsLastEventInCmd
-                                        ));
+            var routeSegmentAddedEvent = new Events.RouteNetwork.RouteSegmentAdded
+                (
+                    nameof(Events.RouteNetwork.RouteSegmentAdded),
+                    Guid.NewGuid(),
+                    request.CmdType,
+                    request.CmdId,
+                    request.IsLastEventInCmd,
+                    request.RouteSegment.WorkTaskMrid,
+                    request.RouteSegment.Username,
+                    request.RouteSegment?.ApplicationName,
+                    request.RouteSegment?.ApplicationInfo,
+                    null,
+                    null,
+                    null,
+                    null,
+                    request.RouteSegment.Mrid,
+                    request.StartRouteNode.Mrid,
+                    request.EndRouteNode.Mrid,
+                    request.RouteSegment.GetGeoJsonCoordinate(),
+                    null
+                );
+
+            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, routeSegmentAddedEvent);
         }
     }
 }
