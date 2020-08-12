@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -40,14 +41,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             _logger.LogInformation($"Sending {nameof(RouteSegmentRemoved)} with mrid '{request.RouteSegment.Mrid}' to producer");
 
-            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
-                                    new EventMessages.RouteSegmentRemoved(
-                                        request.CmdId,
-                                        request.RouteSegment.Mrid,
-                                        request.ReplacedBySegments,
-                                        request.CmdType,
-                                        request.IsLastEventInCmd
-                                        ));
+            var routeSegmentRemoved = new Events.RouteNetwork.RouteSegmentRemoved
+                (
+                    nameof(Events.RouteNetwork.RouteSegmentRemoved),
+                    Guid.NewGuid(),
+                    request.CmdType,
+                    request.CmdId,
+                    request.RouteSegment.Mrid,
+                    request.ReplacedBySegments.ToArray(),
+                    request.IsLastEventInCmd,
+                    request.RouteSegment.WorkTaskMrid,
+                    request.RouteSegment.Username,
+                    request.RouteSegment?.ApplicationName,
+                    request.RouteSegment?.ApplicationInfo
+                );
+
+            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, routeSegmentRemoved);
         }
     }
 }
