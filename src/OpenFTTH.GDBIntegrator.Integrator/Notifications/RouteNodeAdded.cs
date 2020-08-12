@@ -39,21 +39,27 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             _logger.LogInformation($"Sending {nameof(RouteNodeAdded)} with mrid '{request.RouteNode.Mrid}' to producer");
 
-            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
-                                    new EventMessages.RouteNodeAdded(
-                                        request.CmdId,
-                                        request.RouteNode.Mrid,
-                                        request.RouteNode.GetGeoJsonCoordinate(),
-                                        request.CmdType,
-                                        request.RouteNode.ApplicationName,
-                                        request.RouteNode.ApplicationInfo,
-                                        request.RouteNode.NodeName,
-                                        request.RouteNode.NodeKind,
-                                        request.RouteNode.NodeFunction,
-                                        request.IsLastEventInCmd
-                                        ));
+            var routeNodeAddedEvent = new Events.RouteNetwork.RouteNodeAdded
+                (
+                    nameof(Events.RouteNetwork.RouteNodeAdded),
+                    Guid.NewGuid(),
+                    request.CmdType,
+                    request.CmdId,
+                    request.IsLastEventInCmd,
+                    request.RouteNode.WorkTaskMrid,
+                    request.RouteNode.Username,
+                    request.RouteNode?.ApplicationName,
+                    request.RouteNode?.ApplicationInfo,
+                    null,
+                    null,
+                    null,
+                    null,
+                    request.RouteNode.Mrid,
+                    request.RouteNode.GetGeoJsonCoordinate(),
+                    null
+                );
 
-            _logger.LogInformation($"Sending {nameof(RouteNodeAdded)} with mrid '{request.RouteNode.Mrid}' to producer");
+            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, routeNodeAddedEvent);
         }
     }
 }
