@@ -1,6 +1,7 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Producer;
+using OpenFTTH.Events.RouteNetwork;
 using MediatR;
 using System;
 using System.Threading;
@@ -37,15 +38,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             _logger.LogInformation($"Sending {nameof(RouteSegmentLocationChanged)} with mrid '{request.RouteSegment.Mrid}' to producer");
 
-            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
-                                    new EventMessages.RouteSegmentGeometryModified
-                                    (
-                                        request.CmdId,
-                                        request.RouteSegment.Mrid,
-                                        nameof(RouteSegmentLocationChanged),
-                                        request.RouteSegment.GetGeoJsonCoordinate(),
-                                        request.IsLastEventInCmd
-                                    ));
+            var routeSegmentGeometryModifiedEvent = new RouteSegmentGeometryModified
+                (
+                    nameof(RouteSegmentGeometryModified),
+                    Guid.NewGuid(),
+                    nameof(RouteSegmentLocationChanged),
+                    request.CmdId,
+                    request.IsLastEventInCmd,
+                    request.RouteSegment.WorkTaskMrid,
+                    request.RouteSegment.Username,
+                    request.RouteSegment?.ApplicationName,
+                    request.RouteSegment?.ApplicationInfo,
+                    request.RouteSegment.Mrid,
+                    request.RouteSegment.GetGeoJsonCoordinate()
+                );
+
+            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, routeSegmentGeometryModifiedEvent);
         }
     }
 }
