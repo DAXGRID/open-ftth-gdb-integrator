@@ -1,6 +1,7 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Producer;
+using OpenFTTH.Events.RouteNetwork;
 using MediatR;
 using System;
 using System.Threading;
@@ -38,15 +39,21 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             _logger.LogInformation($"Sending {nameof(RouteNodeDeleted)} with mrid '{request.RouteNode.Mrid}' to producer");
 
-            await _producer.Produce(
-                _kafkaSettings.EventRouteNetworkTopicName,
-                new EventMessages.RouteNodeMarkedForDeletion
+            var routeNodeDeletedEvent = new RouteNodeMarkedForDeletion
                 (
-                    request.CmdId,
-                    request.RouteNode.Mrid,
+                    nameof(RouteNodeMarkedForDeletion),
+                    Guid.NewGuid(),
                     string.IsNullOrEmpty(request.CmdType) ? nameof(RouteSegmentDeleted) : request.CmdType,
-                    request.IsLastEventInCmd
-                ));
+                    request.CmdId,
+                    request.IsLastEventInCmd,
+                    request.RouteNode.WorkTaskMrid,
+                    request.RouteNode.Username,
+                    request.RouteNode?.ApplicationName,
+                    request.RouteNode?.ApplicationInfo,
+                    request.RouteNode.Mrid
+                );
+
+            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, routeNodeDeletedEvent);
         }
     }
 }
