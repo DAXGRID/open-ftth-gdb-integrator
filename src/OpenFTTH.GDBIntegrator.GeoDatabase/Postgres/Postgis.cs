@@ -571,10 +571,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     application_name,
                     application_info,
                     marked_to_be_deleted,
-                    delete_me,
-                    node_name,
-                    node_kind,
-                    node_function
+                    delete_me
                     )
                     VALUES(
                     @mrid,
@@ -584,10 +581,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     @applicationName,
                     @applicationInfo,
                     @markAsDeleted,
-                    @deleteMe,
-                    @nodeName,
-                    @nodeKind,
-                    @nodeFunction
+                    @deleteMe
                     ) ON CONFLICT ON CONSTRAINT route_node_pkey DO NOTHING;";
 
                 await connection.OpenAsync();
@@ -608,8 +602,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     application_name,
                     application_info,
                     marked_to_be_deleted,
-                    delete_me,
-                    segment_kind
+                    delete_me
                     )
                     VALUES(
                     @mrid,
@@ -619,8 +612,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     @applicationName,
                     @applicationInfo,
                     @markAsDeleted,
-                    @deleteMe,
-                    @segmentKind
+                    @deleteMe
                     ) ON CONFLICT ON CONSTRAINT route_segment_pkey DO NOTHING;";
 
                 await connection.OpenAsync();
