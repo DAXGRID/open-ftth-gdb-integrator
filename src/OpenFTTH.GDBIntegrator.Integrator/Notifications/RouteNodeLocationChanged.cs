@@ -2,6 +2,7 @@ using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
+using OpenFTTH.Events.RouteNetwork;
 using MediatR;
 using System;
 using System.Threading;
@@ -81,30 +82,45 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 }
             }
 
-            _logger.LogInformation($"Sending {nameof(EventMessages.RouteNodeGeometryModified)} with mrid '{request.RouteNodeAfter.Mrid}' to producer");
-            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
-                                                new EventMessages.RouteNodeGeometryModified
-                                                (
-                                                    request.CmdId,
-                                                    request.RouteNodeAfter.Mrid,
-                                                    nameof(RouteNodeLocationChanged),
-                                                    request.RouteNodeAfter.GetGeoJsonCoordinate()
-                                                ));
+            var routeNodeGeometryModifiedEvent = new RouteNodeGeometryModified
+                (
+                    nameof(RouteNodeGeometryModified),
+                    Guid.NewGuid(),
+                    nameof(RouteNodeLocationChanged),
+                    request.CmdId,
+                    false,
+                    request.RouteNodeAfter.WorkTaskMrid,
+                    request.RouteNodeAfter.Username,
+                    request.RouteNodeAfter?.ApplicationName,
+                    request.RouteNodeAfter?.ApplicationInfo,
+                    request.RouteNodeAfter.Mrid,
+                    request.RouteNodeAfter.GetGeoJsonCoordinate()
+                );
 
-            foreach (var routeSegmentToBeUpdated in routeSegmentsToBeUpdated)
+            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, routeNodeGeometryModifiedEvent);
+
+            for (var i = 0; i < routeSegmentsToBeUpdated.Count; i++)
             {
-                await _geoDatabase.UpdateRouteSegment(routeSegmentToBeUpdated);
+                var routeSegmentToBeUpdated = routeSegmentsToBeUpdated[i];
+                 await _geoDatabase.UpdateRouteSegment(routeSegmentToBeUpdated);
 
-                _logger.LogInformation($"Sending {nameof(EventMessages.RouteSegmentGeometryModified)} with mrid '{routeSegmentToBeUpdated.Mrid}' to producer");
-                await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName,
-                                        new EventMessages.RouteSegmentGeometryModified
-                                        (
-                                            request.CmdId,
-                                            routeSegmentToBeUpdated.Mrid,
-                                            nameof(RouteNodeLocationChanged),
-                                            routeSegmentToBeUpdated.GetGeoJsonCoordinate(),
-                                            true
-                                        ));
+                 var isLastEventInCmd = i == routeSegmentsToBeUpdated.Count - 1;
+                 var routeSegmentGeometryModifiedEvent = new RouteSegmentGeometryModified
+                     (
+                         nameof(RouteSegmentGeometryModified),
+                         Guid.NewGuid(),
+                         nameof(RouteNodeLocationChanged),
+                         request.CmdId,
+                         isLastEventInCmd,
+                         routeSegmentToBeUpdated.WorkTaskMrid,
+                         routeSegmentToBeUpdated.Username,
+                         routeSegmentToBeUpdated?.ApplicationName,
+                         routeSegmentToBeUpdated?.ApplicationInfo,
+                         routeSegmentToBeUpdated.Mrid,
+                         routeSegmentToBeUpdated.GetGeoJsonCoordinate()
+                    );
+
+                await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, routeSegmentGeometryModifiedEvent);
             }
         }
     }
