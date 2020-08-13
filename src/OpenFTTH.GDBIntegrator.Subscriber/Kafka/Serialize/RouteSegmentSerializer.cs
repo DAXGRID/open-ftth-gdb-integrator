@@ -63,7 +63,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 MarkAsDeleted = (bool)routeSegment.marked_to_be_deleted,
                 ApplicationInfo = routeSegment.application_info.ToString(),
                 DeleteMe = (bool)routeSegment.delete_me,
-                SegmentKind = routeSegment.segment_kind.ToString()
             };
         }
 

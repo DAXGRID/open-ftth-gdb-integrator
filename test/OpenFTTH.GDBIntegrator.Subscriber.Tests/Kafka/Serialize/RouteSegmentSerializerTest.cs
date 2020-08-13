@@ -80,7 +80,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 MarkAsDeleted = false,
                 ApplicationInfo = string.Empty,
                 DeleteMe = false,
-                SegmentKind = string.Empty
             };
 
             var expectedRouteSegmentAfter = new RouteSegment
@@ -93,7 +92,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 MarkAsDeleted = true,
                 ApplicationInfo = string.Empty,
                 DeleteMe = false,
-                SegmentKind = string.Empty
             };
 
             var expectedMessage = new RouteSegmentMessage(expectedRouteSegmentBefore, expectedRouteSegmentAfter);
@@ -128,7 +126,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 MarkAsDeleted = false,
                 ApplicationInfo = string.Empty,
                 DeleteMe = false,
-                SegmentKind = string.Empty
             };
 
             var expectedMessage = new RouteSegmentMessage(expectedRouteSegmentBefore, expectedRouteSegmentAfter);

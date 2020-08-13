@@ -60,9 +60,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 MarkAsDeleted = (bool)routeNode.marked_to_be_deleted,
                 DeleteMe = (bool)routeNode.delete_me,
                 Mrid = new Guid(routeNode.mrid.ToString()),
-                NodeFunction = routeNode.node_function.ToString(),
-                NodeKind = routeNode.node_kind.ToString(),
-                NodeName = routeNode.node_name.ToString(),
                 Username = routeNode.user_name.ToString(),
                 WorkTaskMrid = routeNode.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(routeNode.work_task_mrid.ToString()),
             };

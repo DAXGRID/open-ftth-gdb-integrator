@@ -80,9 +80,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 DeleteMe = false,
                 MarkAsDeleted = false,
                 Mrid = new Guid("1932e878-9f40-477e-b372-23d202709e68"),
-                NodeFunction = string.Empty,
-                NodeKind = string.Empty,
-                NodeName = string.Empty,
                 Username = string.Empty,
                 WorkTaskMrid = Guid.Empty
             };
@@ -115,9 +112,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 DeleteMe = false,
                 MarkAsDeleted = false,
                 Mrid = new Guid("9bffa519-c672-49fd-93d0-52cd22519346"),
-                NodeFunction = string.Empty,
-                NodeKind = string.Empty,
-                NodeName = string.Empty,
                 Username = string.Empty,
                 WorkTaskMrid = Guid.Empty
             };
@@ -130,9 +124,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 DeleteMe = false,
                 MarkAsDeleted = true,
                 Mrid = new Guid("9bffa519-c672-49fd-93d0-52cd22519346"),
-                NodeFunction = string.Empty,
-                NodeKind = string.Empty,
-                NodeName = string.Empty,
                 Username = string.Empty,
                 WorkTaskMrid = Guid.Empty
             };
