@@ -520,7 +520,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       work_task_mrid = @workTaskMrId,
                       user_name = @username,
                       application_name = @applicationName,
-                      marked_to_be_deleted = @markAsDeleted,
+                      marked_to_be_deleted = @markAsDeleted
                     WHERE mrid = @mrid;";
 
                 var query = @"
