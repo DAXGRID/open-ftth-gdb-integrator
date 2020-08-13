@@ -50,13 +50,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     request.RouteNode.Username,
                     request.RouteNode?.ApplicationName,
                     request.RouteNode?.ApplicationInfo,
-                    null,
-                    null,
-                    null,
-                    null,
+                    request.RouteNode?.NamingInfo,
+                    request.RouteNode?.LifeCycleInfo,
+                    request.RouteNode?.MappingInfo,
+                    request.RouteNode?.SafetyInfo,
                     request.RouteNode.Mrid,
                     request.RouteNode.GetGeoJsonCoordinate(),
-                    null
+                    request.RouteNode?.RouteNodeInfo
                 );
 
             await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, routeNodeAddedEvent);

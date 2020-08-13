@@ -4,6 +4,8 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OpenFTTH.Events.Core.Infos;
+using OpenFTTH.Events.RouteNetwork.Infos;
 
 namespace OpenFTTH.GDBIntegrator.RouteNetwork
 {
@@ -17,7 +19,11 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
         public string ApplicationInfo { get; set; }
         public virtual bool MarkAsDeleted { get; set; }
         public virtual bool DeleteMe { get; set; }
-        public string SegmentKind { get; set; }
+        public LifecycleInfo LifeCycleInfo { get; set; }
+        public MappingInfo MappingInfo { get; set; }
+        public SafetyInfo SafetyInfo { get; set; }
+        public RouteSegmentInfo RouteSegmentInfo { get; set; }
+        public NamingInfo NamingInfo { get; set; }
 
         public virtual Point FindStartPoint()
         {

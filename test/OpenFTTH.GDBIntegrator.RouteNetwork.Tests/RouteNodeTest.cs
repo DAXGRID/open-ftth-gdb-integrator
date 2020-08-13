@@ -93,9 +93,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
             var applicationInfo = "Info";
             var applicationName = "GDB_INTEGRATOR";
             var coord = new byte[] { 1, 2, 3, 2, 2 };
-            var nodeFunction = "SplicePoint";
-            var nodeKind = "Connector";
-            var nodeName = "ABC-13";
             var username = "myusername12";
             var mrid = Guid.NewGuid();
             var workTaskMrId = Guid.NewGuid();
@@ -106,9 +103,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
                 ApplicationInfo = applicationInfo,
                 ApplicationName = applicationName,
                 Coord = coord,
-                NodeFunction = nodeFunction,
-                NodeKind = nodeKind,
-                NodeName = nodeName,
                 Username = username,
                 Mrid = mrid,
                 WorkTaskMrid = workTaskMrId,
@@ -120,9 +114,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
                 routeNode.ApplicationInfo.Should().Be(applicationInfo);
                 routeNode.ApplicationName.Should().Be(applicationName);
                 routeNode.Coord.Should().BeEquivalentTo(coord);
-                routeNode.NodeFunction.Should().Be(nodeFunction);
-                routeNode.NodeKind.Should().Be(nodeKind);
-                routeNode.NodeName.Should().Be(nodeName);
                 routeNode.Username.Should().Be(username);
                 routeNode.Mrid.Should().Be(mrid);
                 routeNode.WorkTaskMrid.Should().Be(workTaskMrId);

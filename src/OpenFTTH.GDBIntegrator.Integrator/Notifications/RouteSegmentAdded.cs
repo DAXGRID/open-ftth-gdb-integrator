@@ -51,15 +51,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     request.RouteSegment.Username,
                     request.RouteSegment?.ApplicationName,
                     request.RouteSegment?.ApplicationInfo,
-                    null,
-                    null,
-                    null,
-                    null,
+                    request.RouteSegment?.NamingInfo,
+                    request.RouteSegment?.LifeCycleInfo,
+                    request.RouteSegment?.MappingInfo,
+                    request.RouteSegment?.SafetyInfo,
                     request.RouteSegment.Mrid,
                     request.StartRouteNode.Mrid,
                     request.EndRouteNode.Mrid,
                     request.RouteSegment.GetGeoJsonCoordinate(),
-                    null
+                    request.RouteSegment?.RouteSegmentInfo
                 );
 
             await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, routeSegmentAddedEvent);

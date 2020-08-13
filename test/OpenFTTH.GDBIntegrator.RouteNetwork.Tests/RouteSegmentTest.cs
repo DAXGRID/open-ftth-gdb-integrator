@@ -18,7 +18,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
             var applicationName = "gdb-integrator";
             var applicationInfo = "Info text";
             var markAsDeleted = false;
-            var segmentKind = "Underground route";
 
             var routeSegment = new RouteSegment
             {
@@ -29,7 +28,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
                 ApplicationName = applicationName,
                 ApplicationInfo = applicationInfo,
                 MarkAsDeleted = markAsDeleted,
-                SegmentKind = segmentKind
             };
 
             using (new AssertionScope())
@@ -41,7 +39,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
                 routeSegment.ApplicationName.Should().Be(applicationName);
                 routeSegment.ApplicationInfo.Should().Be(applicationInfo);
                 routeSegment.MarkAsDeleted.Should().Be(markAsDeleted);
-                routeSegment.SegmentKind.Should().Be(segmentKind);
             }
         }
 

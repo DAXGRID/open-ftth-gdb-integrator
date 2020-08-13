@@ -2,6 +2,7 @@ using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
+using OpenFTTH.Events.RouteNetwork.Infos;
 using MediatR;
 using System;
 using System.Threading;
@@ -92,8 +93,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         private async Task<bool> IsDeleteable(RouteNode routeNode)
         {
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
-            return String.IsNullOrEmpty(routeNode.NodeKind)
-                && String.IsNullOrEmpty(routeNode.NodeName)
+            return routeNode.RouteNodeInfo.Kind == null
+                && String.IsNullOrEmpty(routeNode.NamingInfo.Name)
                 && intersectingRouteSegments.Count == 0;
         }
 
