@@ -7,8 +7,11 @@
 
 ## Configuration
 
-Either rename 'appsettings.example.json' to 'appsettings.json' or make a new
-file, after that fill out all the empty fields in the appsettings file.
+Configure environment variables call (fish shell) using minikube Kubernetes.
+
+```sh
+. ./scripts/set-environment-minikube.fish
+```
 
 ## Requirements running the application
 
