@@ -8,7 +8,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres.SchemaMigration
         public override void Up()
         {
             Alter.Table("route_segment").InSchema("route_network")
-                .AddColumn("routesegment_kind").AsInt32().Nullable()
+                .AddColumn("routesegment_kind").AsString(255).Nullable()
                 .AddColumn("routesegment_width").AsString(255).Nullable()
                 .AddColumn("routesegment_height").AsString(255).Nullable();
 

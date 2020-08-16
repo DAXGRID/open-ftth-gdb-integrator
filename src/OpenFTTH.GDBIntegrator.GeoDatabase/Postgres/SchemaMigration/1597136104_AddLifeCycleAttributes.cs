@@ -8,22 +8,22 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres.SchemaMigration
         public override void Up()
         {
             Alter.Table("route_segment").InSchema("route_network")
-                .AddColumn("lifecycle_deployment_state").AsInt32().Nullable()
+                .AddColumn("lifecycle_deployment_state").AsString(255).Nullable()
                 .AddColumn("lifecycle_installation_date").AsDate().Nullable()
                 .AddColumn("lifecycle_removal_date").AsDate().Nullable();
 
             Alter.Table("route_segment").InSchema("route_network_integrator")
-                .AddColumn("lifecycle_deployment_state").AsInt32().Nullable()
+                .AddColumn("lifecycle_deployment_state").AsString(255).Nullable()
                 .AddColumn("lifecycle_installation_date").AsDate().Nullable()
                 .AddColumn("lifecycle_removal_date").AsDate().Nullable();
 
             Alter.Table("route_node").InSchema("route_network")
-                .AddColumn("lifecycle_deployment_state").AsInt32().Nullable()
+                .AddColumn("lifecycle_deployment_state").AsString(255).Nullable()
                 .AddColumn("lifecycle_installation_date").AsDate().Nullable()
                 .AddColumn("lifecycle_removal_date").AsDate().Nullable();
 
             Alter.Table("route_node").InSchema("route_network_integrator")
-                .AddColumn("lifecycle_deployment_state").AsInt32().Nullable()
+                .AddColumn("lifecycle_deployment_state").AsString(255).Nullable()
                 .AddColumn("lifecycle_installation_date").AsDate().Nullable()
                 .AddColumn("lifecycle_removal_date").AsDate().Nullable();
         }
