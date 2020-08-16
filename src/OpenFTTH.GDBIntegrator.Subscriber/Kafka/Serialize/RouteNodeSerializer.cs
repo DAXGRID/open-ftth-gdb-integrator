@@ -4,6 +4,8 @@ using Topos.Serialization;
 using Newtonsoft.Json.Linq;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
+using OpenFTTH.Events.Core.Infos;
+using OpenFTTH.Events.RouteNetwork.Infos;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 {
@@ -62,6 +64,26 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 Mrid = new Guid(routeNode.mrid.ToString()),
                 Username = routeNode.user_name.ToString(),
                 WorkTaskMrid = routeNode.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(routeNode.work_task_mrid.ToString()),
+                LifeCycleInfo = new LifecycleInfo(
+                    (DeploymentStateEnum?)routeNode.lifecycle_deployment_state,
+                    (DateTime?)routeNode.lifecycle_installation_date,
+                    (DateTime?)routeNode.lifecycle_removal_date
+                    ),
+                MappingInfo = new MappingInfo(
+                    (MappingMethodEnum?)routeNode.mapping_method,
+                    (string)routeNode.mapping_vertical_accuracy,
+                    (string)routeNode.mapping_horizontal_accuracy,
+                    (DateTime?)routeNode.mapping_survey_date,
+                    (string)routeNode.mapping_source_info
+                    ),
+                NamingInfo = new NamingInfo(
+                    (string)routeNode.naming_name,
+                    (string)routeNode.naming_description
+                    ),
+                RouteNodeInfo = new RouteNodeInfo(
+                    (RouteNodeKindEnum?)routeNode.routenode_kind,
+                    (RouteNodeFunctionEnum?)routeNode.routenode_function
+                    ),
             };
         }
 
