@@ -418,7 +418,7 @@
       "safety_classification": null,
       "safety_remark": null,
       "routenode_kind": "CabinetBig",
-      "routenode_function": null,
+      "routenode_function": "FlexPoint",
       "naming_name": null,
       "naming_description": null
     },

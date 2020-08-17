@@ -90,7 +90,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                     ),
                 RouteNodeInfo = new RouteNodeInfo(
                     _serializationMapper.MapRouteNodeKind((string)routeNode.routenode_kind),
-                    (RouteNodeFunctionEnum?)routeNode.routenode_function
+                    _serializationMapper.MapRouteNodeFunction((string)routeNode.routenode_function)
                     ),
                 SafetyInfo = new SafetyInfo(
                     (string)routeNode.safety_classification,

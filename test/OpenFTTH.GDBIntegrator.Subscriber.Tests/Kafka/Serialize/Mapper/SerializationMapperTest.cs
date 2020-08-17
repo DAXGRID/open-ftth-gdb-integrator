@@ -88,5 +88,30 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             var serializationMapper = new SerializationMapper();
             serializationMapper.Invoking(x => x.MapRouteNodeKind("InvalidText")).Should().ThrowExactly<ArgumentException>();
         }
+
+        [Theory]
+        [InlineData("AccessibleConduitClosure", RouteNodeFunctionEnum.AccessibleConduitClosure)]
+        [InlineData("CustomerPremisesPoint", RouteNodeFunctionEnum.CustomerPremisesPoint)]
+        [InlineData("FlexPoint", RouteNodeFunctionEnum.FlexPoint)]
+        [InlineData("NonAccessibleConduitClosure", RouteNodeFunctionEnum.NonAccessibleConduitClosure)]
+        [InlineData("PrimaryNode", RouteNodeFunctionEnum.PrimaryNode)]
+        [InlineData("SecondaryNode", RouteNodeFunctionEnum.SecondaryNode)]
+        [InlineData("SplicePoint", RouteNodeFunctionEnum.SplicePoint)]
+        [InlineData("", null)]
+        [InlineData(null, null)]
+        public void MapRouteNodeFunction_ShouldReturnMappedRouteNodeFunction_OnBeingPassedValidStringRepresentation(string routeNodeFunctionStringRepresentation, RouteNodeFunctionEnum? expected)
+        {
+            var serializationMapper = new SerializationMapper();
+            var result = serializationMapper.MapRouteNodeFunction(routeNodeFunctionStringRepresentation);
+
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void MapRouteNodeFunction_ShouldThrowArgumentException_OnBeingPassedInvalidStringRepresentation()
+        {
+            var serializationMapper = new SerializationMapper();
+            serializationMapper.Invoking(x => x.MapRouteNodeFunction("InvalidText")).Should().ThrowExactly<ArgumentException>();
+        }
     }
 }
