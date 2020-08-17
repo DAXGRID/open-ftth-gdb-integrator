@@ -1,6 +1,7 @@
 using Xunit;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
+using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper;
 using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
 using Topos.Serialization;
 using Topos.Consumer;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using System;
 using System.Text;
+using FakeItEasy;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
 {
@@ -16,7 +18,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void Deserialize_ShouldThrowArgumentNullException_OnReceivedLogicalMessageBeingNull()
         {
-            var routeSegmentSerializer = new RouteSegmentSerializer();
+            var serializationMapper = A.Fake<ISerializationMapper>();
+            var routeSegmentSerializer = new RouteSegmentSerializer(serializationMapper);
 
             ReceivedTransportMessage receivedTransportMessage = null;
 
@@ -27,7 +30,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void Deserialize_ShouldReturnEmptyReceivedLogicalMessage_OnMessageBodyNull()
         {
-            var routeSegmentSerializer = new RouteSegmentSerializer();
+            var serializationMapper = A.Fake<ISerializationMapper>();
+            var routeSegmentSerializer = new RouteSegmentSerializer(serializationMapper);
 
             var position = new Position();
             var headers = new Dictionary<string, string>();
@@ -44,7 +48,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void Deserialize_ShouldReturnEmptyReceivedLogicalMessage_OnMessageBodyLengthIsZero()
         {
-            var routeSegmentSerializer = new RouteSegmentSerializer();
+            var serializationMapper = A.Fake<ISerializationMapper>();
+            var routeSegmentSerializer = new RouteSegmentSerializer(serializationMapper);
 
             var position = new Position();
             var headers = new Dictionary<string, string>();
@@ -62,7 +67,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [JsonFileData("TestData/RouteSegmentSerializerMessage.json")]
         public void Deserialize_ShouldReturnDeserializedMessage_OnValidReceivedTransportMessage(string fileData)
         {
-            var routeSegmentSerializer = new RouteSegmentSerializer();
+            var serializationMapper = A.Fake<ISerializationMapper>();
+            var routeSegmentSerializer = new RouteSegmentSerializer(serializationMapper);
 
             var position = new Position();
             var headers = new Dictionary<string, string>();
@@ -106,7 +112,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [JsonFileData("TestData/RouteSegmentSerializerMessageBeforeIsNull.json")]
         public void Deserialize_ShouldReturnDeserializedMessageWithBeforeBeingNull_OnValidReceivedTransportMessageOnBeforeBeingNull(string fileData)
         {
-            var routeSegmentSerializer = new RouteSegmentSerializer();
+            var serializationMapper = A.Fake<ISerializationMapper>();
+            var routeSegmentSerializer = new RouteSegmentSerializer(serializationMapper);
 
             var position = new Position();
             var headers = new Dictionary<string, string>();

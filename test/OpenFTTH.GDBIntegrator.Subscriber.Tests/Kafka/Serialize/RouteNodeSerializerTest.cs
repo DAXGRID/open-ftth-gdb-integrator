@@ -1,13 +1,17 @@
 using Xunit;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
+using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper;
 using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
+using OpenFTTH.Events.Core.Infos;
+using OpenFTTH.Events.RouteNetwork.Infos;
 using Topos.Serialization;
 using Topos.Consumer;
 using System.Collections.Generic;
 using FluentAssertions;
 using System;
 using System.Text;
+using FakeItEasy;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
 {
@@ -16,18 +20,20 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void Deserialize_ShouldThrowArgumentNullException_OnReceivedLogicalMessageBeingNull()
         {
-            var routeSegmentSerializer = new RouteNodeSerializer();
+            var serializationMapper = A.Fake<ISerializationMapper>();
+            var routeNodeSerializer = new RouteNodeSerializer(serializationMapper);
 
             ReceivedTransportMessage receivedTransportMessage = null;
 
-            routeSegmentSerializer.Invoking(x => x.Deserialize(receivedTransportMessage))
+            routeNodeSerializer.Invoking(x => x.Deserialize(receivedTransportMessage))
                 .Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
         public void Deserialize_ShouldReturnEmptyReceivedLogicalMessage_OnMessageBodyNull()
         {
-            var routeSegmentSerializer = new RouteNodeSerializer();
+            var serializationMapper = A.Fake<ISerializationMapper>();
+            var routeNodeSerializer = new RouteNodeSerializer(serializationMapper);
 
             var position = new Position();
             var headers = new Dictionary<string, string>();
@@ -36,7 +42,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             var receivedTransportMessage = new ReceivedTransportMessage(position, headers, body);
             var expected = new ReceivedLogicalMessage(headers, new RouteNodeMessage(), position);
 
-            var result = routeSegmentSerializer.Deserialize(receivedTransportMessage);
+            var result = routeNodeSerializer.Deserialize(receivedTransportMessage);
 
             result.Should().BeEquivalentTo(expected);
         }
@@ -44,7 +50,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void Deserialize_ShouldReturnEmptyReceivedLogicalMessage_OnMessageBodyLengthIsZero()
         {
-            var routeNodeSerializer = new RouteNodeSerializer();
+            var serializationMapper = A.Fake<ISerializationMapper>();
+            var routeNodeSerializer = new RouteNodeSerializer(serializationMapper);
 
             var position = new Position();
             var headers = new Dictionary<string, string>();
@@ -62,7 +69,11 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [JsonFileData("TestData/RouteNodeSerializerMessageBeforeIsNull.json")]
         public void Deserialize_ShouldReturnDeserializedMessageWithBeforebeingNull_OnValidReceivedTransportMessageWithBeforeBeingNull(string fileData)
         {
-            var routeNodeSerializer = new RouteNodeSerializer();
+            var serializationMapper = A.Fake<ISerializationMapper>();
+
+            A.CallTo(() => serializationMapper.MapDeploymentState("InService")).Returns(DeploymentStateEnum.InService);
+
+            var routeNodeSerializer = new RouteNodeSerializer(serializationMapper);
 
             var position = new Position();
             var headers = new Dictionary<string, string>();
@@ -76,12 +87,17 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             {
                 ApplicationInfo = string.Empty,
                 ApplicationName = string.Empty,
-                Coord = Convert.FromBase64String("AQEAACDoZAAA6T+yMoa5H8Ho0nhvVIBUQQ=="),
+                Coord = Convert.FromBase64String("AQEAACDoZAAADEpxfJCIIUFJI+ZYZL1XQQ=="),
                 DeleteMe = false,
                 MarkAsDeleted = false,
-                Mrid = new Guid("1932e878-9f40-477e-b372-23d202709e68"),
+                Mrid = new Guid("66563e62-db0e-4184-be75-d55638bf33a5"),
                 Username = string.Empty,
-                WorkTaskMrid = Guid.Empty
+                WorkTaskMrid = Guid.Empty,
+                LifeCycleInfo = new LifecycleInfo(DeploymentStateEnum.InService, null, null),
+                MappingInfo = new MappingInfo(null, null, null, null, null),
+                NamingInfo = new NamingInfo(null, null),
+                RouteNodeInfo = new RouteNodeInfo(null, null),
+                SafetyInfo = new SafetyInfo(null, null)
             };
 
             var expectedBody = new RouteNodeMessage(expectedRouteNodeBefore, expectedRouteNodeAfter);
@@ -96,7 +112,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [JsonFileData("TestData/RouteNodeSerializerMessage.json")]
         public void Deserialize_ShouldReturnDeserializedMessage_OnValidReceivedTransportMessage(string fileData)
         {
-            var routeNodeSerializer = new RouteNodeSerializer();
+            var serializationMapper = A.Fake<ISerializationMapper>();
+            var routeNodeSerializer = new RouteNodeSerializer(serializationMapper);
 
             var position = new Position();
             var headers = new Dictionary<string, string>();
@@ -113,7 +130,12 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 MarkAsDeleted = false,
                 Mrid = new Guid("9bffa519-c672-49fd-93d0-52cd22519346"),
                 Username = string.Empty,
-                WorkTaskMrid = Guid.Empty
+                WorkTaskMrid = Guid.Empty,
+                LifeCycleInfo = new LifecycleInfo(null, null, null),
+                MappingInfo = new MappingInfo(null, null, null, null, null),
+                NamingInfo = new NamingInfo(null, null),
+                RouteNodeInfo = new RouteNodeInfo(null, null),
+                SafetyInfo = new SafetyInfo(null, null)
             };
 
             var expectedRouteNodeAfter = new RouteNode
@@ -125,7 +147,12 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 MarkAsDeleted = true,
                 Mrid = new Guid("9bffa519-c672-49fd-93d0-52cd22519346"),
                 Username = string.Empty,
-                WorkTaskMrid = Guid.Empty
+                WorkTaskMrid = Guid.Empty,
+                LifeCycleInfo = new LifecycleInfo(null, null, null),
+                MappingInfo = new MappingInfo(null, null, null, null, null),
+                NamingInfo = new NamingInfo(null, null),
+                RouteNodeInfo = new RouteNodeInfo(null, null),
+                SafetyInfo = new SafetyInfo(null, null)
             };
 
             var expectedBody = new RouteNodeMessage(expectedRouteNodeBefore, expectedRouteNodeAfter);

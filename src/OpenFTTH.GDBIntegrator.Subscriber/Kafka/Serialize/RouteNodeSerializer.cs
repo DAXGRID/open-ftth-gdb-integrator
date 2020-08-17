@@ -6,11 +6,19 @@ using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
 using OpenFTTH.Events.Core.Infos;
 using OpenFTTH.Events.RouteNetwork.Infos;
+using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 {
     public class RouteNodeSerializer : IMessageSerializer
     {
+        private readonly ISerializationMapper _serializationMapper;
+
+        public RouteNodeSerializer(ISerializationMapper serializationMapper)
+        {
+            _serializationMapper = serializationMapper;
+        }
+
         public ReceivedLogicalMessage Deserialize(ReceivedTransportMessage message)
         {
             if (message is null)
@@ -21,8 +29,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 
             var messageBody = Encoding.UTF8.GetString(message.Body, 0, message.Body.Length);
 
-            dynamic routeSegmentMessage = JObject.Parse(messageBody);
-            var payload = routeSegmentMessage.payload;
+            dynamic parsedRouteNodeMessage = JObject.Parse(messageBody);
+            var payload = parsedRouteNodeMessage.payload;
 
             if (IsTombStoneMessage(payload))
                 return new ReceivedLogicalMessage(message.Headers, new RouteNodeMessage(), message.Position);
@@ -65,7 +73,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 Username = routeNode.user_name.ToString(),
                 WorkTaskMrid = routeNode.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(routeNode.work_task_mrid.ToString()),
                 LifeCycleInfo = new LifecycleInfo(
-                    (DeploymentStateEnum?)routeNode.lifecycle_deployment_state,
+                    _serializationMapper.MapDeploymentState((string)routeNode.lifecycle_deployment_state),
                     (DateTime?)routeNode.lifecycle_installation_date,
                     (DateTime?)routeNode.lifecycle_removal_date
                     ),
@@ -84,6 +92,10 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                     (RouteNodeKindEnum?)routeNode.routenode_kind,
                     (RouteNodeFunctionEnum?)routeNode.routenode_function
                     ),
+                SafetyInfo = new SafetyInfo(
+                    (string)routeNode.safety_classification,
+                    (string)routeNode.safety_remark
+                    )
             };
         }
 

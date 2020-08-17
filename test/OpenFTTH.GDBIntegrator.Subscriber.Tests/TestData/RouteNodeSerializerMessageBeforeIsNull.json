@@ -33,21 +33,6 @@
             "field": "coord"
           },
           {
-            "type": "string",
-            "optional": true,
-            "field": "node_name"
-          },
-          {
-            "type": "string",
-            "optional": true,
-            "field": "node_kind"
-          },
-          {
-            "type": "string",
-            "optional": true,
-            "field": "node_function"
-          },
-          {
             "type": "boolean",
             "optional": false,
             "field": "marked_to_be_deleted"
@@ -78,6 +63,82 @@
             "type": "string",
             "optional": true,
             "field": "application_info"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "lifecycle_deployment_state"
+          },
+          {
+            "type": "int32",
+            "optional": true,
+            "name": "io.debezium.time.Date",
+            "version": 1,
+            "field": "lifecycle_installation_date"
+          },
+          {
+            "type": "int32",
+            "optional": true,
+            "name": "io.debezium.time.Date",
+            "version": 1,
+            "field": "lifecycle_removal_date"
+          },
+          {
+            "type": "int32",
+            "optional": true,
+            "field": "mapping_method"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "mapping_vertical_accuracy"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "mapping_horizontal_accuracy"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "mapping_source_info"
+          },
+          {
+            "type": "int32",
+            "optional": true,
+            "name": "io.debezium.time.Date",
+            "version": 1,
+            "field": "mapping_survey_date"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "safety_classification"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "safety_remark"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "routenode_kind"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "routenode_function"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "naming_name"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "naming_description"
           }
         ],
         "optional": true,
@@ -115,21 +176,6 @@
             "field": "coord"
           },
           {
-            "type": "string",
-            "optional": true,
-            "field": "node_name"
-          },
-          {
-            "type": "string",
-            "optional": true,
-            "field": "node_kind"
-          },
-          {
-            "type": "string",
-            "optional": true,
-            "field": "node_function"
-          },
-          {
             "type": "boolean",
             "optional": false,
             "field": "marked_to_be_deleted"
@@ -160,6 +206,82 @@
             "type": "string",
             "optional": true,
             "field": "application_info"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "lifecycle_deployment_state"
+          },
+          {
+            "type": "int32",
+            "optional": true,
+            "name": "io.debezium.time.Date",
+            "version": 1,
+            "field": "lifecycle_installation_date"
+          },
+          {
+            "type": "int32",
+            "optional": true,
+            "name": "io.debezium.time.Date",
+            "version": 1,
+            "field": "lifecycle_removal_date"
+          },
+          {
+            "type": "int32",
+            "optional": true,
+            "field": "mapping_method"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "mapping_vertical_accuracy"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "mapping_horizontal_accuracy"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "mapping_source_info"
+          },
+          {
+            "type": "int32",
+            "optional": true,
+            "name": "io.debezium.time.Date",
+            "version": 1,
+            "field": "mapping_survey_date"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "safety_classification"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "safety_remark"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "routenode_kind"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "routenode_function"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "naming_name"
+          },
+          {
+            "type": "string",
+            "optional": true,
+            "field": "naming_description"
           }
         ],
         "optional": true,
@@ -274,36 +396,47 @@
   "payload": {
     "before": null,
     "after": {
-      "mrid": "1932e878-9f40-477e-b372-23d202709e68",
+      "mrid": "66563e62-db0e-4184-be75-d55638bf33a5",
       "coord": {
-        "wkb": "AQEAACDoZAAA6T+yMoa5H8Ho0nhvVIBUQQ==",
+        "wkb": "AQEAACDoZAAADEpxfJCIIUFJI+ZYZL1XQQ==",
         "srid": 25832
       },
-      "node_name": null,
-      "node_kind": null,
-      "node_function": null,
       "marked_to_be_deleted": false,
       "delete_me": false,
       "work_task_mrid": null,
       "user_name": null,
       "application_name": null,
-      "application_info": null
+      "application_info": null,
+      "lifecycle_deployment_state": "InService",
+      "lifecycle_installation_date": null,
+      "lifecycle_removal_date": null,
+      "mapping_method": null,
+      "mapping_vertical_accuracy": null,
+      "mapping_horizontal_accuracy": null,
+      "mapping_source_info": null,
+      "mapping_survey_date": null,
+      "safety_classification": null,
+      "safety_remark": null,
+      "routenode_kind": null,
+      "routenode_function": null,
+      "naming_name": null,
+      "naming_description": null
     },
     "source": {
       "version": "1.1.2.Final",
       "connector": "postgresql",
       "name": "postgres",
-      "ts_ms": 1596707134555,
+      "ts_ms": 1597660454825,
       "snapshot": "false",
       "db": "OPEN_FTTH",
       "schema": "route_network",
       "table": "route_node",
-      "txId": 534,
-      "lsn": 1093971952,
+      "txId": 588,
+      "lsn": 1093994368,
       "xmin": null
     },
     "op": "c",
-    "ts_ms": 1596707134743,
+    "ts_ms": 1597660455296,
     "transaction": null
   }
 }

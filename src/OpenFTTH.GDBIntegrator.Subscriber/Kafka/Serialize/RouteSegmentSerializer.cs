@@ -1,15 +1,22 @@
 using System;
 using System.Text;
-using System.Collections;
 using Topos.Serialization;
 using Newtonsoft.Json.Linq;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper;
 using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 {
     public class RouteSegmentSerializer : IMessageSerializer
     {
+        private readonly ISerializationMapper _serializationMapper;
+
+        public RouteSegmentSerializer(ISerializationMapper serializationMapper)
+        {
+            _serializationMapper = serializationMapper;
+        }
+
         public ReceivedLogicalMessage Deserialize(ReceivedTransportMessage message)
         {
             if (message is null)
