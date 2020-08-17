@@ -417,7 +417,7 @@
       "mapping_survey_date": null,
       "safety_classification": null,
       "safety_remark": null,
-      "routenode_kind": null,
+      "routenode_kind": "CabinetBig",
       "routenode_function": null,
       "naming_name": null,
       "naming_description": null

@@ -56,5 +56,30 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             var serializationMapper = new SerializationMapper();
             serializationMapper.Invoking(x => x.MapMappingMethod("InvalidText")).Should().ThrowExactly<ArgumentException>();
         }
+
+        [Theory]
+        [InlineData("BuildingAccessPoint", RouteNodeKindEnum.BuildingAccessPoint)]
+        [InlineData("CabinetBig", RouteNodeKindEnum.CabinetBig)]
+        [InlineData("CabinetSmall", RouteNodeKindEnum.CabinetSmall)]
+        [InlineData("CentralOfficeBig", RouteNodeKindEnum.CentralOfficeBig)]
+        [InlineData("CentralOfficeMedium", RouteNodeKindEnum.CentralOfficeMedium)]
+        [InlineData("CentralOfficeSmall", RouteNodeKindEnum.CentralOfficeSmall)]
+        [InlineData("ConduitClosure", RouteNodeKindEnum.ConduitClosure)]
+        [InlineData("ConduitEnd", RouteNodeKindEnum.ConduitEnd)]
+        [InlineData("ConduitSimpleJunction", RouteNodeKindEnum.ConduitSimpleJunction)]
+        [InlineData("HandHole", RouteNodeKindEnum.HandHole)]
+        [InlineData("ManHole", RouteNodeKindEnum.ManHole)]
+        [InlineData("MultiDwellingUnit", RouteNodeKindEnum.MultiDwellingUnit)]
+        [InlineData("SingleDwellingUnit", RouteNodeKindEnum.SingleDwellingUnit)]
+        [InlineData("SpliceClosure", RouteNodeKindEnum.SpliceClosure)]
+        [InlineData("", null)]
+        [InlineData(null, null)]
+        public void MapRouteNodeKind_ShouldReturnMappedRouteNodeKind_OnBeingPassedValidStringRepresentation(string routeNodeKindStringRepresentation, RouteNodeKindEnum? expected)
+        {
+            var serializationMapper = new SerializationMapper();
+            var result = serializationMapper.MapRouteNodeKind(routeNodeKindStringRepresentation);
+
+            result.Should().BeEquivalentTo(expected);
+        }
     }
 }
