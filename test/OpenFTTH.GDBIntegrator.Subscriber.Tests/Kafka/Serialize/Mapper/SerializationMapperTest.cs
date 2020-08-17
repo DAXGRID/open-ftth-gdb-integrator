@@ -81,5 +81,12 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
 
             result.Should().BeEquivalentTo(expected);
         }
+
+        [Fact]
+        public void MapRouteNodeKind_ShouldThrowArgumentException_OnBeingPassedInvalidStringRepresentation()
+        {
+            var serializationMapper = new SerializationMapper();
+            serializationMapper.Invoking(x => x.MapRouteNodeKind("InvalidText")).Should().ThrowExactly<ArgumentException>();
+        }
     }
 }
