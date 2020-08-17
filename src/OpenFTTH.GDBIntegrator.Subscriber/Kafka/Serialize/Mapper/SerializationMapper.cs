@@ -27,5 +27,31 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper
                     throw new ArgumentException($"Value '{deploymentStateStringRepresentation}' is not valid'");
             }
         }
+
+        public MappingMethodEnum? MapMappingMethod(string mappingMethodStringRepresentation)
+        {
+             if (string.IsNullOrEmpty(mappingMethodStringRepresentation))
+                return null;
+
+            switch (mappingMethodStringRepresentation)
+            {
+                case "DigitizedFromPaperMaps":
+                    return MappingMethodEnum.DigitizedFromPaperMaps;
+                case "Drafting":
+                    return MappingMethodEnum.Drafting;
+                case "Imagery":
+                    return MappingMethodEnum.Imagery;
+                case "LandSurveying":
+                    return MappingMethodEnum.LandSurveying;
+                case "Other":
+                    return MappingMethodEnum.Other;
+                case "Schematic":
+                    return MappingMethodEnum.Schematic;
+                case "Sensor":
+                    return MappingMethodEnum.Sensor;
+                default:
+                    throw new ArgumentException($"Value '{mappingMethodStringRepresentation}' is not valid'");
+            }
+        }
     }
 }

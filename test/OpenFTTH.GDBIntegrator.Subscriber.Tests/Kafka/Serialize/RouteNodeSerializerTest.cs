@@ -72,6 +72,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             var serializationMapper = A.Fake<ISerializationMapper>();
 
             A.CallTo(() => serializationMapper.MapDeploymentState("InService")).Returns(DeploymentStateEnum.InService);
+            A.CallTo(() => serializationMapper.MapMappingMethod("Drafting")).Returns(MappingMethodEnum.Drafting);
 
             var routeNodeSerializer = new RouteNodeSerializer(serializationMapper);
 
@@ -94,7 +95,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 Username = string.Empty,
                 WorkTaskMrid = Guid.Empty,
                 LifeCycleInfo = new LifecycleInfo(DeploymentStateEnum.InService, null, null),
-                MappingInfo = new MappingInfo(null, null, null, null, null),
+                MappingInfo = new MappingInfo(MappingMethodEnum.Drafting, null, null, null, null),
                 NamingInfo = new NamingInfo(null, null),
                 RouteNodeInfo = new RouteNodeInfo(null, null),
                 SafetyInfo = new SafetyInfo(null, null)

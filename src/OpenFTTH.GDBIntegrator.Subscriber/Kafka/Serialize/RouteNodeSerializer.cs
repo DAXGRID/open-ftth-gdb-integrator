@@ -78,7 +78,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                     (DateTime?)routeNode.lifecycle_removal_date
                     ),
                 MappingInfo = new MappingInfo(
-                    (MappingMethodEnum?)routeNode.mapping_method,
+                    _serializationMapper.MapMappingMethod((string)routeNode.mapping_method),
                     (string)routeNode.mapping_vertical_accuracy,
                     (string)routeNode.mapping_horizontal_accuracy,
                     (DateTime?)routeNode.mapping_survey_date,

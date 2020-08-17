@@ -6,5 +6,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper
     public interface ISerializationMapper
     {
         DeploymentStateEnum? MapDeploymentState(string deploymentStateStringRepresentation);
+        MappingMethodEnum? MapMappingMethod(string mappingMethodStringRepresentation);
     }
 }

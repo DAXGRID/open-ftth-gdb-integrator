@@ -410,7 +410,7 @@
       "lifecycle_deployment_state": "InService",
       "lifecycle_installation_date": null,
       "lifecycle_removal_date": null,
-      "mapping_method": null,
+      "mapping_method": "Drafting",
       "mapping_vertical_accuracy": null,
       "mapping_horizontal_accuracy": null,
       "mapping_source_info": null,
