@@ -88,19 +88,19 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
 
             var expectedRouteNodeAfter = new RouteNode
             {
-                ApplicationInfo = string.Empty,
-                ApplicationName = string.Empty,
+                ApplicationInfo = "Application information bla bla",
+                ApplicationName = "GDB_INTEGRATOR",
                 Coord = Convert.FromBase64String("AQEAACDoZAAADEpxfJCIIUFJI+ZYZL1XQQ=="),
                 DeleteMe = false,
                 MarkAsDeleted = false,
                 Mrid = new Guid("66563e62-db0e-4184-be75-d55638bf33a5"),
-                Username = string.Empty,
-                WorkTaskMrid = Guid.Empty,
-                LifeCycleInfo = new LifecycleInfo(DeploymentStateEnum.InService, null, null),
-                MappingInfo = new MappingInfo(MappingMethodEnum.Drafting, null, null, null, null),
-                NamingInfo = new NamingInfo(null, null),
+                Username = "Rune Nielsen",
+                WorkTaskMrid = Guid.Parse("d80f6250-8132-4893-b38f-b64fafd74316"),
+                LifeCycleInfo = new LifecycleInfo(DeploymentStateEnum.InService, DateTime.Parse("2010-06-01T13:45:30"), DateTime.Parse("2010-07-01T13:45:30")),
+                MappingInfo = new MappingInfo(MappingMethodEnum.Drafting, "1", "2", DateTime.Parse("2009-06-01T13:45:30"), "Source info"),
+                NamingInfo = new NamingInfo("AB13", "AB13 desc"),
                 RouteNodeInfo = new RouteNodeInfo(RouteNodeKindEnum.CabinetBig, RouteNodeFunctionEnum.FlexPoint),
-                SafetyInfo = new SafetyInfo(null, null)
+                SafetyInfo = new SafetyInfo("Very safe", "Nothing to say")
             };
 
             var expectedBody = new RouteNodeMessage(expectedRouteNodeBefore, expectedRouteNodeAfter);
