@@ -119,5 +119,33 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper
                     throw new ArgumentException($"Value '{routeNodeFunctionStringRepresentation}' is not valid'");
             }
         }
+
+        public RouteSegmentKindEnum? MapRouteSegmentKind(string routeSegmentKindStringRepresentation)
+        {
+            if (string.IsNullOrEmpty(routeSegmentKindStringRepresentation))
+                return null;
+
+            switch (routeSegmentKindStringRepresentation)
+            {
+                case "Arial":
+                    return RouteSegmentKindEnum.Arial;
+                case "Drilling":
+                    return RouteSegmentKindEnum.Drilling;
+                case "Indoor":
+                    return RouteSegmentKindEnum.Indoor;
+                case "MicroTrenching":
+                    return RouteSegmentKindEnum.MicroTrenching;
+                case "RoadCrossoverDrilling":
+                    return RouteSegmentKindEnum.RoadCrossoverDrilling;
+                case "RoadCrossoverDuctBank":
+                    return RouteSegmentKindEnum.RoadCrossoverDuctBank;
+                case "Tunnel":
+                    return RouteSegmentKindEnum.Tunnel;
+                case "Underground":
+                    return RouteSegmentKindEnum.Underground;
+                default:
+                    throw new ArgumentException($"Value '{routeSegmentKindStringRepresentation}' is not valid'");
+            }
+        }
     }
 }

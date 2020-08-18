@@ -9,5 +9,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper
         MappingMethodEnum? MapMappingMethod(string mappingMethodStringRepresentation);
         RouteNodeKindEnum? MapRouteNodeKind(string routeNodeKindStringRepresentation);
         RouteNodeFunctionEnum? MapRouteNodeFunction(string routeNodeFunctionStringRepresentation);
+        RouteSegmentKindEnum? MapRouteSegmentKind(string routeSegmentKindStringRepresentation);
     }
 }
