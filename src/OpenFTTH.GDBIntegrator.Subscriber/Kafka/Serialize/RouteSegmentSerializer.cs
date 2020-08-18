@@ -5,6 +5,8 @@ using Newtonsoft.Json.Linq;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper;
 using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
+using OpenFTTH.Events.Core.Infos;
+using OpenFTTH.Events.RouteNetwork.Infos;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 {
@@ -70,6 +72,31 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 MarkAsDeleted = (bool)routeSegment.marked_to_be_deleted,
                 ApplicationInfo = routeSegment.application_info.ToString(),
                 DeleteMe = (bool)routeSegment.delete_me,
+                LifeCycleInfo = new LifecycleInfo(
+                    _serializationMapper.MapDeploymentState((string)routeSegment.lifecycle_deployment_state),
+                    (DateTime?)routeSegment.lifecycle_installation_date,
+                    (DateTime?)routeSegment.lifecycle_removal_date
+                    ),
+                MappingInfo = new MappingInfo(
+                    _serializationMapper.MapMappingMethod((string)routeSegment.mapping_method),
+                    (string)routeSegment.mapping_vertical_accuracy,
+                    (string)routeSegment.mapping_horizontal_accuracy,
+                    (DateTime?)routeSegment.mapping_survey_date,
+                    (string)routeSegment.mapping_source_info
+                    ),
+                NamingInfo = new NamingInfo(
+                    (string)routeSegment.naming_name,
+                    (string)routeSegment.naming_description
+                    ),
+                SafetyInfo = new SafetyInfo(
+                    (string)routeSegment.safety_classification,
+                    (string)routeSegment.safety_remark
+                    ),
+                RouteSegmentInfo = new RouteSegmentInfo(
+                    _serializationMapper.MapRouteSegmentKind((string)routeSegment.routesegment_kind),
+                    (string)routeSegment.routesegment_width,
+                    (string)routeSegment.routesegment_height
+                    )
             };
         }
 
