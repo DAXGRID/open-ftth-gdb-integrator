@@ -662,18 +662,18 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     applicationInfo = routeNode.ApplicationInfo,
                     markAsDeleted = routeNode.MarkAsDeleted,
                     deleteMe = routeNode.DeleteMe,
-                    lifeCycleDeploymentState = nameof(routeNode.LifeCycleInfo.DeploymentState),
+                    lifeCycleDeploymentState = routeNode.LifeCycleInfo.DeploymentState is null ? null : nameof(routeNode.LifeCycleInfo.DeploymentState),
                     lifeCycleInstallationDate = routeNode.LifeCycleInfo.InstallationDate,
                     lifeCycleRemovalDate = routeNode.LifeCycleInfo.RemovalDate,
-                    mappingMethod = nameof(routeNode.MappingInfo.Method),
+                    mappingMethod = routeNode.MappingInfo.Method is null ? null : nameof(routeNode.MappingInfo.Method),
                     mappingVerticalAccuracy = routeNode.MappingInfo.VerticalAccuracy,
                     mappingHorizontalAccuracy = routeNode.MappingInfo.HorizontalAccuracy,
                     mappingSourceInfo = routeNode.MappingInfo.SourceInfo,
                     mappingSurveyDate = routeNode.MappingInfo.SurveyDate,
                     safetyClassification = routeNode.SafetyInfo.Classification,
                     safetyRemark = routeNode.SafetyInfo.Remark,
-                    routeNodeKind = routeNode.RouteNodeInfo.Kind,
-                    routeNodeFunction = routeNode.RouteNodeInfo.Function,
+                    routeNodeKind = routeNode.RouteNodeInfo.Kind is null ? null : nameof(routeNode.RouteNodeInfo.Kind),
+                    routeNodeFunction = routeNode.RouteNodeInfo.Function is null ? null : nameof(routeNode.RouteNodeInfo.Function),
                     namingName = routeNode.NamingInfo.Name,
                     namingDescription = routeNode.NamingInfo.Description
                 };
@@ -697,6 +697,22 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     application_info,
                     marked_to_be_deleted,
                     delete_me
+                    lifecycle_deployment_state,
+                    lifecycle_installation_date,
+                    lifecycle_removal_date,
+                    mapping_method,
+                    mapping_vertical_accuracy,
+                    mapping_horizontal_accuracy,
+                    mapping_source_info,
+                    mapping_survey_date,
+                    safety_classification,
+                    safety_remark,
+                    routesegment_kind,
+                    routesegment_height,
+                    routesegment_width,
+                    routenode_function,
+                    naming_name,
+                    naming_description
                     )
                     VALUES(
                     @mrid,
@@ -707,10 +723,51 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     @applicationInfo,
                     @markAsDeleted,
                     @deleteMe
+                    @lifeCycleDeploymentState,
+                    @lifeCycleInstallationDate,
+                    @lifeCycleRemovalDate,
+                    @mappingMethod,
+                    @mappingVerticalAccuracy,
+                    @mappingHorizontalAccuracy,
+                    @mappingSourceInfo,
+                    @mappingSurveyDate,
+                    @safetyClassification,
+                    @safetyRemark,
+                    @routeSegmentKind,
+                    @routeSegmentHeight,
+                    @routeSegmentWidth,
+                    @namingName,
+                    @namingDescription
                     ) ON CONFLICT ON CONSTRAINT route_segment_pkey DO NOTHING;";
 
+                var mappedRouteSegment = new
+                {
+                    coord = routeSegment.Coord,
+                    workTaskMrId = routeSegment.WorkTaskMrid,
+                    userName = routeSegment.Username,
+                    applicationName = routeSegment.ApplicationName,
+                    applicationInfo = routeSegment.ApplicationInfo,
+                    markAsDeleted = routeSegment.MarkAsDeleted,
+                    deleteMe = routeSegment.DeleteMe,
+                    lifeCycleDeploymentState = routeSegment.LifeCycleInfo.DeploymentState is null ? null : nameof(routeSegment.LifeCycleInfo.DeploymentState),
+                    lifeCycleInstallationDate = routeSegment.LifeCycleInfo.InstallationDate,
+                    lifeCycleRemovalDate = routeSegment.LifeCycleInfo.RemovalDate,
+                    mappingMethod = routeSegment.MappingInfo.Method is null ? null : nameof(routeSegment.MappingInfo.Method),
+                    mappingVerticalAccuracy = routeSegment.MappingInfo.VerticalAccuracy,
+                    mappingHorizontalAccuracy = routeSegment.MappingInfo.HorizontalAccuracy,
+                    mappingSourceInfo = routeSegment.MappingInfo.SourceInfo,
+                    mappingSurveyDate = routeSegment.MappingInfo.SurveyDate,
+                    safetyClassification = routeSegment.SafetyInfo.Classification,
+                    safetyRemark = routeSegment.SafetyInfo.Remark,
+                    routeSegmentKind = routeSegment.RouteSegmentInfo is null ? null : nameof(routeSegment.RouteSegmentInfo.Kind),
+                    routeSegmentHeight = routeSegment.RouteSegmentInfo.Height,
+                    routeSegmentWidth = routeSegment.RouteSegmentInfo.Width,
+                    namingName = routeSegment.NamingInfo.Name,
+                    namingDescription = routeSegment.NamingInfo.Description
+                };
+
                 await connection.OpenAsync();
-                await connection.ExecuteAsync(query, routeSegment);
+                await connection.ExecuteAsync(query, mappedRouteSegment);
             }
         }
 
@@ -726,7 +783,49 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       user_name = @username,
                       application_name = @applicationName,
                       marked_to_be_deleted = @markAsDeleted
+                      delete_me = @deleteMe,
+                      lifecycle_deployment_state = @lifeCycleDeploymentState,
+                      lifecycle_installation_date = @lifeCycleInstallationDate,
+                      lifecycle_removal_date = @lifeCycleRemovalDate,
+                      mapping_method = @mappingMethod,
+                      mapping_vertical_accuracy = @mappingVerticalAccuracy,
+                      mapping_horizontal_accuracy = @mappingHorizontalAccuracy,
+                      mapping_source_info = @mappingSourceInfo,
+                      mapping_survey_date = @mappingSurveyDate,
+                      safety_classification = @safetyClassification,
+                      safety_remark = @safetyRemark,
+                      routesegment_kind = @routeSegmentKind,
+                      routesegment_height = @routeSegmentHeight,
+                      routeSegment_width = @routeSegmentWidth,
+                      naming_name = @namingName,
+                      naming_description = @namingDescription
                     WHERE mrid = @mrid;";
+
+                var mappedRouteSegment = new
+                {
+                    coord = routeSegment.Coord,
+                    workTaskMrId = routeSegment.WorkTaskMrid,
+                    userName = routeSegment.Username,
+                    applicationName = routeSegment.ApplicationName,
+                    applicationInfo = routeSegment.ApplicationInfo,
+                    markAsDeleted = routeSegment.MarkAsDeleted,
+                    deleteMe = routeSegment.DeleteMe,
+                    lifeCycleDeploymentState = routeSegment.LifeCycleInfo.DeploymentState is null ? null : nameof(routeSegment.LifeCycleInfo.DeploymentState),
+                    lifeCycleInstallationDate = routeSegment.LifeCycleInfo.InstallationDate,
+                    lifeCycleRemovalDate = routeSegment.LifeCycleInfo.RemovalDate,
+                    mappingMethod = routeSegment.MappingInfo.Method is null ? null : nameof(routeSegment.MappingInfo.Method),
+                    mappingVerticalAccuracy = routeSegment.MappingInfo.VerticalAccuracy,
+                    mappingHorizontalAccuracy = routeSegment.MappingInfo.HorizontalAccuracy,
+                    mappingSourceInfo = routeSegment.MappingInfo.SourceInfo,
+                    mappingSurveyDate = routeSegment.MappingInfo.SurveyDate,
+                    safetyClassification = routeSegment.SafetyInfo.Classification,
+                    safetyRemark = routeSegment.SafetyInfo.Remark,
+                    routeSegmentKind = routeSegment.RouteSegmentInfo is null ? null : nameof(routeSegment.RouteSegmentInfo.Kind),
+                    routeSegmentHeight = routeSegment.RouteSegmentInfo.Height,
+                    routeSegmentWidth = routeSegment.RouteSegmentInfo.Width,
+                    namingName = routeSegment.NamingInfo.Name,
+                    namingDescription = routeSegment.NamingInfo.Description
+                };
 
                 await connection.OpenAsync();
                 await connection.ExecuteAsync(query, routeSegment);
