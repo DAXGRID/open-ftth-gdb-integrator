@@ -88,11 +88,11 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 MarkAsDeleted = false,
                 ApplicationInfo = string.Empty,
                 DeleteMe = false,
-                LifeCycleInfo = new LifecycleInfo(null, null, null),
-                MappingInfo = new MappingInfo(null, null, null, null, null),
-                NamingInfo = new NamingInfo(null, null),
-                RouteSegmentInfo = new RouteSegmentInfo(null, null, null),
-                SafetyInfo = new SafetyInfo(null, null)
+                LifeCycleInfo = null,
+                MappingInfo = null,
+                NamingInfo = null,
+                RouteSegmentInfo = null,
+                SafetyInfo = null
             };
 
             var expectedRouteSegmentAfter = new RouteSegment
@@ -105,11 +105,11 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 MarkAsDeleted = true,
                 ApplicationInfo = string.Empty,
                 DeleteMe = false,
-                LifeCycleInfo = new LifecycleInfo(null, null, null),
-                MappingInfo = new MappingInfo(null, null, null, null, null),
-                NamingInfo = new NamingInfo(null, null),
-                RouteSegmentInfo = new RouteSegmentInfo(null, null, null),
-                SafetyInfo = new SafetyInfo(null, null)
+                LifeCycleInfo = null,
+                MappingInfo = null,
+                NamingInfo = null,
+                RouteSegmentInfo = null,
+                SafetyInfo = null
             };
 
             var expectedMessage = new RouteSegmentMessage(expectedRouteSegmentBefore, expectedRouteSegmentAfter);

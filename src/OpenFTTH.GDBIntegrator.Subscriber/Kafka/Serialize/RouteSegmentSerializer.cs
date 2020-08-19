@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Linq;
 using Topos.Serialization;
 using Newtonsoft.Json.Linq;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
@@ -62,7 +63,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 
         private RouteSegment CreateRouteSegment(dynamic routeSegment)
         {
-           return new RouteSegment
+           var mappedRouteSegment =  new RouteSegment
             {
                 Mrid = new Guid(routeSegment.mrid.ToString()),
                 Coord = Convert.FromBase64String(routeSegment.coord.wkb.ToString()),
@@ -98,6 +99,20 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                     (string)routeSegment.routesegment_height
                     )
             };
+
+            // Make fully empty objects into nulls.
+            mappedRouteSegment.LifeCycleInfo = AreAnyPropertiesNotNull<LifecycleInfo>(mappedRouteSegment.LifeCycleInfo) ? mappedRouteSegment.LifeCycleInfo : null;
+            mappedRouteSegment.MappingInfo = AreAnyPropertiesNotNull<MappingInfo>(mappedRouteSegment.MappingInfo) ? mappedRouteSegment.MappingInfo : null;
+            mappedRouteSegment.NamingInfo = AreAnyPropertiesNotNull<NamingInfo>(mappedRouteSegment.NamingInfo) ? mappedRouteSegment.NamingInfo : null;
+            mappedRouteSegment.RouteSegmentInfo = AreAnyPropertiesNotNull<RouteSegmentInfo>(mappedRouteSegment.RouteSegmentInfo) ? mappedRouteSegment.RouteSegmentInfo : null;
+            mappedRouteSegment.SafetyInfo = AreAnyPropertiesNotNull<SafetyInfo>(mappedRouteSegment.SafetyInfo) ? mappedRouteSegment.SafetyInfo : null;
+
+            return mappedRouteSegment;
+        }
+
+        private bool AreAnyPropertiesNotNull<T>(object obj)
+        {
+            return typeof(T).GetProperties().Any(propertyInfo => propertyInfo.GetValue(obj) != null);
         }
 
         public TransportMessage Serialize(LogicalMessage message)
