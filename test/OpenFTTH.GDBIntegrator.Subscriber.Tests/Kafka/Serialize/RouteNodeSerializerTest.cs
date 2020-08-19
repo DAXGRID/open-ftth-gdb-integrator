@@ -134,11 +134,11 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 Mrid = new Guid("9bffa519-c672-49fd-93d0-52cd22519346"),
                 Username = string.Empty,
                 WorkTaskMrid = Guid.Empty,
-                LifeCycleInfo = new LifecycleInfo(null, null, null),
-                MappingInfo = new MappingInfo(null, null, null, null, null),
-                NamingInfo = new NamingInfo(null, null),
-                RouteNodeInfo = new RouteNodeInfo(null, null),
-                SafetyInfo = new SafetyInfo(null, null)
+                LifeCycleInfo = null,
+                MappingInfo = null,
+                NamingInfo = null,
+                RouteNodeInfo = null,
+                SafetyInfo = null
             };
 
             var expectedRouteNodeAfter = new RouteNode
@@ -151,11 +151,11 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 Mrid = new Guid("9bffa519-c672-49fd-93d0-52cd22519346"),
                 Username = string.Empty,
                 WorkTaskMrid = Guid.Empty,
-                LifeCycleInfo = new LifecycleInfo(null, null, null),
-                MappingInfo = new MappingInfo(null, null, null, null, null),
-                NamingInfo = new NamingInfo(null, null),
-                RouteNodeInfo = new RouteNodeInfo(null, null),
-                SafetyInfo = new SafetyInfo(null, null)
+                LifeCycleInfo = new LifecycleInfo(DeploymentStateEnum.InService, DateTime.Parse("2010-06-01T13:45:30"), DateTime.Parse("2010-07-01T13:45:30")),
+                MappingInfo = null,
+                NamingInfo = null,
+                RouteNodeInfo = null,
+                SafetyInfo = null
             };
 
             var expectedBody = new RouteNodeMessage(expectedRouteNodeBefore, expectedRouteNodeAfter);

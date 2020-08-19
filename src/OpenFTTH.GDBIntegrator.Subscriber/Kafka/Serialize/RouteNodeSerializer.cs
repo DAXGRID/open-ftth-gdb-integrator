@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Linq;
 using Topos.Serialization;
 using Newtonsoft.Json.Linq;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
@@ -62,7 +63,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 
         private RouteNode CreateRouteNode(dynamic routeNode)
         {
-            return new RouteNode
+            var mappedRouteNode = new RouteNode
             {
                 ApplicationInfo = routeNode.application_info.ToString(),
                 ApplicationName = routeNode.application_name.ToString(),
@@ -97,6 +98,20 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                     (string)routeNode.safety_remark
                     )
             };
+
+            // Make fully empty objects into nulls.
+            mappedRouteNode.LifeCycleInfo = AreAnyPropertiesNotNull<LifecycleInfo>(mappedRouteNode.LifeCycleInfo) ? mappedRouteNode.LifeCycleInfo : null;
+            mappedRouteNode.MappingInfo = AreAnyPropertiesNotNull<MappingInfo>(mappedRouteNode.MappingInfo) ? mappedRouteNode.MappingInfo : null;
+            mappedRouteNode.NamingInfo = AreAnyPropertiesNotNull<NamingInfo>(mappedRouteNode.NamingInfo) ? mappedRouteNode.NamingInfo : null;
+            mappedRouteNode.RouteNodeInfo = AreAnyPropertiesNotNull<RouteNodeInfo>(mappedRouteNode.RouteNodeInfo) ? mappedRouteNode.RouteNodeInfo : null;
+            mappedRouteNode.SafetyInfo = AreAnyPropertiesNotNull<SafetyInfo>(mappedRouteNode.SafetyInfo) ? mappedRouteNode.SafetyInfo : null;
+
+            return mappedRouteNode;
+        }
+
+        private bool AreAnyPropertiesNotNull<T>(object obj)
+        {
+            return typeof(T).GetProperties().Any(propertyInfo => propertyInfo.GetValue(obj) != null);
         }
 
         public TransportMessage Serialize(LogicalMessage message)
