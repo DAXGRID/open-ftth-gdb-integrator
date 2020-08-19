@@ -305,7 +305,9 @@
       "application_info": null,
       "lifecycle_deployment_state": "InService",
       "lifecycle_installation_date": "2010-06-01T13:45:30",
-      "lifecycle_removal_date": "2010-07-01T13:45:30"
+      "lifecycle_removal_date": "2010-07-01T13:45:30",
+      "routenode_kind": "",
+      "routenode_function": "FlexPoint"
     },
     "source": {
       "version": "1.1.2.Final",

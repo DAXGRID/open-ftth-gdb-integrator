@@ -117,6 +117,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         {
             var serializationMapper = A.Fake<ISerializationMapper>();
             var routeNodeSerializer = new RouteNodeSerializer(serializationMapper);
+            A.CallTo(() => serializationMapper.MapDeploymentState("InService")).Returns(DeploymentStateEnum.InService);
+            A.CallTo(() => serializationMapper.MapRouteNodeFunction("FlexPoint")).Returns(RouteNodeFunctionEnum.FlexPoint);
 
             var position = new Position();
             var headers = new Dictionary<string, string>();
@@ -154,7 +156,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
                 LifeCycleInfo = new LifecycleInfo(DeploymentStateEnum.InService, DateTime.Parse("2010-06-01T13:45:30"), DateTime.Parse("2010-07-01T13:45:30")),
                 MappingInfo = null,
                 NamingInfo = null,
-                RouteNodeInfo = null,
+                RouteNodeInfo = new RouteNodeInfo(null, RouteNodeFunctionEnum.FlexPoint),
                 SafetyInfo = null
             };
 
