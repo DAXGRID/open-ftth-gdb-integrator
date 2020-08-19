@@ -578,20 +578,20 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     applicationInfo = routeNode.ApplicationInfo,
                     markAsDeleted = routeNode.MarkAsDeleted,
                     deleteMe = routeNode.DeleteMe,
-                    lifeCycleDeploymentState = nameof(routeNode.LifeCycleInfo.DeploymentState),
-                    lifeCycleInstallationDate = routeNode.LifeCycleInfo.InstallationDate,
-                    lifeCycleRemovalDate = routeNode.LifeCycleInfo.RemovalDate,
-                    mappingMethod = nameof(routeNode.MappingInfo.Method),
-                    mappingVerticalAccuracy = routeNode.MappingInfo.VerticalAccuracy,
-                    mappingHorizontalAccuracy = routeNode.MappingInfo.HorizontalAccuracy,
-                    mappingSourceInfo = routeNode.MappingInfo.SourceInfo,
-                    mappingSurveyDate = routeNode.MappingInfo.SurveyDate,
-                    safetyClassification = routeNode.SafetyInfo.Classification,
-                    safetyRemark = routeNode.SafetyInfo.Remark,
-                    routeNodeKind = routeNode.RouteNodeInfo.Kind,
-                    routeNodeFunction = routeNode.RouteNodeInfo.Function,
-                    namingName = routeNode.NamingInfo.Name,
-                    namingDescription = routeNode.NamingInfo.Description
+                    lifeCycleDeploymentState = routeNode.LifeCycleInfo?.DeploymentState?.ToString("g"),
+                    lifeCycleInstallationDate = routeNode.LifeCycleInfo?.InstallationDate,
+                    lifeCycleRemovalDate = routeNode.LifeCycleInfo?.RemovalDate,
+                    mappingMethod = routeNode.MappingInfo?.Method?.ToString("g"),
+                    mappingVerticalAccuracy = routeNode.MappingInfo?.VerticalAccuracy,
+                    mappingHorizontalAccuracy = routeNode.MappingInfo?.HorizontalAccuracy,
+                    mappingSourceInfo = routeNode.MappingInfo?.SourceInfo,
+                    mappingSurveyDate = routeNode.MappingInfo?.SurveyDate,
+                    safetyClassification = routeNode.SafetyInfo?.Classification,
+                    safetyRemark = routeNode.SafetyInfo?.Remark,
+                    routeNodeKind = routeNode.RouteNodeInfo?.Kind?.ToString("g"),
+                    routeNodeFunction = routeNode.RouteNodeInfo?.Function?.ToString("g"),
+                    namingName = routeNode.NamingInfo?.Name,
+                    namingDescription = routeNode.NamingInfo?.Description
                 };
 
                 await connection.OpenAsync();
@@ -655,6 +655,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
                 var mappedRouteNode = new
                 {
+                    mrid = routeNode.Mrid,
                     coord = routeNode.Coord,
                     workTaskMrId = routeNode.WorkTaskMrid,
                     userName = routeNode.Username,
@@ -662,20 +663,20 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     applicationInfo = routeNode.ApplicationInfo,
                     markAsDeleted = routeNode.MarkAsDeleted,
                     deleteMe = routeNode.DeleteMe,
-                    lifeCycleDeploymentState = routeNode.LifeCycleInfo.DeploymentState is null ? null : nameof(routeNode.LifeCycleInfo.DeploymentState),
-                    lifeCycleInstallationDate = routeNode.LifeCycleInfo.InstallationDate,
-                    lifeCycleRemovalDate = routeNode.LifeCycleInfo.RemovalDate,
-                    mappingMethod = routeNode.MappingInfo.Method is null ? null : nameof(routeNode.MappingInfo.Method),
-                    mappingVerticalAccuracy = routeNode.MappingInfo.VerticalAccuracy,
-                    mappingHorizontalAccuracy = routeNode.MappingInfo.HorizontalAccuracy,
-                    mappingSourceInfo = routeNode.MappingInfo.SourceInfo,
-                    mappingSurveyDate = routeNode.MappingInfo.SurveyDate,
-                    safetyClassification = routeNode.SafetyInfo.Classification,
-                    safetyRemark = routeNode.SafetyInfo.Remark,
-                    routeNodeKind = routeNode.RouteNodeInfo.Kind is null ? null : nameof(routeNode.RouteNodeInfo.Kind),
-                    routeNodeFunction = routeNode.RouteNodeInfo.Function is null ? null : nameof(routeNode.RouteNodeInfo.Function),
-                    namingName = routeNode.NamingInfo.Name,
-                    namingDescription = routeNode.NamingInfo.Description
+                    lifeCycleDeploymentState = routeNode.LifeCycleInfo?.DeploymentState?.ToString("g"),
+                    lifeCycleInstallationDate = routeNode.LifeCycleInfo?.InstallationDate,
+                    lifeCycleRemovalDate = routeNode.LifeCycleInfo?.RemovalDate,
+                    mappingMethod = routeNode.MappingInfo?.Method?.ToString("g"),
+                    mappingVerticalAccuracy = routeNode.MappingInfo?.VerticalAccuracy,
+                    mappingHorizontalAccuracy = routeNode.MappingInfo?.HorizontalAccuracy,
+                    mappingSourceInfo = routeNode.MappingInfo?.SourceInfo,
+                    mappingSurveyDate = routeNode.MappingInfo?.SurveyDate,
+                    safetyClassification = routeNode.SafetyInfo?.Classification,
+                    safetyRemark = routeNode.SafetyInfo?.Remark,
+                    routeNodeKind = routeNode.RouteNodeInfo?.Kind?.ToString("g"),
+                    routeNodeFunction = routeNode.RouteNodeInfo?.Function?.ToString("g"),
+                    namingName = routeNode.NamingInfo?.Name,
+                    namingDescription = routeNode.NamingInfo?.Description
                 };
 
                 await connection.OpenAsync();
@@ -696,7 +697,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     application_name,
                     application_info,
                     marked_to_be_deleted,
-                    delete_me
+                    delete_me,
                     lifecycle_deployment_state,
                     lifecycle_installation_date,
                     lifecycle_removal_date,
@@ -710,7 +711,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     routesegment_kind,
                     routesegment_height,
                     routesegment_width,
-                    routenode_function,
                     naming_name,
                     naming_description
                     )
@@ -722,7 +722,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     @applicationName,
                     @applicationInfo,
                     @markAsDeleted,
-                    @deleteMe
+                    @deleteMe,
                     @lifeCycleDeploymentState,
                     @lifeCycleInstallationDate,
                     @lifeCycleRemovalDate,
@@ -742,6 +742,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
                 var mappedRouteSegment = new
                 {
+                    mrid = routeSegment.Mrid,
                     coord = routeSegment.Coord,
                     workTaskMrId = routeSegment.WorkTaskMrid,
                     userName = routeSegment.Username,
