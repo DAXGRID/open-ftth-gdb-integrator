@@ -571,6 +571,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
                 var mappedRouteNode = new
                 {
+                    mrid = routeNode.Mrid,
                     coord = routeNode.Coord,
                     workTaskMrId = routeNode.WorkTaskMrid,
                     userName = routeNode.Username,
