@@ -829,7 +829,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 };
 
                 await connection.OpenAsync();
-                await connection.ExecuteAsync(query, routeSegment);
+                await connection.ExecuteAsync(query, mappedRouteSegment);
             }
         }
 
