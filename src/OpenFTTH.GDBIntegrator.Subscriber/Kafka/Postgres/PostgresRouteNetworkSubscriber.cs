@@ -12,17 +12,17 @@ using Newtonsoft.Json;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
 {
-    public class PostgresRouteSegmentSubscriber : IRouteSegmentSubscriber
+    public class PostgresRouteNetworkSubscriber : IRouteNetworkSubscriber
     {
         private IDisposable _consumer;
         private readonly KafkaSetting _kafkaSetting;
         private readonly IMediator _mediator;
-        private readonly ILogger _logger;
+        private readonly ILogger<PostgresRouteNetworkSubscriber> _logger;
 
-        public PostgresRouteSegmentSubscriber(
+        public PostgresRouteNetworkSubscriber(
             IOptions<KafkaSetting> kafkaSetting,
             IMediator mediator,
-            ILogger<PostgresRouteSegmentSubscriber> logger
+            ILogger<PostgresRouteNetworkSubscriber> logger
             )
         {
             _kafkaSetting = kafkaSetting.Value;
@@ -34,20 +34,31 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
         {
             _consumer = Configure
                 .Consumer(_kafkaSetting.PostgresRouteSegmentConsumer, c => c.UseKafka(_kafkaSetting.Server))
-                .Serialization(s => s.RouteSegment())
-                .Topics(t => t.Subscribe(_kafkaSetting.PostgresRouteSegmentTopic))
+                .Serialization(s => s.RouteNetwork())
+                .Topics(t => t.Subscribe(_kafkaSetting.PostgresRouteNodeTopic))
                 .Positions(p => p.StoreInFileSystem(_kafkaSetting.PositionFilePath))
                 .Handle(async (messages, context, token) =>
                 {
                     foreach (var message in messages)
                     {
-                        if (message.Body is RouteSegmentMessage)
+                        if (message.Body is RouteNodeMessage)
                         {
-                            var routeSegmentMessage = (RouteSegmentMessage)message.Body;
-                            await HandleSubscribedEvent(routeSegmentMessage);
+                            var routeNode = (RouteNodeMessage)message.Body;
+                            await HandleSubscribedEvent(routeNode);
+                        }
+                        else if (message.Body is RouteSegmentMessage)
+                        {
+                            var routeSegment = (RouteSegmentMessage)message.Body;
+                            await HandleSubscribedEvent(routeSegment);
                         }
                     }
                 }).Start();
+        }
+
+        private async Task HandleSubscribedEvent(RouteNodeMessage routeNodeMessage)
+        {
+            _logger.LogDebug($"{DateTime.UtcNow.ToString("o")}: Received message {JsonConvert.SerializeObject(routeNodeMessage, Formatting.Indented)}");
+            await _mediator.Send(new GeoDatabaseUpdated { UpdateMessage = routeNodeMessage });
         }
 
         private async Task HandleSubscribedEvent(RouteSegmentMessage routeSegmentMessage)

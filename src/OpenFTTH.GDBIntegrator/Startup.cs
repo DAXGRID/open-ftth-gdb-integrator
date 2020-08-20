@@ -11,23 +11,20 @@ namespace OpenFTTH.GDBIntegrator
 {
     public class Startup : IHostedService
     {
-        private readonly IRouteSegmentSubscriber _routeSegmentSubscriber;
-        private readonly IRouteNodeSubscriber _routeNodeSubscriber;
+        private readonly IRouteNetworkSubscriber _routeNetworkSubscriber;
         private readonly IProducer _producer;
         private readonly ILogger _logger;
         private readonly IHostApplicationLifetime _applicationLifetime;
         private readonly IMigrationRunner _migrationRunner;
 
         public Startup(
-            IRouteSegmentSubscriber routeSegmentSubscriber,
-            IRouteNodeSubscriber routeNodeSubscriber,
+            IRouteNetworkSubscriber routeNetworkSubscriber,
             IProducer producer,
             ILogger<Startup> logger,
             IHostApplicationLifetime applicationLifetime,
             IMigrationRunner migrationRunner)
         {
-            _routeSegmentSubscriber = routeSegmentSubscriber;
-            _routeNodeSubscriber = routeNodeSubscriber;
+            _routeNetworkSubscriber = routeNetworkSubscriber;
             _producer = producer;
             _logger = logger;
             _applicationLifetime = applicationLifetime;
@@ -63,11 +60,8 @@ namespace OpenFTTH.GDBIntegrator
         {
             _logger.LogInformation("Starting GDB-Integrator");
 
-            _logger.LogInformation($"Starting {nameof(IRouteSegmentSubscriber)}");
-            _routeSegmentSubscriber.Subscribe();
-
-            _logger.LogInformation($"Starting {nameof(IRouteNodeSubscriber)}");
-            _routeNodeSubscriber.Subscribe();
+            _logger.LogInformation($"Starting {nameof(IRouteNetworkSubscriber)}");
+            _routeNetworkSubscriber.Subscribe();
 
             _logger.LogInformation("Init producer");
             _producer.Init();
@@ -75,8 +69,7 @@ namespace OpenFTTH.GDBIntegrator
 
         private void OnStopped()
         {
-            _routeSegmentSubscriber.Dispose();
-            _routeNodeSubscriber.Dispose();
+            _routeNetworkSubscriber.Dispose();
             _producer.Dispose();
             _logger.LogInformation("Stopped");
         }
