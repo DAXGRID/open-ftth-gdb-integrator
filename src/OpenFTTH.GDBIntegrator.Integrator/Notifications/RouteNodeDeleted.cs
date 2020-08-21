@@ -43,6 +43,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 (
                     nameof(RouteNodeMarkedForDeletion),
                     Guid.NewGuid(),
+                    DateTime.UtcNow,
                     string.IsNullOrEmpty(request.CmdType) ? nameof(RouteSegmentDeleted) : request.CmdType,
                     request.CmdId,
                     request.IsLastEventInCmd,

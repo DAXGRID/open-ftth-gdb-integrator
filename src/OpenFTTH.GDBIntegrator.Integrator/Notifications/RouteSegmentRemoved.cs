@@ -45,6 +45,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 (
                     nameof(Events.RouteNetwork.RouteSegmentRemoved),
                     Guid.NewGuid(),
+                    DateTime.UtcNow,
                     request.CmdType,
                     request.CmdId,
                     request.RouteSegment.Mrid,

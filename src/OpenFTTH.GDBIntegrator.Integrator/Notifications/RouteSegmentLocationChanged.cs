@@ -42,6 +42,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 (
                     nameof(RouteSegmentGeometryModified),
                     Guid.NewGuid(),
+                    DateTime.UtcNow,
                     nameof(RouteSegmentLocationChanged),
                     request.CmdId,
                     request.IsLastEventInCmd,

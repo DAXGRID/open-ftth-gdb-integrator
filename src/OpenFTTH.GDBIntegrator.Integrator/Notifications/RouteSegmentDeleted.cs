@@ -42,6 +42,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             var routeSegmentMarkedForDeletionEvent = new RouteSegmentMarkedForDeletion(
                 nameof(RouteSegmentMarkedForDeletion),
                 Guid.NewGuid(),
+                DateTime.UtcNow,
                 string.IsNullOrEmpty(request.CmdType) ? nameof(RouteSegmentDeleted) : request.CmdType,
                 request.CmdId,
                 request.IsLastEventInCmd,
