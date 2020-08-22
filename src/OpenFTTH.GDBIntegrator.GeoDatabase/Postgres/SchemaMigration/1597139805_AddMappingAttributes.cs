@@ -12,28 +12,28 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres.SchemaMigration
                 .AddColumn("mapping_vertical_accuracy").AsString(255).Nullable()
                 .AddColumn("mapping_horizontal_accuracy").AsString(255).Nullable()
                 .AddColumn("mapping_source_info").AsString(int.MaxValue).Nullable()
-                .AddColumn("mapping_survey_date").AsDate().Nullable();
+                .AddColumn("mapping_survey_date").AsDateTimeOffset().Nullable();
 
             Alter.Table("route_segment").InSchema("route_network_integrator")
                 .AddColumn("mapping_method").AsString(255).Nullable()
                 .AddColumn("mapping_vertical_accuracy").AsString(255).Nullable()
                 .AddColumn("mapping_horizontal_accuracy").AsString(255).Nullable()
                 .AddColumn("mapping_source_info").AsString(int.MaxValue).Nullable()
-                .AddColumn("mapping_survey_date").AsDate().Nullable();
+                .AddColumn("mapping_survey_date").AsDateTimeOffset().Nullable();
 
             Alter.Table("route_node").InSchema("route_network")
                 .AddColumn("mapping_method").AsString(255).Nullable()
                 .AddColumn("mapping_vertical_accuracy").AsString(255).Nullable()
                 .AddColumn("mapping_horizontal_accuracy").AsString(255).Nullable()
                 .AddColumn("mapping_source_info").AsString(int.MaxValue).Nullable()
-                .AddColumn("mapping_survey_date").AsDate().Nullable();
+                .AddColumn("mapping_survey_date").AsDateTimeOffset().Nullable();
 
             Alter.Table("route_node").InSchema("route_network_integrator")
                 .AddColumn("mapping_method").AsString(255).Nullable()
                 .AddColumn("mapping_vertical_accuracy").AsString(255).Nullable()
                 .AddColumn("mapping_horizontal_accuracy").AsString(255).Nullable()
                 .AddColumn("mapping_source_info").AsString(int.MaxValue).Nullable()
-                .AddColumn("mapping_survey_date").AsDate().Nullable();
+                .AddColumn("mapping_survey_date").AsDateTimeOffset().Nullable();
         }
 
         public override void Down()
