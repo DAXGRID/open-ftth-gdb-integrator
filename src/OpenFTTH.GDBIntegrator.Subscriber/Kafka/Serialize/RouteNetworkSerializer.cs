@@ -32,7 +32,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 
             dynamic topicMessageBody = JObject.Parse(messageBody);
             var payload = topicMessageBody.payload;
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(payload, Newtonsoft.Json.Formatting.Indented));
 
             if (IsTombStoneMessage(payload))
                 return new ReceivedLogicalMessage(message.Headers, new RouteSegmentMessage(), message.Position);
