@@ -15,7 +15,7 @@ using FakeItEasy;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
 {
-    public class RouteNodeSerializerTest
+    public class RouteNetworkSerializerTest
     {
         [Fact]
         public void Deserialize_ShouldThrowArgumentNullException_OnReceivedLogicalMessageBeingNull()
