@@ -32,6 +32,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 
             dynamic topicMessageBody = JObject.Parse(messageBody);
             var payload = topicMessageBody.payload;
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(payload, Newtonsoft.Json.Formatting.Indented));
 
             if (IsTombStoneMessage(payload))
                 return new ReceivedLogicalMessage(message.Headers, new RouteSegmentMessage(), message.Position);
@@ -78,14 +79,14 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 DeleteMe = (bool)routeSegment.delete_me,
                 LifeCycleInfo = new LifecycleInfo(
                      _serializationMapper.MapDeploymentState((string)routeSegment.lifecycle_deployment_state),
-                     Convert64BitUnixTimeStampToDateTime(routeSegment.lifecycle_installation_date?.ToString()),
-                     Convert64BitUnixTimeStampToDateTime(routeSegment.lifecycle_removal_date?.ToString())
+                     (DateTime?)routeSegment.lifecycle_installation_date,
+                     (DateTime?)routeSegment.lifecycle_removal_date
                      ),
                 MappingInfo = new MappingInfo(
                      _serializationMapper.MapMappingMethod((string)routeSegment.mapping_method),
                      (string)routeSegment.mapping_vertical_accuracy,
                      (string)routeSegment.mapping_horizontal_accuracy,
-                     Convert64BitUnixTimeStampToDateTime(routeSegment.mapping_survey_date?.ToString()),
+                     (DateTime?)routeSegment.mapping_survey_date,
                      (string)routeSegment.mapping_source_info
                      ),
                 NamingInfo = new NamingInfo(
@@ -141,14 +142,14 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 WorkTaskMrid = routeNode.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(routeNode.work_task_mrid.ToString()),
                 LifeCycleInfo = new LifecycleInfo(
                     _serializationMapper.MapDeploymentState((string)routeNode.lifecycle_deployment_state),
-                    Convert64BitUnixTimeStampToDateTime(routeNode.lifecycle_installation_date?.ToString()),
-                    Convert64BitUnixTimeStampToDateTime(routeNode.lifecycle_removal_date?.ToString())
+                    (DateTime?)routeNode.lifecycle_installation_date,
+                    (DateTime?)routeNode.lifecycle_removal_date
                     ),
                 MappingInfo = new MappingInfo(
                     _serializationMapper.MapMappingMethod((string)routeNode.mapping_method),
                     (string)routeNode.mapping_vertical_accuracy,
                     (string)routeNode.mapping_horizontal_accuracy,
-                    Convert64BitUnixTimeStampToDateTime(routeNode.mapping_survey_date?.ToString()),
+                    (DateTime?)routeNode.mapping_survey_date,
                     (string)routeNode.mapping_source_info
                     ),
                 NamingInfo = new NamingInfo(
@@ -173,15 +174,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
             mappedRouteNode.SafetyInfo = AreAnyPropertiesNotNull<SafetyInfo>(mappedRouteNode.SafetyInfo) ? mappedRouteNode.SafetyInfo : null;
 
             return mappedRouteNode;
-        }
-
-        private DateTime? Convert64BitUnixTimeStampToDateTime(string timestamp)
-        {
-            if (string.IsNullOrEmpty(timestamp))
-                return null;
-
-            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            return dateTime.AddSeconds(int.Parse(timestamp.Substring(0, 10)));
         }
 
         private bool AreAnyPropertiesNotNull<T>(object obj)
