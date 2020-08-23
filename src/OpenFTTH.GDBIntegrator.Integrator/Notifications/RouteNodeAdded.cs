@@ -44,7 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     nameof(Events.RouteNetwork.RouteNodeAdded),
                     Guid.NewGuid(),
                     DateTime.UtcNow,
-                    request.CmdType,
+                    string.IsNullOrEmpty(request.CmdType) ? nameof(RouteNodeAdded) : request.CmdType,
                     request.CmdId,
                     request.IsLastEventInCmd,
                     request.RouteNode.WorkTaskMrid,
