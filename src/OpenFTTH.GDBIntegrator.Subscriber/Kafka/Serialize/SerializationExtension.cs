@@ -1,7 +1,7 @@
 using System;
 using Topos.Config;
 using Topos.Serialization;
-using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 {
@@ -13,7 +13,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 throw new ArgumentNullException(nameof(configurer));
 
             StandardConfigurer.Open(configurer)
-                .Register(c => new RouteNetworkSerializer(new SerializationMapper()));
+                .Register(c => new RouteNetworkSerializer(new InfoMapper()));
         }
     }
 }

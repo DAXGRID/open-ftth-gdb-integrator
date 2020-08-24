@@ -139,16 +139,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (intersectingSegmentsCount == 1 && intersectingNodesCount == 0)
             {
-                var startNode = _routeNodeFactory.Create(point);
+                var node = _routeNodeFactory.Create(point);
                 notifications.Add(new NewRouteNodeDigitized
                     {
                         CmdId = cmdId,
-                        RouteNode = startNode,
+                        RouteNode = node,
                         IsLastEventInCmd = false,
                         CmdType = nameof(ExistingRouteSegmentSplitted)
                     });
 
-                var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(routeSegment, cmdId, startNode);
+                var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(routeSegment, cmdId, node);
                 notifications.Add(routeSegmentSplitted);
             }
 

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Subscriber;
@@ -64,6 +65,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddTransient<IRouteNodeFactory, RouteNodeFactory>();
                 services.AddTransient<IRouteSegmentEventFactory, RouteSegmentEventFactory>();
                 services.AddTransient<IRouteNodeEventFactory, RouteNodeEventFactory>();
+                services.AddTransient<IInfoMapper, InfoMapper>();
 
                 services.Configure<KafkaSetting>(kafkaSettings =>
                                                  hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));

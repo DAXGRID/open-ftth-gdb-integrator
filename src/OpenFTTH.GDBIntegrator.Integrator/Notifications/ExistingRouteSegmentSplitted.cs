@@ -41,19 +41,41 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting Existing route segment splitted by route node");
 
+            // If triggered by routenode digitized then publish routenodeadded message
+            if (request.RouteSegmentDigitizedByUser is null)
+                await _mediator.Publish(new RouteNodeAdded { CmdId = request.CmdId, RouteNode = request.RouteNode, CmdType = nameof(ExistingRouteSegmentSplitted) });
+
             var intersectingRouteSegment = await GetIntersectingRouteSegment(request.RouteSegmentDigitizedByUser, request.RouteNode);
 
             var routeSegmentsWkt = await _geoDatabase.GetRouteSegmentsSplittedByRouteNode(request.RouteNode, intersectingRouteSegment);
             var routeSegments = _routeSegmentFactory.Create(routeSegmentsWkt);
+
+            SetSplittedRouteSegmentValuesToNewRouteSegments(routeSegments, intersectingRouteSegment);
 
             await InsertReplacementRouteSegments(routeSegments, request.CmdId);
 
             await DeleteRouteSegment(intersectingRouteSegment, request.CmdId, routeSegments);
         }
 
+        private void SetSplittedRouteSegmentValuesToNewRouteSegments(List<RouteSegment> routeSegments, RouteSegment splittedRouteSegment)
+        {
+            foreach (var routeSegment in routeSegments)
+            {
+                routeSegment.WorkTaskMrid = splittedRouteSegment.WorkTaskMrid;
+                routeSegment.ApplicationInfo = splittedRouteSegment.ApplicationInfo;
+                routeSegment.MappingInfo = splittedRouteSegment.MappingInfo;
+                routeSegment.LifeCycleInfo = splittedRouteSegment.LifeCycleInfo;
+                routeSegment.NamingInfo = splittedRouteSegment.NamingInfo;
+                routeSegment.RouteSegmentInfo = splittedRouteSegment.RouteSegmentInfo;
+                routeSegment.SafetyInfo = splittedRouteSegment.SafetyInfo;
+                routeSegment.Username = splittedRouteSegment.Username;
+            }
+        }
+
         private async Task<RouteSegment> GetIntersectingRouteSegment(RouteSegment routeSegmentDigitizedByUser, RouteNode routeNode)
         {
             RouteSegment intersectingRouteSegment = null;
+            // This is if triggered by RouteNodeDigitizedByUser
             if (routeSegmentDigitizedByUser is null)
             {
                 intersectingRouteSegment = await HandleIntersectionSplit(routeNode);

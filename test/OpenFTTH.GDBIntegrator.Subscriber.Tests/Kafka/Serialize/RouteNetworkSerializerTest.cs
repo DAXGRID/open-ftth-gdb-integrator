@@ -1,7 +1,7 @@
 using Xunit;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize;
-using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
 using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
 using OpenFTTH.Events.Core.Infos;
 using OpenFTTH.Events.RouteNetwork.Infos;
@@ -20,7 +20,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void Deserialize_ShouldThrowArgumentNullException_OnReceivedLogicalMessageBeingNull()
         {
-            var serializationMapper = A.Fake<ISerializationMapper>();
+            var serializationMapper = A.Fake<IInfoMapper>();
             var routeNodeSerializer = new RouteNetworkSerializer(serializationMapper);
 
             ReceivedTransportMessage receivedTransportMessage = null;
@@ -32,7 +32,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void Deserialize_ShouldReturnEmptyReceivedLogicalMessage_OnMessageBodyNull()
         {
-            var serializationMapper = A.Fake<ISerializationMapper>();
+            var serializationMapper = A.Fake<IInfoMapper>();
             var routeNodeSerializer = new RouteNetworkSerializer(serializationMapper);
 
             var position = new Position();
@@ -50,7 +50,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void Deserialize_ShouldReturnEmptyReceivedLogicalMessage_OnMessageBodyLengthIsZero()
         {
-            var serializationMapper = A.Fake<ISerializationMapper>();
+            var serializationMapper = A.Fake<IInfoMapper>();
             var routeNodeSerializer = new RouteNetworkSerializer(serializationMapper);
 
             var position = new Position();
@@ -69,7 +69,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [JsonFileData("TestData/RouteNodeSerializerMessageBeforeIsNull.json")]
         public void Deserialize_ShouldReturnDeserializedNodeMessageWithBeforebeingNull_OnValidReceivedTransportMessageWithBeforeBeingNull(string fileData)
         {
-            var serializationMapper = A.Fake<ISerializationMapper>();
+            var serializationMapper = A.Fake<IInfoMapper>();
 
             A.CallTo(() => serializationMapper.MapDeploymentState("InService")).Returns(DeploymentStateEnum.InService);
             A.CallTo(() => serializationMapper.MapMappingMethod("Drafting")).Returns(MappingMethodEnum.Drafting);
@@ -115,7 +115,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [JsonFileData("TestData/RouteNodeSerializerMessage.json")]
         public void Deserialize_ShouldReturnDeserializedNodeMessage_OnValidReceivedTransportMessage(string fileData)
         {
-            var serializationMapper = A.Fake<ISerializationMapper>();
+            var serializationMapper = A.Fake<IInfoMapper>();
             var routeNodeSerializer = new RouteNetworkSerializer(serializationMapper);
             A.CallTo(() => serializationMapper.MapDeploymentState("InService")).Returns(DeploymentStateEnum.InService);
             A.CallTo(() => serializationMapper.MapRouteNodeFunction("FlexPoint")).Returns(RouteNodeFunctionEnum.FlexPoint);
@@ -172,7 +172,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [JsonFileData("TestData/RouteSegmentSerializerMessage.json")]
         public void Deserialize_ShouldReturnDeserializedSegmentMessage_OnValidReceivedTransportMessage(string fileData)
         {
-            var serializationMapper = A.Fake<ISerializationMapper>();
+            var serializationMapper = A.Fake<IInfoMapper>();
             var routeSegmentSerializer = new RouteNetworkSerializer(serializationMapper);
 
             var position = new Position();
@@ -227,7 +227,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [JsonFileData("TestData/RouteSegmentSerializerMessageBeforeIsNull.json")]
         public void Deserialize_ShouldReturnDeserializedSegmentMessageWithBeforeBeingNull_OnValidReceivedTransportMessageOnBeforeBeingNull(string fileData)
         {
-            var serializationMapper = A.Fake<ISerializationMapper>();
+            var serializationMapper = A.Fake<IInfoMapper>();
             var routeSegmentSerializer = new RouteNetworkSerializer(serializationMapper);
 
             A.CallTo(() => serializationMapper.MapDeploymentState("InService")).Returns(DeploymentStateEnum.InService);

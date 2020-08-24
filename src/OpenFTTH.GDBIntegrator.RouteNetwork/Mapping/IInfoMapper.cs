@@ -1,9 +1,9 @@
 using OpenFTTH.Events.Core.Infos;
 using OpenFTTH.Events.RouteNetwork.Infos;
 
-namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper
+namespace OpenFTTH.GDBIntegrator.RouteNetwork.Mapping
 {
-    public interface ISerializationMapper
+    public interface IInfoMapper
     {
         DeploymentStateEnum? MapDeploymentState(string deploymentStateStringRepresentation);
         MappingMethodEnum? MapMappingMethod(string mappingMethodStringRepresentation);

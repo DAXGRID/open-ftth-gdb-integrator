@@ -4,6 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
+using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres.QueryModels;
+using OpenFTTH.Events.Core.Infos;
+using OpenFTTH.Events.RouteNetwork.Infos;
 using Dapper;
 using Npgsql;
 using Microsoft.Extensions.Options;
@@ -14,11 +18,13 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
     {
         private readonly PostgisSetting _postgisSettings;
         private readonly ApplicationSetting _applicationSettings;
+        private readonly IInfoMapper _infoMapper;
 
-        public Postgis(IOptions<PostgisSetting> postgisSettings, IOptions<ApplicationSetting> applicationSettings)
+        public Postgis(IOptions<PostgisSetting> postgisSettings, IOptions<ApplicationSetting> applicationSettings, IInfoMapper infoMapper)
         {
             _postgisSettings = postgisSettings.Value;
             _applicationSettings = applicationSettings.Value;
+            _infoMapper = infoMapper;
         }
 
         public async Task<RouteNode> GetRouteNodeShadowTable(Guid mrid)
@@ -87,7 +93,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteNode>> GetIntersectingStartRouteNodes(byte[] coord)
         {
-           using (var connection = GetNpgsqlConnection())
+            using (var connection = GetNpgsqlConnection())
             {
                 var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
@@ -132,7 +138,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteNode>> GetIntersectingEndRouteNodes(byte[] coord)
         {
-           using (var connection = GetNpgsqlConnection())
+            using (var connection = GetNpgsqlConnection())
             {
                 var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
@@ -156,7 +162,29 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
+                var query = @"SELECT
+                    ST_AsBinary(coord) AS coord,
+                    mrid,
+                    work_task_mrid AS workTaskMrid,
+                    user_name AS username,
+                    application_name AS applicationName,
+                    application_info AS applicationInfo,
+                    mapping_method AS mappingMethod,
+                    mapping_vertical_accuracy AS mappingVerticalAccuracy,
+                    mapping_horizontal_accuracy AS mappingHorizontalAccuracy,
+                    mapping_source_info AS mappingSourceInfo,
+                    mapping_survey_date AS mappingSurveyDate,
+                    lifecycle_deployment_state AS lifeCycleDeploymentState,
+                    lifecycle_installation_date AS lifeCycleInstallationDate,
+                    lifecycle_removal_date AS lifeCycleRemovalDate,
+                    naming_name AS namingName,
+                    naming_description AS namingDescription,
+                    routesegment_height AS routeSegmentHeight,
+                    routeSegment_kind AS routeSegmentKind,
+                    routesegment_width AS routeSegmentWidth,
+                    safety_classification AS safetyClassification,
+                    safety_remark AS safetyRemark
+                    FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                           (SELECT coord FROM route_network_integrator.route_node
@@ -166,9 +194,58 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND marked_to_be_deleted = false";
 
                 await connection.OpenAsync();
-                var result = await connection.QueryAsync<RouteSegment>(query, new { routeNode.Mrid, _applicationSettings.Tolerance });
+                var routeSegments = (await connection.QueryAsync<RouteSegmentQueryModel>(query, new { routeNode.Mrid, _applicationSettings.Tolerance }))
+                    .Select(x => new RouteSegment
+                    {
+                        ApplicationInfo = x.ApplicationInfo,
+                        ApplicationName = x.ApplicationName,
+                        Coord = x.Coord,
+                        Mrid = x.Mrid,
+                        Username = x.Username,
+                        WorkTaskMrid = x.WorkTaskMrid,
+                        MappingInfo = new MappingInfo
+                        {
+                            HorizontalAccuracy = x.MappingHoritzontalAccuracy,
+                            Method = _infoMapper.MapMappingMethod(x.MappingMethod),
+                            SourceInfo = x.MappingSourceInfo,
+                            SurveyDate = x.MappingSurveyDate,
+                            VerticalAccuracy = x.MappingVerticalAccuracy
+                        },
+                        LifeCycleInfo = new LifecycleInfo
+                        {
+                            DeploymentState = _infoMapper.MapDeploymentState(x.LifeCycleDeploymentState),
+                            InstallationDate = x.LifeCycleInstallationDate,
+                            RemovalDate = x.LifeCycleRemovalDate
+                        },
+                        NamingInfo = new NamingInfo
+                        {
+                            Description = x.NamingDescription,
+                            Name = x.NamingName
+                        },
+                        RouteSegmentInfo = new RouteSegmentInfo
+                        {
+                            Height = x.RouteSegmentHeight,
+                            Kind = _infoMapper.MapRouteSegmentKind(x.RouteSegmentKind),
+                            Width = x.RouteSegmentWidth
+                        },
+                        SafetyInfo = new SafetyInfo
+                        {
+                            Classification = x.SafetyClassification,
+                            Remark = x.SafetyRemark
+                        }
+                    }).ToList();
 
-                return result.AsList();
+                foreach (var routeSegment in routeSegments)
+                {
+                    // Make fully empty objects into nulls.
+                    routeSegment.LifeCycleInfo = AreAnyPropertiesNotNull<LifecycleInfo>(routeSegment.LifeCycleInfo) ? routeSegment.LifeCycleInfo : null;
+                    routeSegment.MappingInfo = AreAnyPropertiesNotNull<MappingInfo>(routeSegment.MappingInfo) ? routeSegment.MappingInfo : null;
+                    routeSegment.NamingInfo = AreAnyPropertiesNotNull<NamingInfo>(routeSegment.NamingInfo) ? routeSegment.NamingInfo : null;
+                    routeSegment.RouteSegmentInfo = AreAnyPropertiesNotNull<RouteSegmentInfo>(routeSegment.RouteSegmentInfo) ? routeSegment.RouteSegmentInfo : null;
+                    routeSegment.SafetyInfo = AreAnyPropertiesNotNull<SafetyInfo>(routeSegment.SafetyInfo) ? routeSegment.SafetyInfo : null;
+                }
+
+                return routeSegments;
             }
         }
 
@@ -195,7 +272,29 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         {
             using (var connection = GetNpgsqlConnection())
             {
-                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
+                var query = @"SELECT
+                    ST_AsBinary(coord) AS coord,
+                    mrid,
+                    work_task_mrid AS workTaskMrid,
+                    user_name AS username,
+                    application_name AS applicationName,
+                    application_info AS applicationInfo,
+                    mapping_method AS mappingMethod,
+                    mapping_vertical_accuracy AS mappingVerticalAccuracy,
+                    mapping_horizontal_accuracy AS mappingHorizontalAccuracy,
+                    mapping_source_info AS mappingSourceInfo,
+                    mapping_survey_date AS mappingSurveyDate,
+                    lifecycle_deployment_state AS lifeCycleDeploymentState,
+                    lifecycle_installation_date AS lifeCycleInstallationDate,
+                    lifecycle_removal_date AS lifeCycleRemovalDate,
+                    naming_name AS namingName,
+                    naming_description AS namingDescription,
+                    routesegment_height AS routeSegmentHeight,
+                    routeSegment_kind AS routeSegmentKind,
+                    routesegment_width AS routeSegmentWidth,
+                    safety_classification AS safetyClassification,
+                    safety_remark AS safetyRemark
+                    FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                           (SELECT coord FROM route_network_integrator.route_node
@@ -205,9 +304,58 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND marked_to_be_deleted = false AND mrid != @sMrid";
 
                 await connection.OpenAsync();
-                var result = await connection.QueryAsync<RouteSegment>(query, new { sMrid = notInclude.Mrid, routeNode.Mrid, _applicationSettings.Tolerance });
+                var routeSegments = (await connection.QueryAsync<RouteSegmentQueryModel>(query, new { sMrid = notInclude.Mrid, routeNode.Mrid, _applicationSettings.Tolerance }))
+                    .Select(x => new RouteSegment
+                    {
+                        ApplicationInfo = x.ApplicationInfo,
+                        ApplicationName = x.ApplicationName,
+                        Coord = x.Coord,
+                        Mrid = x.Mrid,
+                        Username = x.Username,
+                        WorkTaskMrid = x.WorkTaskMrid,
+                        MappingInfo = new MappingInfo
+                        {
+                            HorizontalAccuracy = x.MappingHoritzontalAccuracy,
+                            Method = _infoMapper.MapMappingMethod(x.MappingMethod),
+                            SourceInfo = x.MappingSourceInfo,
+                            SurveyDate = x.MappingSurveyDate,
+                            VerticalAccuracy = x.MappingVerticalAccuracy
+                        },
+                        LifeCycleInfo = new LifecycleInfo
+                        {
+                            DeploymentState = _infoMapper.MapDeploymentState(x.LifeCycleDeploymentState),
+                            InstallationDate = x.LifeCycleInstallationDate,
+                            RemovalDate = x.LifeCycleRemovalDate
+                        },
+                        NamingInfo = new NamingInfo
+                        {
+                            Description = x.NamingDescription,
+                            Name = x.NamingName
+                        },
+                        RouteSegmentInfo = new RouteSegmentInfo
+                        {
+                            Height = x.RouteSegmentHeight,
+                            Kind = _infoMapper.MapRouteSegmentKind(x.RouteSegmentKind),
+                            Width = x.RouteSegmentWidth
+                        },
+                        SafetyInfo = new SafetyInfo
+                        {
+                            Classification = x.SafetyClassification,
+                            Remark = x.SafetyRemark
+                        }
+                    }).ToList();
 
-                return result.AsList();
+                foreach (var routeSegment in routeSegments)
+                {
+                    // Make fully empty objects into nulls.
+                    routeSegment.LifeCycleInfo = AreAnyPropertiesNotNull<LifecycleInfo>(routeSegment.LifeCycleInfo) ? routeSegment.LifeCycleInfo : null;
+                    routeSegment.MappingInfo = AreAnyPropertiesNotNull<MappingInfo>(routeSegment.MappingInfo) ? routeSegment.MappingInfo : null;
+                    routeSegment.NamingInfo = AreAnyPropertiesNotNull<NamingInfo>(routeSegment.NamingInfo) ? routeSegment.NamingInfo : null;
+                    routeSegment.RouteSegmentInfo = AreAnyPropertiesNotNull<RouteSegmentInfo>(routeSegment.RouteSegmentInfo) ? routeSegment.RouteSegmentInfo : null;
+                    routeSegment.SafetyInfo = AreAnyPropertiesNotNull<SafetyInfo>(routeSegment.SafetyInfo) ? routeSegment.SafetyInfo : null;
+                }
+
+                return routeSegments;
             }
         }
 
@@ -938,6 +1086,11 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 await connection.ExecuteAsync(integratorQuery, routeSegment);
                 await connection.ExecuteAsync(query, routeSegment);
             }
+        }
+
+        private bool AreAnyPropertiesNotNull<T>(object obj)
+        {
+            return typeof(T).GetProperties().Any(propertyInfo => propertyInfo.GetValue(obj) != null);
         }
 
         private NpgsqlConnection GetNpgsqlConnection()

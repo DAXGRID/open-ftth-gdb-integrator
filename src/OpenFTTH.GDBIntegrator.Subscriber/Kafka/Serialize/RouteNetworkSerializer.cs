@@ -4,7 +4,7 @@ using System.Linq;
 using Topos.Serialization;
 using Newtonsoft.Json.Linq;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
 using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
 using OpenFTTH.Events.Core.Infos;
 using OpenFTTH.Events.RouteNetwork.Infos;
@@ -13,11 +13,11 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 {
     public class RouteNetworkSerializer : IMessageSerializer
     {
-        private readonly ISerializationMapper _serializationMapper;
+        private readonly IInfoMapper _infoMapper;
 
-        public RouteNetworkSerializer(ISerializationMapper serializationMapper)
+        public RouteNetworkSerializer(IInfoMapper infoMapper)
         {
-            _serializationMapper = serializationMapper;
+            _infoMapper = infoMapper;
         }
 
         public ReceivedLogicalMessage Deserialize(ReceivedTransportMessage message)
@@ -77,12 +77,12 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 ApplicationInfo = routeSegment.application_info.ToString(),
                 DeleteMe = (bool)routeSegment.delete_me,
                 LifeCycleInfo = new LifecycleInfo(
-                     _serializationMapper.MapDeploymentState((string)routeSegment.lifecycle_deployment_state),
+                     _infoMapper.MapDeploymentState((string)routeSegment.lifecycle_deployment_state),
                      (DateTime?)routeSegment.lifecycle_installation_date,
                      (DateTime?)routeSegment.lifecycle_removal_date
                      ),
                 MappingInfo = new MappingInfo(
-                     _serializationMapper.MapMappingMethod((string)routeSegment.mapping_method),
+                     _infoMapper.MapMappingMethod((string)routeSegment.mapping_method),
                      (string)routeSegment.mapping_vertical_accuracy,
                      (string)routeSegment.mapping_horizontal_accuracy,
                      (DateTime?)routeSegment.mapping_survey_date,
@@ -97,7 +97,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                      (string)routeSegment.safety_remark
                      ),
                 RouteSegmentInfo = new RouteSegmentInfo(
-                     _serializationMapper.MapRouteSegmentKind((string)routeSegment.routesegment_kind),
+                     _infoMapper.MapRouteSegmentKind((string)routeSegment.routesegment_kind),
                      (string)routeSegment.routesegment_width,
                      (string)routeSegment.routesegment_height
                      )
@@ -140,12 +140,12 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 Username = routeNode.user_name.ToString(),
                 WorkTaskMrid = routeNode.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(routeNode.work_task_mrid.ToString()),
                 LifeCycleInfo = new LifecycleInfo(
-                    _serializationMapper.MapDeploymentState((string)routeNode.lifecycle_deployment_state),
+                    _infoMapper.MapDeploymentState((string)routeNode.lifecycle_deployment_state),
                     (DateTime?)routeNode.lifecycle_installation_date,
                     (DateTime?)routeNode.lifecycle_removal_date
                     ),
                 MappingInfo = new MappingInfo(
-                    _serializationMapper.MapMappingMethod((string)routeNode.mapping_method),
+                    _infoMapper.MapMappingMethod((string)routeNode.mapping_method),
                     (string)routeNode.mapping_vertical_accuracy,
                     (string)routeNode.mapping_horizontal_accuracy,
                     (DateTime?)routeNode.mapping_survey_date,
@@ -156,8 +156,8 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                     (string)routeNode.naming_description
                     ),
                 RouteNodeInfo = new RouteNodeInfo(
-                    _serializationMapper.MapRouteNodeKind((string)routeNode.routenode_kind),
-                    _serializationMapper.MapRouteNodeFunction((string)routeNode.routenode_function)
+                    _infoMapper.MapRouteNodeKind((string)routeNode.routenode_kind),
+                    _infoMapper.MapRouteNodeFunction((string)routeNode.routenode_function)
                     ),
                 SafetyInfo = new SafetyInfo(
                     (string)routeNode.safety_classification,

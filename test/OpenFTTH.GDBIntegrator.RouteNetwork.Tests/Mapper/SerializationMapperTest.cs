@@ -1,11 +1,11 @@
 using Xunit;
-using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize.Mapper;
 using OpenFTTH.Events.Core.Infos;
 using OpenFTTH.Events.RouteNetwork.Infos;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
 using FluentAssertions;
 using System;
 
-namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
+namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Mapping
 {
     public class SerializationMapperTest
     {
@@ -19,7 +19,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [InlineData(null, null)]
         public void MapDeploymentState_ShouldReturnMappedEnumDeploymentState_OnBeingPassedValidStringRepresentation(string deploymentStateStringReprestation, DeploymentStateEnum? expected)
         {
-            var serializationMapper = new SerializationMapper();
+            var serializationMapper = new InfoMapper();
             var result = serializationMapper.MapDeploymentState(deploymentStateStringReprestation);
 
             result.Should().BeEquivalentTo(expected);
@@ -28,7 +28,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void MapDeploymentState_ShouldThrowArgumentException_OnBeingPassedInvalidStringRepresentation()
         {
-            var serializationMapper = new SerializationMapper();
+            var serializationMapper = new InfoMapper();
             serializationMapper.Invoking(x => x.MapDeploymentState("InvalidText")).Should().ThrowExactly<ArgumentException>();
         }
 
@@ -44,7 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [InlineData(null, null)]
         public void MapMappingMethod_ShouldReturnMappedMappingMethod_OnBeingPassedValidStringRepresentation(string mappingMethodStringRepresentation, MappingMethodEnum? expected)
         {
-            var serializationMapper = new SerializationMapper();
+            var serializationMapper = new InfoMapper();
             var result = serializationMapper.MapMappingMethod(mappingMethodStringRepresentation);
 
             result.Should().BeEquivalentTo(expected);
@@ -53,7 +53,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void MapMappingMethod_ShouldThrowArgumentException_OnBeingPassedInvalidStringRepresentation()
         {
-            var serializationMapper = new SerializationMapper();
+            var serializationMapper = new InfoMapper();
             serializationMapper.Invoking(x => x.MapMappingMethod("InvalidText")).Should().ThrowExactly<ArgumentException>();
         }
 
@@ -76,7 +76,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [InlineData(null, null)]
         public void MapRouteNodeKind_ShouldReturnMappedRouteNodeKind_OnBeingPassedValidStringRepresentation(string routeNodeKindStringRepresentation, RouteNodeKindEnum? expected)
         {
-            var serializationMapper = new SerializationMapper();
+            var serializationMapper = new InfoMapper();
             var result = serializationMapper.MapRouteNodeKind(routeNodeKindStringRepresentation);
 
             result.Should().BeEquivalentTo(expected);
@@ -85,7 +85,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void MapRouteNodeKind_ShouldThrowArgumentException_OnBeingPassedInvalidStringRepresentation()
         {
-            var serializationMapper = new SerializationMapper();
+            var serializationMapper = new InfoMapper();
             serializationMapper.Invoking(x => x.MapRouteNodeKind("InvalidText")).Should().ThrowExactly<ArgumentException>();
         }
 
@@ -101,7 +101,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [InlineData(null, null)]
         public void MapRouteNodeFunction_ShouldReturnMappedRouteNodeFunction_OnBeingPassedValidStringRepresentation(string routeNodeFunctionStringRepresentation, RouteNodeFunctionEnum? expected)
         {
-            var serializationMapper = new SerializationMapper();
+            var serializationMapper = new InfoMapper();
             var result = serializationMapper.MapRouteNodeFunction(routeNodeFunctionStringRepresentation);
 
             result.Should().BeEquivalentTo(expected);
@@ -110,7 +110,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void MapRouteNodeFunction_ShouldThrowArgumentException_OnBeingPassedInvalidStringRepresentation()
         {
-            var serializationMapper = new SerializationMapper();
+            var serializationMapper = new InfoMapper();
             serializationMapper.Invoking(x => x.MapRouteNodeFunction("InvalidText")).Should().ThrowExactly<ArgumentException>();
         }
 
@@ -127,7 +127,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [InlineData(null, null)]
         public void MapRouteSegmentKind_ShouldReturnMappedRouteSegmentKind_OnBeingPassedValidStringRepresentation(string routeSegmentKindStringRepresentation, RouteSegmentKindEnum? expected)
         {
-            var serializationMapper = new SerializationMapper();
+            var serializationMapper = new InfoMapper();
             var result = serializationMapper.MapRouteSegmentKind(routeSegmentKindStringRepresentation);
 
             result.Should().BeEquivalentTo(expected);
@@ -136,7 +136,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
         [Fact]
         public void MapRouteSegmentKind_ShouldThrowArgumentException_OnBeingPassedInvalidStringRepresentation()
         {
-            var serializationMapper = new SerializationMapper();
+            var serializationMapper = new InfoMapper();
             serializationMapper.Invoking(x => x.MapRouteNodeFunction("InvalidText")).Should().ThrowExactly<ArgumentException>();
         }
     }
