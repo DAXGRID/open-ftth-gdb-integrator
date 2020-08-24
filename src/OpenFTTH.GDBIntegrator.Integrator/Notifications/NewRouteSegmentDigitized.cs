@@ -52,6 +52,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             {
                 var startPoint = routeSegment.FindStartPoint();
                 startNode = _routeNodeFactory.Create(startPoint);
+                startNode.Username = routeSegment.Username;
+                startNode.WorkTaskMrid = routeSegment.WorkTaskMrid;
+
                 await _geoDatabase.InsertRouteNode(startNode);
                 await _mediator.Publish(new RouteNodeAdded
                     {
@@ -64,6 +67,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             {
                 var endPoint = routeSegment.FindEndPoint();
                 endNode = _routeNodeFactory.Create(endPoint);
+                endNode.Username = routeSegment.Username;
+                endNode.WorkTaskMrid = routeSegment.WorkTaskMrid;
+
                 await _geoDatabase.InsertRouteNode(endNode);
                 await _mediator.Publish(new RouteNodeAdded
                     {
