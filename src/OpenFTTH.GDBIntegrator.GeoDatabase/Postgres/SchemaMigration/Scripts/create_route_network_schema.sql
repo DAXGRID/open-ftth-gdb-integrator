@@ -38,18 +38,14 @@ CREATE INDEX route_node_coord_idx
 -- Create delete trigger that mark route node as deleted (instead of deleting it)
 CREATE FUNCTION route_network.route_node_delete() RETURNS TRIGGER AS $_$
 BEGIN
-    IF NEW.delete_me = false
-	THEN
-       UPDATE route_network.route_node SET marked_to_be_deleted = true WHERE route_node.mrid = OLD.mrid;
-       RETURN null;
-	END IF;
+    UPDATE route_network.route_node SET marked_to_be_deleted = true WHERE route_node.mrid = OLD.mrid;
+    RETURN null;
 
 	RETURN NEW;
 END $_$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER delete_route_node BEFORE DELETE ON route_network.route_node
 FOR EACH ROW
-WHEN (pg_trigger_depth() < 1)
 EXECUTE PROCEDURE route_network.route_node_delete();
 
 
@@ -96,7 +92,7 @@ CREATE INDEX route_segment_coord_idx
 -- Create delete trigger that mark route segment as deleted (instead of deleting it)
 CREATE FUNCTION route_network.route_segment_delete() RETURNS TRIGGER AS $_$
 BEGIN
-    IF NEW.delete_me = false
+    IF OLD.delete_me = false
 	THEN
        UPDATE route_network.route_segment SET marked_to_be_deleted = true WHERE route_segment.mrid = OLD.mrid;
        RETURN null;
@@ -107,7 +103,6 @@ END $_$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER delete_route_segment BEFORE DELETE ON route_network.route_segment
 FOR EACH ROW
-WHEN (pg_trigger_depth() < 1)
 EXECUTE PROCEDURE route_network.route_segment_delete();
 
 
@@ -158,7 +153,7 @@ CREATE INDEX route_node_coord_idx
 -- Create delete trigger that mark route node as deleted (instead of deleting it)
 CREATE FUNCTION route_network_integrator.route_node_delete() RETURNS TRIGGER AS $_$
 BEGIN
-    IF NEW.delete_me = false
+    IF OLD.delete_me = false
     THEN
        UPDATE route_network_integrator.route_node SET marked_to_be_deleted = true WHERE route_node.mrid = OLD.mrid;
        RETURN null;
@@ -169,7 +164,6 @@ END $_$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER delete_route_node BEFORE DELETE ON route_network_integrator.route_node
 FOR EACH ROW
-WHEN (pg_trigger_depth() < 1)
 EXECUTE PROCEDURE route_network_integrator.route_node_delete();
 
 
@@ -216,7 +210,7 @@ CREATE INDEX route_segment_coord_idx
 -- Create delete trigger that mark route segment as deleted (instead of deleting it)
 CREATE FUNCTION route_network_integrator.route_segment_delete() RETURNS TRIGGER AS $_$
 BEGIN
-    IF NEW.delete_me = false
+    IF OLD.delete_me = false
     THEN
        UPDATE route_network_integrator.route_segment SET marked_to_be_deleted = true WHERE route_segment.mrid = OLD.mrid;
        RETURN null;
@@ -227,7 +221,6 @@ END $_$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER delete_route_segment BEFORE DELETE ON route_network_integrator.route_segment
 FOR EACH ROW
-WHEN (pg_trigger_depth() < 1)
 EXECUTE PROCEDURE route_network_integrator.route_segment_delete();
 
 
