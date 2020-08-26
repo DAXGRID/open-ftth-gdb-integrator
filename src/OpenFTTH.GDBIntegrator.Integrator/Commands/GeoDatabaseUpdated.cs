@@ -65,9 +65,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
             if (IsNodeNewlyDigitized(routeNodeMessage))
             {
-                var routeNodeDigitizedEvent = await _routeNodeEventFactory.CreateDigitizedEvent((RouteNode)routeNodeMessage.After);
-                if (!(routeNodeDigitizedEvent is null))
-                    await _mediator.Publish(routeNodeDigitizedEvent);
+                var routeNodeDigitizedEvents = await _routeNodeEventFactory.CreateDigitizedEvent((RouteNode)routeNodeMessage.After);
+
+                foreach (var routeNodeDigitizedEvent in routeNodeDigitizedEvents)
+                {
+                    if (!(routeNodeDigitizedEvent is null))
+                        await _mediator.Publish(routeNodeDigitizedEvent);
+                }
             }
             else if (IsNodeUpdated(routeNodeMessage))
             {

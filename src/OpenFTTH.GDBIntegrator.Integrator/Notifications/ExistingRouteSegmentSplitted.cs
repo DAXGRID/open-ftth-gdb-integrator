@@ -41,10 +41,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting Existing route segment splitted by route node");
 
-            // If triggered by routenode digitized then publish routenodeadded message
-            if (request.RouteSegmentDigitizedByUser is null)
-                await _mediator.Publish(new RouteNodeAdded { CmdId = request.CmdId, RouteNode = request.RouteNode, CmdType = nameof(ExistingRouteSegmentSplitted) });
-
             var intersectingRouteSegment = await GetIntersectingRouteSegment(request.RouteSegmentDigitizedByUser, request.RouteNode);
 
             var routeSegmentsWkt = await _geoDatabase.GetRouteSegmentsSplittedByRouteNode(request.RouteNode, intersectingRouteSegment);

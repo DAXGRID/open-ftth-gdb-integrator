@@ -87,6 +87,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                     RouteNode = routeNode,
                     CmdId = cmdId
                 });
+
+                return notifications;
             }
 
             return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId } };

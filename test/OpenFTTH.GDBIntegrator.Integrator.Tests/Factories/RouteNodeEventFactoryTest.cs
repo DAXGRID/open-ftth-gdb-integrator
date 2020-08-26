@@ -31,7 +31,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task CreateDigitizedEvent_ShouldReturnNull_OnRouteNodeApplicationNameBeingSettingsApplicationName()
+        public async Task CreateDigitizedEvent_ShouldReturnDoNothing_OnRouteNodeApplicationNameBeingSettingsApplicationName()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -41,7 +41,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
             var routeNode = new RouteNode(Guid.Empty, null, Guid.Empty, String.Empty, "GDB_INTEGRATOR");
-            var result = await factory.CreateDigitizedEvent(routeNode);
+            var result = (DoNothing)((await factory.CreateDigitizedEvent(routeNode)).First());
 
             result.Should().BeOfType<DoNothing>();
         }
@@ -80,17 +80,21 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            var result = (ExistingRouteSegmentSplitted)((await factory.CreateDigitizedEvent(routeNode)).First());
+            var result = await factory.CreateDigitizedEvent(routeNode);
+            var firstEvent = (RouteNodeAdded)result[0];
+            var secondEvent = (ExistingRouteSegmentSplitted)result[1];
 
             using (new AssertionScope())
             {
-                result.RouteNode.Should().BeEquivalentTo(routeNode);
-                result.CmdId.Should().NotBeEmpty();
+                firstEvent.RouteNode.Should().BeEquivalentTo(routeNode);
+                firstEvent.CmdId.Should().NotBeEmpty();
+                secondEvent.RouteNode.Should().BeEquivalentTo(routeNode);
+                secondEvent.CmdId.Should().NotBeEmpty();
             }
         }
 
         [Fact]
-        public async Task CreateDigitizedEvent_ShouldRetrunInvalidRouteNodeOperation_OnIntersectingRouteSegmentsCountBeingGreaterThanOne()
+        public async Task CreateDigitizedEvent_ShouldReturnInvalidRouteNodeOperation_OnIntersectingRouteSegmentsCountBeingGreaterThanOne()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -102,7 +106,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            var result = (InvalidRouteNodeOperation)(await factory.CreateDigitizedEvent(routeNode));
+            var result = (InvalidRouteNodeOperation)((await factory.CreateDigitizedEvent(routeNode)).First());
 
             using (new AssertionScope())
             {
@@ -112,7 +116,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task CreateDigitizedEvent_ShouldRetrunInvalidRouteNodeOperation_OnIntersectingRouteNodeCountBeingGreaterThanZero()
+        public async Task CreateDigitizedEvent_ShouldReturnInvalidRouteNodeOperation_OnIntersectingRouteNodeCountBeingGreaterThanZero()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -124,7 +128,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            var result = (InvalidRouteNodeOperation)(await factory.CreateDigitizedEvent(routeNode));
+            var result = (InvalidRouteNodeOperation)((await factory.CreateDigitizedEvent(routeNode)).First());
 
             using (new AssertionScope())
             {
