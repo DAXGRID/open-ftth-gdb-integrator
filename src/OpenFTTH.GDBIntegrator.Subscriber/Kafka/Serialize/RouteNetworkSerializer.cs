@@ -28,23 +28,33 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
             if (message.Body is null || message.Body.Length == 0)
                 return new ReceivedLogicalMessage(message.Headers, new RouteNodeMessage(), message.Position);
 
-            var messageBody = Encoding.UTF8.GetString(message.Body, 0, message.Body.Length);
+            dynamic payload = null;
 
-            dynamic topicMessageBody = JObject.Parse(messageBody);
-            var payload = topicMessageBody.payload;
-
-            if (IsTombStoneMessage(payload))
-                return new ReceivedLogicalMessage(message.Headers, new RouteSegmentMessage(), message.Position);
-
-            if (payload.source.table.ToString() == "route_segment")
+            try
             {
-                var routeSegmentMessage = CreateRouteSegmentMessage(payload);
-                return new ReceivedLogicalMessage(message.Headers, routeSegmentMessage, message.Position);
+                var messageBody = Encoding.UTF8.GetString(message.Body, 0, message.Body.Length);
+
+                dynamic topicMessageBody = JObject.Parse(messageBody);
+                payload = topicMessageBody.payload;
+
+                if (IsTombStoneMessage(payload))
+                    return new ReceivedLogicalMessage(message.Headers, new RouteSegmentMessage(), message.Position);
+
+                if (payload.source.table.ToString() == "route_segment")
+                {
+                    var routeSegmentMessage = CreateRouteSegmentMessage(payload);
+                    return new ReceivedLogicalMessage(message.Headers, routeSegmentMessage, message.Position);
+                }
+                else if (payload.source.table.ToString() == "route_node")
+                {
+                    var routeNodeMessage = CreateRouteNodeMessage(payload);
+                    return new ReceivedLogicalMessage(message.Headers, routeNodeMessage, message.Position);
+                }
             }
-            else if (payload.source.table.ToString() == "route_node")
+            catch (Exception e)
             {
-                var routeNodeMessage = CreateRouteNodeMessage(payload);
-                return new ReceivedLogicalMessage(message.Headers, routeNodeMessage, message.Position);
+                // TODO rewrite to error logging
+                Console.WriteLine(e.StackTrace + "\n" + "With object: " + Newtonsoft.Json.JsonConvert.SerializeObject(payload, Newtonsoft.Json.Formatting.Indented));
             }
 
             throw new Exception($"No valid deserilizaiton for type {payload.source.table.ToString()}");
