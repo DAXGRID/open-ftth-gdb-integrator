@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Generic;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.Config;
@@ -48,13 +49,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return new RouteNodeLocationChanged { CmdId = cmdId, RouteNodeAfter = after, RouteNodeBefore = before };
         }
 
-        public async Task<INotification> CreateDigitizedEvent(RouteNode routeNode)
+        public async Task<List<INotification>> CreateDigitizedEvent(RouteNode routeNode)
         {
             if (routeNode is null)
                 throw new ArgumentNullException($"Parameter {nameof(routeNode)} cannot be null");
 
             if (IsCreatedByApplication(routeNode))
-                return new DoNothing($"{nameof(RouteNode)} with id: '{routeNode.Mrid}' was created by nothing therefore do nothing.");
+                return new List<INotification> { new DoNothing($"{nameof(RouteNode)} with id: '{routeNode.Mrid}' was created by nothing therefore do nothing.") };
 
             await _geoDatabase.InsertRouteNodeShadowTable(routeNode);
 
@@ -66,21 +67,29 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingRouteNodes = await intersectingRouteNodesTask;
 
             if (intersectingRouteNodes.Count > 0)
-                return new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId };
+                return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId } };
 
             if (intersectingRouteSegments.Count == 0)
-                return new RouteNodeAdded { CmdId = cmdId, RouteNode = routeNode, IsLastEventInCmd = true, CmdType = nameof(NewRouteNodeDigitized)};
+                return new List<INotification> { new RouteNodeAdded { CmdId = cmdId, RouteNode = routeNode, IsLastEventInCmd = true, CmdType = nameof(NewRouteNodeDigitized) } };
 
             if (intersectingRouteSegments.Count == 1)
             {
-                return new ExistingRouteSegmentSplitted
+                var notifications = new List<INotification>();
+                notifications.Add(new RouteNodeAdded
+                {
+                    CmdId = cmdId,
+                    RouteNode = routeNode,
+                    CmdType = nameof(ExistingRouteSegmentSplitted)
+                });
+
+                notifications.Add(new ExistingRouteSegmentSplitted
                 {
                     RouteNode = routeNode,
                     CmdId = cmdId
-                };
+                });
             }
 
-            return new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId };
+            return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId } };
         }
 
         private async Task<bool> IsValidNodeUpdate(RouteNode before, RouteNode after)

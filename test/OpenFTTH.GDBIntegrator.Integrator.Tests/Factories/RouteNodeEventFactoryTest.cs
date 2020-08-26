@@ -5,12 +5,14 @@ using FakeItEasy;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
 using Microsoft.Extensions.Options;
+using MediatR;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 {
@@ -56,7 +58,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            var result = (RouteNodeAdded)(await factory.CreateDigitizedEvent(routeNode));
+            var result = (RouteNodeAdded)((await factory.CreateDigitizedEvent(routeNode)).First());
 
             using (new AssertionScope())
             {
@@ -78,7 +80,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            var result = (ExistingRouteSegmentSplitted)(await factory.CreateDigitizedEvent(routeNode));
+            var result = (ExistingRouteSegmentSplitted)((await factory.CreateDigitizedEvent(routeNode)).First());
 
             using (new AssertionScope())
             {
