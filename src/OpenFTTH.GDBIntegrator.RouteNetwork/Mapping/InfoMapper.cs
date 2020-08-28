@@ -75,10 +75,20 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Mapping
                     return RouteNodeKindEnum.CentralOfficeSmall;
                 case "ConduitClosure":
                     return RouteNodeKindEnum.ConduitClosure;
+                case "ConduitClosureBranchOff":
+                    return RouteNodeKindEnum.ConduitClosureBranchOff;
+                case "ConduitClosureFork":
+                    return RouteNodeKindEnum.ConduitClosureFork;
+                case "ConduitClosureStraight":
+                    return RouteNodeKindEnum.ConduitClosureStraight;
+                case "ConduitConnector":
+                    return RouteNodeKindEnum.ConduitConnector;
+                case "ConduitConnectorBranchOff":
+                    return RouteNodeKindEnum.ConduitConnectorBranchOff;
+                case "ConduitConnectorStraight":
+                    return RouteNodeKindEnum.ConduitConnectorStraight;
                 case "ConduitEnd":
                     return RouteNodeKindEnum.ConduitEnd;
-                case "ConduitSimpleJunction":
-                    return RouteNodeKindEnum.ConduitSimpleJunction;
                 case "HandHole":
                     return RouteNodeKindEnum.HandHole;
                 case "ManHole":
