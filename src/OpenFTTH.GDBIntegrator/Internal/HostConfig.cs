@@ -31,8 +31,8 @@ namespace OpenFTTH.GDBIntegrator.Internal
             var hostBuilder = new HostBuilder();
 
             ConfigureApp(hostBuilder);
-            ConfigureServices(hostBuilder);
             ConfigureLogging(hostBuilder);
+            ConfigureServices(hostBuilder);
             ConfigureJsonConverter();
 
             return hostBuilder.Build();
@@ -106,7 +106,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                         .ReadFrom.Configuration(loggingConfiguration)
                         .CreateLogger();
 
-                    loggingBuilder.AddSerilog(dispose: true);
+                    loggingBuilder.AddSerilog(logger, true);
                 });
             });
         }

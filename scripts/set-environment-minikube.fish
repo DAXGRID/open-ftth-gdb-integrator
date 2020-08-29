@@ -4,7 +4,7 @@
 
 # Application
 export APPLICATION__APPLICATIONNAME="GDB_INTEGRATOR"
-export APPLICATION__TOLERANCE="0.1"
+export APPLICATION__TOLERANCE="0.01"
 
 # Postgres
 export POSTGIS__HOST=(minikube ip)
@@ -22,4 +22,4 @@ export KAFKA__EVENTROUTENETWORKTOPICNAME="event.route-network"
 
 # Logging
 export SERILOG__MINIMUMLEVEL__DEFAULT="Information"
-export SERILOG__MINIMUMLEVEL__WRITETO="Console"
+export SERILOG__WRITETO__NAME="Console"
