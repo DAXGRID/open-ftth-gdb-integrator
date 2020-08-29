@@ -21,4 +21,5 @@ export KAFKA__POSITIONFILEPATH="/tmp/"
 export KAFKA__EVENTROUTENETWORKTOPICNAME="event.route-network"
 
 # Logging
-export LOGGING__LOGLEVEL__DEFAULT="Information"
+export SERILOG__MINIMUMLEVEL__DEFAULT="Information"
+export SERILOG__MINIMUMLEVEL__WRITETO="Console"

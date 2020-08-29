@@ -1,7 +1,6 @@
 using System;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
@@ -32,8 +31,8 @@ namespace OpenFTTH.GDBIntegrator.Internal
             var hostBuilder = new HostBuilder();
 
             ConfigureApp(hostBuilder);
-            ConfigureLogging(hostBuilder);
             ConfigureServices(hostBuilder);
+            ConfigureLogging(hostBuilder);
             ConfigureJsonConverter();
 
             return hostBuilder.Build();
@@ -64,7 +63,6 @@ namespace OpenFTTH.GDBIntegrator.Internal
             hostBuilder.ConfigureServices((hostContext, services) =>
             {
                 services.AddOptions();
-                services.AddLogging();
                 services.AddMediatR(typeof(GeoDatabaseUpdated).GetTypeInfo().Assembly);
 
                 services.AddFluentMigratorCore()
@@ -95,6 +93,24 @@ namespace OpenFTTH.GDBIntegrator.Internal
             });
         }
 
+        private static void ConfigureLogging(IHostBuilder hostBuilder)
+        {
+            hostBuilder.ConfigureServices((hostContext, services) =>
+            {
+                var loggingConfiguration = new ConfigurationBuilder()
+                   .AddEnvironmentVariables().Build();
+
+                services.AddLogging(loggingBuilder =>
+                {
+                    var logger = new LoggerConfiguration()
+                        .ReadFrom.Configuration(loggingConfiguration)
+                        .CreateLogger();
+
+                    loggingBuilder.AddSerilog(dispose: true);
+                });
+            });
+        }
+
         private static string CreatePostgresConnectionString()
         {
             var host = Environment.GetEnvironmentVariable("POSTGIS__HOST");
@@ -105,18 +121,6 @@ namespace OpenFTTH.GDBIntegrator.Internal
 
             var connectionString = $"Host={host};Port={port};Username={username};Password={password};Database={database}";
             return connectionString;
-        }
-
-        private static void ConfigureLogging(IHostBuilder hostBuilder)
-        {
-            hostBuilder.ConfigureLogging((hostingContext, logging) =>
-            {
-                logging
-                    .ClearProviders()
-                    .AddSerilog(dispose: true)
-                    .SetMinimumLevel(LogLevel.Information)
-                    .AddConsole();
-            });
         }
     }
 }

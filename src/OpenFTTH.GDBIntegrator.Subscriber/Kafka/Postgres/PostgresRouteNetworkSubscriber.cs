@@ -9,6 +9,7 @@ using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Topos.Serilog;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
 {
@@ -37,6 +38,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
                 .Serialization(s => s.RouteNetwork())
                 .Topics(t => t.Subscribe(_kafkaSetting.PostgisRouteNetworkTopic))
                 .Positions(p => p.StoreInFileSystem(_kafkaSetting.PositionFilePath))
+                .Logging(l => l.UseSerilog())
                 .Handle(async (messages, context, token) =>
                 {
                     foreach (var message in messages)
