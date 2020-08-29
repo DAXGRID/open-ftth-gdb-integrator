@@ -18,6 +18,9 @@ using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using MediatR;
 using FluentMigrator.Runner;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 
 namespace OpenFTTH.GDBIntegrator.Internal
 {
@@ -30,6 +33,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
             ConfigureApp(hostBuilder);
             ConfigureLogging(hostBuilder);
             ConfigureServices(hostBuilder);
+            ConfigureJsonConverter();
 
             return hostBuilder.Build();
         }
@@ -39,6 +43,18 @@ namespace OpenFTTH.GDBIntegrator.Internal
             hostBuilder.ConfigureAppConfiguration((hostingContext, config) =>
             {
                 config.AddEnvironmentVariables();
+            });
+        }
+
+        private static void ConfigureJsonConverter()
+        {
+            JsonConvert.DefaultSettings = (() =>
+            {
+                var settings = new JsonSerializerSettings();
+                settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                settings.Converters.Add(new StringEnumConverter());
+
+                return settings;
             });
         }
 
