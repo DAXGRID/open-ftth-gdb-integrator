@@ -57,13 +57,13 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
 
         private async Task HandleSubscribedEvent(RouteNodeMessage routeNodeMessage)
         {
-            _logger.LogDebug($"{DateTime.UtcNow.ToString("o")}: Received message {JsonConvert.SerializeObject(routeNodeMessage, Formatting.Indented)}");
+            _logger.LogDebug($"Received message {JsonConvert.SerializeObject(routeNodeMessage, Formatting.Indented)}");
             await _mediator.Send(new GeoDatabaseUpdated { UpdateMessage = routeNodeMessage });
         }
 
         private async Task HandleSubscribedEvent(RouteSegmentMessage routeSegmentMessage)
         {
-            _logger.LogDebug($"{DateTime.UtcNow.ToString("o")}: Received message {JsonConvert.SerializeObject(routeSegmentMessage, Formatting.Indented)}");
+            _logger.LogDebug($"Received message {JsonConvert.SerializeObject(routeSegmentMessage, Formatting.Indented)}");
             await _mediator.Send(new GeoDatabaseUpdated { UpdateMessage = routeSegmentMessage });
         }
 
