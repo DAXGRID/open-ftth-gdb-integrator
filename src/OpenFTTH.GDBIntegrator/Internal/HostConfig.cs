@@ -21,6 +21,7 @@ using FluentMigrator.Runner;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Serilog;
 
 namespace OpenFTTH.GDBIntegrator.Internal
 {
@@ -110,9 +111,11 @@ namespace OpenFTTH.GDBIntegrator.Internal
         {
             hostBuilder.ConfigureLogging((hostingContext, logging) =>
             {
-                logging.ClearProviders();
-                logging.AddConsole();
-                logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                logging
+                    .ClearProviders()
+                    .AddSerilog(dispose: true)
+                    .SetMinimumLevel(LogLevel.Information)
+                    .AddConsole();
             });
         }
     }
