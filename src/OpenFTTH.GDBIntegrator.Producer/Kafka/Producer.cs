@@ -32,7 +32,7 @@ namespace OpenFTTH.GDBIntegrator.Producer.Kafka
 
         public async Task Produce(string topicName, object toposMessage)
         {
-            _logger.LogInformation($"Sending message topicname: {topicName} and body {JsonConvert.SerializeObject(toposMessage, Formatting.Indented)}");
+            _logger.LogDebug($"Sending message topicname: {topicName} and body {JsonConvert.SerializeObject(toposMessage, Formatting.Indented)}");
             await _producer.Send(topicName, new ToposMessage(toposMessage));
         }
 
