@@ -19,6 +19,7 @@ export KAFKA__POSTGISROUTENETWORKTOPIC="postgis.route-network"
 export KAFKA__POSTGISROUTENETWORKCONSUMER="postgis-route-network-consumer"
 export KAFKA__POSITIONFILEPATH="/tmp/"
 export KAFKA__EVENTROUTENETWORKTOPICNAME="event.route-network"
+export KAFKA__EVENTGEOGRAPHICALAREAUPDATED="event.geographical-area-updated"
 
 # Logging
 export SERILOG__MINIMUMLEVEL__DEFAULT="Information"
