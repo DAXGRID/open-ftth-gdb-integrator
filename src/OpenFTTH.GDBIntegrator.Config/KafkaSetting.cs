@@ -7,5 +7,6 @@ namespace OpenFTTH.GDBIntegrator.Config
         public string PostgisRouteNetworkConsumer { get; set; }
         public string PositionFilePath { get; set; }
         public string EventRouteNetworkTopicName { get; set; }
+        public string EventGeographicalAreaUpdated { get; set; }
     }
 }

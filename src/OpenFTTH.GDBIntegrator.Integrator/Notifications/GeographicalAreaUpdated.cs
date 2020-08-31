@@ -1,4 +1,6 @@
 using MediatR;
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -6,6 +8,7 @@ using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.Config;
+using OpenFTTH.Events.Geo;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -14,7 +17,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     public class GeographicalAreaUpdated : INotification
     {
         public List<RouteNode> RouteNodes { get; set; }
-        public List<RouteSegment> RouteSEgment { get; set; }
+        public List<RouteSegment> RouteSegment { get; set; }
     }
 
     public class GeographicalAreaUpdatedHandler : INotificationHandler<GeographicalAreaUpdated>
@@ -38,7 +41,24 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(GeographicalAreaUpdated request, CancellationToken token)
         {
-            await _producer.Produce("", null);
+            var envelope = _envelopeFactory.Create(request.RouteNodes, request.RouteSegment);
+            var envelopeInfo = new EnvelopeInfo(envelope.MinX, envelope.MaxX, envelope.MinY, envelope.MaxY);
+
+            var routeNodesIds = request.RouteNodes.Select(x => x.Mrid);
+            var routeSegmentIds = request.RouteSegment.Select(x => x.Mrid);
+
+            var idChangeSets = routeNodesIds.Concat(routeSegmentIds);
+
+            var geographicalAreaUpdatedEvent = new ObjectsWithinGeographicalAreaUpdated(
+                nameof(ObjectsWithinGeographicalAreaUpdated),
+                Guid.NewGuid(),
+                DateTime.UtcNow,
+                "RouteNetworkUpdated",
+                envelopeInfo,
+                null
+                );
+
+            await _producer.Produce(_kafkaSettings.EventGeographicalAreaUpdated, geographicalAreaUpdatedEvent);
         }
     }
 }
