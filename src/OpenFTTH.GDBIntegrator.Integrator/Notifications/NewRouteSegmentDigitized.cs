@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
@@ -40,7 +41,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             if (request.RouteSegment is null)
                 throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");
 
-            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Starting - {nameof(NewRouteSegmentDigitized)}\n");
+            _logger.LogDebug($"{DateTime.UtcNow.ToString("o")}: Starting - {nameof(NewRouteSegmentDigitized)}\n");
 
             var eventId = request.EventId;
 

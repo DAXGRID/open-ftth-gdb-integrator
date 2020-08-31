@@ -37,7 +37,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(RouteSegmentDeleted request, CancellationToken token)
         {
-            _logger.LogInformation($"Sending {nameof(RouteSegmentDeleted)} with mrid '{request.RouteSegment.Mrid}' to producer");
+            _logger.LogDebug($"Sending {nameof(RouteSegmentDeleted)} with mrid '{request.RouteSegment.Mrid}' to producer");
 
             var routeSegmentMarkedForDeletionEvent = new RouteSegmentMarkedForDeletion(
                 nameof(RouteSegmentMarkedForDeletion),
