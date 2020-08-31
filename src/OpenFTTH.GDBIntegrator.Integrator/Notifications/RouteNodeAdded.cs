@@ -37,7 +37,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(RouteNodeAdded request, CancellationToken token)
         {
-            _logger.LogInformation($"Sending {nameof(RouteNodeAdded)} with mrid '{request.RouteNode.Mrid}' to producer");
+            _logger.LogDebug($"Sending {nameof(RouteNodeAdded)} with mrid '{request.RouteNode.Mrid}' to producer");
 
             var routeNodeAddedEvent = new Events.RouteNetwork.RouteNodeAdded
                 (
