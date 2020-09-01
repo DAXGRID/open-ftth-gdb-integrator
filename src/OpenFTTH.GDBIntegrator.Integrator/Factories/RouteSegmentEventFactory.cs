@@ -57,9 +57,24 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingEndSegments = await _geoDatabase.GetIntersectingEndRouteSegments(after);
             var intersectingStartNodes = await _geoDatabase.GetIntersectingStartRouteNodes(after);
             var intersectingEndNodes = await _geoDatabase.GetIntersectingEndRouteNodes(after);
+            var allIntersectingRouteNodesNoEdges = await _geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(after);
 
             if (await IsGeometryChanged(intersectingStartNodes.FirstOrDefault(), intersectingEndNodes.FirstOrDefault(), before))
-                return new List<INotification> { new RouteSegmentLocationChanged { CmdId = cmdId, RouteSegment = after, IsLastEventInCmd = true } };
+            {
+                var events = new List<INotification>();
+                events.Add(new RouteSegmentLocationChanged { CmdId = cmdId, RouteSegment = after, IsLastEventInCmd = true });
+
+                if (allIntersectingRouteNodesNoEdges.Count > 0)
+                {
+                    foreach (var intersectingRouteNode in allIntersectingRouteNodesNoEdges)
+                    {
+                        var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(null, cmdId, intersectingRouteNode);
+                        events.Add(routeSegmentSplitted);
+                    }
+                }
+
+                return events;
+            }
 
             var notifications = new List<INotification>();
             notifications.AddRange(HandleExistingRouteSegmentSplitted(intersectingStartSegments.Count, intersectingStartNodes.Count, cmdId, after.FindStartPoint(), after));
@@ -141,12 +156,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             {
                 var node = _routeNodeFactory.Create(point);
                 notifications.Add(new NewRouteNodeDigitized
-                    {
-                        CmdId = cmdId,
-                        RouteNode = node,
-                        IsLastEventInCmd = false,
-                        CmdType = nameof(ExistingRouteSegmentSplitted)
-                    });
+                {
+                    CmdId = cmdId,
+                    RouteNode = node,
+                    IsLastEventInCmd = false,
+                    CmdType = nameof(ExistingRouteSegmentSplitted)
+                });
 
                 var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(routeSegment, cmdId, node);
                 notifications.Add(routeSegmentSplitted);
