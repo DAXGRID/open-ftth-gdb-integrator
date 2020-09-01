@@ -170,7 +170,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
 
-            A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode))
+            A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(beforeNode.Coord))
                 .Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
@@ -293,6 +293,47 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
             result.Should().BeOfType(typeof(DoNothing));
+        }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldReturnRouteNodeLocationChangedAndSplitRouteSegment_OnIntersectingRouteSegment()
+        {
+            var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var beforeNode = A.Fake<RouteNode>();
+            var afterNode = A.Fake<RouteNode>();
+            var shadowTableRouteNode = A.Fake<RouteNode>();
+
+            A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid)).Returns(shadowTableRouteNode);
+
+            A.CallTo(() => afterNode.GetGeoJsonCoordinate())
+                .Returns("[665931.4446905176,7197297.75114815]");
+            A.CallTo(() => afterNode.MarkAsDeleted).Returns(false);
+
+            A.CallTo(() => shadowTableRouteNode.GetGeoJsonCoordinate())
+                .Returns("[565931.4446905176,6197297.75114815]");
+            A.CallTo(() => shadowTableRouteNode.MarkAsDeleted).Returns(false);
+
+            A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
+
+            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+
+            var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
+            var routeNodeLocationChanged = (RouteNodeLocationChanged)result[0];
+            var existingRouteSegmentSplitted = (ExistingRouteSegmentSplitted)result[1];
+
+            using (var scope = new AssertionScope())
+            {
+                routeNodeLocationChanged.Should().BeOfType(typeof(RouteNodeLocationChanged));
+                routeNodeLocationChanged.RouteNodeAfter.Should().Be(afterNode);
+                routeNodeLocationChanged.CmdId.Should().NotBeEmpty();
+
+                existingRouteSegmentSplitted.Should().BeOfType(typeof(ExistingRouteSegmentSplitted));
+                existingRouteSegmentSplitted.CmdId.Should().NotBeEmpty();
+                existingRouteSegmentSplitted.RouteNode.Should().NotBeNull();
+                existingRouteSegmentSplitted.RouteSegmentDigitizedByUser.Should().BeNull();
+            }
         }
 
         [Fact]

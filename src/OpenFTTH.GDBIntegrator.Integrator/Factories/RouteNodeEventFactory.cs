@@ -46,6 +46,27 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (after.MarkAsDeleted)
                 return new List<INotification> { new RouteNodeDeleted { CmdId = cmdId, RouteNode = after, IsLastEventInCmd = true } };
 
+            var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
+            if (intersectingRouteSegments.Count > 0)
+            {
+                var notifications = new List<INotification>();
+                notifications.Add(new RouteNodeLocationChanged { CmdId = cmdId, RouteNodeAfter = after, RouteNodeBefore = before });
+
+                var previousIntersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(before.Coord);
+                var intersectingSegments = (await _geoDatabase.GetIntersectingRouteSegments(after))
+                    .Where(x => !previousIntersectingRouteSegments.Any(y => y.Mrid == x.Mrid)).ToList();
+                if (intersectingSegments.Count > 0)
+                {
+                    notifications.Add(new ExistingRouteSegmentSplitted
+                    {
+                        RouteNode = after,
+                        CmdId = cmdId
+                    });
+                }
+
+                return notifications;
+            }
+
             return new List<INotification> { new RouteNodeLocationChanged { CmdId = cmdId, RouteNodeAfter = after, RouteNodeBefore = before } };
         }
 
@@ -97,11 +118,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         private async Task<bool> IsValidNodeUpdate(RouteNode before, RouteNode after)
         {
             var previousIntersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(before.Coord);
-            var intersectingRouteSegments = (await _geoDatabase.GetIntersectingRouteSegments(after))
-                .Where(x => !previousIntersectingRouteSegments.Any(y => y.Mrid == x.Mrid)).ToList();
             var intersectingRouteNodes = await _geoDatabase.GetIntersectingRouteNodes(after);
 
-            if (intersectingRouteSegments.Count > 0 || intersectingRouteNodes.Count > 0)
+            if ((previousIntersectingRouteSegments.Count > 0 && after.MarkAsDeleted) || intersectingRouteNodes.Count > 0)
                 return false;
 
             return true;
