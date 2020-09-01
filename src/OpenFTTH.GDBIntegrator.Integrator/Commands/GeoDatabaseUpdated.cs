@@ -7,6 +7,7 @@ using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands
@@ -54,6 +55,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 _logger.LogError(e.ToString());
                 _pool.Release();
             }
+
+            // TODO Hack until time to make a better implementation
+            await _mediator.Publish(new GeographicalAreaUpdated() { RouteNodes = new List<RouteNode>(), RouteSegment = new List<RouteSegment>() });
 
             return await Task.FromResult(new Unit());
         }
