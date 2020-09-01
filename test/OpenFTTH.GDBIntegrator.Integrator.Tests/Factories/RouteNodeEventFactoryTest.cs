@@ -138,7 +138,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task CreateUpdatedEvent_ShouldReturnRouteNodeRemovedEvent_OnRouteNodeMarkAsDeletedSetAndNoIntersectingSegments()
+        public async Task CreateUpdatedEvent_ShouldReturnRouteNodeDeletedEvent_OnRouteNodeMarkAsDeletedSetAndNoIntersectingSegments()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -151,7 +151,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new List<RouteSegment> { });
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
-            var result = (RouteNodeDeleted)(await factory.CreateUpdatedEvent(beforeNode, afterNode));
+            var result = (RouteNodeDeleted)(await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
             using (new AssertionScope())
             {
@@ -229,7 +229,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
+            var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
             result.Should().BeOfType<DoNothing>();
         }
@@ -290,7 +290,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
+            var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
             result.Should().BeOfType(typeof(DoNothing));
         }
@@ -317,7 +317,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
 
-            var result = (RouteNodeLocationChanged)(await factory.CreateUpdatedEvent(beforeNode, afterNode));
+            var result = (RouteNodeLocationChanged)(await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
             using (var scope = new AssertionScope())
             {

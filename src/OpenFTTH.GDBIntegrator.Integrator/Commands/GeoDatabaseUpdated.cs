@@ -79,9 +79,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             else if (IsNodeUpdated(routeNodeMessage))
             {
-                var routeNodeUpdatedEvent = await _routeNodeEventFactory.CreateUpdatedEvent(routeNodeMessage.Before, routeNodeMessage.After);
-                if (!(routeNodeUpdatedEvent is null))
-                    await _mediator.Publish(routeNodeUpdatedEvent);
+                var routeNodeUpdatedEvents = await _routeNodeEventFactory.CreateUpdatedEvent(routeNodeMessage.Before, routeNodeMessage.After);
+                foreach (var routeNodeUpdatedEvent in routeNodeUpdatedEvents)
+                {
+                    if (!(routeNodeUpdatedEvent is null))
+                        await _mediator.Publish(routeNodeUpdatedEvent);
+                }
             }
             else
             {

@@ -24,7 +24,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             _geoDatabase = geoDatabase;
         }
 
-        public async Task<INotification> CreateUpdatedEvent(RouteNode before, RouteNode after)
+        public async Task<List<INotification>> CreateUpdatedEvent(RouteNode before, RouteNode after)
         {
             if (before is null || after is null)
                 throw new ArgumentNullException($"Parameter {nameof(before)} or {nameof(after)} cannot be null");
@@ -32,21 +32,21 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var shadowTableNode = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid);
 
             if (shadowTableNode is null)
-                return new DoNothing($"{nameof(RouteNode)} is already deleted, so do nothing.");
+                return new List<INotification> { new DoNothing($"{nameof(RouteNode)} is already deleted, so do nothing.") };
 
             if (AlreadyUpdated(after, shadowTableNode))
-                return new DoNothing($"{nameof(RouteNode)} with id: '{after.Mrid}' was already updated therefore do nothing.");
+                return new List<INotification> { new DoNothing($"{nameof(RouteNode)} with id: '{after.Mrid}' was already updated therefore do nothing.") };
 
             await _geoDatabase.UpdateRouteNodeShadowTable(after);
 
             if (!(await IsValidNodeUpdate(before, after)))
-                return new RollbackInvalidRouteNode(before);
+                return new List<INotification> { new RollbackInvalidRouteNode(before) };
 
             var cmdId = Guid.NewGuid();
             if (after.MarkAsDeleted)
-                return new RouteNodeDeleted { CmdId = cmdId, RouteNode = after, IsLastEventInCmd = true };
+                return new List<INotification> { new RouteNodeDeleted { CmdId = cmdId, RouteNode = after, IsLastEventInCmd = true } };
 
-            return new RouteNodeLocationChanged { CmdId = cmdId, RouteNodeAfter = after, RouteNodeBefore = before };
+            return new List<INotification> { new RouteNodeLocationChanged { CmdId = cmdId, RouteNodeAfter = after, RouteNodeBefore = before } };
         }
 
         public async Task<List<INotification>> CreateDigitizedEvent(RouteNode routeNode)
