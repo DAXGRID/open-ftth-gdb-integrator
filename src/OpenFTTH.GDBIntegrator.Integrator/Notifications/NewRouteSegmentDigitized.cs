@@ -37,10 +37,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(NewRouteSegmentDigitized request, CancellationToken token)
         {
+            _logger.LogInformation($"Starting {nameof(NewRouteSegmentDigitized)}");
+
             if (request.RouteSegment is null)
                 throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");
-
-            _logger.LogDebug($"{DateTime.UtcNow.ToString("o")}: Starting - {nameof(NewRouteSegmentDigitized)}\n");
 
             var eventId = request.EventId;
 

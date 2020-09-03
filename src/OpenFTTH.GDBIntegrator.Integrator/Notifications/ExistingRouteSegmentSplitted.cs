@@ -39,7 +39,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(ExistingRouteSegmentSplitted request, CancellationToken token)
         {
-            _logger.LogDebug($"Starting Existing route segment splitted by route node");
+            _logger.LogInformation($"Starting {nameof(ExistingRouteSegmentSplitted)}");
 
             var intersectingRouteSegment = await GetIntersectingRouteSegment(request.RouteSegmentDigitizedByUser, request.RouteNode);
 

@@ -39,7 +39,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(NewRouteNodeDigitized request, CancellationToken token)
         {
-            _logger.LogDebug($"Sending {nameof(NewRouteNodeDigitized)} with mrid '{request.RouteNode.Mrid}' to producer");
+            _logger.LogInformation($"Sending {nameof(NewRouteNodeDigitized)} with mrid '{request.RouteNode.Mrid}' to producer");
 
             await _geoDatabase.InsertRouteNode(request.RouteNode);
             await _mediator.Publish(new RouteNodeAdded

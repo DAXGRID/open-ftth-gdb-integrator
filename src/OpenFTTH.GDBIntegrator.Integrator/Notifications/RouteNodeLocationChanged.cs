@@ -45,6 +45,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(RouteNodeLocationChanged request, CancellationToken token)
         {
+            _logger.LogInformation($"Starting {nameof(RouteNodeLocationChanged)}");
+
             var intersectingSegmentsBeforeChange = (await _geoDatabase.GetIntersectingRouteSegments(request.RouteNodeBefore.Coord)).ToList();
             var routeSegmentsToBeUpdated = new List<RouteSegment>();
             if (intersectingSegmentsBeforeChange.Count > 0)
