@@ -105,7 +105,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             foreach (var routeSegment in routeSegments)
             {
-                _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Inserting routesegment: {routeSegment.Mrid}");
+                _logger.LogInformation($"Inserting routesegment: {routeSegment.Mrid}");
                 await _geoDatabase.InsertRouteSegment(routeSegment);
                 await _mediator.Publish(new RouteSegmentAdded
                 {
@@ -120,7 +120,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         private async Task DeleteRouteSegment(RouteSegment intersectingRouteSegment, Guid cmdId, List<RouteSegment> routeSegments)
         {
-            _logger.LogInformation($"{DateTime.UtcNow.ToString("o")}: Deleting routesegment: {intersectingRouteSegment.Mrid}");
+            _logger.LogInformation($"Deleting routesegment: {intersectingRouteSegment.Mrid}");
             await _geoDatabase.DeleteRouteSegment(intersectingRouteSegment.Mrid);
             await _mediator.Publish(
                 new RouteSegmentRemoved

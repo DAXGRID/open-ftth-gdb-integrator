@@ -27,7 +27,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(InvalidRouteNodeOperation request, CancellationToken token)
         {
-            _logger.LogWarning($"{DateTime.UtcNow.ToString("o")}: Deleteting {nameof(RouteNode)} with mrid '{request.RouteNode.Mrid}'");
+            _logger.LogWarning($"Deleteting {nameof(RouteNode)} with mrid '{request.RouteNode.Mrid}'");
             await _geoDatabase.DeleteRouteNode(request.RouteNode.Mrid);
         }
     }
