@@ -14,22 +14,29 @@ CREATE SCHEMA IF NOT EXISTS route_network;
 -- User Route node table
 ----------------------------------------------------------------------------------
 
+-- Create sequence for route_network.route_node
+CREATE SEQUENCE route_network.route_node_id_seq;
+
 -- Create the route node table
 CREATE TABLE route_network.route_node
 (
-	mrid uuid,
-	coord geometry(Point,25832),
-	node_name varchar(255),
-	node_kind varchar(255),
-	node_function varchar(255),
-	marked_to_be_deleted boolean,
-	delete_me boolean,
-	work_task_mrid uuid,
-	user_name varchar(255),
-	application_name varchar(255),
-	application_info varchar,
-	PRIMARY KEY(mrid)
+    id integer NOT NULL DEFAULT nextval('route_network.route_node_id_seq'::regclass),
+    mrid uuid UNIQUE,
+    coord geometry(Point,25832),
+    node_name varchar(255),
+    node_kind varchar(255),
+    node_function varchar(255),
+    marked_to_be_deleted boolean,
+    delete_me boolean,
+    work_task_mrid uuid,
+    user_name varchar(255),
+    application_name varchar(255),
+    application_info varchar,
+    CONSTRAINT route_node_pkey PRIMARY KEY (id)
 );
+
+-- Create unique index for mrid
+create unique index route_node_unique_mridx on route_network.route_node (mrid);
 
 -- Create spatial index
 CREATE INDEX route_node_coord_idx
@@ -41,7 +48,7 @@ BEGIN
     UPDATE route_network.route_node SET marked_to_be_deleted = true WHERE route_node.mrid = OLD.mrid;
     RETURN null;
 
-	RETURN NEW;
+    RETURN NEW;
 END $_$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER delete_route_node BEFORE DELETE ON route_network.route_node
@@ -53,12 +60,12 @@ EXECUTE PROCEDURE route_network.route_node_delete();
 CREATE FUNCTION route_network.route_node_update() RETURNS TRIGGER AS $_$
 BEGIN
     IF NEW.delete_me = true
-	THEN
-	    DELETE FROM route_network.route_node where mrid = OLD.mrid;
-		RETURN null;
-	END IF;
+    THEN
+        DELETE FROM route_network.route_node where mrid = OLD.mrid;
+        RETURN null;
+    END IF;
 
-	RETURN NEW;
+    RETURN NEW;
 END $_$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER update_route_node BEFORE UPDATE ON route_network.route_node
@@ -69,20 +76,27 @@ FOR EACH ROW EXECUTE PROCEDURE route_network.route_node_update();
 -- User Route segment table
 ----------------------------------------------------------------------------------
 
+-- Create sequence for route_network.route_node
+CREATE SEQUENCE route_network.route_segment_id_seq;
+
 -- Create the route segment table
 CREATE TABLE route_network.route_segment
 (
-	mrid uuid,
-	coord geometry(Linestring,25832),
-	marked_to_be_deleted boolean,
-	delete_me boolean,
-	segment_kind varchar(255),
-	work_task_mrid uuid,
-	user_name varchar(255),
-	application_name varchar(255),
-	application_info varchar,
-	PRIMARY KEY(mrid)
+    id integer NOT NULL DEFAULT nextval('route_network.route_segment_id_seq'::regclass),
+    mrid uuid ,
+    coord geometry(Linestring,25832),
+    marked_to_be_deleted boolean,
+    delete_me boolean,
+    segment_kind varchar(255),
+    work_task_mrid uuid,
+    user_name varchar(255),
+    application_name varchar(255),
+    application_info varchar,
+    CONSTRAINT route_segment_pkey PRIMARY KEY (id)
 );
+
+-- Create unique index for mrid
+create unique index route_segment_unique_mridx on route_network.route_segment (mrid);
 
 -- Create spatial index
 CREATE INDEX route_segment_coord_idx
@@ -93,12 +107,12 @@ CREATE INDEX route_segment_coord_idx
 CREATE FUNCTION route_network.route_segment_delete() RETURNS TRIGGER AS $_$
 BEGIN
     IF OLD.delete_me = false
-	THEN
+    THEN
        UPDATE route_network.route_segment SET marked_to_be_deleted = true WHERE route_segment.mrid = OLD.mrid;
        RETURN null;
     END IF;
 
-	RETURN NEW;
+    RETURN NEW;
 END $_$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER delete_route_segment BEFORE DELETE ON route_network.route_segment
@@ -110,12 +124,12 @@ EXECUTE PROCEDURE route_network.route_segment_delete();
 CREATE FUNCTION route_network.route_segment_update() RETURNS TRIGGER AS $_$
 BEGIN
     IF NEW.delete_me = true
-	THEN
-	    DELETE FROM route_network.route_segment where mrid = OLD.mrid;
-		RETURN null;
-	END IF;
+    THEN
+        DELETE FROM route_network.route_segment where mrid = OLD.mrid;
+        RETURN null;
+    END IF;
 
-	RETURN NEW;
+    RETURN NEW;
 END $_$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER update_route_node BEFORE UPDATE ON route_network.route_segment
@@ -132,18 +146,18 @@ CREATE SCHEMA IF NOT EXISTS route_network_integrator;
 -- Create the route node table
 CREATE TABLE route_network_integrator.route_node
 (
-	mrid uuid,
-	coord geometry(Point,25832),
-	node_name varchar(255),
-	node_kind varchar(255),
-	node_function varchar(255),
-	marked_to_be_deleted boolean,
-	delete_me boolean,
-	work_task_mrid uuid,
-	user_name varchar(255),
-	application_name varchar(255),
-	application_info varchar,
-	PRIMARY KEY(mrid)
+    mrid uuid,
+    coord geometry(Point,25832),
+    node_name varchar(255),
+    node_kind varchar(255),
+    node_function varchar(255),
+    marked_to_be_deleted boolean,
+    delete_me boolean,
+    work_task_mrid uuid,
+    user_name varchar(255),
+    application_name varchar(255),
+    application_info varchar,
+    PRIMARY KEY(mrid)
 );
 
 -- Create spatial index
@@ -190,16 +204,16 @@ FOR EACH ROW EXECUTE PROCEDURE route_network_integrator.route_node_update();
 -- Create the route segment table
 CREATE TABLE route_network_integrator.route_segment
 (
-	mrid uuid,
-	coord geometry(Linestring,25832),
-	marked_to_be_deleted boolean,
-	delete_me boolean,
-	segment_kind varchar(255),
-	work_task_mrid uuid,
-	user_name varchar(255),
-	application_name varchar(255),
-	application_info varchar,
-	PRIMARY KEY(mrid)
+    mrid uuid,
+    coord geometry(Linestring,25832),
+    marked_to_be_deleted boolean,
+    delete_me boolean,
+    segment_kind varchar(255),
+    work_task_mrid uuid,
+    user_name varchar(255),
+    application_name varchar(255),
+    application_info varchar,
+    PRIMARY KEY(mrid)
 );
 
 -- Create spatial index
