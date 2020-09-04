@@ -494,17 +494,15 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteSegment>> GetIntersectingStartRouteSegments(RouteNode routeNode)
         {
-            using var connection = GetNpgsqlConnection();
+            await using var connection = GetNpgsqlConnection();
 
             var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
-                        ST_StartPoint(
-                            ST_GeomFromWKB(@coord, 25832)
-                          ),
+                        ST_GeomFromWKB(@coord, 25832),
                         @tolerance
                       ),
-                      coord) AND marked_to_be_deleted = false
+                      ST_StartPoint(coord)) AND marked_to_be_deleted = false
                     ";
 
             await connection.OpenAsync();
@@ -538,17 +536,15 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteSegment>> GetIntersectingEndRouteSegments(RouteNode routeNode)
         {
-            using var connection = GetNpgsqlConnection();
+            await using var connection = GetNpgsqlConnection();
 
             var query = @"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
-                        ST_EndPoint(
-                            ST_GeomFromWKB(@coord, 25832)
-                          ),
+                        ST_GeomFromWKB(@coord, 25832),
                         @tolerance
                       ),
-                      coord) AND marked_to_be_deleted = false
+                      ST_EndPoint(coord)) AND marked_to_be_deleted = false
                     ";
 
             await connection.OpenAsync();
