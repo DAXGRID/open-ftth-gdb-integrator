@@ -170,7 +170,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
 
-            A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(beforeNode.Coord))
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(beforeNode))
+                .Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
+
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(beforeNode))
                 .Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
 
             var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
