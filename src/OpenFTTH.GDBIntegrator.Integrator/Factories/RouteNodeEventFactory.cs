@@ -117,10 +117,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         private async Task<bool> IsValidNodeUpdate(RouteNode before, RouteNode after)
         {
-            var previousIntersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(before.Coord);
+            var startRouteSegment = await _geoDatabase.GetIntersectingStartRouteSegments(before);
+            var endRouteSegment = await _geoDatabase.GetIntersectingEndRouteSegments(before);
             var intersectingRouteNodes = await _geoDatabase.GetIntersectingRouteNodes(after);
 
-            if ((previousIntersectingRouteSegments.Count > 0 && after.MarkAsDeleted) || intersectingRouteNodes.Count > 0)
+            if (((startRouteSegment.Count + endRouteSegment.Count) > 0 && after.MarkAsDeleted) || intersectingRouteNodes.Count > 0)
                 return false;
 
             return true;
