@@ -29,9 +29,9 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<RouteNode> GetRouteNodeShadowTable(Guid mrid)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"SELECT
+            await using var connection = GetNpgsqlConnection();
+
+            var query = @"SELECT
                               ST_AsBinary(coord) AS coord,
                               mrid,
                               marked_to_be_deleted AS markedToBeDeleted,
@@ -40,19 +40,17 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                               application_name AS applicationName
                               FROM route_network_integrator.route_node WHERE mrid = @mrid AND marked_to_be_deleted = false";
 
-                await connection.OpenAsync();
+            await connection.OpenAsync();
 
-                var routeNode = await connection.QueryAsync<RouteNode>(query, new { mrid });
+            var routeNode = await connection.QueryAsync<RouteNode>(query, new { mrid });
 
-                return routeNode.FirstOrDefault();
-            }
+            return routeNode.FirstOrDefault();
         }
 
         public async Task<RouteSegment> GetRouteSegmentShadowTable(Guid mrid)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"SELECT
+            await using var connection = GetNpgsqlConnection();
+            var query = @"SELECT
                               ST_AsBinary(coord) AS coord,
                               mrid,
                               marked_to_be_deleted AS markedToBeDeleted,
@@ -61,18 +59,16 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                               application_name AS applicationName
                               FROM route_network_integrator.route_segment WHERE mrid = @mrid AND marked_to_be_deleted = false";
 
-                await connection.OpenAsync();
-                var routeSegment = await connection.QueryAsync<RouteSegment>(query, new { mrid });
+            await connection.OpenAsync();
+            var routeSegment = await connection.QueryAsync<RouteSegment>(query, new { mrid });
 
-                return routeSegment.FirstOrDefault();
-            }
+            return routeSegment.FirstOrDefault();
         }
 
         public async Task<List<RouteNode>> GetIntersectingStartRouteNodes(RouteSegment routeSegment)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
+            await using var connection = GetNpgsqlConnection();
+            var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_StartPoint(
@@ -84,18 +80,16 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND marked_to_be_deleted = false
                     ";
 
-                await connection.OpenAsync();
-                var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
+            await connection.OpenAsync();
+            var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
-                return routeNodes.AsList();
-            }
+            return routeNodes.AsList();
         }
 
         public async Task<List<RouteNode>> GetIntersectingStartRouteNodes(byte[] coord)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
+            await using var connection = GetNpgsqlConnection();
+            var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_StartPoint(
@@ -106,18 +100,16 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND marked_to_be_deleted = false
                     ";
 
-                await connection.OpenAsync();
-                var routeNodes = await connection.QueryAsync<RouteNode>(query, new { coord, _applicationSettings.Tolerance });
+            await connection.OpenAsync();
+            var routeNodes = await connection.QueryAsync<RouteNode>(query, new { coord, _applicationSettings.Tolerance });
 
-                return routeNodes.AsList();
-            }
+            return routeNodes.AsList();
         }
 
         public async Task<List<RouteNode>> GetIntersectingEndRouteNodes(RouteSegment routeSegment)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
+            await using var connection = GetNpgsqlConnection();
+            var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_EndPoint(
@@ -129,18 +121,16 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND marked_to_be_deleted = false
                     ";
 
-                await connection.OpenAsync();
-                var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
+            await connection.OpenAsync();
+            var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
-                return routeNodes.AsList();
-            }
+            return routeNodes.AsList();
         }
 
         public async Task<List<RouteNode>> GetIntersectingEndRouteNodes(byte[] coord)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
+            await using var connection = GetNpgsqlConnection();
+            var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_EndPoint(
@@ -151,18 +141,16 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND marked_to_be_deleted = false
                     ";
 
-                await connection.OpenAsync();
-                var routeNodes = await connection.QueryAsync<RouteNode>(query, new { coord, _applicationSettings.Tolerance });
+            await connection.OpenAsync();
+            var routeNodes = await connection.QueryAsync<RouteNode>(query, new { coord, _applicationSettings.Tolerance });
 
-                return routeNodes.AsList();
-            }
+            return routeNodes.AsList();
         }
 
         public async Task<List<RouteSegment>> GetIntersectingRouteSegments(RouteNode routeNode)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"SELECT
+            await using var connection = GetNpgsqlConnection();
+            var query = @"SELECT
                     ST_AsBinary(coord) AS coord,
                     mrid,
                     work_task_mrid AS workTaskMrid,
@@ -193,67 +181,65 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       ),
                       coord) AND marked_to_be_deleted = false";
 
-                await connection.OpenAsync();
-                var routeSegments = (await connection.QueryAsync<RouteSegmentQueryModel>(query, new { routeNode.Mrid, _applicationSettings.Tolerance }))
-                    .Select(x => new RouteSegment
-                    {
-                        ApplicationInfo = x.ApplicationInfo,
-                        ApplicationName = x.ApplicationName,
-                        Coord = x.Coord,
-                        Mrid = x.Mrid,
-                        Username = x.Username,
-                        WorkTaskMrid = x.WorkTaskMrid,
-                        MappingInfo = new MappingInfo
-                        {
-                            HorizontalAccuracy = x.MappingHoritzontalAccuracy,
-                            Method = _infoMapper.MapMappingMethod(x.MappingMethod),
-                            SourceInfo = x.MappingSourceInfo,
-                            SurveyDate = x.MappingSurveyDate,
-                            VerticalAccuracy = x.MappingVerticalAccuracy
-                        },
-                        LifeCycleInfo = new LifecycleInfo
-                        {
-                            DeploymentState = _infoMapper.MapDeploymentState(x.LifeCycleDeploymentState),
-                            InstallationDate = x.LifeCycleInstallationDate,
-                            RemovalDate = x.LifeCycleRemovalDate
-                        },
-                        NamingInfo = new NamingInfo
-                        {
-                            Description = x.NamingDescription,
-                            Name = x.NamingName
-                        },
-                        RouteSegmentInfo = new RouteSegmentInfo
-                        {
-                            Height = x.RouteSegmentHeight,
-                            Kind = _infoMapper.MapRouteSegmentKind(x.RouteSegmentKind),
-                            Width = x.RouteSegmentWidth
-                        },
-                        SafetyInfo = new SafetyInfo
-                        {
-                            Classification = x.SafetyClassification,
-                            Remark = x.SafetyRemark
-                        }
-                    }).ToList();
-
-                foreach (var routeSegment in routeSegments)
+            await connection.OpenAsync();
+            var routeSegments = (await connection.QueryAsync<RouteSegmentQueryModel>(query, new { routeNode.Mrid, _applicationSettings.Tolerance }))
+                .Select(x => new RouteSegment
                 {
-                    // Make fully empty objects into nulls.
-                    routeSegment.LifeCycleInfo = AreAnyPropertiesNotNull<LifecycleInfo>(routeSegment.LifeCycleInfo) ? routeSegment.LifeCycleInfo : null;
-                    routeSegment.MappingInfo = AreAnyPropertiesNotNull<MappingInfo>(routeSegment.MappingInfo) ? routeSegment.MappingInfo : null;
-                    routeSegment.NamingInfo = AreAnyPropertiesNotNull<NamingInfo>(routeSegment.NamingInfo) ? routeSegment.NamingInfo : null;
-                    routeSegment.RouteSegmentInfo = AreAnyPropertiesNotNull<RouteSegmentInfo>(routeSegment.RouteSegmentInfo) ? routeSegment.RouteSegmentInfo : null;
-                    routeSegment.SafetyInfo = AreAnyPropertiesNotNull<SafetyInfo>(routeSegment.SafetyInfo) ? routeSegment.SafetyInfo : null;
-                }
+                    ApplicationInfo = x.ApplicationInfo,
+                    ApplicationName = x.ApplicationName,
+                    Coord = x.Coord,
+                    Mrid = x.Mrid,
+                    Username = x.Username,
+                    WorkTaskMrid = x.WorkTaskMrid,
+                    MappingInfo = new MappingInfo
+                    {
+                        HorizontalAccuracy = x.MappingHoritzontalAccuracy,
+                        Method = _infoMapper.MapMappingMethod(x.MappingMethod),
+                        SourceInfo = x.MappingSourceInfo,
+                        SurveyDate = x.MappingSurveyDate,
+                        VerticalAccuracy = x.MappingVerticalAccuracy
+                    },
+                    LifeCycleInfo = new LifecycleInfo
+                    {
+                        DeploymentState = _infoMapper.MapDeploymentState(x.LifeCycleDeploymentState),
+                        InstallationDate = x.LifeCycleInstallationDate,
+                        RemovalDate = x.LifeCycleRemovalDate
+                    },
+                    NamingInfo = new NamingInfo
+                    {
+                        Description = x.NamingDescription,
+                        Name = x.NamingName
+                    },
+                    RouteSegmentInfo = new RouteSegmentInfo
+                    {
+                        Height = x.RouteSegmentHeight,
+                        Kind = _infoMapper.MapRouteSegmentKind(x.RouteSegmentKind),
+                        Width = x.RouteSegmentWidth
+                    },
+                    SafetyInfo = new SafetyInfo
+                    {
+                        Classification = x.SafetyClassification,
+                        Remark = x.SafetyRemark
+                    }
+                }).ToList();
 
-                return routeSegments;
+            foreach (var routeSegment in routeSegments)
+            {
+                // Make fully empty objects into nulls.
+                routeSegment.LifeCycleInfo = AreAnyPropertiesNotNull<LifecycleInfo>(routeSegment.LifeCycleInfo) ? routeSegment.LifeCycleInfo : null;
+                routeSegment.MappingInfo = AreAnyPropertiesNotNull<MappingInfo>(routeSegment.MappingInfo) ? routeSegment.MappingInfo : null;
+                routeSegment.NamingInfo = AreAnyPropertiesNotNull<NamingInfo>(routeSegment.NamingInfo) ? routeSegment.NamingInfo : null;
+                routeSegment.RouteSegmentInfo = AreAnyPropertiesNotNull<RouteSegmentInfo>(routeSegment.RouteSegmentInfo) ? routeSegment.RouteSegmentInfo : null;
+                routeSegment.SafetyInfo = AreAnyPropertiesNotNull<SafetyInfo>(routeSegment.SafetyInfo) ? routeSegment.SafetyInfo : null;
             }
+
+            return routeSegments;
         }
 
         public async Task<List<RouteSegment>> GetIntersectingRouteSegments(byte[] coordinates)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
+            await using var connection = GetNpgsqlConnection();
+            var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_GeomFromWKB(@coordinates, 25832),
@@ -261,18 +247,16 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       ),
                       coord) AND marked_to_be_deleted = false";
 
-                await connection.OpenAsync();
-                var result = await connection.QueryAsync<RouteSegment>(query, new { coordinates, tolerance = _applicationSettings.Tolerance });
+            await connection.OpenAsync();
+            var result = await connection.QueryAsync<RouteSegment>(query, new { coordinates, tolerance = _applicationSettings.Tolerance });
 
-                return result.AsList();
-            }
+            return result.AsList();
         }
 
         public async Task<List<RouteSegment>> GetIntersectingRouteSegments(RouteNode routeNode, RouteSegment notInclude)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"SELECT
+            await using var connection = GetNpgsqlConnection();
+            var query = @"SELECT
                     ST_AsBinary(coord) AS coord,
                     mrid,
                     work_task_mrid AS workTaskMrid,
@@ -303,67 +287,65 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       ),
                       coord) AND marked_to_be_deleted = false AND mrid != @sMrid";
 
-                await connection.OpenAsync();
-                var routeSegments = (await connection.QueryAsync<RouteSegmentQueryModel>(query, new { sMrid = notInclude.Mrid, routeNode.Mrid, _applicationSettings.Tolerance }))
-                    .Select(x => new RouteSegment
-                    {
-                        ApplicationInfo = x.ApplicationInfo,
-                        ApplicationName = x.ApplicationName,
-                        Coord = x.Coord,
-                        Mrid = x.Mrid,
-                        Username = x.Username,
-                        WorkTaskMrid = x.WorkTaskMrid,
-                        MappingInfo = new MappingInfo
-                        {
-                            HorizontalAccuracy = x.MappingHoritzontalAccuracy,
-                            Method = _infoMapper.MapMappingMethod(x.MappingMethod),
-                            SourceInfo = x.MappingSourceInfo,
-                            SurveyDate = x.MappingSurveyDate,
-                            VerticalAccuracy = x.MappingVerticalAccuracy
-                        },
-                        LifeCycleInfo = new LifecycleInfo
-                        {
-                            DeploymentState = _infoMapper.MapDeploymentState(x.LifeCycleDeploymentState),
-                            InstallationDate = x.LifeCycleInstallationDate,
-                            RemovalDate = x.LifeCycleRemovalDate
-                        },
-                        NamingInfo = new NamingInfo
-                        {
-                            Description = x.NamingDescription,
-                            Name = x.NamingName
-                        },
-                        RouteSegmentInfo = new RouteSegmentInfo
-                        {
-                            Height = x.RouteSegmentHeight,
-                            Kind = _infoMapper.MapRouteSegmentKind(x.RouteSegmentKind),
-                            Width = x.RouteSegmentWidth
-                        },
-                        SafetyInfo = new SafetyInfo
-                        {
-                            Classification = x.SafetyClassification,
-                            Remark = x.SafetyRemark
-                        }
-                    }).ToList();
-
-                foreach (var routeSegment in routeSegments)
+            await connection.OpenAsync();
+            var routeSegments = (await connection.QueryAsync<RouteSegmentQueryModel>(query, new { sMrid = notInclude.Mrid, routeNode.Mrid, _applicationSettings.Tolerance }))
+                .Select(x => new RouteSegment
                 {
-                    // Make fully empty objects into nulls.
-                    routeSegment.LifeCycleInfo = AreAnyPropertiesNotNull<LifecycleInfo>(routeSegment.LifeCycleInfo) ? routeSegment.LifeCycleInfo : null;
-                    routeSegment.MappingInfo = AreAnyPropertiesNotNull<MappingInfo>(routeSegment.MappingInfo) ? routeSegment.MappingInfo : null;
-                    routeSegment.NamingInfo = AreAnyPropertiesNotNull<NamingInfo>(routeSegment.NamingInfo) ? routeSegment.NamingInfo : null;
-                    routeSegment.RouteSegmentInfo = AreAnyPropertiesNotNull<RouteSegmentInfo>(routeSegment.RouteSegmentInfo) ? routeSegment.RouteSegmentInfo : null;
-                    routeSegment.SafetyInfo = AreAnyPropertiesNotNull<SafetyInfo>(routeSegment.SafetyInfo) ? routeSegment.SafetyInfo : null;
-                }
+                    ApplicationInfo = x.ApplicationInfo,
+                    ApplicationName = x.ApplicationName,
+                    Coord = x.Coord,
+                    Mrid = x.Mrid,
+                    Username = x.Username,
+                    WorkTaskMrid = x.WorkTaskMrid,
+                    MappingInfo = new MappingInfo
+                    {
+                        HorizontalAccuracy = x.MappingHoritzontalAccuracy,
+                        Method = _infoMapper.MapMappingMethod(x.MappingMethod),
+                        SourceInfo = x.MappingSourceInfo,
+                        SurveyDate = x.MappingSurveyDate,
+                        VerticalAccuracy = x.MappingVerticalAccuracy
+                    },
+                    LifeCycleInfo = new LifecycleInfo
+                    {
+                        DeploymentState = _infoMapper.MapDeploymentState(x.LifeCycleDeploymentState),
+                        InstallationDate = x.LifeCycleInstallationDate,
+                        RemovalDate = x.LifeCycleRemovalDate
+                    },
+                    NamingInfo = new NamingInfo
+                    {
+                        Description = x.NamingDescription,
+                        Name = x.NamingName
+                    },
+                    RouteSegmentInfo = new RouteSegmentInfo
+                    {
+                        Height = x.RouteSegmentHeight,
+                        Kind = _infoMapper.MapRouteSegmentKind(x.RouteSegmentKind),
+                        Width = x.RouteSegmentWidth
+                    },
+                    SafetyInfo = new SafetyInfo
+                    {
+                        Classification = x.SafetyClassification,
+                        Remark = x.SafetyRemark
+                    }
+                }).ToList();
 
-                return routeSegments;
+            foreach (var routeSegment in routeSegments)
+            {
+                // Make fully empty objects into nulls.
+                routeSegment.LifeCycleInfo = AreAnyPropertiesNotNull<LifecycleInfo>(routeSegment.LifeCycleInfo) ? routeSegment.LifeCycleInfo : null;
+                routeSegment.MappingInfo = AreAnyPropertiesNotNull<MappingInfo>(routeSegment.MappingInfo) ? routeSegment.MappingInfo : null;
+                routeSegment.NamingInfo = AreAnyPropertiesNotNull<NamingInfo>(routeSegment.NamingInfo) ? routeSegment.NamingInfo : null;
+                routeSegment.RouteSegmentInfo = AreAnyPropertiesNotNull<RouteSegmentInfo>(routeSegment.RouteSegmentInfo) ? routeSegment.RouteSegmentInfo : null;
+                routeSegment.SafetyInfo = AreAnyPropertiesNotNull<SafetyInfo>(routeSegment.SafetyInfo) ? routeSegment.SafetyInfo : null;
             }
+
+            return routeSegments;
         }
 
         public async Task<List<RouteNode>> GetAllIntersectingRouteNodes(RouteSegment routeSegment)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_node
+            await using var connection = GetNpgsqlConnection();
+            var query = @"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
                           (SELECT coord FROM route_network_integrator.route_segment
@@ -372,18 +354,16 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       ),
                       coord) AND marked_to_be_deleted = false";
 
-                await connection.OpenAsync();
-                var result = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
+            await connection.OpenAsync();
+            var result = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
-                return result.AsList();
-            }
+            return result.AsList();
         }
 
         public async Task<List<RouteNode>> GetAllIntersectingRouteNodesNotIncludingEdges(RouteSegment routeSegment)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"
+            await using var connection = GetNpgsqlConnection();
+            var query = @"
                     SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
@@ -409,18 +389,16 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                           @tolerance),
                       coord)";
 
-                await connection.OpenAsync();
-                var result = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
+            await connection.OpenAsync();
+            var result = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
-                return result.AsList();
-            }
+            return result.AsList();
         }
 
         public async Task<List<RouteNode>> GetAllIntersectingRouteNodesNotIncludingEdges(byte[] coordinates, Guid mrid)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"
+            await using var connection = GetNpgsqlConnection();
+            var query = @"
                     SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
@@ -441,18 +419,16 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                           @tolerance),
                       coord)";
 
-                await connection.OpenAsync();
-                var result = await connection.QueryAsync<RouteNode>(query, new { mrid, coordinates, _applicationSettings.Tolerance });
+            await connection.OpenAsync();
+            var result = await connection.QueryAsync<RouteNode>(query, new { mrid, coordinates, _applicationSettings.Tolerance });
 
-                return result.AsList();
-            }
+            return result.AsList();
         }
 
         public async Task<List<RouteNode>> GetIntersectingRouteNodes(RouteNode routeNode)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
+            await using var connection = GetNpgsqlConnection();
+            var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
                         (SELECT coord FROM route_network_integrator.route_node
@@ -462,18 +438,16 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND mrid != @mrid AND marked_to_be_deleted = false
                     ";
 
-                await connection.OpenAsync();
-                var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeNode.Mrid, _applicationSettings.Tolerance });
+            await connection.OpenAsync();
+            var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeNode.Mrid, _applicationSettings.Tolerance });
 
-                return routeNodes.AsList();
-            }
+            return routeNodes.AsList();
         }
 
         public async Task<List<RouteSegment>> GetIntersectingStartRouteSegments(RouteSegment routeSegment)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
+            await using var connection = GetNpgsqlConnection();
+            var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_StartPoint(
@@ -485,11 +459,10 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND mrid != @mrid AND marked_to_be_deleted = false
                     ";
 
-                await connection.OpenAsync();
-                var routeSegments = await connection.QueryAsync<RouteSegment>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
+            await connection.OpenAsync();
+            var routeSegments = await connection.QueryAsync<RouteSegment>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
-                return routeSegments.AsList();
-            }
+            return routeSegments.AsList();
         }
 
         public async Task<List<RouteSegment>> GetIntersectingStartRouteSegments(RouteNode routeNode)
@@ -513,9 +486,8 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteSegment>> GetIntersectingEndRouteSegments(RouteSegment routeSegment)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
+            await using var connection = GetNpgsqlConnection();
+            var query = @"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_EndPoint(
@@ -527,11 +499,10 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND mrid != @mrid AND marked_to_be_deleted = false
                     ";
 
-                await connection.OpenAsync();
-                var routeSegments = await connection.QueryAsync<RouteSegment>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
+            await connection.OpenAsync();
+            var routeSegments = await connection.QueryAsync<RouteSegment>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
-                return routeSegments.AsList();
-            }
+            return routeSegments.AsList();
         }
 
         public async Task<List<RouteSegment>> GetIntersectingEndRouteSegments(RouteNode routeNode)
@@ -555,101 +526,90 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task DeleteRouteNode(Guid mrid)
         {
-            var applicationName = _applicationSettings.ApplicationName;
-
-            using (var connection = GetNpgsqlConnection())
-            {
-                var intergratorQuery = @"
+            await using var connection = GetNpgsqlConnection();
+            var intergratorQuery = @"
                     UPDATE route_network_integrator.route_node
                     SET
                       delete_me = true
                     WHERE mrid = @mrid;
                     ";
 
-                var query = @"
+            var query = @"
                     UPDATE route_network.route_node
                     SET
                        delete_me = true
                     WHERE mrid = @mrid;
                     ";
 
-                await connection.OpenAsync();
-                await connection.ExecuteAsync(intergratorQuery, new { mrid });
-                await connection.ExecuteAsync(query, new { mrid });
-            }
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(intergratorQuery, new { mrid });
+            await connection.ExecuteAsync(query, new { mrid });
         }
 
         public async Task DeleteRouteSegment(Guid mrid)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var intergratorQuery = @"
+            await using var connection = GetNpgsqlConnection();
+            var intergratorQuery = @"
                     UPDATE route_network_integrator.route_segment
                     SET
                       delete_me = true
                     WHERE mrid = @mrid;";
 
-                var query = @"
+            var query = @"
                     UPDATE route_network.route_segment
                     SET
                       delete_me = true
                     WHERE mrid = @mrid";
 
-                await connection.OpenAsync();
-                await connection.ExecuteAsync(intergratorQuery, new { mrid });
-                await connection.ExecuteAsync(query, new { mrid });
-            }
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(intergratorQuery, new { mrid });
+            await connection.ExecuteAsync(query, new { mrid });
         }
 
         public async Task MarkDeleteRouteSegment(Guid mrid)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var intergratorQuery = @"
+            await using var connection = GetNpgsqlConnection();
+            var intergratorQuery = @"
                     UPDATE route_network_integrator.route_segment
                     SET
                       marked_to_be_deleted = true
                     WHERE mrid = @mrid;";
 
-                var query = @"
+            var query = @"
                     UPDATE route_network.route_segment
                     SET
                       marked_to_be_deleted = true
                     WHERE mrid = @mrid;";
 
-                await connection.OpenAsync();
-                await connection.ExecuteAsync(intergratorQuery, new { mrid });
-                await connection.ExecuteAsync(query, new { mrid });
-            }
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(intergratorQuery, new { mrid });
+            await connection.ExecuteAsync(query, new { mrid });
         }
 
         public async Task MarkDeleteRouteNode(Guid mrid)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var intergratorQuery = @"
+            using var connection = GetNpgsqlConnection();
+            var intergratorQuery = @"
                     UPDATE route_network_integrator.route_node
                     SET
                       marked_to_be_deleted = true
                     WHERE mrid = @mrid;";
 
-                var query = @"
+            var query = @"
                     UPDATE route_network.route_node
                     SET
                       marked_to_be_deleted = true
                     WHERE mrid = @mrid;";
 
-                await connection.OpenAsync();
-                await connection.ExecuteAsync(intergratorQuery, new { mrid });
-                await connection.ExecuteAsync(query, new { mrid });
-            }
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(intergratorQuery, new { mrid });
+            await connection.ExecuteAsync(query, new { mrid });
         }
 
         public async Task InsertRouteNode(RouteNode routeNode)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var intergratorQuery = @"
+            await using var connection = GetNpgsqlConnection();
+            var intergratorQuery = @"
                     INSERT INTO route_network_integrator.route_node(
                     mrid,
                     coord,
@@ -669,7 +629,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     false
                     );";
 
-                var query = @"
+            var query = @"
                     INSERT INTO route_network.route_node(
                     mrid,
                     coord,
@@ -689,17 +649,15 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     false
                     );";
 
-                await connection.OpenAsync();
-                await connection.ExecuteAsync(intergratorQuery, routeNode);
-                await connection.ExecuteAsync(query, routeNode);
-            }
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(intergratorQuery, routeNode);
+            await connection.ExecuteAsync(query, routeNode);
         }
 
         public async Task UpdateRouteNode(RouteNode routeNode)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var integratorQuery = @"
+            using var connection = GetNpgsqlConnection();
+            var integratorQuery = @"
                     UPDATE route_network_integrator.route_node
                     SET
                       coord = ST_GeomFromWKB(@coord, 25832),
@@ -709,7 +667,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       marked_to_be_deleted = @markAsDeleted
                     WHERE mrid = @mrid;";
 
-                var query = @"
+            var query = @"
                     UPDATE route_network.route_node
                     SET
                       coord = ST_GeomFromWKB(@coord, 25832),
@@ -719,17 +677,15 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       marked_to_be_deleted = @markAsDeleted
                     WHERE mrid = @mrid;";
 
-                await connection.OpenAsync();
-                await connection.ExecuteAsync(integratorQuery, routeNode);
-                await connection.ExecuteAsync(query, routeNode);
-            }
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(integratorQuery, routeNode);
+            await connection.ExecuteAsync(query, routeNode);
         }
 
         public async Task UpdateRouteNodeShadowTable(RouteNode routeNode)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"
+            await using var connection = GetNpgsqlConnection();
+            var query = @"
                     UPDATE route_network_integrator.route_node
                     SET
                       coord = ST_GeomFromWKB(@coord, 25832),
@@ -755,42 +711,40 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       naming_description = @namingDescription
                     WHERE mrid = @mrid;";
 
-                var mappedRouteNode = new
-                {
-                    mrid = routeNode.Mrid,
-                    coord = routeNode.Coord,
-                    workTaskMrId = routeNode.WorkTaskMrid,
-                    userName = routeNode.Username,
-                    applicationName = routeNode.ApplicationName,
-                    applicationInfo = routeNode.ApplicationInfo,
-                    markAsDeleted = routeNode.MarkAsDeleted,
-                    deleteMe = routeNode.DeleteMe,
-                    lifeCycleDeploymentState = routeNode.LifeCycleInfo?.DeploymentState?.ToString("g"),
-                    lifeCycleInstallationDate = routeNode.LifeCycleInfo?.InstallationDate,
-                    lifeCycleRemovalDate = routeNode.LifeCycleInfo?.RemovalDate,
-                    mappingMethod = routeNode.MappingInfo?.Method?.ToString("g"),
-                    mappingVerticalAccuracy = routeNode.MappingInfo?.VerticalAccuracy,
-                    mappingHorizontalAccuracy = routeNode.MappingInfo?.HorizontalAccuracy,
-                    mappingSourceInfo = routeNode.MappingInfo?.SourceInfo,
-                    mappingSurveyDate = routeNode.MappingInfo?.SurveyDate,
-                    safetyClassification = routeNode.SafetyInfo?.Classification,
-                    safetyRemark = routeNode.SafetyInfo?.Remark,
-                    routeNodeKind = routeNode.RouteNodeInfo?.Kind?.ToString("g"),
-                    routeNodeFunction = routeNode.RouteNodeInfo?.Function?.ToString("g"),
-                    namingName = routeNode.NamingInfo?.Name,
-                    namingDescription = routeNode.NamingInfo?.Description
-                };
+            var mappedRouteNode = new
+            {
+                mrid = routeNode.Mrid,
+                coord = routeNode.Coord,
+                workTaskMrId = routeNode.WorkTaskMrid,
+                userName = routeNode.Username,
+                applicationName = routeNode.ApplicationName,
+                applicationInfo = routeNode.ApplicationInfo,
+                markAsDeleted = routeNode.MarkAsDeleted,
+                deleteMe = routeNode.DeleteMe,
+                lifeCycleDeploymentState = routeNode.LifeCycleInfo?.DeploymentState?.ToString("g"),
+                lifeCycleInstallationDate = routeNode.LifeCycleInfo?.InstallationDate,
+                lifeCycleRemovalDate = routeNode.LifeCycleInfo?.RemovalDate,
+                mappingMethod = routeNode.MappingInfo?.Method?.ToString("g"),
+                mappingVerticalAccuracy = routeNode.MappingInfo?.VerticalAccuracy,
+                mappingHorizontalAccuracy = routeNode.MappingInfo?.HorizontalAccuracy,
+                mappingSourceInfo = routeNode.MappingInfo?.SourceInfo,
+                mappingSurveyDate = routeNode.MappingInfo?.SurveyDate,
+                safetyClassification = routeNode.SafetyInfo?.Classification,
+                safetyRemark = routeNode.SafetyInfo?.Remark,
+                routeNodeKind = routeNode.RouteNodeInfo?.Kind?.ToString("g"),
+                routeNodeFunction = routeNode.RouteNodeInfo?.Function?.ToString("g"),
+                namingName = routeNode.NamingInfo?.Name,
+                namingDescription = routeNode.NamingInfo?.Description
+            };
 
-                await connection.OpenAsync();
-                await connection.ExecuteAsync(query, mappedRouteNode);
-            }
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(query, mappedRouteNode);
         }
 
         public async Task InsertRouteNodeShadowTable(RouteNode routeNode)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"
+            await using var connection = GetNpgsqlConnection();
+            var query = @"
                     INSERT INTO route_network_integrator.route_node(
                     mrid,
                     coord,
@@ -840,42 +794,40 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     @namingDescription
                     ) ON CONFLICT ON CONSTRAINT route_node_pkey DO NOTHING;";
 
-                var mappedRouteNode = new
-                {
-                    mrid = routeNode.Mrid,
-                    coord = routeNode.Coord,
-                    workTaskMrId = routeNode.WorkTaskMrid,
-                    userName = routeNode.Username,
-                    applicationName = routeNode.ApplicationName,
-                    applicationInfo = routeNode.ApplicationInfo,
-                    markAsDeleted = routeNode.MarkAsDeleted,
-                    deleteMe = routeNode.DeleteMe,
-                    lifeCycleDeploymentState = routeNode.LifeCycleInfo?.DeploymentState?.ToString("g"),
-                    lifeCycleInstallationDate = routeNode.LifeCycleInfo?.InstallationDate,
-                    lifeCycleRemovalDate = routeNode.LifeCycleInfo?.RemovalDate,
-                    mappingMethod = routeNode.MappingInfo?.Method?.ToString("g"),
-                    mappingVerticalAccuracy = routeNode.MappingInfo?.VerticalAccuracy,
-                    mappingHorizontalAccuracy = routeNode.MappingInfo?.HorizontalAccuracy,
-                    mappingSourceInfo = routeNode.MappingInfo?.SourceInfo,
-                    mappingSurveyDate = routeNode.MappingInfo?.SurveyDate,
-                    safetyClassification = routeNode.SafetyInfo?.Classification,
-                    safetyRemark = routeNode.SafetyInfo?.Remark,
-                    routeNodeKind = routeNode.RouteNodeInfo?.Kind?.ToString("g"),
-                    routeNodeFunction = routeNode.RouteNodeInfo?.Function?.ToString("g"),
-                    namingName = routeNode.NamingInfo?.Name,
-                    namingDescription = routeNode.NamingInfo?.Description
-                };
+            var mappedRouteNode = new
+            {
+                mrid = routeNode.Mrid,
+                coord = routeNode.Coord,
+                workTaskMrId = routeNode.WorkTaskMrid,
+                userName = routeNode.Username,
+                applicationName = routeNode.ApplicationName,
+                applicationInfo = routeNode.ApplicationInfo,
+                markAsDeleted = routeNode.MarkAsDeleted,
+                deleteMe = routeNode.DeleteMe,
+                lifeCycleDeploymentState = routeNode.LifeCycleInfo?.DeploymentState?.ToString("g"),
+                lifeCycleInstallationDate = routeNode.LifeCycleInfo?.InstallationDate,
+                lifeCycleRemovalDate = routeNode.LifeCycleInfo?.RemovalDate,
+                mappingMethod = routeNode.MappingInfo?.Method?.ToString("g"),
+                mappingVerticalAccuracy = routeNode.MappingInfo?.VerticalAccuracy,
+                mappingHorizontalAccuracy = routeNode.MappingInfo?.HorizontalAccuracy,
+                mappingSourceInfo = routeNode.MappingInfo?.SourceInfo,
+                mappingSurveyDate = routeNode.MappingInfo?.SurveyDate,
+                safetyClassification = routeNode.SafetyInfo?.Classification,
+                safetyRemark = routeNode.SafetyInfo?.Remark,
+                routeNodeKind = routeNode.RouteNodeInfo?.Kind?.ToString("g"),
+                routeNodeFunction = routeNode.RouteNodeInfo?.Function?.ToString("g"),
+                namingName = routeNode.NamingInfo?.Name,
+                namingDescription = routeNode.NamingInfo?.Description
+            };
 
-                await connection.OpenAsync();
-                await connection.ExecuteAsync(query, mappedRouteNode);
-            }
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(query, mappedRouteNode);
         }
 
         public async Task InsertRouteSegmentShadowTable(RouteSegment routeSegment)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"
+            await using var connection = GetNpgsqlConnection();
+            var query = @"
                     INSERT INTO route_network_integrator.route_segment(
                     mrid,
                     coord,
@@ -927,43 +879,41 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     @namingDescription
                     ) ON CONFLICT ON CONSTRAINT route_segment_pkey DO NOTHING;";
 
-                var mappedRouteSegment = new
-                {
-                    mrid = routeSegment.Mrid,
-                    coord = routeSegment.Coord,
-                    workTaskMrId = routeSegment.WorkTaskMrid,
-                    userName = routeSegment.Username,
-                    applicationName = routeSegment.ApplicationName,
-                    applicationInfo = routeSegment.ApplicationInfo,
-                    markAsDeleted = routeSegment.MarkAsDeleted,
-                    deleteMe = routeSegment.DeleteMe,
-                    lifeCycleDeploymentState = routeSegment.LifeCycleInfo?.DeploymentState?.ToString("g"),
-                    lifeCycleInstallationDate = routeSegment.LifeCycleInfo?.InstallationDate,
-                    lifeCycleRemovalDate = routeSegment.LifeCycleInfo?.RemovalDate,
-                    mappingMethod = routeSegment.MappingInfo?.Method?.ToString("g"),
-                    mappingVerticalAccuracy = routeSegment.MappingInfo?.VerticalAccuracy,
-                    mappingHorizontalAccuracy = routeSegment.MappingInfo?.HorizontalAccuracy,
-                    mappingSourceInfo = routeSegment.MappingInfo?.SourceInfo,
-                    mappingSurveyDate = routeSegment.MappingInfo?.SurveyDate,
-                    safetyClassification = routeSegment.SafetyInfo?.Classification,
-                    safetyRemark = routeSegment.SafetyInfo?.Remark,
-                    routeSegmentKind = routeSegment?.RouteSegmentInfo?.Kind?.ToString("g"),
-                    routeSegmentHeight = routeSegment.RouteSegmentInfo?.Height,
-                    routeSegmentWidth = routeSegment.RouteSegmentInfo?.Width,
-                    namingName = routeSegment.NamingInfo?.Name,
-                    namingDescription = routeSegment.NamingInfo?.Description
-                };
+            var mappedRouteSegment = new
+            {
+                mrid = routeSegment.Mrid,
+                coord = routeSegment.Coord,
+                workTaskMrId = routeSegment.WorkTaskMrid,
+                userName = routeSegment.Username,
+                applicationName = routeSegment.ApplicationName,
+                applicationInfo = routeSegment.ApplicationInfo,
+                markAsDeleted = routeSegment.MarkAsDeleted,
+                deleteMe = routeSegment.DeleteMe,
+                lifeCycleDeploymentState = routeSegment.LifeCycleInfo?.DeploymentState?.ToString("g"),
+                lifeCycleInstallationDate = routeSegment.LifeCycleInfo?.InstallationDate,
+                lifeCycleRemovalDate = routeSegment.LifeCycleInfo?.RemovalDate,
+                mappingMethod = routeSegment.MappingInfo?.Method?.ToString("g"),
+                mappingVerticalAccuracy = routeSegment.MappingInfo?.VerticalAccuracy,
+                mappingHorizontalAccuracy = routeSegment.MappingInfo?.HorizontalAccuracy,
+                mappingSourceInfo = routeSegment.MappingInfo?.SourceInfo,
+                mappingSurveyDate = routeSegment.MappingInfo?.SurveyDate,
+                safetyClassification = routeSegment.SafetyInfo?.Classification,
+                safetyRemark = routeSegment.SafetyInfo?.Remark,
+                routeSegmentKind = routeSegment?.RouteSegmentInfo?.Kind?.ToString("g"),
+                routeSegmentHeight = routeSegment.RouteSegmentInfo?.Height,
+                routeSegmentWidth = routeSegment.RouteSegmentInfo?.Width,
+                namingName = routeSegment.NamingInfo?.Name,
+                namingDescription = routeSegment.NamingInfo?.Description
+            };
 
-                await connection.OpenAsync();
-                await connection.ExecuteAsync(query, mappedRouteSegment);
-            }
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(query, mappedRouteSegment);
         }
 
         public async Task UpdateRouteSegmentShadowTable(RouteSegment routeSegment)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"
+            await using var connection = GetNpgsqlConnection();
+            var query = @"
                     UPDATE route_network_integrator.route_segment
                     SET
                       coord = ST_GeomFromWKB(@coord, 25832),
@@ -989,43 +939,41 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       naming_description = @namingDescription
                     WHERE mrid = @mrid;";
 
-                var mappedRouteSegment = new
-                {
-                    mrid = routeSegment.Mrid,
-                    coord = routeSegment.Coord,
-                    workTaskMrId = routeSegment.WorkTaskMrid,
-                    userName = routeSegment.Username,
-                    applicationName = routeSegment.ApplicationName,
-                    applicationInfo = routeSegment.ApplicationInfo,
-                    markAsDeleted = routeSegment.MarkAsDeleted,
-                    deleteMe = routeSegment.DeleteMe,
-                    lifeCycleDeploymentState = routeSegment.LifeCycleInfo?.DeploymentState?.ToString("g"),
-                    lifeCycleInstallationDate = routeSegment.LifeCycleInfo?.InstallationDate,
-                    lifeCycleRemovalDate = routeSegment.LifeCycleInfo?.RemovalDate,
-                    mappingMethod = routeSegment.MappingInfo?.Method?.ToString("g"),
-                    mappingVerticalAccuracy = routeSegment.MappingInfo?.VerticalAccuracy,
-                    mappingHorizontalAccuracy = routeSegment.MappingInfo?.HorizontalAccuracy,
-                    mappingSourceInfo = routeSegment.MappingInfo?.SourceInfo,
-                    mappingSurveyDate = routeSegment.MappingInfo?.SurveyDate,
-                    safetyClassification = routeSegment.SafetyInfo?.Classification,
-                    safetyRemark = routeSegment.SafetyInfo?.Remark,
-                    routeSegmentKind = routeSegment?.RouteSegmentInfo?.Kind?.ToString("g"),
-                    routeSegmentHeight = routeSegment.RouteSegmentInfo?.Height,
-                    routeSegmentWidth = routeSegment.RouteSegmentInfo?.Width,
-                    namingName = routeSegment.NamingInfo?.Name,
-                    namingDescription = routeSegment.NamingInfo?.Description
-                };
+            var mappedRouteSegment = new
+            {
+                mrid = routeSegment.Mrid,
+                coord = routeSegment.Coord,
+                workTaskMrId = routeSegment.WorkTaskMrid,
+                userName = routeSegment.Username,
+                applicationName = routeSegment.ApplicationName,
+                applicationInfo = routeSegment.ApplicationInfo,
+                markAsDeleted = routeSegment.MarkAsDeleted,
+                deleteMe = routeSegment.DeleteMe,
+                lifeCycleDeploymentState = routeSegment.LifeCycleInfo?.DeploymentState?.ToString("g"),
+                lifeCycleInstallationDate = routeSegment.LifeCycleInfo?.InstallationDate,
+                lifeCycleRemovalDate = routeSegment.LifeCycleInfo?.RemovalDate,
+                mappingMethod = routeSegment.MappingInfo?.Method?.ToString("g"),
+                mappingVerticalAccuracy = routeSegment.MappingInfo?.VerticalAccuracy,
+                mappingHorizontalAccuracy = routeSegment.MappingInfo?.HorizontalAccuracy,
+                mappingSourceInfo = routeSegment.MappingInfo?.SourceInfo,
+                mappingSurveyDate = routeSegment.MappingInfo?.SurveyDate,
+                safetyClassification = routeSegment.SafetyInfo?.Classification,
+                safetyRemark = routeSegment.SafetyInfo?.Remark,
+                routeSegmentKind = routeSegment?.RouteSegmentInfo?.Kind?.ToString("g"),
+                routeSegmentHeight = routeSegment.RouteSegmentInfo?.Height,
+                routeSegmentWidth = routeSegment.RouteSegmentInfo?.Width,
+                namingName = routeSegment.NamingInfo?.Name,
+                namingDescription = routeSegment.NamingInfo?.Description
+            };
 
-                await connection.OpenAsync();
-                await connection.ExecuteAsync(query, mappedRouteSegment);
-            }
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(query, mappedRouteSegment);
         }
 
         public async Task InsertRouteSegment(RouteSegment routeSegment)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var integratorQuery = @"
+            await using var connection = GetNpgsqlConnection();
+            var integratorQuery = @"
                     INSERT INTO route_network_integrator.route_segment(
                     mrid,
                     coord,
@@ -1077,7 +1025,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     @namingDescription
                     ) ON CONFLICT ON CONSTRAINT route_segment_pkey DO NOTHING;";
 
-                var query = @"
+            var query = @"
                     INSERT INTO route_network.route_segment(
                     mrid,
                     coord,
@@ -1129,44 +1077,42 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     @namingDescription
                     ) ON CONFLICT ON CONSTRAINT route_segment_pkey DO NOTHING;";
 
-                var mappedRouteSegment = new
-                {
-                    mrid = routeSegment.Mrid,
-                    coord = routeSegment.Coord,
-                    workTaskMrId = routeSegment.WorkTaskMrid,
-                    userName = routeSegment.Username,
-                    applicationName = routeSegment.ApplicationName,
-                    applicationInfo = routeSegment.ApplicationInfo,
-                    markAsDeleted = routeSegment.MarkAsDeleted,
-                    deleteMe = routeSegment.DeleteMe,
-                    lifeCycleDeploymentState = routeSegment.LifeCycleInfo?.DeploymentState?.ToString("g"),
-                    lifeCycleInstallationDate = routeSegment.LifeCycleInfo?.InstallationDate,
-                    lifeCycleRemovalDate = routeSegment.LifeCycleInfo?.RemovalDate,
-                    mappingMethod = routeSegment.MappingInfo?.Method?.ToString("g"),
-                    mappingVerticalAccuracy = routeSegment.MappingInfo?.VerticalAccuracy,
-                    mappingHorizontalAccuracy = routeSegment.MappingInfo?.HorizontalAccuracy,
-                    mappingSourceInfo = routeSegment.MappingInfo?.SourceInfo,
-                    mappingSurveyDate = routeSegment.MappingInfo?.SurveyDate,
-                    safetyClassification = routeSegment.SafetyInfo?.Classification,
-                    safetyRemark = routeSegment.SafetyInfo?.Remark,
-                    routeSegmentKind = routeSegment?.RouteSegmentInfo?.Kind?.ToString("g"),
-                    routeSegmentHeight = routeSegment.RouteSegmentInfo?.Height,
-                    routeSegmentWidth = routeSegment.RouteSegmentInfo?.Width,
-                    namingName = routeSegment.NamingInfo?.Name,
-                    namingDescription = routeSegment.NamingInfo?.Description
-                };
+            var mappedRouteSegment = new
+            {
+                mrid = routeSegment.Mrid,
+                coord = routeSegment.Coord,
+                workTaskMrId = routeSegment.WorkTaskMrid,
+                userName = routeSegment.Username,
+                applicationName = routeSegment.ApplicationName,
+                applicationInfo = routeSegment.ApplicationInfo,
+                markAsDeleted = routeSegment.MarkAsDeleted,
+                deleteMe = routeSegment.DeleteMe,
+                lifeCycleDeploymentState = routeSegment.LifeCycleInfo?.DeploymentState?.ToString("g"),
+                lifeCycleInstallationDate = routeSegment.LifeCycleInfo?.InstallationDate,
+                lifeCycleRemovalDate = routeSegment.LifeCycleInfo?.RemovalDate,
+                mappingMethod = routeSegment.MappingInfo?.Method?.ToString("g"),
+                mappingVerticalAccuracy = routeSegment.MappingInfo?.VerticalAccuracy,
+                mappingHorizontalAccuracy = routeSegment.MappingInfo?.HorizontalAccuracy,
+                mappingSourceInfo = routeSegment.MappingInfo?.SourceInfo,
+                mappingSurveyDate = routeSegment.MappingInfo?.SurveyDate,
+                safetyClassification = routeSegment.SafetyInfo?.Classification,
+                safetyRemark = routeSegment.SafetyInfo?.Remark,
+                routeSegmentKind = routeSegment?.RouteSegmentInfo?.Kind?.ToString("g"),
+                routeSegmentHeight = routeSegment.RouteSegmentInfo?.Height,
+                routeSegmentWidth = routeSegment.RouteSegmentInfo?.Width,
+                namingName = routeSegment.NamingInfo?.Name,
+                namingDescription = routeSegment.NamingInfo?.Description
+            };
 
-                await connection.OpenAsync();
-                await connection.ExecuteAsync(integratorQuery, mappedRouteSegment);
-                await connection.ExecuteAsync(query, mappedRouteSegment);
-            }
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(integratorQuery, mappedRouteSegment);
+            await connection.ExecuteAsync(query, mappedRouteSegment);
         }
 
         public async Task<string> GetRouteSegmentsSplittedByRouteNode(RouteNode routeNode, RouteSegment intersectingRouteSegment)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var query = @"
+            await using var connection = GetNpgsqlConnection();
+            var query = @"
                     SELECT ST_AsText(
                         ST_Split(
                             ST_Snap(
@@ -1180,18 +1126,16 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     FROM route_network_integrator.route_segment WHERE mrid = @mrid AND marked_to_be_deleted = false;
                 ";
 
-                await connection.OpenAsync();
-                var result = await connection.QueryAsync<string>(query, new { routeNode.Coord, intersectingRouteSegment.Mrid, tolerance = _applicationSettings.Tolerance * 2 });
+            await connection.OpenAsync();
+            var result = await connection.QueryAsync<string>(query, new { routeNode.Coord, intersectingRouteSegment.Mrid, tolerance = _applicationSettings.Tolerance * 2 });
 
-                return result.First();
-            }
+            return result.First();
         }
 
         public async Task UpdateRouteSegment(RouteSegment routeSegment)
         {
-            using (var connection = GetNpgsqlConnection())
-            {
-                var integratorQuery = @"
+            await using var connection = GetNpgsqlConnection();
+            var integratorQuery = @"
                     UPDATE route_network_integrator.route_segment
                     SET
                       coord = ST_GeomFromWKB(@coord, 25832),
@@ -1201,7 +1145,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       marked_to_be_deleted = @markAsDeleted
                     WHERE mrid = @mrid;";
 
-                var query = @"
+            var query = @"
                     UPDATE route_network.route_segment
                     SET
                       coord = ST_GeomFromWKB(@coord, 25832),
@@ -1211,10 +1155,9 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       marked_to_be_deleted = @markAsDeleted
                     WHERE mrid = @mrid;";
 
-                await connection.OpenAsync();
-                await connection.ExecuteAsync(integratorQuery, routeSegment);
-                await connection.ExecuteAsync(query, routeSegment);
-            }
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(integratorQuery, routeSegment);
+            await connection.ExecuteAsync(query, routeSegment);
         }
 
         private bool AreAnyPropertiesNotNull<T>(object obj)
