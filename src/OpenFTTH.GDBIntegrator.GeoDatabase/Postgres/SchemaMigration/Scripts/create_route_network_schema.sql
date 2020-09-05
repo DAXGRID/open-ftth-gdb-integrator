@@ -14,14 +14,10 @@ CREATE SCHEMA IF NOT EXISTS route_network;
 -- User Route node table
 ----------------------------------------------------------------------------------
 
--- Create sequence for route_network.route_node
-CREATE SEQUENCE route_network.route_node_id_seq;
-
 -- Create the route node table
 CREATE TABLE route_network.route_node
 (
-    id integer NOT NULL DEFAULT nextval('route_network.route_node_id_seq'::regclass),
-    mrid uuid UNIQUE,
+    mrid uuid DEFAULT uuid_in((md5((random())::text))::cstring),
     coord geometry(Point,25832),
     node_name varchar(255),
     node_kind varchar(255),
@@ -32,11 +28,8 @@ CREATE TABLE route_network.route_node
     user_name varchar(255),
     application_name varchar(255),
     application_info varchar,
-    CONSTRAINT route_node_pkey PRIMARY KEY (id)
+    PRIMARY KEY(mrid)
 );
-
--- Create unique index for mrid
-create unique index route_node_unique_mridx on route_network.route_node (mrid);
 
 -- Create spatial index
 CREATE INDEX route_node_coord_idx
@@ -76,14 +69,10 @@ FOR EACH ROW EXECUTE PROCEDURE route_network.route_node_update();
 -- User Route segment table
 ----------------------------------------------------------------------------------
 
--- Create sequence for route_network.route_node
-CREATE SEQUENCE route_network.route_segment_id_seq;
-
 -- Create the route segment table
 CREATE TABLE route_network.route_segment
 (
-    id integer NOT NULL DEFAULT nextval('route_network.route_segment_id_seq'::regclass),
-    mrid uuid ,
+    mrid uuid DEFAULT uuid_in((md5((random())::text))::cstring),
     coord geometry(Linestring,25832),
     marked_to_be_deleted boolean,
     delete_me boolean,
@@ -92,11 +81,8 @@ CREATE TABLE route_network.route_segment
     user_name varchar(255),
     application_name varchar(255),
     application_info varchar,
-    CONSTRAINT route_segment_pkey PRIMARY KEY (id)
+    PRIMARY KEY(mrid)
 );
-
--- Create unique index for mrid
-create unique index route_segment_unique_mridx on route_network.route_segment (mrid);
 
 -- Create spatial index
 CREATE INDEX route_segment_coord_idx
