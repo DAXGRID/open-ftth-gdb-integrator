@@ -8,6 +8,9 @@
 -- Enable PostGIS on database if not already enabled
 CREATE EXTENSION IF NOT EXISTS postgis;
 
+-- Enable UUID-OSSP
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE SCHEMA IF NOT EXISTS route_network;
 
 ----------------------------------------------------------------------------------
@@ -17,7 +20,7 @@ CREATE SCHEMA IF NOT EXISTS route_network;
 -- Create the route node table
 CREATE TABLE route_network.route_node
 (
-    mrid uuid DEFAULT uuid_in((md5((random())::text))::cstring),
+    mrid uuid DEFAULT uuid_generate_v4() NOT NULL,
     coord geometry(Point,25832),
     node_name varchar(255),
     node_kind varchar(255),
@@ -72,7 +75,7 @@ FOR EACH ROW EXECUTE PROCEDURE route_network.route_node_update();
 -- Create the route segment table
 CREATE TABLE route_network.route_segment
 (
-    mrid uuid DEFAULT uuid_in((md5((random())::text))::cstring),
+    mrid uuid DEFAULT uuid_generate_v4() NOT NULL,
     coord geometry(Linestring,25832),
     marked_to_be_deleted boolean,
     delete_me boolean,
