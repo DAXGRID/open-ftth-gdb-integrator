@@ -85,14 +85,11 @@ workflows:
             tags:
               only: /.*/
       - test-app:
-          requires:
-            - build-app
           filters:
             tags:
               only: /.*/
       - build-docker-image:
           requires:
-            - test-app
           filters:
             tags:
               only: /^v.*/
@@ -101,6 +98,8 @@ workflows:
       - docker-publish-image:
           context: docker
           requires:
+           - build-app
+           - test-app
            - build-docker-image
           filters:
             tags:
