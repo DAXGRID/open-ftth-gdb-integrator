@@ -44,7 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 {
                     var routeSegmentMessage = (RouteSegmentMessage)CreateRouteSegmentMessage(payload);
 
-                    if (routeSegmentMessage?.After?.Coord !is null)
+                    if (routeSegmentMessage?.After != null & routeSegmentMessage.After?.Coord is null)
                         return new ReceivedLogicalMessage(message.Headers, new InvalidMessage(routeSegmentMessage), message.Position);
 
                     return new ReceivedLogicalMessage(message.Headers, routeSegmentMessage, message.Position);
@@ -53,7 +53,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 {
                     var routeNodeMessage = (RouteNodeMessage)CreateRouteNodeMessage(payload);
 
-                    if (routeNodeMessage?.After?.Coord !is null)
+                    if (routeNodeMessage?.After != null && routeNodeMessage.After?.Coord is null)
                         return new ReceivedLogicalMessage(message.Headers, new InvalidMessage(routeNodeMessage), message.Position);
 
                     return new ReceivedLogicalMessage(message.Headers, routeNodeMessage, message.Position);
