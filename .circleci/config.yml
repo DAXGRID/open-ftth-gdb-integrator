@@ -89,7 +89,6 @@ workflows:
             tags:
               only: /.*/
       - build-docker-image:
-          requires:
           filters:
             tags:
               only: /^v.*/
