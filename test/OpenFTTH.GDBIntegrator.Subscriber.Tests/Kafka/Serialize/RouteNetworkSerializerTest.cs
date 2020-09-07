@@ -266,5 +266,61 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
 
             result.Should().BeEquivalentTo(expected);
         }
+
+        [Theory]
+        [JsonFileData("TestData/RouteSegmentSerializerMessageCoordIsNull.json")]
+        public void Deserialize_ShouldReturnDeserializedSegmentMessage_(string fileData)
+        {
+            var serializationMapper = A.Fake<IInfoMapper>();
+            var routeSegmentSerializer = new RouteNetworkSerializer(serializationMapper);
+
+            var position = new Position();
+            var headers = new Dictionary<string, string>();
+            var body = Encoding.UTF8.GetBytes(fileData);
+
+            var receivedTransportMessage = new ReceivedTransportMessage(position, headers, body);
+
+            var expectedRouteSegmentBefore = new RouteSegment
+            {
+                Mrid = new Guid("57fb87f5-093c-405d-b619-755e3f39073f"),
+                Coord = Convert.FromBase64String("AQIAACDoZAAAAgAAAO79HyV51h/B6DWfEXKJVEGgwmxDUMkfwXuWw252iVRB"),
+                WorkTaskMrid = Guid.Empty,
+                ApplicationName = string.Empty,
+                Username = string.Empty,
+                MarkAsDeleted = false,
+                ApplicationInfo = string.Empty,
+                DeleteMe = false,
+                LifeCycleInfo = null,
+                MappingInfo = null,
+                NamingInfo = null,
+                RouteSegmentInfo = null,
+                SafetyInfo = null
+            };
+
+            var expectedRouteSegmentAfter = new RouteSegment
+            {
+                Mrid = new Guid("57fb87f5-093c-405d-b619-755e3f39073f"),
+                Coord = null,
+                WorkTaskMrid = Guid.Empty,
+                ApplicationName = string.Empty,
+                Username = string.Empty,
+                MarkAsDeleted = true,
+                ApplicationInfo = string.Empty,
+                DeleteMe = false,
+                LifeCycleInfo = null,
+                MappingInfo = null,
+                NamingInfo = null,
+                RouteSegmentInfo = null,
+                SafetyInfo = null
+            };
+
+            var expectedBody = new RouteSegmentMessage(expectedRouteSegmentBefore, expectedRouteSegmentAfter);
+            var expectedInvalidMessage = new InvalidMessage(expectedBody);
+
+            var expected = new ReceivedLogicalMessage(headers, expectedInvalidMessage, position);
+            var result = routeSegmentSerializer.Deserialize(receivedTransportMessage);
+
+            result.Should().BeEquivalentTo(expected);
+        }
     }
 }

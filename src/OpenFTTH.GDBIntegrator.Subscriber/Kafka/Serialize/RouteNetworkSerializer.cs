@@ -87,7 +87,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
             var mappedRouteSegment = new RouteSegment
             {
                 Mrid = new Guid(routeSegment.mrid.ToString()),
-                Coord = routeSegment.coord is null ? null : Convert.FromBase64String(routeSegment.coord.wkb.ToString()),
+                Coord = (JObject)routeSegment.coord is null ? null : Convert.FromBase64String(routeSegment.coord.wkb.ToString()),
                 Username = routeSegment.user_name.ToString(),
                 WorkTaskMrid = routeSegment.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(routeSegment.work_task_mrid.ToString()),
                 ApplicationName = routeSegment.application_name.ToString(),
@@ -151,7 +151,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
             {
                 ApplicationInfo = routeNode.application_info.ToString(),
                 ApplicationName = routeNode.application_name.ToString(),
-                Coord = routeNode.coord is null ? null : Convert.FromBase64String(routeNode.coord.wkb.ToString()),
+                Coord = (JObject)routeNode.coord is null ? null : Convert.FromBase64String(routeNode.coord.wkb.ToString()),
                 MarkAsDeleted = (bool)routeNode.marked_to_be_deleted,
                 DeleteMe = (bool)routeNode.delete_me,
                 Mrid = new Guid(routeNode.mrid.ToString()),
