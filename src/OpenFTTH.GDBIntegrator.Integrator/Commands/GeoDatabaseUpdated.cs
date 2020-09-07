@@ -47,6 +47,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     await HandleRouteNode((RouteNodeMessage)request.UpdateMessage);
                 else if (request.UpdateMessage is RouteSegmentMessage)
                     await HandleRouteSegment((RouteSegmentMessage)request.UpdateMessage);
+                else if (request.UpdateMessage is InvalidMessage)
+                    await HandleInvalidMessage((InvalidMessage)request.UpdateMessage);
 
                 _pool.Release();
             }
@@ -118,6 +120,20 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             else
             {
                 await _mediator.Publish(new InvalidRouteSegmentOperation { RouteSegment = routeSegmentMessage.After, CmdId = Guid.NewGuid() });
+            }
+        }
+
+        private async Task HandleInvalidMessage(InvalidMessage invalidMessage)
+        {
+            if (invalidMessage.Message is RouteSegmentMessage)
+            {
+                var rollbackMessage = (RouteSegmentMessage)invalidMessage.Message;
+                await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackMessage.Before));
+            }
+            if (invalidMessage.Message is RouteNodeMessage)
+            {
+                var rollbackMessage = (RouteNodeMessage)invalidMessage.Message;
+                await _mediator.Publish(new RollbackInvalidRouteNode(rollbackMessage.Before));
             }
         }
 

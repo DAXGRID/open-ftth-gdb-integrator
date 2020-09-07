@@ -53,6 +53,11 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
                             var routeSegment = (RouteSegmentMessage)message.Body;
                             await HandleSubscribedEvent(routeSegment);
                         }
+                        else if (message.Body is InvalidMessage)
+                        {
+                            var invalidMessage = (InvalidMessage)message.Body;
+                            await HandleInvalidMessage(invalidMessage);
+                        }
                     }
                 }).Start();
         }
@@ -67,6 +72,12 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
         {
             _logger.LogDebug($"Received message {JsonConvert.SerializeObject(routeSegmentMessage, Formatting.Indented)}");
             await _mediator.Send(new GeoDatabaseUpdated { UpdateMessage = routeSegmentMessage });
+        }
+
+        private async Task HandleInvalidMessage(InvalidMessage invalidMessage)
+        {
+            _logger.LogDebug($"Received message {JsonConvert.SerializeObject(invalidMessage, Formatting.Indented)}");
+            await _mediator.Send(new GeoDatabaseUpdated { UpdateMessage = invalidMessage });
         }
 
         public void Dispose()
