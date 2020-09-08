@@ -21,6 +21,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Serilog;
+using Serilog.Formatting.Compact;
 
 namespace OpenFTTH.GDBIntegrator.Internal
 {
@@ -105,6 +106,8 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 {
                     var logger = new LoggerConfiguration()
                         .ReadFrom.Configuration(loggingConfiguration)
+                        .Enrich.FromLogContext()
+                        .WriteTo.Console(new CompactJsonFormatter())
                         .CreateLogger();
 
                     loggingBuilder.AddSerilog(logger, true);

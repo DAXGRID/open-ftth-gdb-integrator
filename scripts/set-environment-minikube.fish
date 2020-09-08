@@ -22,5 +22,4 @@ export KAFKA__EVENTROUTENETWORKTOPICNAME="event.route-network"
 export KAFKA__EVENTGEOGRAPHICALAREAUPDATED="event.geographical-area-updated"
 
 # Logging
-export SERILOG__MINIMUMLEVEL__DEFAULT="Information"
-export SERILOG__WRITETO__NAME="Console"
+export SERILOG__MINIMUMLEVEL="Information"
