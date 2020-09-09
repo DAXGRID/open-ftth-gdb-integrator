@@ -7,6 +7,5 @@ namespace OpenFTTH.GDBIntegrator.Producer
     {
         void Init();
         Task Produce(string topicName, Object message);
-        Task Produce(string topicName, Object message, string partitionKey);
     }
 }
