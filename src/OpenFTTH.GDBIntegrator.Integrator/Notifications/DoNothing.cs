@@ -1,5 +1,4 @@
 using MediatR;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -27,7 +26,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(DoNothing request, CancellationToken token)
         {
-            _logger.LogInformation($"{request.Message}");
+            _logger.LogDebug($"{request.Message}");
         }
     }
 }
