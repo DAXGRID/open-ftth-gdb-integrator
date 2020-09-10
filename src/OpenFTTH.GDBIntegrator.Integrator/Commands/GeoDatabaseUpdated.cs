@@ -56,12 +56,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     await HandleInvalidMessage((InvalidMessage)request.UpdateMessage);
 
                 await _geoDatabase.Commit();
-                _pool.Release();
             }
             catch (Exception e)
             {
-                _logger.LogError(e.ToString());
+                _logger.LogError($"{e.ToString()}: Rolling back geodatabase transactions");
                 await _geoDatabase.RollbackTransaction();
+            }
+            finally
+            {
                 _pool.Release();
             }
 
