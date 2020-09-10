@@ -3,13 +3,18 @@ using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
 using OpenFTTH.GDBIntegrator.Integrator.Queue;
+using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
+using OpenFTTH.GDBIntegrator.Producer;
+using OpenFTTH.GDBIntegrator.Config;
 using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
@@ -26,19 +31,28 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         private readonly IRouteNodeEventFactory _routeNodeEventFactory;
         private readonly IRouteSegmentEventFactory _routeSegmentEventFactory;
         private readonly IGeoDatabase _geoDatabase;
+        private readonly IEventStore _eventStore;
+        private readonly IProducer _producer;
+        private readonly KafkaSetting _kafkaSettings;
 
         public GeoDatabaseUpdatedHandler(
             ILogger<RouteNodeAddedHandler> logger,
             IMediator mediator,
             IRouteSegmentEventFactory routeSegmentEventFactory,
             IRouteNodeEventFactory routeNodeEventFactory,
-            IGeoDatabase geoDatabase)
+            IGeoDatabase geoDatabase,
+            IEventStore eventStore,
+            IProducer producer,
+            IOptions<KafkaSetting> kafkaSettings)
         {
             _logger = logger;
             _mediator = mediator;
             _routeSegmentEventFactory = routeSegmentEventFactory;
             _routeNodeEventFactory = routeNodeEventFactory;
             _geoDatabase = geoDatabase;
+            _eventStore = eventStore;
+            _producer = producer;
+            _kafkaSettings = kafkaSettings.Value;
         }
 
         public async Task<Unit> Handle(GeoDatabaseUpdated request, CancellationToken token)
@@ -55,20 +69,43 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 else if (request.UpdateMessage is InvalidMessage)
                     await HandleInvalidMessage((InvalidMessage)request.UpdateMessage);
 
+                foreach (var domainEvent in _eventStore.Get())
+                {
+                    await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, domainEvent);
+                }
+
                 await _geoDatabase.Commit();
+
+                if (_eventStore.Get().Count() > 0)
+                {
+                    // TODO Hack until time to make a better implementation
+                    await _mediator.Publish(new GeographicalAreaUpdated() { RouteNodes = new List<RouteNode>(), RouteSegment = new List<RouteSegment>() });
+                }
             }
             catch (Exception e)
             {
                 _logger.LogError($"{e.ToString()}: Rolling back geodatabase transactions");
                 await _geoDatabase.RollbackTransaction();
+
+                await _geoDatabase.BeginTransaction();
+                _logger.LogError(Newtonsoft.Json.JsonConvert.SerializeObject(request.UpdateMessage), Newtonsoft.Json.Formatting.Indented);
+                if (request.UpdateMessage is RouteSegmentMessage)
+                {
+                    var rollbackMessage = (RouteSegmentMessage)request.UpdateMessage;
+                    await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackMessage.Before));
+                }
+                else if (request.UpdateMessage is RouteNodeMessage)
+                {
+                    var rollbackMessage = (RouteNodeMessage)request.UpdateMessage;
+                    await _mediator.Publish(new RollbackInvalidRouteNode(rollbackMessage.Before));
+                }
+                await _geoDatabase.Commit();
             }
             finally
             {
+                _eventStore.Clear();
                 _pool.Release();
             }
-
-            // TODO Hack until time to make a better implementation
-            await _mediator.Publish(new GeographicalAreaUpdated() { RouteNodes = new List<RouteNode>(), RouteSegment = new List<RouteSegment>() });
 
             return await Task.FromResult(new Unit());
         }

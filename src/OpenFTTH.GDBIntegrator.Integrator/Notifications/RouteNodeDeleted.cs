@@ -2,6 +2,7 @@ using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.Events.RouteNetwork;
+using OpenFTTH.GDBIntegrator.Integrator.Store;
 using MediatR;
 using System;
 using System.Threading;
@@ -23,16 +24,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         private readonly ILogger<RouteNodeDeletedHandler> _logger;
         private readonly KafkaSetting _kafkaSettings;
-        private readonly IProducer _producer;
+        private readonly IEventStore _eventStore;
 
         public RouteNodeDeletedHandler(
             ILogger<RouteNodeDeletedHandler> logger,
             IOptions<KafkaSetting> kafkaSettings,
-            IProducer producer)
+            IProducer producer,
+            IEventStore eventStore)
         {
             _logger = logger;
             _kafkaSettings = kafkaSettings.Value;
-            _producer = producer;
+            _eventStore = eventStore;
         }
 
         public async Task Handle(RouteNodeDeleted request, CancellationToken token)
@@ -54,7 +56,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     request.RouteNode.Mrid
                 );
 
-            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, routeNodeDeletedEvent);
+            _eventStore.Insert(routeNodeDeletedEvent);
+            await Task.CompletedTask;
         }
     }
 }

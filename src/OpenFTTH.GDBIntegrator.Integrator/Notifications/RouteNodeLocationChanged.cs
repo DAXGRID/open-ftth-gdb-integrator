@@ -1,8 +1,8 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
-using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.Events.RouteNetwork;
+using OpenFTTH.GDBIntegrator.Integrator.Store;
 using MediatR;
 using System;
 using System.Threading;
@@ -26,21 +26,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         private readonly ILogger<RouteNodeLocationChangedHandler> _logger;
         private readonly KafkaSetting _kafkaSettings;
-        private readonly IProducer _producer;
         private readonly IGeoDatabase _geoDatabase;
         private readonly IMediator _mediator;
+        private readonly IEventStore _eventStore;
 
         public RouteNodeLocationChangedHandler(
             ILogger<RouteNodeLocationChangedHandler> logger,
             IOptions<KafkaSetting> kafkaSettings,
-            IProducer producer,
+            IEventStore eventStore,
             IGeoDatabase geoDatabase,
             IMediator mediator)
         {
             _logger = logger;
             _kafkaSettings = kafkaSettings.Value;
-            _producer = producer;
+            _eventStore = eventStore;
             _geoDatabase = geoDatabase;
+            _mediator = mediator;
         }
 
         public async Task Handle(RouteNodeLocationChanged request, CancellationToken token)
@@ -100,7 +101,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     request.RouteNodeAfter.GetGeoJsonCoordinate()
                 );
 
-            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, routeNodeGeometryModifiedEvent);
+            _eventStore.Insert(routeNodeGeometryModifiedEvent);
 
             for (var i = 0; i < routeSegmentsToBeUpdated.Count; i++)
             {
@@ -124,7 +125,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                          routeSegmentToBeUpdated.GetGeoJsonCoordinate()
                     );
 
-                await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, routeSegmentGeometryModifiedEvent);
+                 _eventStore.Insert(routeSegmentGeometryModifiedEvent);
             }
         }
     }

@@ -1,6 +1,6 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
-using OpenFTTH.GDBIntegrator.Producer;
+using OpenFTTH.GDBIntegrator.Integrator.Store;
 using MediatR;
 using System;
 using System.Threading;
@@ -24,16 +24,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         private readonly ILogger<RouteSegmentAddedHandler> _logger;
         private readonly KafkaSetting _kafkaSettings;
-        private readonly IProducer _producer;
+        private readonly IEventStore _eventStore;
 
         public RouteSegmentAddedHandler(
             ILogger<RouteSegmentAddedHandler> logger,
             IOptions<KafkaSetting> kafkaSettings,
-            IProducer producer)
+            IEventStore eventStore)
         {
             _logger = logger;
             _kafkaSettings = kafkaSettings.Value;
-            _producer = producer;
+            _eventStore = eventStore;
         }
 
         public async Task Handle(RouteSegmentAdded request, CancellationToken token)
@@ -63,7 +63,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     request.RouteSegment?.RouteSegmentInfo
                 );
 
-            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, routeSegmentAddedEvent);
+            _eventStore.Insert(routeSegmentAddedEvent);
+            await Task.CompletedTask;
         }
     }
 }

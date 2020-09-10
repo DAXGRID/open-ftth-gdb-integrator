@@ -27,6 +27,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         public async Task Handle(DoNothing request, CancellationToken token)
         {
             _logger.LogDebug($"{request.Message}");
+            await Task.CompletedTask;
         }
     }
 }
