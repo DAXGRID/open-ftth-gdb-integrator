@@ -117,17 +117,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (!_routeSegmentValidator.LineIsValid(routeSegment.GetLineString()))
                 return new List<INotification> { new InvalidRouteSegmentOperation { RouteSegment = routeSegment, CmdId = cmdId } };
 
-            var intersectingStartNodesTask = _geoDatabase.GetIntersectingStartRouteNodes(routeSegment);
-            var intersectingEndNodesTask = _geoDatabase.GetIntersectingEndRouteNodes(routeSegment);
-            var intersectingStartSegmentsTask = _geoDatabase.GetIntersectingStartRouteSegments(routeSegment);
-            var intersectingEndSegmentsTask = _geoDatabase.GetIntersectingEndRouteSegments(routeSegment);
-            var allIntersectingRouteNodesNoEdgesTask = _geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(routeSegment);
-
-            var intersectingStartNodes = await intersectingStartNodesTask;
-            var intersectingEndNodes = await intersectingEndNodesTask;
-            var intersectingStartSegments = await intersectingStartSegmentsTask;
-            var intersectingEndSegments = await intersectingEndSegmentsTask;
-            var allIntersectingRouteNodesNoEdges = await allIntersectingRouteNodesNoEdgesTask;
+            var intersectingStartNodes = await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment);
+            var intersectingEndNodes = await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment);
+            var intersectingStartSegments = await _geoDatabase.GetIntersectingStartRouteSegments(routeSegment);
+            var intersectingEndSegments = await _geoDatabase.GetIntersectingEndRouteSegments(routeSegment);
+            var allIntersectingRouteNodesNoEdges = await _geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(routeSegment);
 
             var notifications = new List<INotification>();
 

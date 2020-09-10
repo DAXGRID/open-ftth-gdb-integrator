@@ -81,11 +81,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             await _geoDatabase.InsertRouteNodeShadowTable(routeNode);
 
             var cmdId = Guid.NewGuid();
-            var intersectingRouteSegmentsTask = _geoDatabase.GetIntersectingRouteSegments(routeNode);
-            var intersectingRouteNodesTask = _geoDatabase.GetIntersectingRouteNodes(routeNode);
-
-            var intersectingRouteSegments = await intersectingRouteSegmentsTask;
-            var intersectingRouteNodes = await intersectingRouteNodesTask;
+            var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
+            var intersectingRouteNodes = await _geoDatabase.GetIntersectingRouteNodes(routeNode);
 
             if (intersectingRouteNodes.Count > 0)
                 return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId } };

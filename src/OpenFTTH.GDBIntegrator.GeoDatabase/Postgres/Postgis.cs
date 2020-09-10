@@ -19,6 +19,8 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         private readonly PostgisSetting _postgisSettings;
         private readonly ApplicationSetting _applicationSettings;
         private readonly IInfoMapper _infoMapper;
+        private NpgsqlConnection _connection;
+        private NpgsqlTransaction _transaction;
 
         public Postgis(IOptions<PostgisSetting> postgisSettings, IOptions<ApplicationSetting> applicationSettings, IInfoMapper infoMapper)
         {
@@ -27,9 +29,31 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             _infoMapper = infoMapper;
         }
 
+        public async Task BeginTransaction()
+        {
+            var connection = GetNpgsqlConnection();
+            _transaction = await connection.BeginTransactionAsync();
+        }
+
+        public async Task Commit()
+        {
+            await _transaction.CommitAsync();
+            await _transaction.DisposeAsync();
+            await _connection.DisposeAsync();
+            _connection = null;
+        }
+
+        public async Task RollbackTransaction()
+        {
+            await _transaction.RollbackAsync();
+            await _transaction.DisposeAsync();
+            await _connection.DisposeAsync();
+            _connection = null;
+        }
+
         public async Task<RouteNode> GetRouteNodeShadowTable(Guid mrid)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
 
             var query = @"SELECT
                               ST_AsBinary(coord) AS coord,
@@ -40,8 +64,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                               application_name AS applicationName
                               FROM route_network_integrator.route_node WHERE mrid = @mrid AND marked_to_be_deleted = false";
 
-            await connection.OpenAsync();
-
             var routeNode = await connection.QueryAsync<RouteNode>(query, new { mrid });
 
             return routeNode.FirstOrDefault();
@@ -49,7 +71,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<RouteSegment> GetRouteSegmentShadowTable(Guid mrid)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"SELECT
                               ST_AsBinary(coord) AS coord,
                               mrid,
@@ -59,7 +81,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                               application_name AS applicationName
                               FROM route_network_integrator.route_segment WHERE mrid = @mrid AND marked_to_be_deleted = false";
 
-            await connection.OpenAsync();
             var routeSegment = await connection.QueryAsync<RouteSegment>(query, new { mrid });
 
             return routeSegment.FirstOrDefault();
@@ -67,7 +88,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteNode>> GetIntersectingStartRouteNodes(RouteSegment routeSegment)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
@@ -80,7 +101,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND marked_to_be_deleted = false
                     ";
 
-            await connection.OpenAsync();
+
             var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
             return routeNodes.AsList();
@@ -88,7 +109,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteNode>> GetIntersectingStartRouteNodes(byte[] coord)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
@@ -100,7 +121,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND marked_to_be_deleted = false
                     ";
 
-            await connection.OpenAsync();
             var routeNodes = await connection.QueryAsync<RouteNode>(query, new { coord, _applicationSettings.Tolerance });
 
             return routeNodes.AsList();
@@ -108,7 +128,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteNode>> GetIntersectingEndRouteNodes(RouteSegment routeSegment)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
@@ -121,7 +141,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND marked_to_be_deleted = false
                     ";
 
-            await connection.OpenAsync();
             var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
             return routeNodes.AsList();
@@ -129,7 +148,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteNode>> GetIntersectingEndRouteNodes(byte[] coord)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
@@ -141,7 +160,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND marked_to_be_deleted = false
                     ";
 
-            await connection.OpenAsync();
             var routeNodes = await connection.QueryAsync<RouteNode>(query, new { coord, _applicationSettings.Tolerance });
 
             return routeNodes.AsList();
@@ -149,7 +167,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteSegment>> GetIntersectingRouteSegments(RouteNode routeNode)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"SELECT
                     ST_AsBinary(coord) AS coord,
                     mrid,
@@ -181,7 +199,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       ),
                       coord) AND marked_to_be_deleted = false";
 
-            await connection.OpenAsync();
             var routeSegments = (await connection.QueryAsync<RouteSegmentQueryModel>(query, new { routeNode.Mrid, _applicationSettings.Tolerance }))
                 .Select(x => new RouteSegment
                 {
@@ -238,7 +255,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteSegment>> GetIntersectingRouteSegments(byte[] coordinates)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
@@ -247,7 +264,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       ),
                       coord) AND marked_to_be_deleted = false";
 
-            await connection.OpenAsync();
             var result = await connection.QueryAsync<RouteSegment>(query, new { coordinates, tolerance = _applicationSettings.Tolerance });
 
             return result.AsList();
@@ -255,7 +271,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteSegment>> GetIntersectingRouteSegments(RouteNode routeNode, RouteSegment notInclude)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"SELECT
                     ST_AsBinary(coord) AS coord,
                     mrid,
@@ -287,7 +303,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       ),
                       coord) AND marked_to_be_deleted = false AND mrid != @sMrid";
 
-            await connection.OpenAsync();
             var routeSegments = (await connection.QueryAsync<RouteSegmentQueryModel>(query, new { sMrid = notInclude.Mrid, routeNode.Mrid, _applicationSettings.Tolerance }))
                 .Select(x => new RouteSegment
                 {
@@ -344,7 +359,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteNode>> GetAllIntersectingRouteNodes(RouteSegment routeSegment)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
@@ -354,7 +369,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       ),
                       coord) AND marked_to_be_deleted = false";
 
-            await connection.OpenAsync();
             var result = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
             return result.AsList();
@@ -362,7 +376,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteNode>> GetAllIntersectingRouteNodesNotIncludingEdges(RouteSegment routeSegment)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"
                     SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
@@ -389,7 +403,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                           @tolerance),
                       coord)";
 
-            await connection.OpenAsync();
             var result = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
             return result.AsList();
@@ -397,7 +410,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteNode>> GetAllIntersectingRouteNodesNotIncludingEdges(byte[] coordinates, Guid mrid)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"
                     SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
@@ -419,7 +432,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                           @tolerance),
                       coord)";
 
-            await connection.OpenAsync();
             var result = await connection.QueryAsync<RouteNode>(query, new { mrid, coordinates, _applicationSettings.Tolerance });
 
             return result.AsList();
@@ -427,7 +439,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteNode>> GetIntersectingRouteNodes(RouteNode routeNode)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
@@ -438,7 +450,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND mrid != @mrid AND marked_to_be_deleted = false
                     ";
 
-            await connection.OpenAsync();
             var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeNode.Mrid, _applicationSettings.Tolerance });
 
             return routeNodes.AsList();
@@ -446,7 +457,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteSegment>> GetIntersectingStartRouteSegments(RouteSegment routeSegment)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
@@ -459,7 +470,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND mrid != @mrid AND marked_to_be_deleted = false
                     ";
 
-            await connection.OpenAsync();
             var routeSegments = await connection.QueryAsync<RouteSegment>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
             return routeSegments.AsList();
@@ -467,7 +477,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteSegment>> GetIntersectingStartRouteSegments(RouteNode routeNode)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
 
             var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
@@ -478,7 +488,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       ST_StartPoint(coord)) AND marked_to_be_deleted = false
                     ";
 
-            await connection.OpenAsync();
             var routeSegments = await connection.QueryAsync<RouteSegment>(query, new { routeNode.Coord, _applicationSettings.Tolerance });
 
             return routeSegments.AsList();
@@ -486,7 +495,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteSegment>> GetIntersectingEndRouteSegments(RouteSegment routeSegment)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
@@ -499,7 +508,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       coord) AND mrid != @mrid AND marked_to_be_deleted = false
                     ";
 
-            await connection.OpenAsync();
             var routeSegments = await connection.QueryAsync<RouteSegment>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
 
             return routeSegments.AsList();
@@ -507,7 +515,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task<List<RouteSegment>> GetIntersectingEndRouteSegments(RouteNode routeNode)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
 
             var query = @"SELECT ST_Asbinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
@@ -518,7 +526,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       ST_EndPoint(coord)) AND marked_to_be_deleted = false
                     ";
 
-            await connection.OpenAsync();
             var routeSegments = await connection.QueryAsync<RouteSegment>(query, new { routeNode.Coord, _applicationSettings.Tolerance });
 
             return routeSegments.AsList();
@@ -526,7 +533,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task DeleteRouteNode(Guid mrid)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var intergratorQuery = @"
                     UPDATE route_network_integrator.route_node
                     SET
@@ -541,14 +548,13 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     WHERE mrid = @mrid;
                     ";
 
-            await connection.OpenAsync();
             await connection.ExecuteAsync(intergratorQuery, new { mrid });
             await connection.ExecuteAsync(query, new { mrid });
         }
 
         public async Task DeleteRouteSegment(Guid mrid)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var intergratorQuery = @"
                     UPDATE route_network_integrator.route_segment
                     SET
@@ -561,14 +567,13 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       delete_me = true
                     WHERE mrid = @mrid";
 
-            await connection.OpenAsync();
             await connection.ExecuteAsync(intergratorQuery, new { mrid });
             await connection.ExecuteAsync(query, new { mrid });
         }
 
         public async Task MarkDeleteRouteSegment(Guid mrid)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var intergratorQuery = @"
                     UPDATE route_network_integrator.route_segment
                     SET
@@ -581,14 +586,13 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       marked_to_be_deleted = true
                     WHERE mrid = @mrid;";
 
-            await connection.OpenAsync();
             await connection.ExecuteAsync(intergratorQuery, new { mrid });
             await connection.ExecuteAsync(query, new { mrid });
         }
 
         public async Task MarkDeleteRouteNode(Guid mrid)
         {
-            using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var intergratorQuery = @"
                     UPDATE route_network_integrator.route_node
                     SET
@@ -601,14 +605,13 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       marked_to_be_deleted = true
                     WHERE mrid = @mrid;";
 
-            await connection.OpenAsync();
             await connection.ExecuteAsync(intergratorQuery, new { mrid });
             await connection.ExecuteAsync(query, new { mrid });
         }
 
         public async Task InsertRouteNode(RouteNode routeNode)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var intergratorQuery = @"
                     INSERT INTO route_network_integrator.route_node(
                     mrid,
@@ -649,14 +652,13 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     false
                     );";
 
-            await connection.OpenAsync();
             await connection.ExecuteAsync(intergratorQuery, routeNode);
             await connection.ExecuteAsync(query, routeNode);
         }
 
         public async Task UpdateRouteNode(RouteNode routeNode)
         {
-            using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var integratorQuery = @"
                     UPDATE route_network_integrator.route_node
                     SET
@@ -677,14 +679,13 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       marked_to_be_deleted = @markAsDeleted
                     WHERE mrid = @mrid;";
 
-            await connection.OpenAsync();
             await connection.ExecuteAsync(integratorQuery, routeNode);
             await connection.ExecuteAsync(query, routeNode);
         }
 
         public async Task UpdateRouteNodeShadowTable(RouteNode routeNode)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"
                     UPDATE route_network_integrator.route_node
                     SET
@@ -737,13 +738,12 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 namingDescription = routeNode.NamingInfo?.Description
             };
 
-            await connection.OpenAsync();
             await connection.ExecuteAsync(query, mappedRouteNode);
         }
 
         public async Task InsertRouteNodeShadowTable(RouteNode routeNode)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"
                     INSERT INTO route_network_integrator.route_node(
                     mrid,
@@ -820,13 +820,12 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 namingDescription = routeNode.NamingInfo?.Description
             };
 
-            await connection.OpenAsync();
             await connection.ExecuteAsync(query, mappedRouteNode);
         }
 
         public async Task InsertRouteSegmentShadowTable(RouteSegment routeSegment)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"
                     INSERT INTO route_network_integrator.route_segment(
                     mrid,
@@ -906,13 +905,12 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 namingDescription = routeSegment.NamingInfo?.Description
             };
 
-            await connection.OpenAsync();
             await connection.ExecuteAsync(query, mappedRouteSegment);
         }
 
         public async Task UpdateRouteSegmentShadowTable(RouteSegment routeSegment)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"
                     UPDATE route_network_integrator.route_segment
                     SET
@@ -966,13 +964,12 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 namingDescription = routeSegment.NamingInfo?.Description
             };
 
-            await connection.OpenAsync();
             await connection.ExecuteAsync(query, mappedRouteSegment);
         }
 
         public async Task InsertRouteSegment(RouteSegment routeSegment)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var integratorQuery = @"
                     INSERT INTO route_network_integrator.route_segment(
                     mrid,
@@ -1104,14 +1101,13 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 namingDescription = routeSegment.NamingInfo?.Description
             };
 
-            await connection.OpenAsync();
             await connection.ExecuteAsync(integratorQuery, mappedRouteSegment);
             await connection.ExecuteAsync(query, mappedRouteSegment);
         }
 
         public async Task<string> GetRouteSegmentsSplittedByRouteNode(RouteNode routeNode, RouteSegment intersectingRouteSegment)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var query = @"
                     SELECT ST_AsText(
                         ST_Split(
@@ -1126,7 +1122,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     FROM route_network_integrator.route_segment WHERE mrid = @mrid AND marked_to_be_deleted = false;
                 ";
 
-            await connection.OpenAsync();
             var result = await connection.QueryAsync<string>(query, new { routeNode.Coord, intersectingRouteSegment.Mrid, tolerance = _applicationSettings.Tolerance * 2 });
 
             return result.First();
@@ -1134,7 +1129,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         public async Task UpdateRouteSegment(RouteSegment routeSegment)
         {
-            await using var connection = GetNpgsqlConnection();
+            var connection = GetNpgsqlConnection();
             var integratorQuery = @"
                     UPDATE route_network_integrator.route_segment
                     SET
@@ -1155,7 +1150,6 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       marked_to_be_deleted = @markAsDeleted
                     WHERE mrid = @mrid;";
 
-            await connection.OpenAsync();
             await connection.ExecuteAsync(integratorQuery, routeSegment);
             await connection.ExecuteAsync(query, routeSegment);
         }
@@ -1167,8 +1161,15 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 
         private NpgsqlConnection GetNpgsqlConnection()
         {
-            return new NpgsqlConnection(
+            if (_connection is null)
+            {
+                _connection = new NpgsqlConnection(
                         $"Host={_postgisSettings.Host};Port={_postgisSettings.Port};Username={_postgisSettings.Username};Password={_postgisSettings.Password};Database={_postgisSettings.Database}");
+
+                _connection.Open();
+            }
+
+            return _connection;
         }
     }
 }

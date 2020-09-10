@@ -3,6 +3,7 @@ using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
 using OpenFTTH.GDBIntegrator.Integrator.Queue;
+using OpenFTTH.GDBIntegrator.GeoDatabase;
 using MediatR;
 using System;
 using System.Threading;
@@ -24,17 +25,20 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         private readonly IMediator _mediator;
         private readonly IRouteNodeEventFactory _routeNodeEventFactory;
         private readonly IRouteSegmentEventFactory _routeSegmentEventFactory;
+        private readonly IGeoDatabase _geoDatabase;
 
         public GeoDatabaseUpdatedHandler(
             ILogger<RouteNodeAddedHandler> logger,
             IMediator mediator,
             IRouteSegmentEventFactory routeSegmentEventFactory,
-            IRouteNodeEventFactory routeNodeEventFactory)
+            IRouteNodeEventFactory routeNodeEventFactory,
+            IGeoDatabase geoDatabase)
         {
             _logger = logger;
             _mediator = mediator;
             _routeSegmentEventFactory = routeSegmentEventFactory;
             _routeNodeEventFactory = routeNodeEventFactory;
+            _geoDatabase = geoDatabase;
         }
 
         public async Task<Unit> Handle(GeoDatabaseUpdated request, CancellationToken token)
@@ -42,6 +46,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             try
             {
                 await _pool.WaitAsync();
+                await _geoDatabase.BeginTransaction();
 
                 if (request.UpdateMessage is RouteNodeMessage)
                     await HandleRouteNode((RouteNodeMessage)request.UpdateMessage);
@@ -50,11 +55,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 else if (request.UpdateMessage is InvalidMessage)
                     await HandleInvalidMessage((InvalidMessage)request.UpdateMessage);
 
+                await _geoDatabase.Commit();
                 _pool.Release();
             }
             catch (Exception e)
             {
                 _logger.LogError(e.ToString());
+                await _geoDatabase.RollbackTransaction();
                 _pool.Release();
             }
 
