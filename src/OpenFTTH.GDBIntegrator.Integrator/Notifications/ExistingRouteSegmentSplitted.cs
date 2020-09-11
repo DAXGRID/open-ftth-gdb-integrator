@@ -22,6 +22,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         public Guid CmdId { get; set; }
         public RouteSegment RouteSegmentDigitizedByUser { get; set; }
         public bool InsertNode { get; set; }
+        public bool CreateNodeAddedEvent { get; set; }
     }
 
     public class ExistingRouteSegmentSplittedHandler : INotificationHandler<ExistingRouteSegmentSplitted>
@@ -61,13 +62,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 domainEvents.Add(routeNodeAddedEvent);
             }
 
+            if (request.CreateNodeAddedEvent && !request.InsertNode)
+            {
+                var routeNodeAddedEvent = _routeNodeEventFactory.CreateAdded(request.RouteNode);
+                domainEvents.Add(routeNodeAddedEvent);
+            }
+
             var intersectingRouteSegment = await GetIntersectingRouteSegment(request.RouteSegmentDigitizedByUser, request.RouteNode);
 
             var routeSegmentsWkt = await _geoDatabase.GetRouteSegmentsSplittedByRouteNode(request.RouteNode, intersectingRouteSegment);
             var routeSegments = _routeSegmentFactory.Create(routeSegmentsWkt);
 
             SetSplittedRouteSegmentValuesToNewRouteSegments(routeSegments, intersectingRouteSegment);
-
 
             var routeSegmentAddedEvents = await InsertReplacementRouteSegments(routeSegments, request.CmdId);
             var routeSegmentMarkedForDeletionEvent = await DeleteRouteSegment(intersectingRouteSegment, request.CmdId, routeSegments);

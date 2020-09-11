@@ -92,19 +92,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (intersectingRouteSegments.Count == 1)
             {
-                // TODO handle this
                 var notifications = new List<INotification>();
-                notifications.Add(new NewRouteNodeDigitized
-                {
-                    CmdId = cmdId,
-                    RouteNode = routeNode,
-                    //CmdType = nameof(ExistingRouteSegmentSplitted)
-                });
-
                 notifications.Add(new ExistingRouteSegmentSplitted
                 {
                     RouteNode = routeNode,
-                    CmdId = cmdId
+                    CmdId = cmdId,
+                    InsertNode = false,
+                    CreateNodeAddedEvent = true
                 });
 
                 return notifications;
