@@ -5,8 +5,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Store
 {
     public interface IEventStore
     {
-        void Insert(IDomainEvent domainEvent);
+        void Insert(RouteNetworkCommand routeNetworkCommand);
         void Clear();
-        IEnumerable<IDomainEvent> Get();
+        IEnumerable<RouteNetworkCommand> Get();
     }
 }

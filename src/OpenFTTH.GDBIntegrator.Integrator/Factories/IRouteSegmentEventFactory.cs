@@ -1,13 +1,15 @@
-using MediatR;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+using OpenFTTH.Events.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using System;
+using System.Collections.Generic;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
     public interface IRouteSegmentEventFactory
     {
-        Task<IEnumerable<INotification>> CreateDigitizedEvent(RouteSegment routeSegment);
-        Task<IEnumerable<INotification>> CreateUpdatedEvent(RouteSegment before, RouteSegment after);
+        RouteSegmentRemoved CreateRemoved(RouteSegment routeSegment, IEnumerable<Guid> replacedBySegments);
+        RouteSegmentGeometryModified CreateGeometryModified(RouteSegment routeSegment);
+        RouteSegmentMarkedForDeletion CreateMarkedForDeletion(RouteSegment routeSegment);
+        RouteSegmentAdded CreateAdded(RouteSegment routeSegment, RouteNode startRouteNode, RouteNode endRouteNode);
     }
 }

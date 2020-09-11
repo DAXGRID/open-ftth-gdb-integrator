@@ -81,8 +81,8 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddTransient<IRouteSegmentFactory, RouteSegmentFactory>();
                 services.AddTransient<IRouteNodeFactory, RouteNodeFactory>();
                 services.AddTransient<IEnvelopeFactory, EnvelopeFactory>();
-                services.AddTransient<IRouteSegmentEventFactory, RouteSegmentEventFactory>();
-                services.AddTransient<IRouteNodeEventFactory, RouteNodeEventFactory>();
+                services.AddTransient<IRouteSegmentCommandFactory, RouteSegmentCommandFactory>();
+                services.AddTransient<IRouteNodeCommandFactory, RouteNodeCommandFactory>();
                 services.AddTransient<IInfoMapper, InfoMapper>();
                 services.AddSingleton<IEventStore, EventStore>();
 

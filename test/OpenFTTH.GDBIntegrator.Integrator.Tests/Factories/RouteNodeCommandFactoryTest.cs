@@ -16,7 +16,7 @@ using MediatR;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 {
-    public class RouteNodeEventFactoryTest
+    public class RouteNodeCommandFactoryTest
     {
         [Fact]
         public async Task CreateDigitizedEvent_ShouldThrowArgumentNullException_OnBeingPassedNullRouteNode()
@@ -24,7 +24,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             Func<Task> act = async () => await factory.CreateDigitizedEvent(null);
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
@@ -38,7 +38,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             A.CallTo(() => applicationSetting.Value).Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             var routeNode = new RouteNode(Guid.Empty, null, Guid.Empty, String.Empty, "GDB_INTEGRATOR");
             var result = (DoNothing)((await factory.CreateDigitizedEvent(routeNode)).First());
@@ -56,7 +56,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(routeNode))
                 .Returns(new List<RouteSegment>());
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             var result = (RouteNodeAdded)((await factory.CreateDigitizedEvent(routeNode)).First());
 
@@ -78,7 +78,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(routeNode))
                 .Returns(routeSegments);
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             var result = await factory.CreateDigitizedEvent(routeNode);
             var firstEvent = (RouteNodeAdded)result[0];
@@ -104,7 +104,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(routeNode))
                 .Returns(routeSegments);
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             var result = (InvalidRouteNodeOperation)((await factory.CreateDigitizedEvent(routeNode)).First());
 
@@ -126,7 +126,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingRouteNodes(routeNode))
                 .Returns(intersectingRouteNodes);
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             var result = (InvalidRouteNodeOperation)((await factory.CreateDigitizedEvent(routeNode)).First());
 
@@ -150,7 +150,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode))
                 .Returns(new List<RouteSegment> { });
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
             var result = (RouteNodeDeleted)(await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
             using (new AssertionScope())
@@ -176,7 +176,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(beforeNode))
                 .Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
 
             var expected = new RollbackInvalidRouteNode(beforeNode);
@@ -200,7 +200,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingRouteNodes(afterNode))
                 .Returns(new List<RouteNode> { A.Fake<RouteNode>() });
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
 
             var expected = new RollbackInvalidRouteNode(beforeNode);
@@ -230,7 +230,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns("[565931.4446905176,6197297.75114815]");
             A.CallTo(() => integratorRouteNode.MarkAsDeleted).Returns(true);
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
@@ -245,7 +245,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             RouteNode beforeNode = null;
             RouteNode afterNode = null;
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             Func<Task> act = async () => await factory.CreateUpdatedEvent(beforeNode, afterNode);
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
@@ -259,7 +259,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             RouteNode beforeNode = null;
             var afterNode = A.Fake<RouteNode>();
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             Func<Task> act = async () => await factory.CreateUpdatedEvent(beforeNode, afterNode);
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
@@ -273,7 +273,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var beforeNode = A.Fake<RouteNode>();
             RouteNode afterNode = null;
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             Func<Task> act = async () => await factory.CreateUpdatedEvent(beforeNode, afterNode);
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
@@ -291,7 +291,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid)).Returns(shadowTableRouteNode);
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
@@ -320,7 +320,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
             var routeNodeLocationChanged = (RouteNodeLocationChanged)result[0];
@@ -359,7 +359,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns("[565931.4446905176,6197297.75114815]");
             A.CallTo(() => shadowTableRouteNode.MarkAsDeleted).Returns(false);
 
-            var factory = new RouteNodeEventFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             var result = (RouteNodeLocationChanged)(await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 

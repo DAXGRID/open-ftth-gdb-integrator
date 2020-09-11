@@ -28,8 +28,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         private static SemaphoreQueue _pool = new SemaphoreQueue(1, 1);
         private readonly ILogger<RouteNodeAddedHandler> _logger;
         private readonly IMediator _mediator;
-        private readonly IRouteNodeEventFactory _routeNodeEventFactory;
-        private readonly IRouteSegmentEventFactory _routeSegmentEventFactory;
+        private readonly IRouteNodeCommandFactory _routeNodeEventFactory;
+        private readonly IRouteSegmentCommandFactory _routeSegmentEventFactory;
         private readonly IGeoDatabase _geoDatabase;
         private readonly IEventStore _eventStore;
         private readonly IProducer _producer;
@@ -38,8 +38,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         public GeoDatabaseUpdatedHandler(
             ILogger<RouteNodeAddedHandler> logger,
             IMediator mediator,
-            IRouteSegmentEventFactory routeSegmentEventFactory,
-            IRouteNodeEventFactory routeNodeEventFactory,
+            IRouteSegmentCommandFactory routeSegmentEventFactory,
+            IRouteNodeCommandFactory routeNodeEventFactory,
             IGeoDatabase geoDatabase,
             IEventStore eventStore,
             IProducer producer,

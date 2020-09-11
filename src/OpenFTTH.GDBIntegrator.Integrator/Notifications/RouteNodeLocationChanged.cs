@@ -3,6 +3,8 @@ using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.Events.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.Store;
+using OpenFTTH.GDBIntegrator.Integrator.Factories;
+using OpenFTTH.Events;
 using MediatR;
 using System;
 using System.Threading;
@@ -29,19 +31,25 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         private readonly IGeoDatabase _geoDatabase;
         private readonly IMediator _mediator;
         private readonly IEventStore _eventStore;
+        private readonly IRouteNodeEventFactory _routeNodeEventFactory;
+        private readonly IRouteSegmentEventFactory _routeSegmentEventFactory;
 
         public RouteNodeLocationChangedHandler(
             ILogger<RouteNodeLocationChangedHandler> logger,
             IOptions<KafkaSetting> kafkaSettings,
             IEventStore eventStore,
             IGeoDatabase geoDatabase,
-            IMediator mediator)
+            IMediator mediator,
+            IRouteNodeEventFactory routeNodeEventFactory,
+            IRouteSegmentEventFactory routeSegmentEventFactory)
         {
             _logger = logger;
             _kafkaSettings = kafkaSettings.Value;
             _eventStore = eventStore;
             _geoDatabase = geoDatabase;
             _mediator = mediator;
+            _routeNodeEventFactory = routeNodeEventFactory;
+            _routeSegmentEventFactory = routeSegmentEventFactory;
         }
 
         public async Task Handle(RouteNodeLocationChanged request, CancellationToken token)
@@ -85,48 +93,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 }
             }
 
-            var routeNodeGeometryModifiedEvent = new RouteNodeGeometryModified
-                (
-                    nameof(RouteNodeGeometryModified),
-                    Guid.NewGuid(),
-                    DateTime.UtcNow,
-                    nameof(RouteNodeLocationChanged),
-                    request.CmdId,
-                    false,
-                    request.RouteNodeAfter.WorkTaskMrid,
-                    request.RouteNodeAfter.Username,
-                    request.RouteNodeAfter?.ApplicationName,
-                    request.RouteNodeAfter?.ApplicationInfo,
-                    request.RouteNodeAfter.Mrid,
-                    request.RouteNodeAfter.GetGeoJsonCoordinate()
-                );
+            var routeNetworkEvents = new List<RouteNetworkEvent>();
 
-            _eventStore.Insert(routeNodeGeometryModifiedEvent);
+            var routeNodeGeometryModifiedEvent = _routeNodeEventFactory.CreateGeometryModified(request.RouteNodeAfter);
+            routeNetworkEvents.Add(routeNodeGeometryModifiedEvent);
 
             for (var i = 0; i < routeSegmentsToBeUpdated.Count; i++)
             {
                 var routeSegmentToBeUpdated = routeSegmentsToBeUpdated[i];
                  await _geoDatabase.UpdateRouteSegment(routeSegmentToBeUpdated);
 
-                 var isLastEventInCmd = i == routeSegmentsToBeUpdated.Count - 1;
-                 var routeSegmentGeometryModifiedEvent = new RouteSegmentGeometryModified
-                     (
-                         nameof(RouteSegmentGeometryModified),
-                         Guid.NewGuid(),
-                         DateTime.UtcNow,
-                         nameof(RouteNodeLocationChanged),
-                         request.CmdId,
-                         isLastEventInCmd,
-                         routeSegmentToBeUpdated.WorkTaskMrid,
-                         routeSegmentToBeUpdated.Username,
-                         routeSegmentToBeUpdated?.ApplicationName,
-                         routeSegmentToBeUpdated?.ApplicationInfo,
-                         routeSegmentToBeUpdated.Mrid,
-                         routeSegmentToBeUpdated.GetGeoJsonCoordinate()
-                    );
-
-                 _eventStore.Insert(routeSegmentGeometryModifiedEvent);
+                 var routeSegmentGeometryModifiedEvent = _routeSegmentEventFactory.CreateGeometryModified(routeSegmentToBeUpdated);
+                 routeNetworkEvents.Add(routeSegmentGeometryModifiedEvent);
             }
+
+            var routeNodeLocationChangedCommand = new RouteNetworkCommand(nameof(RouteNodeLocationChanged), request.CmdId, routeNetworkEvents.ToArray());
+            _eventStore.Insert(routeNodeLocationChangedCommand);
         }
     }
 }

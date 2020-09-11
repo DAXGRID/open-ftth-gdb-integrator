@@ -18,7 +18,7 @@ using NetTopologySuite.Geometries;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 {
-    public class RouteSegmentEventFactoryTest
+    public class RouteSegmentCommandFactoryTest
     {
         [Fact]
         public async Task CreateDigitizedEvent_ShouldThrowArgumentNullException_OnBeingPassedNullRouteSegment()
@@ -28,7 +28,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var geoDatabase = A.Fake<IGeoDatabase>();
             var routeNodeFactory = A.Fake<IRouteNodeFactory>();
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             Func<Task> act = async () => await factory.CreateDigitizedEvent(null);
 
@@ -47,7 +47,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => applicationSettings.Value)
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = await factory.CreateDigitizedEvent(routeSegment);
 
@@ -70,7 +70,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
             A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(false);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = (InvalidRouteSegmentOperation)(await factory.CreateDigitizedEvent(routeSegment)).First();
 
@@ -109,7 +109,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegment))
                 .Returns(intersectingEndNodes);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = await factory.CreateDigitizedEvent(routeSegment);
 
@@ -120,7 +120,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.Count().Should().Be(1);
                 newRouteSegmentDigitized.Should().BeOfType<NewRouteSegmentDigitized>();
                 newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
-                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -151,7 +151,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegment))
                 .Returns(intersectingEndNodes);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = await factory.CreateDigitizedEvent(routeSegment);
 
@@ -162,7 +162,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.Count().Should().Be(1);
                 newRouteSegmentDigitized.Should().BeOfType<NewRouteSegmentDigitized>();
                 newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
-                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -193,7 +193,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegment))
                 .Returns(intersectingEndNodes);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = await factory.CreateDigitizedEvent(routeSegment);
 
@@ -204,7 +204,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.Count().Should().Be(1);
                 newRouteSegmentDigitized.Should().BeOfType<NewRouteSegmentDigitized>();
                 newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
-                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -235,7 +235,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegment))
                 .Returns(intersectingEndNodes);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = await factory.CreateDigitizedEvent(routeSegment);
 
@@ -246,7 +246,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.Count().Should().Be(1);
                 newRouteSegmentDigitized.Should().BeOfType<NewRouteSegmentDigitized>();
                 newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
-                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -268,7 +268,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
             A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = (NewRouteSegmentDigitized)(await factory.CreateDigitizedEvent(routeSegment)).First();
 
@@ -313,7 +313,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegment.FindStartPoint()).Returns(startPoint);
             A.CallTo(() => routeNodeFactory.Create(startPoint)).Returns(startRouteNode);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = await factory.CreateDigitizedEvent(routeSegment);
 
@@ -330,7 +330,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 existingRouteSegmentSplitted.RouteNode.Should().Be(startRouteNode);
                 existingRouteSegmentSplitted.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
 
-                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.CmdId.Should().NotBeEmpty();
                 newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
             }
         }
@@ -370,7 +370,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegment.FindEndPoint()).Returns(endPoint);
             A.CallTo(() => routeNodeFactory.Create(endPoint)).Returns(endNode);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = await factory.CreateDigitizedEvent(routeSegment);
 
@@ -387,7 +387,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 existingRouteSegmentSplitted.RouteNode.Should().Be(endNode);
                 existingRouteSegmentSplitted.RouteSegmentDigitizedByUser.Should().Be(routeSegment);
 
-                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.CmdId.Should().NotBeEmpty();
                 newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
             }
         }
@@ -432,7 +432,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeNodeFactory.Create(startPoint)).Returns(startNode);
             A.CallTo(() => routeNodeFactory.Create(endPoint)).Returns(endNode);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = await factory.CreateDigitizedEvent(routeSegment);
 
@@ -460,7 +460,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 endInsertNode.RouteNode.Should().Be(endNode);
                 endInsertNode.CmdId.Should().NotBeEmpty();
 
-                newRouteSegmentDigitized.EventId.Should().NotBeEmpty();
+                newRouteSegmentDigitized.CmdId.Should().NotBeEmpty();
                 newRouteSegmentDigitized.RouteSegment.Should().Be(routeSegment);
             }
         }
@@ -489,7 +489,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(routeSegment))
                 .Returns(allIntersectingRouteNodes);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = (await factory.CreateDigitizedEvent(routeSegment)).ToList();
 
@@ -501,7 +501,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             {
                 result.Count().Should().Be(3);
                 newSegmentNotification.RouteSegment.Should().BeEquivalentTo(routeSegment);
-                newSegmentNotification.EventId.Should().NotBeEmpty();
+                newSegmentNotification.CmdId.Should().NotBeEmpty();
 
                 splittedRouteSegmentNotificationOne.CmdId.Should().NotBeEmpty();
                 splittedRouteSegmentNotificationOne.RouteNode.Should().BeEquivalentTo(allIntersectingRouteNodes[0]);
@@ -527,7 +527,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(true);
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(true);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = (RouteSegmentDeleted)(await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter)).First();
 
@@ -557,7 +557,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = (DoNothing)(await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter)).First();
 
@@ -587,7 +587,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(false);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = (await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter)).First();
 
@@ -609,7 +609,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid)).Returns(routeSegmentShadowTable);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = (DoNothing)(await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter)).First();
 
@@ -644,7 +644,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegmentAfter)).Returns(new List<RouteNode>());
             A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegmentAfter)).Returns(new List<RouteNode>());
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = (await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter)).ToList();
 
@@ -703,7 +703,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => previousStartNode.Mrid).Returns(startNodeMrid);
             A.CallTo(() => previousEndNode.Mrid).Returns(endNodeMrId);
 
-            var factory = new RouteSegmentEventFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
             var result = (RouteSegmentLocationChanged)(await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter)).First();
 

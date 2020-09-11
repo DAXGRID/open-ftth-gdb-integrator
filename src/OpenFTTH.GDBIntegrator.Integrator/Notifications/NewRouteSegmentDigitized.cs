@@ -1,11 +1,16 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
+using OpenFTTH.GDBIntegrator.Integrator.Factories;
+using OpenFTTH.GDBIntegrator.Integrator.Store;
+using OpenFTTH.Events;
+using OpenFTTH.Events.RouteNetwork;
 using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
@@ -13,7 +18,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     public class NewRouteSegmentDigitized : INotification
     {
         public RouteSegment RouteSegment { get; set; }
-        public Guid EventId { get; set; }
+        public Guid CmdId { get; set; }
     }
 
     public class NewRouteSegmentDigitizedHandler : INotificationHandler<NewRouteSegmentDigitized>
@@ -22,17 +27,26 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         private readonly ILogger<NewRouteSegmentDigitizedHandler> _logger;
         private readonly IGeoDatabase _geoDatabase;
         private readonly IRouteNodeFactory _routeNodeFactory;
+        private readonly IRouteNodeEventFactory _routeNodeEventFactory;
+        private readonly IRouteSegmentEventFactory _routeSegmentEventFactory;
+        private readonly IEventStore _eventStore;
 
         public NewRouteSegmentDigitizedHandler(
             IMediator mediator,
             ILogger<NewRouteSegmentDigitizedHandler> logger,
             IGeoDatabase geoDatabase,
-            IRouteNodeFactory routeNodeFactory)
+            IRouteNodeFactory routeNodeFactory,
+            IRouteNodeEventFactory routeNodeEventFactory,
+            IRouteSegmentEventFactory routeSegmentEventFactory,
+            IEventStore eventStore)
         {
             _mediator = mediator;
             _logger = logger;
             _geoDatabase = geoDatabase;
             _routeNodeFactory = routeNodeFactory;
+            _routeNodeEventFactory = routeNodeEventFactory;
+            _routeSegmentEventFactory = routeSegmentEventFactory;
+            _eventStore = eventStore;
         }
 
         public async Task Handle(NewRouteSegmentDigitized request, CancellationToken token)
@@ -42,11 +56,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             if (request.RouteSegment is null)
                 throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");
 
-            var eventId = request.EventId;
+            var cmdId = request.CmdId;
 
             var routeSegment = request.RouteSegment;
             var startNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment)).FirstOrDefault();
             var endNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).FirstOrDefault();
+
+            var routeNetworkEvents = new List<RouteNetworkEvent>();
 
             if (startNode is null)
             {
@@ -56,12 +72,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 startNode.WorkTaskMrid = routeSegment.WorkTaskMrid;
 
                 await _geoDatabase.InsertRouteNode(startNode);
-                await _mediator.Publish(new RouteNodeAdded
-                    {
-                        RouteNode = startNode,
-                        CmdId = eventId,
-                        CmdType = nameof(NewRouteSegmentDigitized)
-                    });
+
+                var startRouteNodeAddedEvent = _routeNodeEventFactory.CreateAdded(startNode);
+                routeNetworkEvents.Add(startRouteNodeAddedEvent);
             }
             if (endNode is null)
             {
@@ -71,23 +84,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 endNode.WorkTaskMrid = routeSegment.WorkTaskMrid;
 
                 await _geoDatabase.InsertRouteNode(endNode);
-                await _mediator.Publish(new RouteNodeAdded
-                    {
-                        RouteNode = endNode,
-                        CmdId = eventId,
-                        CmdType = nameof(NewRouteSegmentDigitized)
-                    });
+
+                var endRouteNodeAddedEvent = _routeNodeEventFactory.CreateAdded(endNode);
+                routeNetworkEvents.Add(endRouteNodeAddedEvent);
             }
 
-            await _mediator.Publish(new RouteSegmentAdded
-            {
-                CmdId = eventId,
-                RouteSegment = routeSegment,
-                StartRouteNode = startNode,
-                EndRouteNode = endNode,
-                CmdType = nameof(NewRouteSegmentDigitized),
-                IsLastEventInCmd = true
-            });
+            var routeSegmentAddedEvent = _routeSegmentEventFactory.CreateAdded(routeSegment, startNode, endNode);
+            routeNetworkEvents.Add(routeSegmentAddedEvent);
+
+            var newRouteSegmentDigitizedCommand = new RouteNetworkCommand(nameof(NewRouteSegmentDigitized), request.CmdId, routeNetworkEvents.ToArray());
+            _eventStore.Insert(newRouteSegmentDigitizedCommand);
         }
     }
 }

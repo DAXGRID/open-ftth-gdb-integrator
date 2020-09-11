@@ -5,21 +5,21 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Store
 {
     public class EventStore : IEventStore
     {
-        private List<IDomainEvent> _domainEvents = new List<IDomainEvent>();
+        private List<RouteNetworkCommand> _routeNetworkCommands;
 
-        public void Insert(IDomainEvent domainEvent)
+        public void Insert(RouteNetworkCommand routeNetworkCommand)
         {
-            _domainEvents.Add(domainEvent);
+            _routeNetworkCommands.Add(routeNetworkCommand);
         }
 
-        public IEnumerable<IDomainEvent> Get()
+        public IEnumerable<RouteNetworkCommand> Get()
         {
-            return _domainEvents;
+            return _routeNetworkCommands;
         }
 
         public void Clear()
         {
-            _domainEvents.Clear();
+            _routeNetworkCommands.Clear();
         }
     }
 }

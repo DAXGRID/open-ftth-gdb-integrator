@@ -3,6 +3,10 @@ using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.Events.RouteNetwork.Infos;
+using OpenFTTH.GDBIntegrator.Integrator.Store;
+using OpenFTTH.GDBIntegrator.Integrator.Factories;
+using OpenFTTH.Events;
+using OpenFTTH.Events.RouteNetwork;
 using MediatR;
 using System;
 using System.Threading;
@@ -34,22 +38,21 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         private readonly IGeoDatabase _geoDatabase;
         private readonly IRouteNodeFactory _routeNodeFactory;
         private readonly IRouteSegmentFactory _routeSegmentFactory;
-        private readonly IMediator _mediator;
+        private readonly IRouteNodeEventFactory _routeNodeEventFactory;
+        private readonly IRouteSegmentEventFactory _routeSegmentEventFactory;
 
         public RouteSegmentConnectivityChangedHandler(
             ILogger<RouteSegmentConnectivityChangedHandler> logger,
             IOptions<KafkaSetting> kafkaSettings,
             IGeoDatabase geoDatabase,
             IRouteNodeFactory routeNodeFactory,
-            IRouteSegmentFactory routeSegmentFactory,
-            IMediator mediator)
+            IRouteSegmentFactory routeSegmentFactory)
         {
             _logger = logger;
             _kafkaSettings = kafkaSettings.Value;
             _geoDatabase = geoDatabase;
             _routeNodeFactory = routeNodeFactory;
             _routeSegmentFactory = routeSegmentFactory;
-            _mediator = mediator;
         }
 
         public async Task Handle(RouteSegmentConnectivityChanged request, CancellationToken token)

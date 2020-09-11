@@ -26,17 +26,20 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         private readonly ILogger<GeographicalAreaUpdatedHandler> _logger;
         private readonly IEnvelopeFactory _envelopeFactory;
         private readonly KafkaSetting _kafkaSettings;
+        private readonly ApplicationSetting _applicationSettings;
 
         public GeographicalAreaUpdatedHandler(
             IProducer producer,
             ILogger<GeographicalAreaUpdatedHandler> logger,
             IEnvelopeFactory envelopeFactory,
-            IOptions<KafkaSetting> kafkaSettings)
+            IOptions<KafkaSetting> kafkaSettings,
+            IOptions<ApplicationSetting> applicationSetting)
         {
             _producer = producer;
             _logger = logger;
             _envelopeFactory = envelopeFactory;
             _kafkaSettings = kafkaSettings.Value;
+            _applicationSettings = applicationSetting.Value;
         }
 
         public async Task Handle(GeographicalAreaUpdated request, CancellationToken token)
@@ -53,6 +56,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 nameof(ObjectsWithinGeographicalAreaUpdated),
                 Guid.NewGuid(),
                 DateTime.UtcNow,
+                _applicationSettings.ApplicationName,
+                string.Empty,
                 "RouteNetworkUpdated",
                 envelopeInfo,
                 null
