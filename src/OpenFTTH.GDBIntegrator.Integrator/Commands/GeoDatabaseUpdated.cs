@@ -85,7 +85,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
                 if (_eventStore.Get().Count() > 0)
                 {
-                    await _producer.Produce(_kafkaSettings.PostgisRouteNetworkTopic, editOperationOccuredEvent);
+                    await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, editOperationOccuredEvent);
 
                     // TODO Hack until time to make a better implementation
                     await _mediator.Publish(new GeographicalAreaUpdated() { RouteNodes = new List<RouteNode>(), RouteSegment = new List<RouteSegment>() });
