@@ -22,11 +22,18 @@ Configure environment variables call (fish shell) using minikube Kubernetes.
 
 Running the application
 
-``` makefile
+``` sh
 task start
 ```
 
+Testing
+
+``` sh
+task test
+```
+
 ## Node editing
+
 Describes the node editing actions that the application handles.
 
 <table>
