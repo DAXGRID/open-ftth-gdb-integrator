@@ -5,7 +5,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Store
 {
     public class EventStore : IEventStore
     {
-        private List<RouteNetworkCommand> _routeNetworkCommands;
+        private List<RouteNetworkCommand> _routeNetworkCommands = new List<RouteNetworkCommand>();
 
         public void Insert(RouteNetworkCommand routeNetworkCommand)
         {

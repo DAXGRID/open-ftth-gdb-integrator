@@ -1,12 +1,14 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
+using OpenFTTH.GDBIntegrator.Integrator.Factories;
+using OpenFTTH.GDBIntegrator.Integrator.Store;
+using OpenFTTH.Events;
+using OpenFTTH.Events.RouteNetwork;
 using MediatR;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
@@ -14,37 +16,30 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         public RouteNode RouteNode { get; set; }
         public Guid CmdId { get; set; }
-        public string CmdType { get; set; }
     }
 
     public class NewRouteNodeDigitizedHandler : INotificationHandler<NewRouteNodeDigitized>
     {
-        private readonly ILogger<NewRouteNodeDigitizedHandler> _logger;
-        private readonly KafkaSetting _kafkaSettings;
-        private readonly IGeoDatabase _geoDatabase;
+        private readonly IRouteNodeEventFactory _routeNodeEventFactory;
+        private readonly IEventStore _eventStore;
 
         public NewRouteNodeDigitizedHandler(
-            ILogger<NewRouteNodeDigitizedHandler> logger,
-            IOptions<KafkaSetting> kafkaSettings,
-            IGeoDatabase geoDatabase)
+            IRouteNodeEventFactory routeNodeEventFactory,
+            IEventStore eventStore)
         {
-            _logger = logger;
-            _kafkaSettings = kafkaSettings.Value;
-            _geoDatabase = geoDatabase;
+            _routeNodeEventFactory = routeNodeEventFactory;
+            _eventStore = eventStore;
         }
 
         public async Task Handle(NewRouteNodeDigitized request, CancellationToken token)
         {
-            _logger.LogInformation($"Sending {nameof(NewRouteNodeDigitized)} with mrid '{request.RouteNode.Mrid}' to producer");
+            var routeNodeAddedEvent = _routeNodeEventFactory.CreateAdded(request.RouteNode);
 
-            await _geoDatabase.InsertRouteNode(request.RouteNode);
+            var newRouteNodeDigitizedCommand = new RouteNetworkCommand(nameof(NewRouteNodeDigitized), request.CmdId, new List<RouteNetworkEvent> { routeNodeAddedEvent }.ToArray());
 
-            await _mediator.Publish(new RouteNodeAdded
-                {
-                    RouteNode = request.RouteNode,
-                    CmdId = request.CmdId,
-                    CmdType = request.CmdType ?? nameof(NewRouteNodeDigitized),
-                });
+            _eventStore.Insert(newRouteNodeDigitizedCommand);
+
+            await Task.FromResult(0);
         }
     }
 }

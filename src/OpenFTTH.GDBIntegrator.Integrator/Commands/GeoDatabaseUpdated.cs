@@ -7,6 +7,7 @@ using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.Config;
+using OpenFTTH.Events.RouteNetwork;
 using MediatR;
 using System;
 using System.Threading;
@@ -26,7 +27,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
     public class GeoDatabaseUpdatedHandler : IRequestHandler<GeoDatabaseUpdated, Unit>
     {
         private static SemaphoreQueue _pool = new SemaphoreQueue(1, 1);
-        private readonly ILogger<RouteNodeAddedHandler> _logger;
+        private readonly ILogger<GeoDatabaseUpdatedHandler> _logger;
         private readonly IMediator _mediator;
         private readonly IRouteNodeCommandFactory _routeNodeEventFactory;
         private readonly IRouteSegmentCommandFactory _routeSegmentEventFactory;
@@ -34,16 +35,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         private readonly IEventStore _eventStore;
         private readonly IProducer _producer;
         private readonly KafkaSetting _kafkaSettings;
+        private readonly ApplicationSetting _applicationSettings;
 
         public GeoDatabaseUpdatedHandler(
-            ILogger<RouteNodeAddedHandler> logger,
+            ILogger<GeoDatabaseUpdatedHandler> logger,
             IMediator mediator,
             IRouteSegmentCommandFactory routeSegmentEventFactory,
             IRouteNodeCommandFactory routeNodeEventFactory,
             IGeoDatabase geoDatabase,
             IEventStore eventStore,
             IProducer producer,
-            IOptions<KafkaSetting> kafkaSettings)
+            IOptions<KafkaSetting> kafkaSettings,
+            IOptions<ApplicationSetting> applicationSettings)
         {
             _logger = logger;
             _mediator = mediator;
@@ -53,6 +56,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _eventStore = eventStore;
             _producer = producer;
             _kafkaSettings = kafkaSettings.Value;
+            _applicationSettings = applicationSettings.Value;
         }
 
         public async Task<Unit> Handle(GeoDatabaseUpdated request, CancellationToken token)
@@ -69,18 +73,25 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 else if (request.UpdateMessage is InvalidMessage)
                     await HandleInvalidMessage((InvalidMessage)request.UpdateMessage);
 
-                foreach (var domainEvent in _eventStore.Get())
-                {
-                    await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, domainEvent);
-                }
-
-                await _geoDatabase.Commit();
+                var editOperationOccuredEvent = new RouteNetworkEditOperationOccuredEvent(
+                    nameof(RouteNetworkEditOperationOccuredEvent),
+                    Guid.NewGuid(),
+                    DateTime.UtcNow,
+                    null,
+                    _applicationSettings.ApplicationName,
+                    _applicationSettings.ApplicationName,
+                    _applicationSettings.ApplicationName,
+                    _eventStore.Get().ToArray());
 
                 if (_eventStore.Get().Count() > 0)
                 {
+                    await _producer.Produce(_kafkaSettings.PostgisRouteNetworkTopic, editOperationOccuredEvent);
+
                     // TODO Hack until time to make a better implementation
                     await _mediator.Publish(new GeographicalAreaUpdated() { RouteNodes = new List<RouteNode>(), RouteSegment = new List<RouteSegment>() });
                 }
+
+                await _geoDatabase.Commit();
             }
             catch (Exception e)
             {

@@ -88,16 +88,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId } };
 
             if (intersectingRouteSegments.Count == 0)
-                return new List<INotification> { new RouteNodeAdded { CmdId = cmdId, RouteNode = routeNode, CmdType = nameof(NewRouteNodeDigitized) } };
+                return new List<INotification> { new NewRouteNodeDigitized { CmdId = cmdId, RouteNode = routeNode } };
 
             if (intersectingRouteSegments.Count == 1)
             {
+                // TODO handle this
                 var notifications = new List<INotification>();
-                notifications.Add(new RouteNodeAdded
+                notifications.Add(new NewRouteNodeDigitized
                 {
                     CmdId = cmdId,
                     RouteNode = routeNode,
-                    CmdType = nameof(ExistingRouteSegmentSplitted)
+                    //CmdType = nameof(ExistingRouteSegmentSplitted)
                 });
 
                 notifications.Add(new ExistingRouteSegmentSplitted

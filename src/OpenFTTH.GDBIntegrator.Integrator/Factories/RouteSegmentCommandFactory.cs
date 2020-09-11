@@ -51,7 +51,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var cmdId = Guid.NewGuid();
 
             if (after.MarkAsDeleted)
-                return new List<INotification> { CreateRouteSegmentDeleted(after, cmdId, true) };
+                return new List<INotification> { CreateRouteSegmentDeleted(after, cmdId) };
 
             var intersectingStartSegments = await _geoDatabase.GetIntersectingStartRouteSegments(after);
             var intersectingEndSegments = await _geoDatabase.GetIntersectingEndRouteSegments(after);
@@ -68,7 +68,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 {
                     foreach (var intersectingRouteNode in allIntersectingRouteNodesNoEdges)
                     {
-                        var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(null, cmdId, intersectingRouteNode);
+                        var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(null, cmdId, intersectingRouteNode, false);
                         events.Add(routeSegmentSplitted);
                     }
                 }
@@ -134,7 +134,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             {
                 foreach (var intersectingRouteNode in allIntersectingRouteNodesNoEdges)
                 {
-                    var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(null, cmdId, intersectingRouteNode);
+                    var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(null, cmdId, intersectingRouteNode, false);
                     notifications.Add(routeSegmentSplitted);
                 }
             }
@@ -149,15 +149,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (intersectingSegmentsCount == 1 && intersectingNodesCount == 0)
             {
                 var node = _routeNodeFactory.Create(point);
-                notifications.Add(new NewRouteNodeDigitized
-                {
-                    CmdId = cmdId,
-                    RouteNode = node,
-                    IsLastEventInCmd = false,
-                    CmdType = nameof(ExistingRouteSegmentSplitted)
-                });
 
-                var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(routeSegment, cmdId, node);
+                var routeSegmentSplitted = CreateExistingRouteSegmentSplitted(routeSegment, cmdId, node, true);
                 notifications.Add(routeSegmentSplitted);
             }
 
@@ -174,23 +167,23 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return routeSegment.ApplicationName == _applicationSettings.ApplicationName;
         }
 
-        private RouteSegmentDeleted CreateRouteSegmentDeleted(RouteSegment routeSegment, Guid cmdId, bool isLastEventInCommand)
+        private RouteSegmentDeleted CreateRouteSegmentDeleted(RouteSegment routeSegment, Guid cmdId)
         {
             return new RouteSegmentDeleted
             {
                 RouteSegment = routeSegment,
                 CmdId = cmdId,
-                IsLastEventInCmd = isLastEventInCommand
             };
         }
 
-        private ExistingRouteSegmentSplitted CreateExistingRouteSegmentSplitted(RouteSegment routeSegment, Guid cmdId, RouteNode routeNode)
+        private ExistingRouteSegmentSplitted CreateExistingRouteSegmentSplitted(RouteSegment routeSegment, Guid cmdId, RouteNode routeNode, bool insertRouteNode)
         {
             return new ExistingRouteSegmentSplitted
             {
                 RouteNode = routeNode,
                 CmdId = cmdId,
                 RouteSegmentDigitizedByUser = routeSegment,
+                InsertNode = insertRouteNode
             };
         }
 

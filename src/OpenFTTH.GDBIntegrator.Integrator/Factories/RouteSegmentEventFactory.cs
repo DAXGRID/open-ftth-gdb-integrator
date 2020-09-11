@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
-    public interface RouteSegmentEventFactory
+    public class RouteSegmentEventFactory : IRouteSegmentEventFactory
     {
         public RouteSegmentRemoved CreateRemoved(RouteSegment routeSegment, IEnumerable<Guid> replacedBySegments)
         {
@@ -32,7 +32,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 routeSegment.GetGeoJsonCoordinate());
         }
 
-        public RouteSegmentMarkedForDeletion CreateMarkedForDeletion(RouteSegment routeSegment, string cmdType)
+        public RouteSegmentMarkedForDeletion CreateMarkedForDeletion(RouteSegment routeSegment)
         {
             return new RouteSegmentMarkedForDeletion(
                 nameof(RouteSegmentMarkedForDeletion),

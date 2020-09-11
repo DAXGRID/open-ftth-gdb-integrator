@@ -58,7 +58,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
-            var result = (RouteNodeAdded)((await factory.CreateDigitizedEvent(routeNode)).First());
+            var result = (NewRouteNodeDigitized)((await factory.CreateDigitizedEvent(routeNode)).First());
 
             using (new AssertionScope())
             {
@@ -81,7 +81,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             var result = await factory.CreateDigitizedEvent(routeNode);
-            var firstEvent = (RouteNodeAdded)result[0];
+            var firstEvent = (NewRouteNodeDigitized)result[0];
             var secondEvent = (ExistingRouteSegmentSplitted)result[1];
 
             using (new AssertionScope())

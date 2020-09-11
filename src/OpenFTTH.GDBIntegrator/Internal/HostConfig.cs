@@ -83,6 +83,8 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddTransient<IEnvelopeFactory, EnvelopeFactory>();
                 services.AddTransient<IRouteSegmentCommandFactory, RouteSegmentCommandFactory>();
                 services.AddTransient<IRouteNodeCommandFactory, RouteNodeCommandFactory>();
+                services.AddTransient<IRouteSegmentEventFactory, RouteSegmentEventFactory>();
+                services.AddTransient<IRouteNodeEventFactory, RouteNodeEventFactory>();
                 services.AddTransient<IInfoMapper, InfoMapper>();
                 services.AddSingleton<IEventStore, EventStore>();
 
@@ -108,8 +110,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 {
                     var logger = new LoggerConfiguration()
                         .ReadFrom.Configuration(loggingConfiguration)
-                        .Enrich.FromLogContext()
-                        .WriteTo.Console(new CompactJsonFormatter())
+                        .WriteTo.Console()
                         .CreateLogger();
 
                     loggingBuilder.AddSerilog(logger, true);

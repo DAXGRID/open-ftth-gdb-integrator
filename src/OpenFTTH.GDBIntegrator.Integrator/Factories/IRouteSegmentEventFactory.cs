@@ -7,9 +7,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
     public interface IRouteSegmentEventFactory
     {
-        RouteSegmentRemoved CreateRemoved(RouteSegment routeSegment, IEnumerable<Guid> replacedBySegments);
-        RouteSegmentGeometryModified CreateGeometryModified(RouteSegment routeSegment);
-        RouteSegmentMarkedForDeletion CreateMarkedForDeletion(RouteSegment routeSegment);
-        RouteSegmentAdded CreateAdded(RouteSegment routeSegment, RouteNode startRouteNode, RouteNode endRouteNode);
+        public RouteSegmentRemoved CreateRemoved(RouteSegment routeSegment, IEnumerable<Guid> replacedBySegments);
+        public RouteSegmentGeometryModified CreateGeometryModified(RouteSegment routeSegment);
+        public RouteSegmentMarkedForDeletion CreateMarkedForDeletion(RouteSegment routeSegment);
+        public RouteSegmentAdded CreateAdded(RouteSegment routeSegment, RouteNode startRouteNode, RouteNode endRouteNode);
     }
 }
