@@ -55,6 +55,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 var settings = new JsonSerializerSettings();
                 settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 settings.Converters.Add(new StringEnumConverter());
+                settings.TypeNameHandling = TypeNameHandling.Auto;
 
                 return settings;
             });
