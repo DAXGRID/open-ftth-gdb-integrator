@@ -64,6 +64,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             try
             {
                 await _pool.WaitAsync();
+                _eventStore.Clear();
                 await _geoDatabase.BeginTransaction();
 
                 if (request.UpdateMessage is RouteNodeMessage)
@@ -97,20 +98,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             {
                 _logger.LogError($"{e.ToString()}: Rolling back geodatabase transactions");
                 await _geoDatabase.RollbackTransaction();
-
-                await _geoDatabase.BeginTransaction();
-                _logger.LogError(Newtonsoft.Json.JsonConvert.SerializeObject(request.UpdateMessage), Newtonsoft.Json.Formatting.Indented);
-                if (request.UpdateMessage is RouteSegmentMessage)
-                {
-                    var rollbackMessage = (RouteSegmentMessage)request.UpdateMessage;
-                    await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackMessage.Before));
-                }
-                else if (request.UpdateMessage is RouteNodeMessage)
-                {
-                    var rollbackMessage = (RouteNodeMessage)request.UpdateMessage;
-                    await _mediator.Publish(new RollbackInvalidRouteNode(rollbackMessage.Before));
-                }
-                await _geoDatabase.Commit();
             }
             finally
             {

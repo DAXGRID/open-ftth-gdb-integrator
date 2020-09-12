@@ -2,7 +2,6 @@ using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
-using OpenFTTH.Events.RouteNetwork.Infos;
 using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using OpenFTTH.Events;
