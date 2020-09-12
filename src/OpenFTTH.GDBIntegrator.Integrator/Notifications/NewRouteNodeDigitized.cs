@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
@@ -22,17 +23,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         private readonly IRouteNodeEventFactory _routeNodeEventFactory;
         private readonly IEventStore _eventStore;
+        private readonly ILogger<NewRouteNodeDigitizedHandler> _logger;
 
         public NewRouteNodeDigitizedHandler(
             IRouteNodeEventFactory routeNodeEventFactory,
-            IEventStore eventStore)
+            IEventStore eventStore,
+            ILogger<NewRouteNodeDigitizedHandler> logger)
         {
             _routeNodeEventFactory = routeNodeEventFactory;
             _eventStore = eventStore;
+            _logger = logger;
         }
 
         public async Task Handle(NewRouteNodeDigitized request, CancellationToken token)
         {
+            _logger.LogInformation($"Starting {nameof(NewRouteNodeDigitizedHandler)}");
+
             var routeNodeAddedEvent = _routeNodeEventFactory.CreateAdded(request.RouteNode);
 
             var newRouteNodeDigitizedCommand = new RouteNetworkCommand(nameof(NewRouteNodeDigitized), request.CmdId, new List<RouteNetworkEvent> { routeNodeAddedEvent }.ToArray());

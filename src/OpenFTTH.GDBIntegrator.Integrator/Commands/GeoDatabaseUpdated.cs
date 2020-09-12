@@ -74,15 +74,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 else if (request.UpdateMessage is InvalidMessage)
                     await HandleInvalidMessage((InvalidMessage)request.UpdateMessage);
 
-                var editOperationOccuredEvent = new RouteNetworkEditOperationOccuredEvent(
-                    nameof(RouteNetworkEditOperationOccuredEvent),
-                    Guid.NewGuid(),
-                    DateTime.UtcNow,
-                    null,
-                    _applicationSettings.ApplicationName,
-                    _applicationSettings.ApplicationName,
-                    _applicationSettings.ApplicationName,
-                    _eventStore.Get().ToArray());
+                var editOperationOccuredEvent = CreateEditOperationOccuredEvent(request.UpdateMessage);
 
                 if (_eventStore.Get().Count() > 0)
                 {
@@ -179,6 +171,35 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 var rollbackMessage = (RouteNodeMessage)invalidMessage.Message;
                 await _mediator.Publish(new RollbackInvalidRouteNode(rollbackMessage.Before));
             }
+        }
+
+        private RouteNetworkEditOperationOccuredEvent CreateEditOperationOccuredEvent(object updateMessage)
+        {
+            Guid? workTaskMrid = null;
+            string username = null;
+
+            if (updateMessage is RouteSegmentMessage)
+            {
+                workTaskMrid = ((RouteSegmentMessage)updateMessage).After.WorkTaskMrid;
+                username = ((RouteSegmentMessage)updateMessage).After.Username;
+            }
+            if (updateMessage is RouteNodeMessage)
+            {
+                workTaskMrid = ((RouteNodeMessage)updateMessage).After.WorkTaskMrid;
+                username = ((RouteNodeMessage)updateMessage).After.Username;
+            }
+
+            var editOperationOccuredEvent = new RouteNetworkEditOperationOccuredEvent(
+                nameof(RouteNetworkEditOperationOccuredEvent),
+                Guid.NewGuid(),
+                DateTime.UtcNow,
+                workTaskMrid,
+                username,
+                _applicationSettings.ApplicationName,
+                String.Empty,
+                _eventStore.Get().ToArray());
+
+            return editOperationOccuredEvent;
         }
 
         private bool IsRouteSegmentedDeleted(RouteSegmentMessage routeSegmentMessage)

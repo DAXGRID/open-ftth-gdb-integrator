@@ -64,7 +64,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(RouteSegmentConnectivityChanged request, CancellationToken token)
         {
-            _logger.LogInformation($"Starting {nameof(RouteSegmentConnectivityChanged)}");
+            _logger.LogInformation($"Starting {nameof(RouteSegmentConnectivityChangedHandler)}");
 
             var startNode = (await _geoDatabase.GetIntersectingStartRouteNodes(request.After)).FirstOrDefault();
             var endNode = (await _geoDatabase.GetIntersectingEndRouteNodes(request.After)).FirstOrDefault();

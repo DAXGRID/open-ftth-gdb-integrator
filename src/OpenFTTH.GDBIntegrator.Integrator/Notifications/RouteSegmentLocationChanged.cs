@@ -9,6 +9,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
@@ -22,17 +23,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         private readonly IEventStore _eventStore;
         private readonly IRouteSegmentEventFactory _routeSegmentEventFactory;
+        private readonly ILogger<RouteSegmentLocationChangedHandler> _logger;
 
         public RouteSegmentLocationChangedHandler(
             IEventStore eventStore,
-            IRouteSegmentEventFactory routeSegmentEventFactory)
+            IRouteSegmentEventFactory routeSegmentEventFactory,
+            ILogger<RouteSegmentLocationChangedHandler> logger)
         {
             _eventStore = eventStore;
             _routeSegmentEventFactory = routeSegmentEventFactory;
+            _logger = logger;
         }
 
         public async Task Handle(RouteSegmentLocationChanged request, CancellationToken token)
         {
+            _logger.LogInformation($"Starting {nameof(RouteSegmentLocationChangedHandler)}");
+
             var geometryModifiedEvent = _routeSegmentEventFactory.CreateGeometryModified(request.RouteSegment);
 
             var locationChangedCommand = new RouteNetworkCommand(nameof(RouteSegmentLocationChanged), request.CmdId, new List<RouteNetworkEvent> { geometryModifiedEvent }.ToArray());

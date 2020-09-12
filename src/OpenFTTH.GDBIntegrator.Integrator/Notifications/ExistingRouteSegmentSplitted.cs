@@ -51,7 +51,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(ExistingRouteSegmentSplitted request, CancellationToken token)
         {
-            _logger.LogInformation($"Starting {nameof(ExistingRouteSegmentSplitted)}");
+            _logger.LogInformation($"Starting {nameof(ExistingRouteSegmentSplittedHandler)}");
 
             var domainEvents = new List<RouteNetworkEvent>();
             if (request.InsertNode)

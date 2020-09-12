@@ -9,7 +9,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
@@ -23,17 +23,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         private readonly IEventStore _eventStore;
         private readonly IRouteSegmentEventFactory _routeSegmentEventFactory;
+        private readonly ILogger<RouteSegmentDeletedHandler> _logger;
 
         public RouteSegmentDeletedHandler(
             IEventStore eventStore,
-            IRouteSegmentEventFactory routeSegmentEventFactory)
+            IRouteSegmentEventFactory routeSegmentEventFactory,
+            ILogger<RouteSegmentDeletedHandler> logger)
         {
             _eventStore = eventStore;
             _routeSegmentEventFactory = routeSegmentEventFactory;
+            _logger = logger;
         }
 
         public async Task Handle(RouteSegmentDeleted request, CancellationToken token)
         {
+            _logger.LogInformation($"Starting {nameof(RouteSegmentDeletedHandler)}");
+
             var routeSegmentMarkedForDeletionEvent = _routeSegmentEventFactory.CreateMarkedForDeletion(request.RouteSegment);
 
             var routeSegmentDeletedCommand = new RouteNetworkCommand(nameof(RouteSegmentDeleted), request.CmdId, new List<RouteNetworkEvent> { routeSegmentMarkedForDeletionEvent }.ToArray());

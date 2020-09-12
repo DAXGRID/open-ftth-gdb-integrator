@@ -44,6 +44,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(GeographicalAreaUpdated request, CancellationToken token)
         {
+            _logger.LogInformation($"Starting {nameof(GeographicalAreaUpdatedHandler)}");
+
             var envelope = _envelopeFactory.Create(request.RouteNodes, request.RouteSegment);
             var envelopeInfo = new EnvelopeInfo(envelope.MinX, envelope.MaxX, envelope.MinY, envelope.MaxY);
 
