@@ -81,15 +81,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             var result = await factory.CreateDigitizedEvent(routeNode);
-            var firstEvent = (NewRouteNodeDigitized)result[0];
-            var secondEvent = (ExistingRouteSegmentSplitted)result[1];
+            var firstEvent = (ExistingRouteSegmentSplitted)result[0];
 
             using (new AssertionScope())
             {
                 firstEvent.RouteNode.Should().BeEquivalentTo(routeNode);
                 firstEvent.CmdId.Should().NotBeEmpty();
-                secondEvent.RouteNode.Should().BeEquivalentTo(routeNode);
-                secondEvent.CmdId.Should().NotBeEmpty();
             }
         }
 
