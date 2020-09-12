@@ -16,7 +16,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     public class RouteSegmentDeleted : INotification
     {
         public RouteSegment RouteSegment { get; set; }
-        public Guid CmdId { get; set; }
     }
 
     public class RouteSegmentDeletedHandler : INotificationHandler<RouteSegmentDeleted>
@@ -41,7 +40,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             var routeSegmentMarkedForDeletionEvent = _routeSegmentEventFactory.CreateMarkedForDeletion(request.RouteSegment);
 
-            var routeSegmentDeletedCommand = new RouteNetworkCommand(nameof(RouteSegmentDeleted), request.CmdId, new List<RouteNetworkEvent> { routeSegmentMarkedForDeletionEvent }.ToArray());
+            var cmdId = Guid.NewGuid();
+            var routeSegmentDeletedCommand = new RouteNetworkCommand(nameof(RouteSegmentDeleted), cmdId, new List<RouteNetworkEvent> { routeSegmentMarkedForDeletionEvent }.ToArray());
 
             _eventStore.Insert(routeSegmentDeletedCommand);
 

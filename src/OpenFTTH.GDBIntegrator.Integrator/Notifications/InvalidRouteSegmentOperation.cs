@@ -11,7 +11,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     public class InvalidRouteSegmentOperation : INotification
     {
         public RouteSegment RouteSegment { get; set; }
-        public Guid CmdId { get; set; }
     }
 
     public class InvalidRouteSegmentOperationHandler : INotificationHandler<InvalidRouteSegmentOperation>

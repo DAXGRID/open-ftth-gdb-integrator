@@ -126,7 +126,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             else
             {
-                await _mediator.Publish(new InvalidRouteNodeOperation { RouteNode = routeNodeMessage.After, CmdId = Guid.NewGuid() });
+                await _mediator.Publish(new InvalidRouteNodeOperation { RouteNode = routeNodeMessage.After });
             }
         }
 
@@ -155,7 +155,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             else
             {
-                await _mediator.Publish(new InvalidRouteSegmentOperation { RouteSegment = routeSegmentMessage.After, CmdId = Guid.NewGuid() });
+                await _mediator.Publish(new InvalidRouteSegmentOperation { RouteSegment = routeSegmentMessage.After });
             }
         }
 

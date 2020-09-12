@@ -16,7 +16,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     public class NewRouteNodeDigitized : INotification
     {
         public RouteNode RouteNode { get; set; }
-        public Guid CmdId { get; set; }
     }
 
     public class NewRouteNodeDigitizedHandler : INotificationHandler<NewRouteNodeDigitized>
@@ -41,7 +40,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             var routeNodeAddedEvent = _routeNodeEventFactory.CreateAdded(request.RouteNode);
 
-            var newRouteNodeDigitizedCommand = new RouteNetworkCommand(nameof(NewRouteNodeDigitized), request.CmdId, new List<RouteNetworkEvent> { routeNodeAddedEvent }.ToArray());
+            var cmdId = Guid.NewGuid();
+            var newRouteNodeDigitizedCommand = new RouteNetworkCommand(nameof(NewRouteNodeDigitized), cmdId, new List<RouteNetworkEvent> { routeNodeAddedEvent }.ToArray());
 
             _eventStore.Insert(newRouteNodeDigitizedCommand);
 

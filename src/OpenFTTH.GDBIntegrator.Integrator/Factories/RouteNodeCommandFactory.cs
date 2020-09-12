@@ -42,15 +42,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (!(await IsValidNodeUpdate(before, after)))
                 return new List<INotification> { new RollbackInvalidRouteNode(before) };
 
-            var cmdId = Guid.NewGuid();
             if (after.MarkAsDeleted)
-                return new List<INotification> { new RouteNodeDeleted { CmdId = cmdId, RouteNode = after } };
+                return new List<INotification> { new RouteNodeDeleted { RouteNode = after } };
 
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
             if (intersectingRouteSegments.Count > 0)
             {
                 var notifications = new List<INotification>();
-                notifications.Add(new RouteNodeLocationChanged { CmdId = cmdId, RouteNodeAfter = after, RouteNodeBefore = before });
+                notifications.Add(new RouteNodeLocationChanged { RouteNodeAfter = after, RouteNodeBefore = before });
 
                 var previousIntersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(before.Coord);
                 var intersectingSegments = (await _geoDatabase.GetIntersectingRouteSegments(after))
@@ -60,14 +59,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                     notifications.Add(new ExistingRouteSegmentSplitted
                     {
                         RouteNode = after,
-                        CmdId = cmdId
                     });
                 }
 
                 return notifications;
             }
 
-            return new List<INotification> { new RouteNodeLocationChanged { CmdId = cmdId, RouteNodeAfter = after, RouteNodeBefore = before } };
+            return new List<INotification> { new RouteNodeLocationChanged { RouteNodeAfter = after, RouteNodeBefore = before } };
         }
 
         public async Task<List<INotification>> CreateDigitizedEvent(RouteNode routeNode)
@@ -80,17 +78,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             await _geoDatabase.InsertRouteNodeShadowTable(routeNode);
 
-            var cmdId = Guid.NewGuid();
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
             var intersectingRouteNodes = await _geoDatabase.GetIntersectingRouteNodes(routeNode);
 
             if (intersectingRouteNodes.Count > 0)
             {
-                return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId, Message = "RouteNode intersects with another RouteNode" } };
+                return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, Message = "RouteNode intersects with another RouteNode" } };
             }
 
             if (intersectingRouteSegments.Count == 0)
-                return new List<INotification> { new NewRouteNodeDigitized { CmdId = cmdId, RouteNode = routeNode } };
+                return new List<INotification> { new NewRouteNodeDigitized { RouteNode = routeNode } };
 
             if (intersectingRouteSegments.Count == 1)
             {
@@ -98,7 +95,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 notifications.Add(new ExistingRouteSegmentSplitted
                 {
                     RouteNode = routeNode,
-                    CmdId = cmdId,
                     InsertNode = false,
                     CreateNodeAddedEvent = true
                 });
@@ -106,7 +102,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return notifications;
             }
 
-            return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId } };
+            return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode } };
         }
 
         private async Task<bool> IsValidNodeUpdate(RouteNode before, RouteNode after)

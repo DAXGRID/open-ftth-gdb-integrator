@@ -15,7 +15,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     public class RouteNodeDeleted : INotification
     {
         public RouteNode RouteNode { get; set; }
-        public Guid CmdId { get; set; }
     }
 
     public class RouteNodeDeletedHandler : INotificationHandler<RouteNodeDeleted>
@@ -40,7 +39,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             var routeNodeMarkedForDeletionEvent = _routeNodeEventFactory.CreateMarkedForDeletion(request.RouteNode);
 
-            var markedForDeletionCommand = new RouteNetworkCommand(nameof(RouteNodeMarkedForDeletion), request.CmdId, new List<RouteNetworkEvent> { routeNodeMarkedForDeletionEvent }.ToArray());
+            var cmdId = Guid.NewGuid();
+            var markedForDeletionCommand = new RouteNetworkCommand(nameof(RouteNodeMarkedForDeletion), cmdId, new List<RouteNetworkEvent> { routeNodeMarkedForDeletionEvent }.ToArray());
 
             _eventStore.Insert(markedForDeletionCommand);
             await Task.CompletedTask;

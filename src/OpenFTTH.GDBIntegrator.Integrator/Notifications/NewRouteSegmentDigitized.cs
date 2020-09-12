@@ -18,7 +18,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     public class NewRouteSegmentDigitized : INotification
     {
         public RouteSegment RouteSegment { get; set; }
-        public Guid CmdId { get; set; }
     }
 
     public class NewRouteSegmentDigitizedHandler : INotificationHandler<NewRouteSegmentDigitized>
@@ -56,8 +55,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             if (request.RouteSegment is null)
                 throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be null.");
 
-            var cmdId = request.CmdId;
-
             var routeSegment = request.RouteSegment;
             var startNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment)).FirstOrDefault();
             var endNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).FirstOrDefault();
@@ -92,7 +89,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             var routeSegmentAddedEvent = _routeSegmentEventFactory.CreateAdded(routeSegment, startNode, endNode);
             routeNetworkEvents.Add(routeSegmentAddedEvent);
 
-            var newRouteSegmentDigitizedCommand = new RouteNetworkCommand(nameof(NewRouteSegmentDigitized), request.CmdId, routeNetworkEvents.ToArray());
+            var cmdId = Guid.NewGuid();
+            var newRouteSegmentDigitizedCommand = new RouteNetworkCommand(nameof(NewRouteSegmentDigitized), cmdId, routeNetworkEvents.ToArray());
             _eventStore.Insert(newRouteSegmentDigitizedCommand);
         }
     }

@@ -63,7 +63,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (new AssertionScope())
             {
                 result.RouteNode.Should().BeEquivalentTo(routeNode);
-                result.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -86,7 +85,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (new AssertionScope())
             {
                 firstEvent.RouteNode.Should().BeEquivalentTo(routeNode);
-                firstEvent.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -108,7 +106,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (new AssertionScope())
             {
                 result.RouteNode.Should().BeEquivalentTo(routeNode);
-                result.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -130,7 +127,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (new AssertionScope())
             {
                 result.RouteNode.Should().BeEquivalentTo(routeNode);
-                result.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -153,7 +149,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (new AssertionScope())
             {
                 result.RouteNode.Should().Be(afterNode);
-                result.CmdId.Should().NotBeEmpty();
             }
         }
 
@@ -327,10 +322,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             {
                 routeNodeLocationChanged.Should().BeOfType(typeof(RouteNodeLocationChanged));
                 routeNodeLocationChanged.RouteNodeAfter.Should().Be(afterNode);
-                routeNodeLocationChanged.CmdId.Should().NotBeEmpty();
 
                 existingRouteSegmentSplitted.Should().BeOfType(typeof(ExistingRouteSegmentSplitted));
-                existingRouteSegmentSplitted.CmdId.Should().NotBeEmpty();
                 existingRouteSegmentSplitted.RouteNode.Should().NotBeNull();
                 existingRouteSegmentSplitted.RouteSegmentDigitizedByUser.Should().BeNull();
             }
@@ -364,7 +357,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             {
                 result.Should().BeOfType(typeof(RouteNodeLocationChanged));
                 result.RouteNodeAfter.Should().Be(afterNode);
-                result.CmdId.Should().NotBeEmpty();
             }
         }
     }

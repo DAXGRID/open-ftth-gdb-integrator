@@ -21,7 +21,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         public RouteNode RouteNodeBefore { get; set; }
         public RouteNode RouteNodeAfter { get; set; }
-        public Guid CmdId { get; set; }
     }
 
     public class RouteNodeLocationChangedHandler : INotificationHandler<RouteNodeLocationChanged>
@@ -107,7 +106,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                  routeNetworkEvents.Add(routeSegmentGeometryModifiedEvent);
             }
 
-            var routeNodeLocationChangedCommand = new RouteNetworkCommand(nameof(RouteNodeLocationChanged), request.CmdId, routeNetworkEvents.ToArray());
+            var cmdId = Guid.NewGuid();
+            var routeNodeLocationChangedCommand = new RouteNetworkCommand(nameof(RouteNodeLocationChanged), cmdId, routeNetworkEvents.ToArray());
             _eventStore.Insert(routeNodeLocationChangedCommand);
         }
     }

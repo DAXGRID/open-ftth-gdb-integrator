@@ -21,13 +21,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         public RouteSegment Before { get; }
         public RouteSegment After { get; }
-        public Guid CmdId { get; }
 
-        public RouteSegmentConnectivityChanged(RouteSegment before, RouteSegment after, Guid cmdId)
+        public RouteSegmentConnectivityChanged(RouteSegment before, RouteSegment after)
         {
             Before = before;
             After = after;
-            CmdId = cmdId;
         }
     }
 
@@ -109,7 +107,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 routeNetworkEvents.Add(routeNodeMarkedForDeletionEvent);
             }
 
-            var routeSegmentConnectivityChangedEvent = new RouteNetworkCommand(nameof(RouteSegmentConnectivityChanged), request.CmdId, routeNetworkEvents.ToArray());
+            var cmdId = Guid.NewGuid();
+            var routeSegmentConnectivityChangedEvent = new RouteNetworkCommand(nameof(RouteSegmentConnectivityChanged), cmdId, routeNetworkEvents.ToArray());
             _eventStore.Insert(routeSegmentConnectivityChangedEvent);
         }
 
