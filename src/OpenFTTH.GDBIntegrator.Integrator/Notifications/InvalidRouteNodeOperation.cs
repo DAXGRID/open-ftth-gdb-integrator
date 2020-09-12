@@ -12,6 +12,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         public RouteNode RouteNode { get; set; }
         public Guid CmdId { get; set; }
+        public string Message { get; set; }
     }
 
     public class InvalidRouteNodeOperationHandler : INotificationHandler<InvalidRouteNodeOperation>
@@ -27,7 +28,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(InvalidRouteNodeOperation request, CancellationToken token)
         {
-            _logger.LogWarning($"Deleteting {nameof(RouteNode)} with mrid '{request.RouteNode.Mrid}'");
+            _logger.LogWarning($"Deleteting {nameof(RouteNode)} with mrid '{request.RouteNode.Mrid}'. Because: {request.Message}");
             await _geoDatabase.DeleteRouteNode(request.RouteNode.Mrid);
         }
     }

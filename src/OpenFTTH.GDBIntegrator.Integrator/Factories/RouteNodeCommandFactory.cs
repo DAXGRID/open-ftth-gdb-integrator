@@ -85,7 +85,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingRouteNodes = await _geoDatabase.GetIntersectingRouteNodes(routeNode);
 
             if (intersectingRouteNodes.Count > 0)
-                return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId } };
+            {
+                return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, CmdId = cmdId, Message = "RouteNode intersects with another RouteNode" } };
+            }
 
             if (intersectingRouteSegments.Count == 0)
                 return new List<INotification> { new NewRouteNodeDigitized { CmdId = cmdId, RouteNode = routeNode } };

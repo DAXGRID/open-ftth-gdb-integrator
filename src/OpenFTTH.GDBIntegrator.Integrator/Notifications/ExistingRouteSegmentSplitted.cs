@@ -9,7 +9,6 @@ using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
-using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.Events;
 using OpenFTTH.Events.RouteNetwork;
 using Microsoft.Extensions.Logging;
@@ -75,10 +74,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             SetSplittedRouteSegmentValuesToNewRouteSegments(routeSegments, intersectingRouteSegment);
 
-            var routeSegmentAddedEvents = await InsertReplacementRouteSegments(routeSegments, request.CmdId);
-            var routeSegmentMarkedForDeletionEvent = await DeleteRouteSegment(intersectingRouteSegment, request.CmdId, routeSegments);
-
+            var routeSegmentAddedEvents = await InsertReplacementRouteSegments(routeSegments);
             domainEvents.AddRange(routeSegmentAddedEvents);
+
+            var routeSegmentMarkedForDeletionEvent = await DeleteRouteSegment(intersectingRouteSegment, routeSegments);
             domainEvents.Add(routeSegmentMarkedForDeletionEvent);
 
             var routeNetworkCommand = new RouteNetworkCommand(nameof(ExistingRouteSegmentSplitted), request.CmdId, domainEvents.ToArray());
@@ -133,7 +132,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             return intersectingRouteSegment;
         }
 
-        private async Task<List<RouteNetworkEvent>> InsertReplacementRouteSegments(List<RouteSegment> routeSegments, Guid cmdId)
+        private async Task<List<RouteNetworkEvent>> InsertReplacementRouteSegments(List<RouteSegment> routeSegments)
         {
             var routeNetworkEvents = new List<RouteNetworkEvent>();
 
@@ -151,7 +150,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             return routeNetworkEvents;
         }
 
-        private async Task<RouteSegmentRemoved> DeleteRouteSegment(RouteSegment intersectingRouteSegment, Guid cmdId, List<RouteSegment> routeSegments)
+        private async Task<RouteSegmentRemoved> DeleteRouteSegment(RouteSegment intersectingRouteSegment, List<RouteSegment> routeSegments)
         {
             await _geoDatabase.DeleteRouteSegment(intersectingRouteSegment.Mrid);
             return _routeSegmentEventFactory.CreateRemoved(intersectingRouteSegment, routeSegments.Select(x => x.Mrid));
