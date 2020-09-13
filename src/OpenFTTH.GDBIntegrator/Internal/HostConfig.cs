@@ -111,7 +111,8 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 {
                     var logger = new LoggerConfiguration()
                         .ReadFrom.Configuration(loggingConfiguration)
-                        .WriteTo.Console()
+                        .Enrich.FromLogContext()
+                        .WriteTo.Console(new CompactJsonFormatter())
                         .CreateLogger();
 
                     loggingBuilder.AddSerilog(logger, true);
