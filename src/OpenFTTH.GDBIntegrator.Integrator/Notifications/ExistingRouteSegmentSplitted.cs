@@ -153,7 +153,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         private async Task<RouteSegmentRemoved> DeleteRouteSegment(RouteSegment intersectingRouteSegment, List<RouteSegment> routeSegments)
         {
             await _geoDatabase.DeleteRouteSegment(intersectingRouteSegment.Mrid);
-            return _routeSegmentEventFactory.CreateRemoved(intersectingRouteSegment, routeSegments.Select(x => x.Mrid));
+            return _routeSegmentEventFactory.CreateRemoved(intersectingRouteSegment, routeSegments.Select(x => x.Mrid), true);
         }
     }
 }

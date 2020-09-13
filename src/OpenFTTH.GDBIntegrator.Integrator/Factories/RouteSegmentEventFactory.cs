@@ -17,13 +17,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             _applicationSettings = applicationSettings.Value;
         }
 
-        public RouteSegmentRemoved CreateRemoved(RouteSegment routeSegment, IEnumerable<Guid> replacedBySegments)
+        public RouteSegmentRemoved CreateRemoved(RouteSegment routeSegment, IEnumerable<Guid> replacedBySegments, bool useApplicationName = false)
         {
             return new Events.RouteNetwork.RouteSegmentRemoved(
                 nameof(Events.RouteNetwork.RouteSegmentRemoved),
                 Guid.NewGuid(),
                 DateTime.UtcNow,
-                routeSegment?.ApplicationName,
+                useApplicationName ? _applicationSettings.ApplicationName : routeSegment?.ApplicationName,
                 routeSegment?.ApplicationInfo,
                 routeSegment.Mrid,
                 replacedBySegments.ToArray());
