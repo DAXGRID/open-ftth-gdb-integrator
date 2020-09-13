@@ -1,13 +1,22 @@
 using OpenFTTH.Events.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.Config;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Options;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
     public class RouteSegmentEventFactory : IRouteSegmentEventFactory
     {
+        private readonly ApplicationSetting _applicationSettings;
+
+        public RouteSegmentEventFactory(IOptions<ApplicationSetting> applicationSettings)
+        {
+            _applicationSettings = applicationSettings.Value;
+        }
+
         public RouteSegmentRemoved CreateRemoved(RouteSegment routeSegment, IEnumerable<Guid> replacedBySegments)
         {
             return new Events.RouteNetwork.RouteSegmentRemoved(
@@ -20,25 +29,25 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 replacedBySegments.ToArray());
         }
 
-        public RouteSegmentGeometryModified CreateGeometryModified(RouteSegment routeSegment)
+        public RouteSegmentGeometryModified CreateGeometryModified(RouteSegment routeSegment, bool useApplicationName = false)
         {
             return new RouteSegmentGeometryModified(
                 nameof(RouteSegmentGeometryModified),
                 Guid.NewGuid(),
                 DateTime.UtcNow,
-                routeSegment?.ApplicationName,
+                useApplicationName ? _applicationSettings.ApplicationName : routeSegment?.ApplicationName,
                 routeSegment?.ApplicationInfo,
                 routeSegment.Mrid,
                 routeSegment.GetGeoJsonCoordinate());
         }
 
-        public RouteSegmentMarkedForDeletion CreateMarkedForDeletion(RouteSegment routeSegment)
+        public RouteSegmentMarkedForDeletion CreateMarkedForDeletion(RouteSegment routeSegment, bool useApplicationName = false)
         {
             return new RouteSegmentMarkedForDeletion(
                 nameof(RouteSegmentMarkedForDeletion),
                 Guid.NewGuid(),
                 DateTime.UtcNow,
-                routeSegment?.ApplicationName,
+                useApplicationName ? _applicationSettings.ApplicationName : routeSegment?.ApplicationName,
                 routeSegment.ApplicationInfo,
                 routeSegment.Mrid);
         }

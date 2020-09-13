@@ -100,10 +100,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             for (var i = 0; i < routeSegmentsToBeUpdated.Count; i++)
             {
                 var routeSegmentToBeUpdated = routeSegmentsToBeUpdated[i];
-                 await _geoDatabase.UpdateRouteSegment(routeSegmentToBeUpdated);
+                await _geoDatabase.UpdateRouteSegment(routeSegmentToBeUpdated);
 
-                 var routeSegmentGeometryModifiedEvent = _routeSegmentEventFactory.CreateGeometryModified(routeSegmentToBeUpdated);
-                 routeNetworkEvents.Add(routeSegmentGeometryModifiedEvent);
+                var routeSegmentGeometryModifiedEvent = _routeSegmentEventFactory.CreateGeometryModified(routeSegmentToBeUpdated, true);
+                routeNetworkEvents.Add(routeSegmentGeometryModifiedEvent);
             }
 
             var cmdId = Guid.NewGuid();
