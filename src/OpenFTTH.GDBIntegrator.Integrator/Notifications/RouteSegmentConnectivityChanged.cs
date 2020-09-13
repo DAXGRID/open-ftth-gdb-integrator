@@ -146,7 +146,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         private async Task<(RouteSegment, RouteSegmentAdded)> InsertRouteSegmentClone(RouteSegment routeSegment)
         {
-            var routeSegmentClone = _routeSegmentFactory.Create(routeSegment.GetLineString());
+            var routeSegmentClone = CreateRouteSegmentClone(routeSegment);
+
             await _geoDatabase.InsertRouteSegment(routeSegmentClone);
 
             var startRouteNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegmentClone)).FirstOrDefault();
@@ -155,6 +156,21 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             var routeSegmentAddedEvent = _routeSegmentEventFactory.CreateAdded(routeSegmentClone, startRouteNode, endRouteNode);
 
             return (routeSegmentClone, routeSegmentAddedEvent);
+        }
+
+        private RouteSegment CreateRouteSegmentClone(RouteSegment routeSegment)
+        {
+            var routeSegmentClone = _routeSegmentFactory.Create(routeSegment.GetLineString());
+            routeSegmentClone.WorkTaskMrid = routeSegment.WorkTaskMrid;
+            routeSegmentClone.ApplicationInfo = routeSegment.ApplicationInfo;
+            routeSegmentClone.MappingInfo = routeSegment.MappingInfo;
+            routeSegmentClone.LifeCycleInfo = routeSegment.LifeCycleInfo;
+            routeSegmentClone.NamingInfo = routeSegment.NamingInfo;
+            routeSegmentClone.RouteSegmentInfo = routeSegment.RouteSegmentInfo;
+            routeSegmentClone.SafetyInfo = routeSegment.SafetyInfo;
+            routeSegmentClone.Username = routeSegment.Username;
+
+            return routeSegmentClone;
         }
     }
 }
