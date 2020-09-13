@@ -33,6 +33,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     {
         private readonly ILogger<RouteSegmentConnectivityChangedHandler> _logger;
         private readonly KafkaSetting _kafkaSettings;
+        private readonly ApplicationSetting _applicationSettings;
         private readonly IGeoDatabase _geoDatabase;
         private readonly IRouteNodeFactory _routeNodeFactory;
         private readonly IRouteSegmentFactory _routeSegmentFactory;
@@ -43,6 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         public RouteSegmentConnectivityChangedHandler(
             ILogger<RouteSegmentConnectivityChangedHandler> logger,
             IOptions<KafkaSetting> kafkaSettings,
+            IOptions<ApplicationSetting> applicationSettings,
             IGeoDatabase geoDatabase,
             IRouteNodeFactory routeNodeFactory,
             IRouteSegmentFactory routeSegmentFactory,
@@ -52,6 +54,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         {
             _logger = logger;
             _kafkaSettings = kafkaSettings.Value;
+            _applicationSettings = applicationSettings.Value;
             _geoDatabase = geoDatabase;
             _routeNodeFactory = routeNodeFactory;
             _routeSegmentFactory = routeSegmentFactory;
@@ -85,15 +88,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             var (routeSegmentClone, routeSegmentAddedEvent) = await InsertRouteSegmentClone(request.After);
             routeNetworkEvents.Add(routeSegmentAddedEvent);
 
-            await MarkRouteSegmentForDeletion(request.Before);
+            var routeSegmentMarkedForDeletionEvent = await MarkRouteSegmentForDeletion(request.Before);
+            routeNetworkEvents.Add(routeSegmentMarkedForDeletionEvent);
 
             var beforeStartNode = (await _geoDatabase.GetIntersectingStartRouteNodes(request.Before)).FirstOrDefault();
             var beforeEndNode = (await _geoDatabase.GetIntersectingEndRouteNodes(request.Before)).FirstOrDefault();
             var isBeforeStartNodeDeleteable = await IsDeleteable(beforeStartNode);
             var isBeforeEndNodeDeletable = await IsDeleteable(beforeEndNode);
-
-            var routeSegmentMarkedForDeletionEvent = _routeSegmentEventFactory.CreateMarkedForDeletion(routeSegmentClone);
-            routeNetworkEvents.Add(routeSegmentMarkedForDeletionEvent);
 
             if (isBeforeStartNodeDeleteable)
             {
@@ -123,19 +124,24 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         private async Task<RouteNodeMarkedForDeletion> MarkDeleteRouteNode(RouteNode routeNode)
         {
             await _geoDatabase.MarkDeleteRouteNode(routeNode.Mrid);
+            routeNode.ApplicationName = _applicationSettings.ApplicationName;
             return _routeNodeEventFactory.CreateMarkedForDeletion(routeNode);
         }
 
         private async Task<RouteNodeAdded> InsertRouteNode(RouteNode routeNode)
         {
             await _geoDatabase.InsertRouteNode(routeNode);
+            routeNode.ApplicationName = _applicationSettings.ApplicationName;
             return _routeNodeEventFactory.CreateAdded(routeNode);
         }
 
-        private async Task MarkRouteSegmentForDeletion(RouteSegment beforeRouteSegment)
+        private async Task<RouteSegmentMarkedForDeletion> MarkRouteSegmentForDeletion(RouteSegment beforeRouteSegment)
         {
             beforeRouteSegment.MarkAsDeleted = true;
+            beforeRouteSegment.ApplicationName = _applicationSettings.ApplicationName;
             await _geoDatabase.UpdateRouteSegment(beforeRouteSegment);
+
+            return _routeSegmentEventFactory.CreateMarkedForDeletion(beforeRouteSegment);
         }
 
         private async Task<(RouteSegment, RouteSegmentAdded)> InsertRouteSegmentClone(RouteSegment routeSegment)
