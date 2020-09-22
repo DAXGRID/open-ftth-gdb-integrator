@@ -9,6 +9,9 @@ executors:
       IMAGE_NAME: openftth/gdb-integrator
     docker:
       - image: circleci/buildpack-deps:stretch
+  alpine-git:
+    docker:
+    - image: alpine/git
 
 jobs:
   build-app:
@@ -76,6 +79,32 @@ jobs:
            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
            docker push $IMAGE_NAME:latest
            docker push $IMAGE_NAME:$IMAGE_TAG
+
+  update-helm-chart:
+    executor: alpine-git
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "a2:cc:79:03:01:5e:88:f5:bb:9a:8f:6f:18:c1:69:41"
+      - run:
+          name: key-scan
+          command: ssh-keyscan github.com >> ~/.ssh/known_hosts
+      - run:
+          name: git clone open-ftth-chart
+          command: git clone git@github.com:DAXGRID/open-ftth-chart.git
+      - run:
+          name: package and push
+          command: |
+             IMAGE_TAG=${CIRCLE_TAG}
+             cd ./open-ftth-chart
+             git config user.email "runeanielsen@live.dk"
+             git config user.name "runeanielsen"
+             sed -i "/appVersion:.*/c\appVersion: \"$IMAGE_TAG\"" ./charts/gdb-integrator/Chart.yaml
+             sed -i "/  tag:.*/c\  tag: v$IMAGE_TAG" ./charts/gdb-integrator/values.yaml
+             git add .
+             git commit -m "upgrades $IMAGE_NAME to version $IMAGE_TAG"
+             git push
 
 workflows:
   build-test-upload_image:
