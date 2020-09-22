@@ -36,6 +36,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         private readonly IProducer _producer;
         private readonly KafkaSetting _kafkaSettings;
         private readonly ApplicationSetting _applicationSettings;
+        private readonly IModifiedGeomitriesStore _modifiedGeomitriesStore;
 
         public GeoDatabaseUpdatedHandler(
             ILogger<GeoDatabaseUpdatedHandler> logger,
@@ -46,7 +47,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             IEventStore eventStore,
             IProducer producer,
             IOptions<KafkaSetting> kafkaSettings,
-            IOptions<ApplicationSetting> applicationSettings)
+            IOptions<ApplicationSetting> applicationSettings,
+            IModifiedGeomitriesStore modifiedGeomitriesStore)
         {
             _logger = logger;
             _mediator = mediator;
@@ -57,6 +59,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _producer = producer;
             _kafkaSettings = kafkaSettings.Value;
             _applicationSettings = applicationSettings.Value;
+            _modifiedGeomitriesStore = modifiedGeomitriesStore;
         }
 
         public async Task<Unit> Handle(GeoDatabaseUpdated request, CancellationToken token)
@@ -79,9 +82,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 if (_eventStore.Get().Count() > 0)
                 {
                     await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, editOperationOccuredEvent);
-
-                    // TODO Hack until time to make a better implementation
-                    await _mediator.Publish(new GeographicalAreaUpdated() { RouteNodes = new List<RouteNode>(), RouteSegment = new List<RouteSegment>() });
+                    await _mediator.Publish(new GeographicalAreaUpdated() { RouteNodes = _modifiedGeomitriesStore.GetRouteNodes(), RouteSegment = _modifiedGeomitriesStore.GetRouteSegments() });
                 }
 
                 await _geoDatabase.Commit();
