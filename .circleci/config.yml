@@ -11,7 +11,7 @@ executors:
       - image: circleci/buildpack-deps:stretch
   alpine-git:
     environment:
-    IMAGE_NAME: openftth/gdb-integrator
+      IMAGE_NAME: openftth/gdb-integrator
     docker:
     - image: alpine/git
 
