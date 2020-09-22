@@ -137,10 +137,10 @@ workflows:
             branches:
               ignore: /.*/
       - update-helm-chart:
-        requires:
-         - docker-publish-image
-        filters:
-          tags:
-            only: /^v.*/
-          branches:
-            ignore: /.*/
+          requires:
+           - docker-publish-image
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
