@@ -98,13 +98,12 @@ jobs:
       - run:
           name: package and push
           command: |
-             IMAGE_TAG=${CIRCLE_TAG}
+             IMAGE_TAG_NO_V=${CIRCLE_TAG:1}
              cd ./open-ftth-chart
              git config user.email "runeanielsen@live.dk"
              git config user.name "runeanielsen"
-             sed -i "/version:.*/c\version: \"$IMAGE_TAG\"" ./openftth/charts/gdb-integrator/Chart.yaml
-             sed -i "/appVersion:.*/c\appVersion: \"$IMAGE_TAG\"" ./openftth/charts/gdb-integrator/Chart.yaml
-             sed -i "/  tag:.*/c\  tag: v$IMAGE_TAG" ./openftth/charts/gdb-integrator/values.yaml
+             sed -i "/appVersion:.*/c\appVersion: \"$IMAGE_TAG_NO_V\"" ./openftth/charts/gdb-integrator/Chart.yaml
+             sed -i "/  tag:.*/c\  tag: v$IMAGE_TAG_NO_V" ./openftth/charts/gdb-integrator/values.yaml
              export CHART_VERSION=$(grep -w '^version:' ./openftth/Chart.yaml | echo $(grep -o 'version: [0-9]\.[0-9].')$(grep -w '^version:' ./openftth/Chart.yaml | awk '{print substr($0,length,1)}' | (read number; echo $((number + 1)))))
              sed -i "/^version:.*/c$CHART_VERSION" ./openftth/Chart.yaml
              git add .
