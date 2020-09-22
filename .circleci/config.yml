@@ -10,6 +10,8 @@ executors:
     docker:
       - image: circleci/buildpack-deps:stretch
   alpine-git:
+    environment:
+    IMAGE_NAME: openftth/gdb-integrator
     docker:
     - image: alpine/git
 
@@ -134,3 +136,11 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
+      - update-helm-chart:
+        requires:
+         - docker-publish-image
+        filters:
+          tags:
+            only: /^v.*/
+          branches:
+            ignore: /.*/
