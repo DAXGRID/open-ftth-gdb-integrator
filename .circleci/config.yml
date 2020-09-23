@@ -98,7 +98,7 @@ jobs:
       - run:
           name: package and push
           command: |
-             RUN apk add --no-cache bash
+             apk add bash
              bash
              IMAGE_TAG_NO_V=${CIRCLE_TAG:1}
              cd ./open-ftth-chart
@@ -106,7 +106,8 @@ jobs:
              git config user.name "runeanielsen"
              sed -i "/appVersion:.*/c\appVersion: \"$IMAGE_TAG_NO_V\"" ./openftth/charts/gdb-integrator/Chart.yaml
              sed -i "/  tag:.*/c\  tag: v$IMAGE_TAG_NO_V" ./openftth/charts/gdb-integrator/values.yaml
-             sed -i "/^version:.*/c$(grep -w '^version:' ./openftth/Chart.yaml | echo $(grep -o 'version: [0-9]\.[0-9].')$(grep -w '^version:' ./openftth/Chart.yaml | awk '{print substr($0,length,1)}' | (read number; echo $((number + 1)))))" ./openftth/Chart.yaml
+             CHART_VERSION=./scripts/increment-chart-number.sh (grep -w '^version:' ./openftth/Chart.yaml) bug
+             sed -i "/^version:.*/c\version: $CHART_VERSION) ./openftth/Chart.yaml
              git add .
              git commit -m "upgrades $IMAGE_NAME to version $IMAGE_TAG"
              git push
