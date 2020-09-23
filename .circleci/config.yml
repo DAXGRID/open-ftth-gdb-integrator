@@ -98,6 +98,8 @@ jobs:
       - run:
           name: package and push
           command: |
+             RUN apk add --no-cache bash
+             bash
              IMAGE_TAG_NO_V=${CIRCLE_TAG:1}
              cd ./open-ftth-chart
              git config user.email "runeanielsen@live.dk"
