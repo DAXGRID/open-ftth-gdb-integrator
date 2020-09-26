@@ -14,6 +14,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NetTopologySuite.Geometries;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
@@ -78,11 +79,26 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 var insertRouteNodeEvent = await InsertRouteNode(startNode);
                 routeNetworkEvents.Add(insertRouteNodeEvent);
             }
+            else
+            {
+                var lineString = request.After.GetLineString();
+                lineString.Coordinates[0] = new Coordinate(startNode.GetPoint().Coordinate);
+                request.After.Coord = lineString.AsBinary();
+                await _geoDatabase.UpdateRouteSegment(request.After);
+            }
+
             if (endNode is null)
             {
                 endNode = _routeNodeFactory.Create(request.After.FindEndPoint());
                 var insertRouteNodeEvent = await InsertRouteNode(endNode);
                 routeNetworkEvents.Add(insertRouteNodeEvent);
+            }
+            else
+            {
+                var lineString = request.After.GetLineString();
+                lineString.Coordinates[lineString.Coordinates.Count() - 1] = new Coordinate(endNode.GetPoint().Coordinate);
+                request.After.Coord = lineString.AsBinary();
+                await _geoDatabase.UpdateRouteSegment(request.After);
             }
 
             var (routeSegmentClone, routeSegmentAddedEvent) = await InsertRouteSegmentClone(request.After);
