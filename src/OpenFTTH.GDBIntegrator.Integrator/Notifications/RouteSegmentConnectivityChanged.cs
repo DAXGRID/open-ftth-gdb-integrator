@@ -14,6 +14,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NetTopologySuite.Geometries;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
@@ -70,6 +71,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             var startNode = (await _geoDatabase.GetIntersectingStartRouteNodes(request.After)).FirstOrDefault();
             var endNode = (await _geoDatabase.GetIntersectingEndRouteNodes(request.After)).FirstOrDefault();
 
+            if ((!(startNode is null) && !(endNode is null)) && startNode.Mrid == endNode.Mrid)
+            {
+                _logger.LogWarning($"Reverting RouteSegment with mrid '{request.After.Mrid}', because of both ends intersecting with the same RouteNode with mrid '{startNode.Mrid}'");
+                await _geoDatabase.UpdateRouteSegment(request.Before);
+                return;
+            }
+
             var routeNetworkEvents = new List<RouteNetworkEvent>();
 
             if (startNode is null)
@@ -78,11 +86,26 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 var insertRouteNodeEvent = await InsertRouteNode(startNode);
                 routeNetworkEvents.Add(insertRouteNodeEvent);
             }
+            else
+            {
+                var lineString = request.After.GetLineString();
+                lineString.Coordinates[0] = new Coordinate(startNode.GetPoint().Coordinate);
+                request.After.Coord = lineString.AsBinary();
+                await _geoDatabase.UpdateRouteSegment(request.After);
+            }
+
             if (endNode is null)
             {
                 endNode = _routeNodeFactory.Create(request.After.FindEndPoint());
                 var insertRouteNodeEvent = await InsertRouteNode(endNode);
                 routeNetworkEvents.Add(insertRouteNodeEvent);
+            }
+            else
+            {
+                var lineString = request.After.GetLineString();
+                lineString.Coordinates[lineString.Coordinates.Count() - 1] = new Coordinate(endNode.GetPoint().Coordinate);
+                request.After.Coord = lineString.AsBinary();
+                await _geoDatabase.UpdateRouteSegment(request.After);
             }
 
             var (routeSegmentClone, routeSegmentAddedEvent) = await InsertRouteSegmentClone(request.After);
@@ -115,10 +138,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         private async Task<bool> IsDeleteable(RouteNode routeNode)
         {
-            var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
+            var intersectingStartRouteSegments = await _geoDatabase.GetIntersectingStartRouteSegments(routeNode);
+            var intersectingEndRouteSegments = await _geoDatabase.GetIntersectingEndRouteSegments(routeNode);
+
+            var intersectingRouteSegmentsCount = intersectingStartRouteSegments.Count + intersectingEndRouteSegments.Count;
+
             return routeNode.RouteNodeInfo?.Kind == null
                 && String.IsNullOrEmpty(routeNode.NamingInfo?.Name)
-                && intersectingRouteSegments.Count == 0;
+                && intersectingRouteSegmentsCount == 0;
         }
 
         private async Task<RouteNodeMarkedForDeletion> MarkDeleteRouteNode(RouteNode routeNode)

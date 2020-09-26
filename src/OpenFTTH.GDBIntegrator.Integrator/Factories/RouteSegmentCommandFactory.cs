@@ -57,6 +57,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingEndNodes = await _geoDatabase.GetIntersectingEndRouteNodes(after);
             var allIntersectingRouteNodesNoEdges = await _geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(after);
 
+            if (intersectingStartNodes.Count >= 2 || intersectingEndNodes.Count >= 2)
+                return new List<INotification> { new RollbackInvalidRouteSegment(before) };
+
             if (await IsGeometryChanged(intersectingStartNodes.FirstOrDefault(), intersectingEndNodes.FirstOrDefault(), before))
             {
                 var events = new List<INotification>();
@@ -118,6 +121,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingStartSegments = await _geoDatabase.GetIntersectingStartRouteSegments(routeSegment);
             var intersectingEndSegments = await _geoDatabase.GetIntersectingEndRouteSegments(routeSegment);
             var allIntersectingRouteNodesNoEdges = await _geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(routeSegment);
+
+            if (intersectingStartNodes.Count >= 2 || intersectingEndNodes.Count >= 2)
+                return new List<INotification> { new InvalidRouteSegmentOperation { RouteSegment = routeSegment } };
 
             var notifications = new List<INotification>();
 
