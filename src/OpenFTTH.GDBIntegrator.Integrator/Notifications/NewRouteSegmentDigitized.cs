@@ -61,6 +61,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             {
                 _logger.LogWarning($"Deleting RouteSegment with mrid '{routeSegment.Mrid}', because of both ends intersecting with the same RouteNode with mrid '{startNode.Mrid}'");
                 await _geoDatabase.DeleteRouteSegment(routeSegment.Mrid);
+                return;
             }
 
             var routeNetworkEvents = new List<RouteNetworkEvent>();
