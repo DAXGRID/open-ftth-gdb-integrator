@@ -138,10 +138,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         private async Task<bool> IsDeleteable(RouteNode routeNode)
         {
-            var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(routeNode);
+            var intersectingStartRouteSegments = await _geoDatabase.GetIntersectingStartRouteSegments(routeNode);
+            var intersectingEndRouteSegments = await _geoDatabase.GetIntersectingEndRouteSegments(routeNode);
+
+            var intersectingRouteSegmentsCount = intersectingStartRouteSegments.Count + intersectingEndRouteSegments.Count;
+
             return routeNode.RouteNodeInfo?.Kind == null
                 && String.IsNullOrEmpty(routeNode.NamingInfo?.Name)
-                && intersectingRouteSegments.Count == 0;
+                && intersectingRouteSegmentsCount == 0;
         }
 
         private async Task<RouteNodeMarkedForDeletion> MarkDeleteRouteNode(RouteNode routeNode)
