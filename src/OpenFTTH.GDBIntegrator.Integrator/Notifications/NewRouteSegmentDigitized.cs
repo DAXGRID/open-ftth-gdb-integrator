@@ -77,13 +77,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 var startRouteNodeAddedEvent = _routeNodeEventFactory.CreateAdded(startNode);
                 routeNetworkEvents.Add(startRouteNodeAddedEvent);
             }
-            // else
-            // {
-            //     var lineString = routeSegment.GetLineString();
-            //     lineString.Coordinates[0] = new Coordinate(startNode.GetPoint().Coordinate);
-            //     routeSegment.Coord = lineString.AsBinary();
-            //     await _geoDatabase.UpdateRouteSegment(routeSegment);
-            // }
+            else
+            {
+                var lineString = routeSegment.GetLineString();
+                lineString.Coordinates[0] = new Coordinate(startNode.GetPoint().Coordinate);
+                routeSegment.Coord = lineString.AsBinary();
+                await _geoDatabase.UpdateRouteSegment(routeSegment);
+            }
 
             if (endNode is null)
             {
@@ -97,13 +97,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 var endRouteNodeAddedEvent = _routeNodeEventFactory.CreateAdded(endNode);
                 routeNetworkEvents.Add(endRouteNodeAddedEvent);
             }
-            // else
-            // {
-            //     var lineString = routeSegment.GetLineString();
-            //     lineString.Coordinates[lineString.Coordinates.Count() - 1] = new Coordinate(endNode.GetPoint().Coordinate);
-            //     routeSegment.Coord = lineString.AsBinary();
-            //     await _geoDatabase.UpdateRouteSegment(routeSegment);
-            // }
+            else
+            {
+                var lineString = routeSegment.GetLineString();
+                lineString.Coordinates[lineString.Coordinates.Count() - 1] = new Coordinate(endNode.GetPoint().Coordinate);
+                routeSegment.Coord = lineString.AsBinary();
+                await _geoDatabase.UpdateRouteSegment(routeSegment);
+            }
 
             var routeSegmentAddedEvent = _routeSegmentEventFactory.CreateAdded(routeSegment, startNode, endNode);
             routeNetworkEvents.Add(routeSegmentAddedEvent);
