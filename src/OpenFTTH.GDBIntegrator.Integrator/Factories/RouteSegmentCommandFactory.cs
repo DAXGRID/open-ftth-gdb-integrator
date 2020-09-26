@@ -57,6 +57,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingEndNodes = await _geoDatabase.GetIntersectingEndRouteNodes(after);
             var allIntersectingRouteNodesNoEdges = await _geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(after);
 
+            if (intersectingStartNodes.Count >= 2 || intersectingEndNodes.Count >= 2)
+                return new List<INotification> { new RollbackInvalidRouteSegment(before) };
+
             if (await IsGeometryChanged(intersectingStartNodes.FirstOrDefault(), intersectingEndNodes.FirstOrDefault(), before))
             {
                 var events = new List<INotification>();

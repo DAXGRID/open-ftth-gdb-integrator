@@ -699,6 +699,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             using (var scope = new AssertionScope())
             {
+                result.Count().Should().Be(1);
                 result.First().Should().BeOfType(typeof(InvalidRouteSegmentOperation));
             }
         }
@@ -724,7 +725,80 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             using (var scope = new AssertionScope())
             {
+                result.Count().Should().Be(1);
                 result.First().Should().BeOfType(typeof(InvalidRouteSegmentOperation));
+            }
+        }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldReturnInvalidRouteSegmentOperation_OnStartRouteNodeCountBeingTwoOrMore()
+        {
+            var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
+            var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeNodeFactory = A.Fake<IRouteNodeFactory>();
+            var routeSegmentBefore = A.Fake<RouteSegment>();
+            var routeSegmentAfter = A.Fake<RouteSegment>();
+            var routeSegmentShadowTable = A.Fake<RouteSegment>();
+
+            A.CallTo(() => applicationSettings.Value)
+                .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
+
+            A.CallTo(() => routeSegmentAfter.GetLineString()).Returns(A.Fake<LineString>());
+            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
+            A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
+
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(true);
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegmentAfter)).Returns(new List<RouteNode> { A.Fake<RouteNode>(), A.Fake<RouteNode>() });
+
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+
+            var result = await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter);
+
+            var expectedEvent = new RollbackInvalidRouteSegment(routeSegmentBefore);
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                result.First().Should().BeEquivalentTo(expectedEvent);
+            }
+        }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldReturnInvalidRouteSegmentOperation_OnEndRouteNodeCountBeingTwoOrMore()
+        {
+            var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
+            var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeNodeFactory = A.Fake<IRouteNodeFactory>();
+            var routeSegmentBefore = A.Fake<RouteSegment>();
+            var routeSegmentAfter = A.Fake<RouteSegment>();
+            var routeSegmentShadowTable = A.Fake<RouteSegment>();
+
+            A.CallTo(() => applicationSettings.Value)
+                .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
+
+            A.CallTo(() => routeSegmentAfter.GetLineString()).Returns(A.Fake<LineString>());
+            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
+            A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
+
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(true);
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegmentAfter)).Returns(new List<RouteNode> { A.Fake<RouteNode>(), A.Fake<RouteNode>() });
+
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+
+            var result = await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter);
+
+            var expectedEvent = new RollbackInvalidRouteSegment(routeSegmentBefore);
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                result.First().Should().BeEquivalentTo(expectedEvent);
             }
         }
     }
