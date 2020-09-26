@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
@@ -22,7 +23,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
     public class NewRouteSegmentDigitizedHandler : INotificationHandler<NewRouteSegmentDigitized>
     {
-        private readonly IMediator _mediator;
         private readonly ILogger<NewRouteSegmentDigitizedHandler> _logger;
         private readonly IGeoDatabase _geoDatabase;
         private readonly IRouteNodeFactory _routeNodeFactory;
@@ -31,7 +31,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         private readonly IEventStore _eventStore;
 
         public NewRouteSegmentDigitizedHandler(
-            IMediator mediator,
             ILogger<NewRouteSegmentDigitizedHandler> logger,
             IGeoDatabase geoDatabase,
             IRouteNodeFactory routeNodeFactory,
@@ -39,7 +38,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             IRouteSegmentEventFactory routeSegmentEventFactory,
             IEventStore eventStore)
         {
-            _mediator = mediator;
             _logger = logger;
             _geoDatabase = geoDatabase;
             _routeNodeFactory = routeNodeFactory;
@@ -59,6 +57,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             var startNode = (await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment)).FirstOrDefault();
             var endNode = (await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).FirstOrDefault();
 
+            if ((!(startNode is null) && !(endNode is null)) && startNode.Mrid == endNode.Mrid)
+            {
+                _logger.LogWarning($"Deleting RouteSegment with mrid '{routeSegment.Mrid}', because of both ends intersecting with the same RouteNode with mrid '{startNode.Mrid}'");
+                await _geoDatabase.DeleteRouteSegment(routeSegment.Mrid);
+            }
+
             var routeNetworkEvents = new List<RouteNetworkEvent>();
 
             if (startNode is null)
@@ -73,6 +77,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 var startRouteNodeAddedEvent = _routeNodeEventFactory.CreateAdded(startNode);
                 routeNetworkEvents.Add(startRouteNodeAddedEvent);
             }
+            // else
+            // {
+            //     var lineString = routeSegment.GetLineString();
+            //     lineString.Coordinates[0] = new Coordinate(startNode.GetPoint().Coordinate);
+            //     routeSegment.Coord = lineString.AsBinary();
+            //     await _geoDatabase.UpdateRouteSegment(routeSegment);
+            // }
 
             if (endNode is null)
             {
@@ -86,6 +97,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 var endRouteNodeAddedEvent = _routeNodeEventFactory.CreateAdded(endNode);
                 routeNetworkEvents.Add(endRouteNodeAddedEvent);
             }
+            // else
+            // {
+            //     var lineString = routeSegment.GetLineString();
+            //     lineString.Coordinates[lineString.Coordinates.Count() - 1] = new Coordinate(endNode.GetPoint().Coordinate);
+            //     routeSegment.Coord = lineString.AsBinary();
+            //     await _geoDatabase.UpdateRouteSegment(routeSegment);
+            // }
 
             var routeSegmentAddedEvent = _routeSegmentEventFactory.CreateAdded(routeSegment, startNode, endNode);
             routeNetworkEvents.Add(routeSegmentAddedEvent);
