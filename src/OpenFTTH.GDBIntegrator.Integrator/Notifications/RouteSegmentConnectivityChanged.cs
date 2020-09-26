@@ -71,6 +71,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             var startNode = (await _geoDatabase.GetIntersectingStartRouteNodes(request.After)).FirstOrDefault();
             var endNode = (await _geoDatabase.GetIntersectingEndRouteNodes(request.After)).FirstOrDefault();
 
+            if ((!(startNode is null) && !(endNode is null)) && startNode.Mrid == endNode.Mrid)
+            {
+                _logger.LogWarning($"Reverting RouteSegment with mrid '{request.After.Mrid}', because of both ends intersecting with the same RouteNode with mrid '{startNode.Mrid}'");
+                await _geoDatabase.UpdateRouteSegment(request.Before);
+                return;
+            }
+
             var routeNetworkEvents = new List<RouteNetworkEvent>();
 
             if (startNode is null)
