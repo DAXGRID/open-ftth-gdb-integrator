@@ -119,6 +119,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var intersectingEndSegments = await _geoDatabase.GetIntersectingEndRouteSegments(routeSegment);
             var allIntersectingRouteNodesNoEdges = await _geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(routeSegment);
 
+            if (intersectingStartNodes.Count >= 2 || intersectingEndNodes.Count >= 2)
+                return new List<INotification> { new InvalidRouteSegmentOperation { RouteSegment = routeSegment } };
+
             var notifications = new List<INotification>();
 
             notifications.AddRange(HandleExistingRouteSegmentSplitted(intersectingStartSegments.Count, intersectingStartNodes.Count, routeSegment.FindStartPoint(), routeSegment));

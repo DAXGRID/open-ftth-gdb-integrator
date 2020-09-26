@@ -651,7 +651,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(true);
 
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(routeSegmentAfter)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
-            A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(routeSegmentAfter)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });           
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(routeSegmentAfter)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
 
             // Important for this test
             var startNodeMrid = Guid.NewGuid();
@@ -675,6 +675,56 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             {
                 result.Should().BeOfType(typeof(RouteSegmentLocationChanged));
                 result.RouteSegment.Should().Be(routeSegmentAfter);
+            }
+        }
+
+        [Fact]
+        public async Task CreateDigitizedEvent_ShouldReturnInvalidRouteSegmentOperation_OnStartRouteNodeCountBeingTwoOrMore()
+        {
+            var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
+            var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeNodeFactory = A.Fake<IRouteNodeFactory>();
+            var routeSegment = A.Fake<RouteSegment>();
+
+            A.CallTo(() => applicationSettings.Value)
+                .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
+
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegment.GetLineString())).Returns(true);
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegment)).Returns(new List<RouteNode> { A.Fake<RouteNode>(), A.Fake<RouteNode>() });
+
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+
+            var result = await factory.CreateDigitizedEvent(routeSegment);
+
+            using (var scope = new AssertionScope())
+            {
+                result.First().Should().BeOfType(typeof(InvalidRouteSegmentOperation));
+            }
+        }
+
+        [Fact]
+        public async Task CreateDigitizedEvent_ShouldReturnInvalidRouteSegmentOperation_OnEndRouteNodeCountBeingTwoOrMore()
+        {
+            var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
+            var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeNodeFactory = A.Fake<IRouteNodeFactory>();
+            var routeSegment = A.Fake<RouteSegment>();
+
+            A.CallTo(() => applicationSettings.Value)
+                .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
+
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegment.GetLineString())).Returns(true);
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).Returns(new List<RouteNode> { A.Fake<RouteNode>(), A.Fake<RouteNode>() });
+
+            var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
+
+            var result = await factory.CreateDigitizedEvent(routeSegment);
+
+            using (var scope = new AssertionScope())
+            {
+                result.First().Should().BeOfType(typeof(InvalidRouteSegmentOperation));
             }
         }
     }

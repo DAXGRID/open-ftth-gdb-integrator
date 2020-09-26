@@ -73,6 +73,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 var startRouteNodeAddedEvent = _routeNodeEventFactory.CreateAdded(startNode);
                 routeNetworkEvents.Add(startRouteNodeAddedEvent);
             }
+
             if (endNode is null)
             {
                 var endPoint = routeSegment.FindEndPoint();
