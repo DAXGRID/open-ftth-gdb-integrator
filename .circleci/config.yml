@@ -88,7 +88,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - "b1:09:e2:11:d9:8e:a9:2e:1e:69:ff:76:db:32:7f:44"
+            - "57:e3:35:08:f3:d7:70:73:f1:07:d3:6c:26:eb:af:48"
       - run:
           name: key-scan
           command: ssh-keyscan github.com >> ~/.ssh/known_hosts
@@ -101,8 +101,8 @@ jobs:
              apk add bash
              IMAGE_TAG_NO_V=${CIRCLE_TAG:1}
              cd ./open-ftth-chart
-             git config user.email "runeanielsen@live.dk"
-             git config user.name "runeanielsen"
+             git config user.email "admin@dax.dk"
+             git config user.name "dax-bot"
              sed -i "/appVersion:.*/c\appVersion: \"$IMAGE_TAG_NO_V\"" ./openftth/charts/gdb-integrator/Chart.yaml
              sed -i "/  tag:.*/c\  tag: v$IMAGE_TAG_NO_V" ./openftth/charts/gdb-integrator/values.yaml
              CHART_VERSION="$(./scripts/increment-chart-number.sh "$(grep -w '^version:' ./openftth/Chart.yaml)" bug)"
