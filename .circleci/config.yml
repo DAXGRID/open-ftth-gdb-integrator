@@ -8,7 +8,7 @@ executors:
     environment:
       IMAGE_NAME: openftth/gdb-integrator
     docker:
-      - image: circleci/buildpack-deps:stretch
+      - image: cimg/base:2020.09
   alpine-git:
     environment:
       IMAGE_NAME: openftth/gdb-integrator
