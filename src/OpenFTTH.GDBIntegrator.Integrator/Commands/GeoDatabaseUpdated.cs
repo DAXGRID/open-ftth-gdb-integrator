@@ -80,12 +80,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 var editOperationOccuredEvent = CreateEditOperationOccuredEvent(request.UpdateMessage);
 
                 if (_eventStore.Get().Count() > 0)
-                {
                     await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, editOperationOccuredEvent);
-                    await _mediator.Publish(new GeographicalAreaUpdated() { RouteNodes = _modifiedGeomitriesStore.GetRouteNodes(), RouteSegment = _modifiedGeomitriesStore.GetRouteSegments() });
-                }
 
                 await _geoDatabase.Commit();
+
+                if (_eventStore.Get().Count() > 0 && _applicationSettings.SendGeographicalAreaUpdatedNotification)
+                    await _mediator.Publish(new GeographicalAreaUpdated() { RouteNodes = _modifiedGeomitriesStore.GetRouteNodes(), RouteSegment = _modifiedGeomitriesStore.GetRouteSegments() });
             }
             catch (Exception e)
             {
