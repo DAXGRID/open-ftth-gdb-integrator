@@ -5,5 +5,6 @@ namespace OpenFTTH.GDBIntegrator.Config
         public string ApplicationName { get; set; }
         public double Tolerance { get; set; }
         public bool SendGeographicalAreaUpdatedNotification { get; set; }
+        public bool EnableSegmentEndsAutoSnappingToRouteNode { get; set; }
     }
 }

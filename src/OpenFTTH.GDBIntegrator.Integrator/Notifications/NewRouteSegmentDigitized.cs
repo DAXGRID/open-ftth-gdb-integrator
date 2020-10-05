@@ -4,6 +4,7 @@ using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.Events;
+using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.Events.RouteNetwork;
 using MediatR;
 using System;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
@@ -29,6 +31,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         private readonly IRouteNodeEventFactory _routeNodeEventFactory;
         private readonly IRouteSegmentEventFactory _routeSegmentEventFactory;
         private readonly IEventStore _eventStore;
+        private readonly ApplicationSetting _applicationSettings;
 
         public NewRouteSegmentDigitizedHandler(
             ILogger<NewRouteSegmentDigitizedHandler> logger,
@@ -36,7 +39,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             IRouteNodeFactory routeNodeFactory,
             IRouteNodeEventFactory routeNodeEventFactory,
             IRouteSegmentEventFactory routeSegmentEventFactory,
-            IEventStore eventStore)
+            IEventStore eventStore,
+            IOptions<ApplicationSetting> applicationSettings)
         {
             _logger = logger;
             _geoDatabase = geoDatabase;
@@ -44,6 +48,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _routeNodeEventFactory = routeNodeEventFactory;
             _routeSegmentEventFactory = routeSegmentEventFactory;
             _eventStore = eventStore;
+            _applicationSettings = applicationSettings.Value;
         }
 
         public async Task Handle(NewRouteSegmentDigitized request, CancellationToken token)
@@ -78,7 +83,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 var startRouteNodeAddedEvent = _routeNodeEventFactory.CreateAdded(startNode);
                 routeNetworkEvents.Add(startRouteNodeAddedEvent);
             }
-            else
+            else if (_applicationSettings.EnableSegmentEndsAutoSnappingToRouteNode)
             {
                 var lineString = routeSegment.GetLineString();
                 lineString.Coordinates[0] = new Coordinate(startNode.GetPoint().Coordinate);
@@ -98,7 +103,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 var endRouteNodeAddedEvent = _routeNodeEventFactory.CreateAdded(endNode);
                 routeNetworkEvents.Add(endRouteNodeAddedEvent);
             }
-            else
+            else if (_applicationSettings.EnableSegmentEndsAutoSnappingToRouteNode)
             {
                 var lineString = routeSegment.GetLineString();
                 lineString.Coordinates[lineString.Coordinates.Count() - 1] = new Coordinate(endNode.GetPoint().Coordinate);

@@ -86,7 +86,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 var insertRouteNodeEvent = await InsertRouteNode(startNode);
                 routeNetworkEvents.Add(insertRouteNodeEvent);
             }
-            else
+            else if (_applicationSettings.EnableSegmentEndsAutoSnappingToRouteNode)
             {
                 var lineString = request.After.GetLineString();
                 lineString.Coordinates[0] = new Coordinate(startNode.GetPoint().Coordinate);
@@ -100,7 +100,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 var insertRouteNodeEvent = await InsertRouteNode(endNode);
                 routeNetworkEvents.Add(insertRouteNodeEvent);
             }
-            else
+            else if (_applicationSettings.EnableSegmentEndsAutoSnappingToRouteNode)
             {
                 var lineString = request.After.GetLineString();
                 lineString.Coordinates[lineString.Coordinates.Count() - 1] = new Coordinate(endNode.GetPoint().Coordinate);
