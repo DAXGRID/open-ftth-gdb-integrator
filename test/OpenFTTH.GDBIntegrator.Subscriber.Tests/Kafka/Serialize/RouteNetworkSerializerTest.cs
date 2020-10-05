@@ -35,7 +35,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             var serializationMapper = A.Fake<IInfoMapper>();
             var routeNodeSerializer = new RouteNetworkSerializer(serializationMapper);
 
-            var position = new Position();
+            var position = new Position(string.Empty, 0, 0);
             var headers = new Dictionary<string, string>();
             byte[] body = null;
 
@@ -53,7 +53,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             var serializationMapper = A.Fake<IInfoMapper>();
             var routeNodeSerializer = new RouteNetworkSerializer(serializationMapper);
 
-            var position = new Position();
+            var position = new Position(string.Empty, 0, 0);
             var headers = new Dictionary<string, string>();
             var body = new byte[0];
 
@@ -78,7 +78,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
 
             var routeNodeSerializer = new RouteNetworkSerializer(serializationMapper);
 
-            var position = new Position();
+            var position = new Position(string.Empty, 0, 0);
             var headers = new Dictionary<string, string>();
             var body = Encoding.UTF8.GetBytes(fileData);
 
@@ -120,7 +120,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             A.CallTo(() => serializationMapper.MapDeploymentState("InService")).Returns(DeploymentStateEnum.InService);
             A.CallTo(() => serializationMapper.MapRouteNodeFunction("FlexPoint")).Returns(RouteNodeFunctionEnum.FlexPoint);
 
-            var position = new Position();
+            var position = new Position(string.Empty, 0, 0);
             var headers = new Dictionary<string, string>();
             var body = Encoding.UTF8.GetBytes(fileData);
 
@@ -175,7 +175,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             var serializationMapper = A.Fake<IInfoMapper>();
             var routeSegmentSerializer = new RouteNetworkSerializer(serializationMapper);
 
-            var position = new Position();
+            var position = new Position(string.Empty, 0, 0);
             var headers = new Dictionary<string, string>();
             var body = Encoding.UTF8.GetBytes(fileData);
 
@@ -234,7 +234,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             A.CallTo(() => serializationMapper.MapMappingMethod("Drafting")).Returns(MappingMethodEnum.Drafting);
             A.CallTo(() => serializationMapper.MapRouteSegmentKind("Indoor")).Returns(RouteSegmentKindEnum.Indoor);
 
-            var position = new Position();
+            var position = new Position(string.Empty, 0, 0);
             var headers = new Dictionary<string, string>();
             var body = Encoding.UTF8.GetBytes(fileData);
 
@@ -274,7 +274,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Tests.Kafka.Serialize
             var serializationMapper = A.Fake<IInfoMapper>();
             var routeSegmentSerializer = new RouteNetworkSerializer(serializationMapper);
 
-            var position = new Position();
+            var position = new Position(string.Empty, 0, 0);
             var headers = new Dictionary<string, string>();
             var body = Encoding.UTF8.GetBytes(fileData);
 
