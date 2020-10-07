@@ -117,7 +117,7 @@ jobs:
              CHART_VERSION="$(./scripts/increment-chart-number.sh "$(grep -w '^version:' ./openftth/Chart.yaml)" bug)"
              sed -i "/^version:.*/c\version: $CHART_VERSION" ./openftth/Chart.yaml
              git add .
-             git commit -m "upgrades $IMAGE_NAME to version $IMAGE_TAG"
+             git commit -m "upgrades $IMAGE_NAME to version $CHART_VERSION"
              git push
 
 workflows:
