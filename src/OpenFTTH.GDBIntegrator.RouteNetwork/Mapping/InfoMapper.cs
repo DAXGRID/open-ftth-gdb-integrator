@@ -11,17 +11,17 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Mapping
             if (string.IsNullOrEmpty(deploymentStateStringRepresentation))
                 return null;
 
-            switch (deploymentStateStringRepresentation)
+            switch (deploymentStateStringRepresentation.ToLower())
             {
-                case "InService":
+                case "inservice":
                     return DeploymentStateEnum.InService;
-                case "Installed":
+                case "installed":
                     return DeploymentStateEnum.Installed;
-                case "NotYetInstalled":
+                case "notyetinstalled":
                     return DeploymentStateEnum.NotYetInstalled;
-                case "OutOfService":
+                case "outofservice":
                     return DeploymentStateEnum.OutOfService;
-                case "Removed":
+                case "removed":
                     return DeploymentStateEnum.Removed;
                 default:
                     throw new ArgumentException($"Value '{deploymentStateStringRepresentation}' is not valid'");
@@ -33,21 +33,21 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Mapping
              if (string.IsNullOrEmpty(mappingMethodStringRepresentation))
                 return null;
 
-            switch (mappingMethodStringRepresentation)
+            switch (mappingMethodStringRepresentation.ToLower())
             {
-                case "DigitizedFromPaperMaps":
+                case "digitizedfrompapermaps":
                     return MappingMethodEnum.DigitizedFromPaperMaps;
-                case "Drafting":
+                case "drafting":
                     return MappingMethodEnum.Drafting;
-                case "Imagery":
+                case "imagery":
                     return MappingMethodEnum.Imagery;
-                case "LandSurveying":
+                case "landsurveying":
                     return MappingMethodEnum.LandSurveying;
-                case "Other":
+                case "other":
                     return MappingMethodEnum.Other;
-                case "Schematic":
+                case "schematic":
                     return MappingMethodEnum.Schematic;
-                case "Sensor":
+                case "sensor":
                     return MappingMethodEnum.Sensor;
                 default:
                     throw new ArgumentException($"Value '{mappingMethodStringRepresentation}' is not valid'");
@@ -59,45 +59,45 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Mapping
               if (string.IsNullOrEmpty(routeNodeKindStringRepresentation))
                 return null;
 
-            switch (routeNodeKindStringRepresentation)
+            switch (routeNodeKindStringRepresentation.ToLower())
             {
-                case "BuildingAccessPoint":
+                case "buildingaccesspoint":
                     return RouteNodeKindEnum.BuildingAccessPoint;
-                case "CabinetBig":
+                case "cabinetbig":
                     return RouteNodeKindEnum.CabinetBig;
-                case "CabinetSmall":
+                case "cabinetsmall":
                     return RouteNodeKindEnum.CabinetSmall;
-                case "CentralOfficeBig":
+                case "centralofficebig":
                     return RouteNodeKindEnum.CentralOfficeBig;
-                case "CentralOfficeMedium":
+                case "centralofficemedium":
                     return RouteNodeKindEnum.CentralOfficeMedium;
-                case "CentralOfficeSmall":
+                case "centralofficesmall":
                     return RouteNodeKindEnum.CentralOfficeSmall;
-                case "ConduitClosure":
+                case "conduitclosure":
                     return RouteNodeKindEnum.ConduitClosure;
-                case "ConduitClosureBranchOff":
+                case "conduitclosurebranchoff":
                     return RouteNodeKindEnum.ConduitClosureBranchOff;
-                case "ConduitClosureFork":
+                case "conduitclosurefork":
                     return RouteNodeKindEnum.ConduitClosureFork;
-                case "ConduitClosureStraight":
+                case "conduitclosurestraight":
                     return RouteNodeKindEnum.ConduitClosureStraight;
-                case "ConduitConnector":
+                case "conduitconnector":
                     return RouteNodeKindEnum.ConduitConnector;
-                case "ConduitConnectorBranchOff":
+                case "conduitconnectorbranchoff":
                     return RouteNodeKindEnum.ConduitConnectorBranchOff;
-                case "ConduitConnectorStraight":
+                case "conduitconnectorstraight":
                     return RouteNodeKindEnum.ConduitConnectorStraight;
-                case "ConduitEnd":
+                case "conduitend":
                     return RouteNodeKindEnum.ConduitEnd;
-                case "HandHole":
+                case "handhole":
                     return RouteNodeKindEnum.HandHole;
-                case "ManHole":
+                case "manhole":
                     return RouteNodeKindEnum.ManHole;
-                case "MultiDwellingUnit":
+                case "multidwellingunit":
                     return RouteNodeKindEnum.MultiDwellingUnit;
-                case "SingleDwellingUnit":
+                case "singledwellingunit":
                     return RouteNodeKindEnum.SingleDwellingUnit;
-                case "SpliceClosure":
+                case "spliceclosure":
                     return RouteNodeKindEnum.SpliceClosure;
                 default:
                     throw new ArgumentException($"Value '{routeNodeKindStringRepresentation}' is not valid'");
@@ -135,23 +135,23 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Mapping
             if (string.IsNullOrEmpty(routeSegmentKindStringRepresentation))
                 return null;
 
-            switch (routeSegmentKindStringRepresentation)
+            switch (routeSegmentKindStringRepresentation.ToLower())
             {
-                case "Arial":
+                case "arial":
                     return RouteSegmentKindEnum.Arial;
-                case "Drilling":
+                case "drilling":
                     return RouteSegmentKindEnum.Drilling;
-                case "Indoor":
+                case "indoor":
                     return RouteSegmentKindEnum.Indoor;
-                case "MicroTrenching":
+                case "microtrenching":
                     return RouteSegmentKindEnum.MicroTrenching;
-                case "RoadCrossoverDrilling":
+                case "roadcrossoverdrilling":
                     return RouteSegmentKindEnum.RoadCrossoverDrilling;
-                case "RoadCrossoverDuctBank":
+                case "roadcrossoverductbank":
                     return RouteSegmentKindEnum.RoadCrossoverDuctBank;
-                case "Tunnel":
+                case "tunnel":
                     return RouteSegmentKindEnum.Tunnel;
-                case "Underground":
+                case "underground":
                     return RouteSegmentKindEnum.Underground;
                 default:
                     throw new ArgumentException($"Value '{routeSegmentKindStringRepresentation}' is not valid'");
