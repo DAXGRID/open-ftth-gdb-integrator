@@ -109,21 +109,21 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Mapping
             if (string.IsNullOrEmpty(routeNodeFunctionStringRepresentation))
                 return null;
 
-            switch (routeNodeFunctionStringRepresentation)
+            switch (routeNodeFunctionStringRepresentation.ToLower())
             {
-                case "AccessibleConduitClosure":
+                case "accessibleconduitclosure":
                     return RouteNodeFunctionEnum.AccessibleConduitClosure;
-                case "CustomerPremisesPoint":
+                case "customerpremisespoint":
                     return RouteNodeFunctionEnum.CustomerPremisesPoint;
-                case "FlexPoint":
+                case "flexpoint":
                     return RouteNodeFunctionEnum.FlexPoint;
-                case "NonAccessibleConduitClosure":
+                case "nonaccessibleconduitclosure":
                     return RouteNodeFunctionEnum.NonAccessibleConduitClosure;
-                case "PrimaryNode":
+                case "primarynode":
                     return RouteNodeFunctionEnum.PrimaryNode;
-                case "SecondaryNode":
+                case "secondarynode":
                     return RouteNodeFunctionEnum.SecondaryNode;
-                case "SplicePoint":
+                case "splicepoint":
                     return RouteNodeFunctionEnum.SplicePoint;
                 default:
                     throw new ArgumentException($"Value '{routeNodeFunctionStringRepresentation}' is not valid'");
