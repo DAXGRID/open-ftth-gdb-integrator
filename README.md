@@ -7,10 +7,10 @@
 
 ## Configuration
 
-Configure environment variables call (fish shell) using minikube Kubernetes.
+Configure environment variables using minikube ip and ports.
 
 ```sh
-. ./scripts/set-environment-minikube.fish
+. ./scripts/set-environment-minikube.sh
 ```
 
 ## Requirements running the application
