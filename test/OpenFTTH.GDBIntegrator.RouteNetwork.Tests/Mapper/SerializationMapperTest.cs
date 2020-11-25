@@ -25,6 +25,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Mapping
             result.Should().BeEquivalentTo(expected);
         }
 
+        [Fact]
         public void MapDeploymentState_ShouldThrowArgumentException_OnBeingPassedInvalidStringRepresentation()
         {
             var serializationMapper = new InfoMapper();

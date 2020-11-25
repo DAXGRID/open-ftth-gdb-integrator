@@ -24,14 +24,13 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Mapping
                 case "removed":
                     return DeploymentStateEnum.Removed;
                 default:
-                    return DeploymentStateEnum.InService;
-                    //throw new ArgumentException($"Value '{deploymentStateStringRepresentation}' is not valid'");
+                    throw new ArgumentException($"Value '{deploymentStateStringRepresentation}' is not valid'");
             }
         }
 
         public MappingMethodEnum? MapMappingMethod(string mappingMethodStringRepresentation)
         {
-            if (string.IsNullOrEmpty(mappingMethodStringRepresentation))
+             if (string.IsNullOrEmpty(mappingMethodStringRepresentation))
                 return null;
 
             switch (mappingMethodStringRepresentation.ToLower())
@@ -57,12 +56,12 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Mapping
 
         public RouteNodeKindEnum? MapRouteNodeKind(string routeNodeKindStringRepresentation)
         {
-            if (string.IsNullOrEmpty(routeNodeKindStringRepresentation))
+              if (string.IsNullOrEmpty(routeNodeKindStringRepresentation))
                 return null;
 
-            // Hack because of invalid name was used in QGIS
-            if (routeNodeKindStringRepresentation == "CabinatSmall")
-                routeNodeKindStringRepresentation = "CabinetSmall";
+              // Hack because of invalid name was used in QGIS
+              if (routeNodeKindStringRepresentation == "CabinatSmall")
+                  routeNodeKindStringRepresentation = "CabinetSmall";
 
             switch (routeNodeKindStringRepresentation.ToLower())
             {
