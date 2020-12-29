@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-env
 WORKDIR /app
 
 COPY ./*sln ./
@@ -26,7 +26,7 @@ WORKDIR /app/src/OpenFTTH.GDBIntegrator
 RUN dotnet publish -c Release -o out --packages ./packages
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/core/runtime:3.1
+FROM mcr.microsoft.com/dotnet/runtime:5.0
 WORKDIR /app
 
 COPY --from=build-env /app/src/OpenFTTH.GDBIntegrator/out .
