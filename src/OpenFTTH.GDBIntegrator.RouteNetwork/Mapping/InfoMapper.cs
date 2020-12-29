@@ -24,8 +24,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Mapping
                 case "removed":
                     return DeploymentStateEnum.Removed;
                 default:
-                    return DeploymentStateEnum.InService;
-                    //throw new ArgumentException($"Value '{deploymentStateStringRepresentation}' is not valid'");
+                    throw new ArgumentException($"Value '{deploymentStateStringRepresentation}' is not valid'");
             }
         }
 
