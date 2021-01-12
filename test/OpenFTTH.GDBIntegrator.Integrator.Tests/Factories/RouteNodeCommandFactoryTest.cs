@@ -12,7 +12,6 @@ using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
 using Microsoft.Extensions.Options;
-using MediatR;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 {

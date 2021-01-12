@@ -1,4 +1,6 @@
 using System;
+using System.Threading.Tasks;
+using FakeItEasy;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using OpenFTTH.Events.RouteNetwork;
@@ -44,6 +46,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.EventTimestamp.Should().NotBe(new DateTime());
                 result.RouteSegmentInfo.Should().BeEquivalentTo(routeSegment.RouteSegmentInfo);
             }
+        }
+
+        [Fact]
+        public void CreateRouteSegmentInfoModified_ShouldThrowArgumentNullException_OnBeingPassedNullRouteSegment()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+            modifiedEventFactory.Invoking(x => x.CreateRouteSegmentInfoModified(null)).Should().Throw<ArgumentNullException>();
         }
     }
 }
