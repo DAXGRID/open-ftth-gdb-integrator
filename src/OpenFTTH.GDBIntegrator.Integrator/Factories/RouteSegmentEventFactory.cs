@@ -1,4 +1,5 @@
 using OpenFTTH.Events.RouteNetwork;
+using OpenFTTH.Events.RouteNetwork.Infos;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.GDBIntegrator.Config;
@@ -65,7 +66,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         {
             _modifiedGeomitries.InsertRouteSegment(routeSegment);
 
-            return new Events.RouteNetwork.RouteSegmentAdded(
+            return new RouteSegmentAdded(
                 nameof(Events.RouteNetwork.RouteSegmentAdded),
                 Guid.NewGuid(),
                 DateTime.UtcNow,
@@ -81,5 +82,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 routeSegment.GetGeoJsonCoordinate(),
                 routeSegment?.RouteSegmentInfo);
         }
+
     }
 }
