@@ -1,6 +1,4 @@
 using System;
-using System.Threading.Tasks;
-using FakeItEasy;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using OpenFTTH.Events.RouteNetwork;
