@@ -9,7 +9,6 @@ using OpenFTTH.GDBIntegrator.Integrator.Commands;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Topos.Serilog;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
 {
@@ -65,19 +64,19 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
 
         private async Task HandleSubscribedEvent(RouteNodeMessage routeNodeMessage)
         {
-            _logger.LogDebug($"Received message {JsonConvert.SerializeObject(routeNodeMessage, Formatting.Indented)}");
+            _logger.LogDebug($"Received message: {JsonConvert.SerializeObject(routeNodeMessage, Formatting.Indented)}");
             await _mediator.Send(new GeoDatabaseUpdated { UpdateMessage = routeNodeMessage });
         }
 
         private async Task HandleSubscribedEvent(RouteSegmentMessage routeSegmentMessage)
         {
-            _logger.LogDebug($"Received message {JsonConvert.SerializeObject(routeSegmentMessage, Formatting.Indented)}");
+            _logger.LogDebug($"Received message: {JsonConvert.SerializeObject(routeSegmentMessage, Formatting.Indented)}");
             await _mediator.Send(new GeoDatabaseUpdated { UpdateMessage = routeSegmentMessage });
         }
 
         private async Task HandleInvalidMessage(InvalidMessage invalidMessage)
         {
-            _logger.LogDebug($"Received message {JsonConvert.SerializeObject(invalidMessage, Formatting.Indented)}");
+            _logger.LogWarning($"Received invalid message: {JsonConvert.SerializeObject(invalidMessage, Formatting.Indented)}");
             await _mediator.Send(new GeoDatabaseUpdated { UpdateMessage = invalidMessage });
         }
 
