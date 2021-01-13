@@ -1,7 +1,6 @@
 using System;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using OpenFTTH.Events.RouteNetwork;
 using OpenFTTH.Events.RouteNetwork.Infos;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
@@ -19,7 +18,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public void CreateRouteSegmentInfoModified_ShouldReturnsEvent_OnBeingPassedValidRouteSegment()
+        public void CreateRouteSegmentInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteSegment()
         {
             var modifiedEventFactory = new ModifiedEventFactory();
 
@@ -61,7 +60,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public void CreateRouteNodeInfoModified_ShouldReturnsEvent_OnBeingPassedValidRouteNode()
+        public void CreateRouteNodeInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteNode()
         {
             var modifiedEventFactory = new ModifiedEventFactory();
 
@@ -93,5 +92,49 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.RouteNodeInfo.Should().BeEquivalentTo(routeNode.RouteNodeInfo);
             }
         }
+
+        [Fact]
+        public void CreateLifeCycleInfoModified_ShouldThrowArgumentNullException_OnBeingPassedNullRouteNode()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+            RouteNode routeNode = null;
+            modifiedEventFactory.Invoking(x => x.CreateLifeCycleInfoModified(routeNode)).Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void CreateLifeCycleInfoModified__OnBeingPassedNullRouteNode()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+            RouteNode routeNode = null;
+            modifiedEventFactory.Invoking(x => x.CreateLifeCycleInfoModified(routeNode)).Should().Throw<ArgumentNullException>();
+        }
+
+        // [Fact]
+        // public void CreateLifecycleInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteSegment()
+        // {
+        //     var modifiedEventFactory = new ModifiedEventFactory();
+
+        //     var nodeId = Guid.NewGuid();
+        //     var routeNode = new RouteNode
+        //     {
+        //         Mrid = nodeId,
+        //         ApplicationName = "GDB-integrator",
+        //         RouteNodeInfo = new RouteNodeInfo
+        //         {
+        //             Function = RouteNodeFunctionEnum.FlexPoint,
+        //             Kind = RouteNodeKindEnum.BuildingAccessPoint,
+        //         },
+        //         ApplicationInfo = "Application info",
+        //     };
+
+
+        //     modifiedEventFactory.CreateLifeCycleInfoModified(routeNode);
+        // }
+
+        // [Fact]
+        // public void CreateLifecycleInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteNode()
+        // {
+
+        // }
     }
 }
