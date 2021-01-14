@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Store
 {
-    public interface IModifiedGeomitriesStore
+    public interface IModifiedGeometriesStore
     {
         void InsertRouteSegment(RouteSegment routeSegment);
         void InsertRouteNode(RouteNode routeNode);

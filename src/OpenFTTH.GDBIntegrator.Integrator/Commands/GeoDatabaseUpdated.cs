@@ -35,7 +35,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         private readonly IProducer _producer;
         private readonly KafkaSetting _kafkaSettings;
         private readonly ApplicationSetting _applicationSettings;
-        private readonly IModifiedGeomitriesStore _modifiedGeomitriesStore;
+        private readonly IModifiedGeometriesStore _modifiedGeometriesStore;
 
         public GeoDatabaseUpdatedHandler(
             ILogger<GeoDatabaseUpdatedHandler> logger,
@@ -47,7 +47,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             IProducer producer,
             IOptions<KafkaSetting> kafkaSettings,
             IOptions<ApplicationSetting> applicationSettings,
-            IModifiedGeomitriesStore modifiedGeomitriesStore)
+            IModifiedGeometriesStore modifiedGeometriesStore)
         {
             _logger = logger;
             _mediator = mediator;
@@ -58,7 +58,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _producer = producer;
             _kafkaSettings = kafkaSettings.Value;
             _applicationSettings = applicationSettings.Value;
-            _modifiedGeomitriesStore = modifiedGeomitriesStore;
+            _modifiedGeometriesStore = modifiedGeometriesStore;
         }
 
         public async Task<Unit> Handle(GeoDatabaseUpdated request, CancellationToken token)
@@ -84,7 +84,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 await _geoDatabase.Commit();
 
                 if (_eventStore.Get().Count() > 0 && _applicationSettings.SendGeographicalAreaUpdatedNotification)
-                    await _mediator.Publish(new GeographicalAreaUpdated() { RouteNodes = _modifiedGeomitriesStore.GetRouteNodes(), RouteSegment = _modifiedGeomitriesStore.GetRouteSegments() });
+                    await _mediator.Publish(new GeographicalAreaUpdated() { RouteNodes = _modifiedGeometriesStore.GetRouteNodes(), RouteSegment = _modifiedGeometriesStore.GetRouteSegments() });
             }
             catch (Exception e)
             {

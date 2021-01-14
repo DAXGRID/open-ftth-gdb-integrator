@@ -1,5 +1,4 @@
 using OpenFTTH.Events.RouteNetwork;
-using OpenFTTH.Events.RouteNetwork.Infos;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.GDBIntegrator.Config;
@@ -13,17 +12,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
     public class RouteSegmentEventFactory : IRouteSegmentEventFactory
     {
         private readonly ApplicationSetting _applicationSettings;
-        private readonly IModifiedGeomitriesStore _modifiedGeomitries;
+        private readonly IModifiedGeometriesStore _modifiedGeometries;
 
-        public RouteSegmentEventFactory(IOptions<ApplicationSetting> applicationSettings, IModifiedGeomitriesStore modifiedGeomitriesStore)
+        public RouteSegmentEventFactory(IOptions<ApplicationSetting> applicationSettings, IModifiedGeometriesStore modifiedGeomitriesStore)
         {
             _applicationSettings = applicationSettings.Value;
-            _modifiedGeomitries = modifiedGeomitriesStore;
+            _modifiedGeometries = modifiedGeomitriesStore;
         }
 
         public RouteSegmentRemoved CreateRemoved(RouteSegment routeSegment, IEnumerable<Guid> replacedBySegments, bool useApplicationName = false)
         {
-            _modifiedGeomitries.InsertRouteSegment(routeSegment);
+            _modifiedGeometries.InsertRouteSegment(routeSegment);
 
             return new Events.RouteNetwork.RouteSegmentRemoved(
                 nameof(Events.RouteNetwork.RouteSegmentRemoved),
@@ -37,7 +36,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         public RouteSegmentGeometryModified CreateGeometryModified(RouteSegment routeSegment, bool useApplicationName = false)
         {
-            _modifiedGeomitries.InsertRouteSegment(routeSegment);
+            _modifiedGeometries.InsertRouteSegment(routeSegment);
 
             return new RouteSegmentGeometryModified(
                 nameof(RouteSegmentGeometryModified),
@@ -51,7 +50,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         public RouteSegmentMarkedForDeletion CreateMarkedForDeletion(RouteSegment routeSegment, bool useApplicationName = false)
         {
-            _modifiedGeomitries.InsertRouteSegment(routeSegment);
+            _modifiedGeometries.InsertRouteSegment(routeSegment);
 
             return new RouteSegmentMarkedForDeletion(
                 nameof(RouteSegmentMarkedForDeletion),
@@ -64,7 +63,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         public RouteSegmentAdded CreateAdded(RouteSegment routeSegment, RouteNode startRouteNode, RouteNode endRouteNode)
         {
-            _modifiedGeomitries.InsertRouteSegment(routeSegment);
+            _modifiedGeometries.InsertRouteSegment(routeSegment);
 
             return new RouteSegmentAdded(
                 nameof(Events.RouteNetwork.RouteSegmentAdded),

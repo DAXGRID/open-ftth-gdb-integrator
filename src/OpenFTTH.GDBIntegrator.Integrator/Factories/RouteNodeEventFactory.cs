@@ -7,9 +7,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
     public class RouteNodeEventFactory : IRouteNodeEventFactory
     {
-        private readonly IModifiedGeomitriesStore _modifiedGeomitries;
+        private readonly IModifiedGeometriesStore _modifiedGeomitries;
 
-        public RouteNodeEventFactory(IModifiedGeomitriesStore modifiedGeomitriesStore)
+        public RouteNodeEventFactory(IModifiedGeometriesStore modifiedGeomitriesStore)
         {
             _modifiedGeomitries = modifiedGeomitriesStore;
         }
