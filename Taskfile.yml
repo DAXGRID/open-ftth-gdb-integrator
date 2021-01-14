@@ -18,7 +18,7 @@ tasks:
      - dotnet run -p src/OpenFTTH.GDBIntegrator/OpenFTTH.GDBIntegrator.csproj
   test:
     cmds:
-     - dotnet test
+     - dotnet test -v q | grep Passed!
   test-verbose:
     cmds:
      - dotnet test /p:CollectCoverage=true -l "console;verbosity=detailed"
