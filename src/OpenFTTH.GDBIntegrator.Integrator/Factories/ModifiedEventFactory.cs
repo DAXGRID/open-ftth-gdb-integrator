@@ -9,6 +9,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
     public class ModifiedEventFactory : IModifiedEventFactory
     {
+        const string ROUTE_NODE = "RouteNode";
+        const string ROUTE_SEGMENT = "RouteSegment";
+
         public RouteSegmentInfoModified CreateRouteSegmentInfoModified(RouteSegment routeSegment)
         {
             if (routeSegment is null)
@@ -61,7 +64,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 routeSegment.ApplicationName,
                 routeSegment.ApplicationInfo,
                 routeSegment.Mrid,
-                "RouteSegment",
+                ROUTE_SEGMENT,
                 new LifecycleInfo
                 {
                     DeploymentState = routeSegment.LifeCycleInfo?.DeploymentState,
@@ -83,7 +86,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 routeNode.ApplicationName,
                 routeNode.ApplicationInfo,
                 routeNode.Mrid,
-                "RouteNode",
+                ROUTE_NODE,
                 new LifecycleInfo
                 {
                     DeploymentState = routeNode.LifeCycleInfo?.DeploymentState,

@@ -1,6 +1,7 @@
 using System;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using OpenFTTH.Events.Core.Infos;
 using OpenFTTH.Events.RouteNetwork.Infos;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
@@ -46,7 +47,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.SegmentId.Should().Be(segmentId);
                 result.ApplicationName.Should().Be(routeSegment.ApplicationName);
                 result.ApplicationInfo.Should().Be(routeSegment.ApplicationInfo);
-                // Should not be default datetime
                 result.EventTimestamp.Should().NotBe(new DateTime());
                 result.RouteSegmentInfo.Should().BeEquivalentTo(routeSegment.RouteSegmentInfo);
             }
@@ -87,7 +87,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.NodeId.Should().Be(routeNodeId);
                 result.ApplicationName.Should().Be(routeNode.ApplicationName);
                 result.ApplicationInfo.Should().Be(routeNode.ApplicationInfo);
-                // Should not be default datetime
                 result.EventTimestamp.Should().NotBe(new DateTime());
                 result.RouteNodeInfo.Should().BeEquivalentTo(routeNode.RouteNodeInfo);
             }
@@ -109,32 +108,73 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             modifiedEventFactory.Invoking(x => x.CreateLifeCycleInfoModified(routeNode)).Should().Throw<ArgumentNullException>();
         }
 
-        // [Fact]
-        // public void CreateLifecycleInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteSegment()
-        // {
-        //     var modifiedEventFactory = new ModifiedEventFactory();
+        [Fact]
+        public void CreateLifecycleInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteNode()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
 
-        //     var nodeId = Guid.NewGuid();
-        //     var routeNode = new RouteNode
-        //     {
-        //         Mrid = nodeId,
-        //         ApplicationName = "GDB-integrator",
-        //         RouteNodeInfo = new RouteNodeInfo
-        //         {
-        //             Function = RouteNodeFunctionEnum.FlexPoint,
-        //             Kind = RouteNodeKindEnum.BuildingAccessPoint,
-        //         },
-        //         ApplicationInfo = "Application info",
-        //     };
+            var nodeId = Guid.NewGuid();
+            var routeNode = new RouteNode
+            {
+                Mrid = nodeId,
+                ApplicationName = "GDB-integrator",
+                ApplicationInfo = "Application info",
+                LifeCycleInfo = new LifecycleInfo
+                {
+                    DeploymentState = DeploymentStateEnum.Installed,
+                    InstallationDate = DateTime.UtcNow,
+                    RemovalDate = DateTime.UtcNow.AddDays(1)
+                },
+            };
 
+            var result = modifiedEventFactory.CreateLifeCycleInfoModified(routeNode);
 
-        //     modifiedEventFactory.CreateLifeCycleInfoModified(routeNode);
-        // }
+            using (var scope = new AssertionScope())
+            {
+                result.EventType.Should().Be("LifecycleInfoModified");
+                result.EventId.Should().NotBeEmpty();
+                result.AggregateId.Should().Be(routeNode.Mrid);
+                result.AggregateType.Should().Be("RouteNode");
+                result.ApplicationName.Should().Be(routeNode.ApplicationName);
+                result.ApplicationInfo.Should().Be(routeNode.ApplicationInfo);
+                result.EventTimestamp.Should().NotBe(new DateTime());
+                result.LifecycleInfo.Should().BeEquivalentTo(routeNode.LifeCycleInfo);
+            }
+        }
 
-        // [Fact]
-        // public void CreateLifecycleInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteNode()
-        // {
+        [Fact]
+        public void CreateLifecycleInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteSegment()
+        {
 
-        // }
+            var modifiedEventFactory = new ModifiedEventFactory();
+
+            var nodeId = Guid.NewGuid();
+            var routeSegment = new RouteSegment
+            {
+                Mrid = nodeId,
+                ApplicationName = "GDB-integrator",
+                ApplicationInfo = "Application info",
+                LifeCycleInfo = new LifecycleInfo
+                {
+                    DeploymentState = DeploymentStateEnum.Installed,
+                    InstallationDate = DateTime.UtcNow,
+                    RemovalDate = DateTime.UtcNow.AddDays(1)
+                },
+            };
+
+            var result = modifiedEventFactory.CreateLifeCycleInfoModified(routeSegment);
+
+            using (var scope = new AssertionScope())
+            {
+                result.EventType.Should().Be("LifecycleInfoModified");
+                result.EventId.Should().NotBeEmpty();
+                result.AggregateId.Should().Be(routeSegment.Mrid);
+                result.AggregateType.Should().Be("RouteSegment");
+                result.ApplicationName.Should().Be(routeSegment.ApplicationName);
+                result.ApplicationInfo.Should().Be(routeSegment.ApplicationInfo);
+                result.EventTimestamp.Should().NotBe(new DateTime());
+                result.LifecycleInfo.Should().BeEquivalentTo(routeSegment.LifeCycleInfo);
+            }
+        }
     }
 }
