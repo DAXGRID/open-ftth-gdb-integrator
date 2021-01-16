@@ -36,6 +36,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         private readonly KafkaSetting _kafkaSettings;
         private readonly ApplicationSetting _applicationSettings;
         private readonly IModifiedGeometriesStore _modifiedGeometriesStore;
+        private readonly IRouteNodeInfoCommandFactory _routeNodeInfoCommandFactory;
 
         public GeoDatabaseUpdatedHandler(
             ILogger<GeoDatabaseUpdatedHandler> logger,
@@ -47,7 +48,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             IProducer producer,
             IOptions<KafkaSetting> kafkaSettings,
             IOptions<ApplicationSetting> applicationSettings,
-            IModifiedGeometriesStore modifiedGeometriesStore)
+            IModifiedGeometriesStore modifiedGeometriesStore,
+            IRouteNodeInfoCommandFactory routeNodeInfoCommandFactory)
         {
             _logger = logger;
             _mediator = mediator;
@@ -59,6 +61,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _kafkaSettings = kafkaSettings.Value;
             _applicationSettings = applicationSettings.Value;
             _modifiedGeometriesStore = modifiedGeometriesStore;
+            _routeNodeInfoCommandFactory = routeNodeInfoCommandFactory;
         }
 
         public async Task<Unit> Handle(GeoDatabaseUpdated request, CancellationToken token)
@@ -117,7 +120,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             else if (IsNodeUpdated(routeNodeMessage))
             {
-                var routeNodeUpdatedEvents = await _routeNodeEventFactory.CreateUpdatedEvent(routeNodeMessage.Before, routeNodeMessage.After);
+                var modifiedEvents = await _routeNodeInfoCommandFactory
+                    .Create(routeNodeMessage.Before, routeNodeMessage.After);
+
+                foreach (var modifiedEvent in modifiedEvents)
+                {
+                    if (!(modifiedEvent is null))
+                        await _mediator.Publish(modifiedEvent);
+                }
+
+                var routeNodeUpdatedEvents = await _routeNodeEventFactory
+                    .CreateUpdatedEvent(routeNodeMessage.Before, routeNodeMessage.After);
+
                 foreach (var routeNodeUpdatedEvent in routeNodeUpdatedEvents)
                 {
                     if (!(routeNodeUpdatedEvent is null))

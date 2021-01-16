@@ -8,26 +8,27 @@ using OpenFTTH.Events.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.Events;
 using System;
+using OpenFTTH.Events.Core;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
-    public class RouteNodeInfoUpdated : INotification
+    public class LifecycleInfoUpdated : INotification
     {
         public RouteNode RouteNode { get; }
 
-        public RouteNodeInfoUpdated(RouteNode routeNode)
+        public LifecycleInfoUpdated(RouteNode routeNode)
         {
             RouteNode = routeNode;
         }
     }
 
-    public class RouteNodeInfoUpdatedHandler : INotificationHandler<RouteNodeInfoUpdated>
+    public class LifecycleInfoUpdatedHandler : INotificationHandler<LifecycleInfoUpdated>
     {
         private readonly ILogger<RouteNodeInfoUpdatedHandler> _logger;
         private readonly IModifiedEventFactory _modifiedEventFactory;
         private readonly IEventStore _eventStore;
 
-        public RouteNodeInfoUpdatedHandler(
+        public LifecycleInfoUpdatedHandler(
             ILogger<RouteNodeInfoUpdatedHandler> logger,
             IModifiedEventFactory modifiedEventFactory,
             IEventStore eventStore)
@@ -37,17 +38,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _eventStore = eventStore;
         }
 
-        public async Task Handle(RouteNodeInfoUpdated request, CancellationToken token)
+        public async Task Handle(LifecycleInfoUpdated request, CancellationToken token)
         {
             _logger.LogInformation(
-                $"Starting {nameof(RouteNodeInfoUpdatedHandler)}");
+                $"Starting {nameof(LifecycleInfoUpdatedHandler)}");
 
-            var nodeModifiedEvent = _modifiedEventFactory.CreateRouteNodeInfoModified(request.RouteNode);
+            var lifecycleModifiedEvent = _modifiedEventFactory.CreateLifeCycleInfoModified(request.RouteNode);
 
             var command = new RouteNetworkCommand(
-                nameof(RouteNodeInfoModified),
+                nameof(LifecycleInfoModified),
                 Guid.NewGuid(),
-                new RouteNetworkEvent[] { nodeModifiedEvent });
+                new RouteNetworkEvent[] { lifecycleModifiedEvent });
 
             _eventStore.Insert(command);
 
