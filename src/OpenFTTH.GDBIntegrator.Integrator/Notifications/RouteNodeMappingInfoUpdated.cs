@@ -12,24 +12,24 @@ using OpenFTTH.Events.Core;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
-    public class LifecycleInfoUpdated : INotification
+    public class RouteNodeMappingInfoUpdated : INotification
     {
         public RouteNode RouteNode { get; }
 
-        public LifecycleInfoUpdated(RouteNode routeNode)
+        public RouteNodeMappingInfoUpdated(RouteNode routeNode)
         {
             RouteNode = routeNode;
         }
     }
 
-    public class LifecycleInfoUpdatedHandler : INotificationHandler<LifecycleInfoUpdated>
+    public class RouteNodeMappingInfoUpdatedHandler : INotificationHandler<RouteNodeMappingInfoUpdated>
     {
-        private readonly ILogger<RouteNodeInfoUpdatedHandler> _logger;
+        private readonly ILogger<RouteNodeMappingInfoUpdatedHandler> _logger;
         private readonly IModifiedEventFactory _modifiedEventFactory;
         private readonly IEventStore _eventStore;
 
-        public LifecycleInfoUpdatedHandler(
-            ILogger<RouteNodeInfoUpdatedHandler> logger,
+        public RouteNodeMappingInfoUpdatedHandler(
+            ILogger<RouteNodeMappingInfoUpdatedHandler> logger,
             IModifiedEventFactory modifiedEventFactory,
             IEventStore eventStore)
         {
@@ -38,17 +38,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _eventStore = eventStore;
         }
 
-        public async Task Handle(LifecycleInfoUpdated request, CancellationToken token)
+        public async Task Handle(RouteNodeMappingInfoUpdated request, CancellationToken token)
         {
             _logger.LogInformation(
-                $"Starting {nameof(LifecycleInfoUpdatedHandler)}");
+                $"Starting {nameof(RouteNodeMappingInfoUpdated)}");
 
-            var lifecycleModifiedEvent = _modifiedEventFactory.CreateLifeCycleInfoModified(request.RouteNode);
+            var mappingInfo = _modifiedEventFactory.CreateMappingInfoModified(request.RouteNode);
 
             var command = new RouteNetworkCommand(
-                nameof(LifecycleInfoModified),
+                nameof(MappingInfoModified),
                 Guid.NewGuid(),
-                new RouteNetworkEvent[] { lifecycleModifiedEvent });
+                new RouteNetworkEvent[] { mappingInfo });
 
             _eventStore.Insert(command);
 

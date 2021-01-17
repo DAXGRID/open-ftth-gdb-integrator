@@ -36,7 +36,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (IsLifecycleInfoModified(before, after))
             {
-                notifications.Add(new LifecycleInfoUpdated(after));
+                notifications.Add(new RouteNodeLifecycleInfoUpdated(after));
+            }
+
+            if (IsMappingInfoModified(before, after))
+            {
+                notifications.Add(new RouteNodeMappingInfoUpdated(after));
             }
 
             if (notifications.Any())
@@ -54,10 +59,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             {
                 return true;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         private bool IsLifecycleInfoModified(RouteNode before, RouteNode after)
@@ -68,10 +71,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             {
                 return true;
             }
-            else
+
+            return false;
+        }
+
+        private bool IsMappingInfoModified(RouteNode before, RouteNode after)
+        {
+            if (before.MappingInfo?.HorizontalAccuracy != after.MappingInfo?.HorizontalAccuracy ||
+                before.MappingInfo?.Method != after.MappingInfo?.Method ||
+                before.MappingInfo?.SourceInfo != after.MappingInfo?.SourceInfo ||
+                before.MappingInfo?.SurveyDate != after.MappingInfo?.SurveyDate ||
+                before.MappingInfo?.VerticalAccuracy != after.MappingInfo?.VerticalAccuracy)
             {
-                return false;
+                return true;
             }
+
+            return false;
         }
     }
 }
