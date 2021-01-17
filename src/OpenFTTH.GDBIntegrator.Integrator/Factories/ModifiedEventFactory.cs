@@ -185,5 +185,47 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                     }
                 );
         }
+
+        public NamingInfoModified CreateNamingInfoModified(RouteSegment routeSegment)
+        {
+            if (routeSegment is null)
+                throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be passsed in as null.");
+
+            return new NamingInfoModified(
+                    nameof(NamingInfoModified),
+                    Guid.NewGuid(),
+                    DateTime.UtcNow,
+                    routeSegment.ApplicationName,
+                    routeSegment.ApplicationInfo,
+                    routeSegment.Mrid,
+                    ROUTE_SEGMENT,
+                    new NamingInfo
+                    {
+                        Description = routeSegment.NamingInfo?.Description,
+                        Name = routeSegment.NamingInfo?.Name
+                    }
+                );
+        }
+
+        public NamingInfoModified CreateNamingInfoModified(RouteNode routeNode)
+        {
+            if (routeNode is null)
+                throw new ArgumentNullException($"{nameof(RouteNode)} cannot be passsed in as null.");
+
+            return new NamingInfoModified(
+                    nameof(NamingInfoModified),
+                    Guid.NewGuid(),
+                    DateTime.UtcNow,
+                    routeNode.ApplicationName,
+                    routeNode.ApplicationInfo,
+                    routeNode.Mrid,
+                    ROUTE_NODE,
+                    new NamingInfo
+                    {
+                        Description = routeNode.NamingInfo?.Description,
+                        Name = routeNode.NamingInfo?.Name
+                    }
+                );
+        }
     }
 }

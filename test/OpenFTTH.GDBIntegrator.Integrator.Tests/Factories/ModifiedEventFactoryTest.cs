@@ -352,5 +352,89 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.SafetyInfo.Should().BeEquivalentTo(routeNode.SafetyInfo);
             }
         }
+
+        [Fact]
+        public void CreateNamingInfoModified_ShouldThrowArgumentNullException_OnBeingPassedNullRouteSegment()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+            RouteSegment routeSegment = null;
+            modifiedEventFactory
+                .Invoking(x => x.CreateNamingInfoModified(routeSegment)).Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void CreateNamingInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteSegment()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+
+            var nodeId = Guid.NewGuid();
+            var routeSegment = new RouteSegment
+            {
+                Mrid = nodeId,
+                ApplicationName = "GDB-integrator",
+                ApplicationInfo = "Application info",
+                NamingInfo = new NamingInfo
+                {
+                    Description = "My description",
+                    Name = "My name"
+                }
+            };
+
+            var result = modifiedEventFactory.CreateNamingInfoModified(routeSegment);
+
+            using (var scope = new AssertionScope())
+            {
+                result.EventType.Should().Be("NamingInfoModified");
+                result.EventId.Should().NotBeEmpty();
+                result.AggregateId.Should().Be(routeSegment.Mrid);
+                result.AggregateType.Should().Be("RouteSegment");
+                result.ApplicationName.Should().Be(routeSegment.ApplicationName);
+                result.ApplicationInfo.Should().Be(routeSegment.ApplicationInfo);
+                result.EventTimestamp.Should().NotBe(new DateTime());
+                result.NamingInfo.Should().BeEquivalentTo(routeSegment.NamingInfo);
+            }
+        }
+
+        [Fact]
+        public void CreateNamingInfoModified_ShouldThrowArgumentNullException_OnBeingPassedNullRouteNode()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+            RouteNode routeNode = null;
+            modifiedEventFactory
+                .Invoking(x => x.CreateNamingInfoModified(routeNode)).Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void CreateNamingInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteNode()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+
+            var nodeId = Guid.NewGuid();
+            var routeNode = new RouteNode
+            {
+                Mrid = nodeId,
+                ApplicationName = "GDB-integrator",
+                ApplicationInfo = "Application info",
+                NamingInfo = new NamingInfo
+                {
+                    Description = "My description",
+                    Name = "My name"
+                }
+            };
+
+            var result = modifiedEventFactory.CreateNamingInfoModified(routeNode);
+
+            using (var scope = new AssertionScope())
+            {
+                result.EventType.Should().Be("NamingInfoModified");
+                result.EventId.Should().NotBeEmpty();
+                result.AggregateId.Should().Be(routeNode.Mrid);
+                result.AggregateType.Should().Be("RouteNode");
+                result.ApplicationName.Should().Be(routeNode.ApplicationName);
+                result.ApplicationInfo.Should().Be(routeNode.ApplicationInfo);
+                result.EventTimestamp.Should().NotBe(new DateTime());
+                result.NamingInfo.Should().BeEquivalentTo(routeNode.NamingInfo);
+            }
+        }
     }
 }
