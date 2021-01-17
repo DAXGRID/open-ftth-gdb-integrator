@@ -95,5 +95,53 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 }
             );
         }
+
+        public MappingInfoModified CreateMappingInfoModified(RouteNode routeNode)
+        {
+            if (routeNode is null)
+                throw new ArgumentNullException($"{nameof(RouteNode)} cannot be passsed in as null.");
+
+            return new MappingInfoModified(
+                nameof(MappingInfoModified),
+                Guid.NewGuid(),
+                DateTime.UtcNow,
+                routeNode.ApplicationName,
+                routeNode.ApplicationInfo,
+                routeNode.Mrid,
+                ROUTE_NODE,
+                new MappingInfo
+                {
+                    HorizontalAccuracy = routeNode.MappingInfo?.HorizontalAccuracy,
+                    Method = routeNode.MappingInfo?.Method,
+                    SourceInfo = routeNode.MappingInfo?.SourceInfo,
+                    SurveyDate = routeNode.MappingInfo?.SurveyDate,
+                    VerticalAccuracy = routeNode.MappingInfo?.VerticalAccuracy
+                }
+            );
+        }
+
+        public MappingInfoModified CreateMappingInfoModified(RouteSegment routeSegment)
+        {
+            if (routeSegment is null)
+                throw new ArgumentNullException($"{nameof(RouteNode)} cannot be passsed in as null.");
+
+            return new MappingInfoModified(
+                nameof(MappingInfoModified),
+                Guid.NewGuid(),
+                DateTime.UtcNow,
+                routeSegment.ApplicationName,
+                routeSegment.ApplicationInfo,
+                routeSegment.Mrid,
+                ROUTE_SEGMENT,
+                new MappingInfo
+                {
+                    HorizontalAccuracy = routeSegment.MappingInfo?.HorizontalAccuracy,
+                    Method = routeSegment.MappingInfo?.Method,
+                    SourceInfo = routeSegment.MappingInfo?.SourceInfo,
+                    SurveyDate = routeSegment.MappingInfo?.SurveyDate,
+                    VerticalAccuracy = routeSegment.MappingInfo?.VerticalAccuracy
+                }
+            );
+        }
     }
 }

@@ -145,7 +145,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         [Fact]
         public void CreateLifecycleInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteSegment()
         {
-
             var modifiedEventFactory = new ModifiedEventFactory();
 
             var nodeId = Guid.NewGuid();
@@ -174,6 +173,78 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.ApplicationInfo.Should().Be(routeSegment.ApplicationInfo);
                 result.EventTimestamp.Should().NotBe(new DateTime());
                 result.LifecycleInfo.Should().BeEquivalentTo(routeSegment.LifeCycleInfo);
+            }
+        }
+
+        [Fact]
+        public void CreateMappingInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteNode()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+
+            var nodeId = Guid.NewGuid();
+            var routeNode = new RouteNode
+            {
+                Mrid = nodeId,
+                ApplicationName = "GDB-integrator",
+                ApplicationInfo = "Application info",
+                MappingInfo = new MappingInfo
+                {
+                    HorizontalAccuracy = "10",
+                    Method = MappingMethodEnum.Drafting,
+                    SourceInfo = "Some source info",
+                    SurveyDate = DateTime.UtcNow,
+                    VerticalAccuracy = "Vertical accuracy"
+                }
+            };
+
+            var result = modifiedEventFactory.CreateMappingInfoModified(routeNode);
+
+            using (var scope = new AssertionScope())
+            {
+                result.EventType.Should().Be("MappingInfoModified");
+                result.EventId.Should().NotBeEmpty();
+                result.AggregateId.Should().Be(routeNode.Mrid);
+                result.AggregateType.Should().Be("RouteNode");
+                result.ApplicationName.Should().Be(routeNode.ApplicationName);
+                result.ApplicationInfo.Should().Be(routeNode.ApplicationInfo);
+                result.EventTimestamp.Should().NotBe(new DateTime());
+                result.MappingInfo.Should().BeEquivalentTo(routeNode.MappingInfo);
+            }
+        }
+
+        [Fact]
+        public void CreateMappingInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteSegment()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+
+            var nodeId = Guid.NewGuid();
+            var routeSegment = new RouteSegment
+            {
+                Mrid = nodeId,
+                ApplicationName = "GDB-integrator",
+                ApplicationInfo = "Application info",
+                MappingInfo = new MappingInfo
+                {
+                    HorizontalAccuracy = "10",
+                    Method = MappingMethodEnum.Drafting,
+                    SourceInfo = "Some source info",
+                    SurveyDate = DateTime.UtcNow,
+                    VerticalAccuracy = "Vertical accuracy"
+                }
+            };
+
+            var result = modifiedEventFactory.CreateMappingInfoModified(routeSegment);
+
+            using (var scope = new AssertionScope())
+            {
+                result.EventType.Should().Be("MappingInfoModified");
+                result.EventId.Should().NotBeEmpty();
+                result.AggregateId.Should().Be(routeSegment.Mrid);
+                result.AggregateType.Should().Be("RouteSegment");
+                result.ApplicationName.Should().Be(routeSegment.ApplicationName);
+                result.ApplicationInfo.Should().Be(routeSegment.ApplicationInfo);
+                result.EventTimestamp.Should().NotBe(new DateTime());
+                result.MappingInfo.Should().BeEquivalentTo(routeSegment.MappingInfo);
             }
         }
     }
