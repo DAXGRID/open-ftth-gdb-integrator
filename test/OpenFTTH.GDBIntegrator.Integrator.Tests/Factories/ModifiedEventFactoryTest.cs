@@ -15,7 +15,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         public void CreateRouteSegmentInfoModified_ShouldThrowArgumentNullException_OnBeingPassedNullRouteSegment()
         {
             var modifiedEventFactory = new ModifiedEventFactory();
-            modifiedEventFactory.Invoking(x => x.CreateRouteSegmentInfoModified(null)).Should().Throw<ArgumentNullException>();
+            modifiedEventFactory
+                .Invoking(x => x.CreateRouteSegmentInfoModified(null)).Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
@@ -101,14 +102,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public void CreateLifeCycleInfoModified__OnBeingPassedNullRouteNode()
-        {
-            var modifiedEventFactory = new ModifiedEventFactory();
-            RouteNode routeNode = null;
-            modifiedEventFactory.Invoking(x => x.CreateLifeCycleInfoModified(routeNode)).Should().Throw<ArgumentNullException>();
-        }
-
-        [Fact]
         public void CreateLifecycleInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteNode()
         {
             var modifiedEventFactory = new ModifiedEventFactory();
@@ -140,6 +133,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.EventTimestamp.Should().NotBe(new DateTime());
                 result.LifecycleInfo.Should().BeEquivalentTo(routeNode.LifeCycleInfo);
             }
+        }
+
+        [Fact]
+        public void CreateLifeCycleInfoModified_ShouldThrowArgumentNullException_OnBeingPassedNullRouteSegment()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+            RouteSegment routeSegment = null;
+            modifiedEventFactory
+                .Invoking(x => x.CreateLifeCycleInfoModified(routeSegment)).Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
@@ -175,6 +177,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.LifecycleInfo.Should().BeEquivalentTo(routeSegment.LifeCycleInfo);
             }
         }
+
+        [Fact]
+        public void CreateMappingInfoModified_ShouldThrowArgumentNullException_OnBeingPassedNullRouteNode()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+            RouteNode routeNode = null;
+            modifiedEventFactory
+                .Invoking(x => x.CreateMappingInfoModified(routeNode)).Should().Throw<ArgumentNullException>();
+        }
+
 
         [Fact]
         public void CreateMappingInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteNode()
@@ -213,6 +225,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
+        public void CreateMappingInfoModified_ShouldThrowArgumentNullException_OnBeingPassedNullRouteSegment()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+            RouteSegment routeSegment = null;
+            modifiedEventFactory
+                .Invoking(x => x.CreateMappingInfoModified(routeSegment)).Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
         public void CreateMappingInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteSegment()
         {
             var modifiedEventFactory = new ModifiedEventFactory();
@@ -245,6 +266,90 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.ApplicationInfo.Should().Be(routeSegment.ApplicationInfo);
                 result.EventTimestamp.Should().NotBe(new DateTime());
                 result.MappingInfo.Should().BeEquivalentTo(routeSegment.MappingInfo);
+            }
+        }
+
+        [Fact]
+        public void CreateSafetyInfoModified_ShouldThrowArgumentNullException_OnBeingPassedNullRouteSegment()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+            RouteSegment routeSegment = null;
+            modifiedEventFactory
+                .Invoking(x => x.CreateSafetyInfoModified(routeSegment)).Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void CreateSafetyInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteSegment()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+
+            var nodeId = Guid.NewGuid();
+            var routeSegment = new RouteSegment
+            {
+                Mrid = nodeId,
+                ApplicationName = "GDB-integrator",
+                ApplicationInfo = "Application info",
+                SafetyInfo = new SafetyInfo
+                {
+                    Classification = "My classification",
+                    Remark = "My remark"
+                }
+            };
+
+            var result = modifiedEventFactory.CreateSafetyInfoModified(routeSegment);
+
+            using (var scope = new AssertionScope())
+            {
+                result.EventType.Should().Be("SafetyInfoModified");
+                result.EventId.Should().NotBeEmpty();
+                result.AggregateId.Should().Be(routeSegment.Mrid);
+                result.AggregateType.Should().Be("RouteSegment");
+                result.ApplicationName.Should().Be(routeSegment.ApplicationName);
+                result.ApplicationInfo.Should().Be(routeSegment.ApplicationInfo);
+                result.EventTimestamp.Should().NotBe(new DateTime());
+                result.SafetyInfo.Should().BeEquivalentTo(routeSegment.SafetyInfo);
+            }
+        }
+
+        [Fact]
+        public void CreateSafetyInfoModified_ShouldThrowArgumentNullException_OnBeingPassedNullRouteNode()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+            RouteNode routeNode = null;
+            modifiedEventFactory
+                .Invoking(x => x.CreateSafetyInfoModified(routeNode)).Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void CreateSafetyInfoModified_ShouldReturnEvent_OnBeingPassedValidRouteNode()
+        {
+            var modifiedEventFactory = new ModifiedEventFactory();
+
+            var nodeId = Guid.NewGuid();
+            var routeNode = new RouteNode
+            {
+                Mrid = nodeId,
+                ApplicationName = "GDB-integrator",
+                ApplicationInfo = "Application info",
+                SafetyInfo = new SafetyInfo
+                {
+                    Classification = "My classification",
+                    Remark = "My remark"
+                }
+            };
+
+            var result = modifiedEventFactory.CreateSafetyInfoModified(routeNode);
+
+            using (var scope = new AssertionScope())
+            {
+                result.EventType.Should().Be("SafetyInfoModified");
+                result.EventId.Should().NotBeEmpty();
+                result.AggregateId.Should().Be(routeNode.Mrid);
+                result.AggregateType.Should().Be("RouteNode");
+                result.ApplicationName.Should().Be(routeNode.ApplicationName);
+                result.ApplicationInfo.Should().Be(routeNode.ApplicationInfo);
+                result.EventTimestamp.Should().NotBe(new DateTime());
+                result.SafetyInfo.Should().BeEquivalentTo(routeNode.SafetyInfo);
             }
         }
     }

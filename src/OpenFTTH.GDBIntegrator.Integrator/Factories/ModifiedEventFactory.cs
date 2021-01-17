@@ -96,6 +96,30 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             );
         }
 
+        public MappingInfoModified CreateMappingInfoModified(RouteSegment routeSegment)
+        {
+            if (routeSegment is null)
+                throw new ArgumentNullException($"{nameof(RouteNode)} cannot be passsed in as null.");
+
+            return new MappingInfoModified(
+                nameof(MappingInfoModified),
+                Guid.NewGuid(),
+                DateTime.UtcNow,
+                routeSegment.ApplicationName,
+                routeSegment.ApplicationInfo,
+                routeSegment.Mrid,
+                ROUTE_SEGMENT,
+                new MappingInfo
+                {
+                    HorizontalAccuracy = routeSegment.MappingInfo?.HorizontalAccuracy,
+                    Method = routeSegment.MappingInfo?.Method,
+                    SourceInfo = routeSegment.MappingInfo?.SourceInfo,
+                    SurveyDate = routeSegment.MappingInfo?.SurveyDate,
+                    VerticalAccuracy = routeSegment.MappingInfo?.VerticalAccuracy
+                }
+            );
+        }
+
         public MappingInfoModified CreateMappingInfoModified(RouteNode routeNode)
         {
             if (routeNode is null)
@@ -120,28 +144,46 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             );
         }
 
-        public MappingInfoModified CreateMappingInfoModified(RouteSegment routeSegment)
+        public SafetyInfoModified CreateSafetyInfoModified(RouteSegment routeSegment)
         {
             if (routeSegment is null)
+                throw new ArgumentNullException($"{nameof(RouteSegment)} cannot be passsed in as null.");
+
+            return new SafetyInfoModified(
+                    nameof(SafetyInfoModified),
+                    Guid.NewGuid(),
+                    DateTime.UtcNow,
+                    routeSegment.ApplicationName,
+                    routeSegment.ApplicationInfo,
+                    routeSegment.Mrid,
+                    ROUTE_SEGMENT,
+                    new SafetyInfo
+                    {
+                        Classification = routeSegment.SafetyInfo?.Classification,
+                        Remark = routeSegment.SafetyInfo?.Remark
+                    }
+                );
+        }
+
+        public SafetyInfoModified CreateSafetyInfoModified(RouteNode routeNode)
+        {
+            if (routeNode is null)
                 throw new ArgumentNullException($"{nameof(RouteNode)} cannot be passsed in as null.");
 
-            return new MappingInfoModified(
-                nameof(MappingInfoModified),
-                Guid.NewGuid(),
-                DateTime.UtcNow,
-                routeSegment.ApplicationName,
-                routeSegment.ApplicationInfo,
-                routeSegment.Mrid,
-                ROUTE_SEGMENT,
-                new MappingInfo
-                {
-                    HorizontalAccuracy = routeSegment.MappingInfo?.HorizontalAccuracy,
-                    Method = routeSegment.MappingInfo?.Method,
-                    SourceInfo = routeSegment.MappingInfo?.SourceInfo,
-                    SurveyDate = routeSegment.MappingInfo?.SurveyDate,
-                    VerticalAccuracy = routeSegment.MappingInfo?.VerticalAccuracy
-                }
-            );
+            return new SafetyInfoModified(
+                    nameof(SafetyInfoModified),
+                    Guid.NewGuid(),
+                    DateTime.UtcNow,
+                    routeNode.ApplicationName,
+                    routeNode.ApplicationInfo,
+                    routeNode.Mrid,
+                    ROUTE_NODE,
+                    new SafetyInfo
+                    {
+                        Classification = routeNode.SafetyInfo?.Classification,
+                        Remark = routeNode.SafetyInfo?.Remark
+                    }
+                );
         }
     }
 }
