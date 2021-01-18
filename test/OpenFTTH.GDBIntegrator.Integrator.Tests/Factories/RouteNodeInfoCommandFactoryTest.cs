@@ -115,5 +115,55 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 mappingInfoUpdated.RouteNode.Should().BeEquivalentTo(after);
             }
         }
+
+        [Fact]
+        public async Task Create_ShouldReturnNamingInfoModified_OnUpdatedNamingInfo()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var before = new RouteNode();
+            var after = new RouteNode
+            {
+                NamingInfo = new NamingInfo
+                {
+                    Description = "My description"
+                }
+            };
+
+            var factory = new RouteNodeInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
+
+            var namingInfoUpdated = (RouteNodeNamingInfoUpdated)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                namingInfoUpdated.RouteNode.Should().BeEquivalentTo(after);
+            }
+        }
+
+        [Fact]
+        public async Task Create_ShouldReturnSafetyInfoUpdated_OnUpdatedSafetyInfo()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var before = new RouteNode();
+            var after = new RouteNode
+            {
+                SafetyInfo = new SafetyInfo
+                {
+                    Classification = "Clasification"
+                }
+            };
+
+            var factory = new RouteNodeInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
+
+            var safetyInfoUpdated = (RouteNodeSafetyInfoUpdated)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                safetyInfoUpdated.RouteNode.Should().BeEquivalentTo(after);
+            }
+        }
     }
 }

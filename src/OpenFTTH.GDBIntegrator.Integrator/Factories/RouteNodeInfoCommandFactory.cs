@@ -44,6 +44,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 notifications.Add(new RouteNodeMappingInfoUpdated(after));
             }
 
+            if (IsNamingInfoModified(before, after))
+            {
+                notifications.Add(new RouteNodeNamingInfoUpdated(after));
+            }
+
+            if (IsSafetyInfoModified(before, after))
+            {
+                notifications.Add(new RouteNodeSafetyInfoUpdated(after));
+            }
+
             if (notifications.Any())
             {
                 await _geoDatabase.UpdateRouteNodeInfosShadowTable(after);
@@ -82,6 +92,28 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 before.MappingInfo?.SourceInfo != after.MappingInfo?.SourceInfo ||
                 before.MappingInfo?.SurveyDate != after.MappingInfo?.SurveyDate ||
                 before.MappingInfo?.VerticalAccuracy != after.MappingInfo?.VerticalAccuracy)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsNamingInfoModified(RouteNode before, RouteNode after)
+        {
+            if (before.NamingInfo?.Description != after.NamingInfo?.Description ||
+                before.NamingInfo?.Name != after.NamingInfo?.Name)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsSafetyInfoModified(RouteNode before, RouteNode after)
+        {
+            if (before.SafetyInfo?.Classification != after.SafetyInfo?.Classification ||
+            before.SafetyInfo?.Remark != after.SafetyInfo?.Remark)
             {
                 return true;
             }
