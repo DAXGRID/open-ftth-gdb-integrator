@@ -43,10 +43,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 notifications.Add(new RouteSegmentMappingInfoUpdated(after));
             }
 
-            // if (IsNamingInfoModified(before, after))
-            // {
-            //     notifications.Add(new RouteNodeNamingInfoUpdated(after));
-            // }
+            if (IsNamingInfoModified(before, after))
+            {
+                notifications.Add(new RouteSegmentNamingInfoUpdated(after));
+            }
 
             // if (IsSafetyInfoModified(before, after))
             // {
