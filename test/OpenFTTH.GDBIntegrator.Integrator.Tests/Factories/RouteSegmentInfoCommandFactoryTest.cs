@@ -89,5 +89,30 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 infoUpdated.RouteSegment.Should().BeEquivalentTo(after);
             }
         }
+
+        [Fact]
+        public async Task Create_ShouldReturnMappingInfoUpdated_OnUpdatedMappingInfo()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var before = new RouteSegment();
+            var after = new RouteSegment
+            {
+                MappingInfo = new MappingInfo
+                {
+                    HorizontalAccuracy = "10"
+                }
+            };
+
+            var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
+
+            var infoUpdated = (RouteSegmentMappingInfoUpdated)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                infoUpdated.RouteSegment.Should().BeEquivalentTo(after);
+            }
+        }
     }
 }

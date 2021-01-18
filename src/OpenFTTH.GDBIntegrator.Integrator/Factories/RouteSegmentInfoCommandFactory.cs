@@ -38,10 +38,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 notifications.Add(new RouteSegmentLifecycleInfoUpdated(after));
             }
 
-            // if (IsMappingInfoModified(before, after))
-            // {
-            //     notifications.Add(new RouteNodeMappingInfoUpdated(after));
-            // }
+            if (IsMappingInfoModified(before, after))
+            {
+                notifications.Add(new RouteSegmentMappingInfoUpdated(after));
+            }
 
             // if (IsNamingInfoModified(before, after))
             // {
