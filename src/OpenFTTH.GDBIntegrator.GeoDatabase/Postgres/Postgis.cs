@@ -1011,6 +1011,52 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             await connection.ExecuteAsync(query, mappedRouteSegment);
         }
 
+        public async Task UpdateRouteSegmentInfosShadowTable(RouteSegment routeSegment)
+        {
+            var connection = GetNpgsqlConnection();
+            var query = @"
+                    UPDATE route_network_integrator.route_segment
+                    SET
+                      lifecycle_deployment_state = @lifeCycleDeploymentState,
+                      lifecycle_installation_date = @lifeCycleInstallationDate,
+                      lifecycle_removal_date = @lifeCycleRemovalDate,
+                      mapping_method = @mappingMethod,
+                      mapping_vertical_accuracy = @mappingVerticalAccuracy,
+                      mapping_horizontal_accuracy = @mappingHorizontalAccuracy,
+                      mapping_source_info = @mappingSourceInfo,
+                      mapping_survey_date = @mappingSurveyDate,
+                      safety_classification = @safetyClassification,
+                      safety_remark = @safetyRemark,
+                      routesegment_kind = @routeSegmentKind,
+                      routesegment_height = @routeSegmentHeight,
+                      routeSegment_width = @routeSegmentWidth,
+                      naming_name = @namingName,
+                      naming_description = @namingDescription
+                    WHERE mrid = @mrid;";
+
+            var mappedRouteSegment = new
+            {
+                mrid = routeSegment.Mrid,
+                lifeCycleDeploymentState = routeSegment.LifeCycleInfo?.DeploymentState?.ToString("g"),
+                lifeCycleInstallationDate = routeSegment.LifeCycleInfo?.InstallationDate,
+                lifeCycleRemovalDate = routeSegment.LifeCycleInfo?.RemovalDate,
+                mappingMethod = routeSegment.MappingInfo?.Method?.ToString("g"),
+                mappingVerticalAccuracy = routeSegment.MappingInfo?.VerticalAccuracy,
+                mappingHorizontalAccuracy = routeSegment.MappingInfo?.HorizontalAccuracy,
+                mappingSourceInfo = routeSegment.MappingInfo?.SourceInfo,
+                mappingSurveyDate = routeSegment.MappingInfo?.SurveyDate,
+                safetyClassification = routeSegment.SafetyInfo?.Classification,
+                safetyRemark = routeSegment.SafetyInfo?.Remark,
+                routeSegmentKind = routeSegment?.RouteSegmentInfo?.Kind?.ToString("g"),
+                routeSegmentHeight = routeSegment.RouteSegmentInfo?.Height,
+                routeSegmentWidth = routeSegment.RouteSegmentInfo?.Width,
+                namingName = routeSegment.NamingInfo?.Name,
+                namingDescription = routeSegment.NamingInfo?.Description
+            };
+
+            await connection.ExecuteAsync(query, mappedRouteSegment);
+        }
+
         public async Task InsertRouteSegment(RouteSegment routeSegment)
         {
             var connection = GetNpgsqlConnection();

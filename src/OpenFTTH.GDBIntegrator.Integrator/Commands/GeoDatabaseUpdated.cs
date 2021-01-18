@@ -37,6 +37,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         private readonly ApplicationSetting _applicationSettings;
         private readonly IModifiedGeometriesStore _modifiedGeometriesStore;
         private readonly IRouteNodeInfoCommandFactory _routeNodeInfoCommandFactory;
+        private readonly IRouteSegmentInfoCommandFactory _routeSegmentInfoCommandFactory;
 
         public GeoDatabaseUpdatedHandler(
             ILogger<GeoDatabaseUpdatedHandler> logger,
@@ -49,7 +50,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             IOptions<KafkaSetting> kafkaSettings,
             IOptions<ApplicationSetting> applicationSettings,
             IModifiedGeometriesStore modifiedGeometriesStore,
-            IRouteNodeInfoCommandFactory routeNodeInfoCommandFactory)
+            IRouteNodeInfoCommandFactory routeNodeInfoCommandFactory,
+            IRouteSegmentInfoCommandFactory routeSegmentInfoCommandFactory)
         {
             _logger = logger;
             _mediator = mediator;
@@ -62,6 +64,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _applicationSettings = applicationSettings.Value;
             _modifiedGeometriesStore = modifiedGeometriesStore;
             _routeNodeInfoCommandFactory = routeNodeInfoCommandFactory;
+            _routeSegmentInfoCommandFactory = routeSegmentInfoCommandFactory;
         }
 
         public async Task<Unit> Handle(GeoDatabaseUpdated request, CancellationToken token)
@@ -160,6 +163,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             else if (IsSegmentUpdated(routeSegmentMessage))
             {
+                var modifiedEvents = await _routeSegmentInfoCommandFactory
+                    .Create(routeSegmentMessage.Before, routeSegmentMessage.After);
+
+                foreach (var modifiedEvent in modifiedEvents)
+                {
+                    if (!(modifiedEvent is null))
+                        await _mediator.Publish(modifiedEvent);
+                }
+
                 var routeSegmentUpdatedEvents = await _routeSegmentEventFactory.CreateUpdatedEvent(routeSegmentMessage.Before, routeSegmentMessage.After);
                 foreach (var routeSegmentUpdatedEvent in routeSegmentUpdatedEvents)
                 {
