@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using OpenFTTH.Events.Core;
+using OpenFTTH.Events.Core.Infos;
 using OpenFTTH.Events.RouteNetwork.Infos;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
@@ -55,6 +57,31 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var result = await factory.Create(before, after);
 
             var infoUpdated = (RouteSegmentInfoUpdated)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                infoUpdated.RouteSegment.Should().BeEquivalentTo(after);
+            }
+        }
+
+        [Fact]
+        public async Task Create_ShouldReturnLifecycleInfoUpdated_OnUpdatedLifecycleInfo()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var before = new RouteSegment();
+            var after = new RouteSegment
+            {
+                LifeCycleInfo = new LifecycleInfo
+                {
+                    DeploymentState = DeploymentStateEnum.Installed
+                }
+            };
+
+            var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
+
+            var infoUpdated = (RouteSegmentLifecycleInfoUpdated)result.First();
 
             using (var scope = new AssertionScope())
             {

@@ -33,10 +33,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 notifications.Add(new RouteSegmentInfoUpdated(after));
             }
 
-            // if (IsLifecycleInfoModified(before, after))
-            // {
-            //     notifications.Add(new RouteNodeLifecycleInfoUpdated(after));
-            // }
+            if (IsLifecycleInfoModified(before, after))
+            {
+                notifications.Add(new RouteSegmentLifecycleInfoUpdated(after));
+            }
 
             // if (IsMappingInfoModified(before, after))
             // {
@@ -73,7 +73,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return false;
         }
 
-        private bool IsLifecycleInfoModified(RouteNode before, RouteNode after)
+        private bool IsLifecycleInfoModified(RouteSegment before, RouteSegment after)
         {
             if (before.LifeCycleInfo?.DeploymentState != after.LifeCycleInfo?.DeploymentState ||
                 before.LifeCycleInfo?.InstallationDate != after.LifeCycleInfo?.InstallationDate ||
@@ -85,7 +85,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return false;
         }
 
-        private bool IsMappingInfoModified(RouteNode before, RouteNode after)
+        private bool IsMappingInfoModified(RouteSegment before, RouteSegment after)
         {
             if (before.MappingInfo?.HorizontalAccuracy != after.MappingInfo?.HorizontalAccuracy ||
                 before.MappingInfo?.Method != after.MappingInfo?.Method ||
@@ -99,7 +99,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return false;
         }
 
-        private bool IsNamingInfoModified(RouteNode before, RouteNode after)
+        private bool IsNamingInfoModified(RouteSegment before, RouteSegment after)
         {
             if (before.NamingInfo?.Description != after.NamingInfo?.Description ||
                 before.NamingInfo?.Name != after.NamingInfo?.Name)
@@ -110,7 +110,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return false;
         }
 
-        private bool IsSafetyInfoModified(RouteNode before, RouteNode after)
+        private bool IsSafetyInfoModified(RouteSegment before, RouteSegment after)
         {
             if (before.SafetyInfo?.Classification != after.SafetyInfo?.Classification ||
             before.SafetyInfo?.Remark != after.SafetyInfo?.Remark)
