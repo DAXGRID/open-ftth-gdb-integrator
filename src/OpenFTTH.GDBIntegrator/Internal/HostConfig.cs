@@ -88,7 +88,10 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddTransient<IRouteNodeEventFactory, RouteNodeEventFactory>();
                 services.AddTransient<IInfoMapper, InfoMapper>();
                 services.AddSingleton<IEventStore, EventStore>();
-                services.AddSingleton<IModifiedGeomitriesStore, ModifiedGeomitriesStore>();
+                services.AddSingleton<IModifiedGeometriesStore, ModifiedGeometriesStore>();
+                services.AddTransient<IRouteNodeInfoCommandFactory, RouteNodeInfoCommandFactory>();
+                services.AddTransient<IRouteSegmentInfoCommandFactory, RouteSegmentInfoCommandFactory>();
+                services.AddTransient<IModifiedEventFactory, ModifiedEventFactory>();
 
                 services.Configure<KafkaSetting>(kafkaSettings =>
                                                  hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));
