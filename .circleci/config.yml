@@ -3,7 +3,7 @@ version: 2.1
 executors:
   dotnet-core-sdk:
     docker:
-    - image: mcr.microsoft.com/dotnet/sdk:5.0
+    - image: mcr.microsoft.com/dotnet/sdk:5.0.102-ca-patch-buster-slim
       auth:
         username: $DOCKER_LOGIN
         password: $DOCKER_ACCESSTOKEN
