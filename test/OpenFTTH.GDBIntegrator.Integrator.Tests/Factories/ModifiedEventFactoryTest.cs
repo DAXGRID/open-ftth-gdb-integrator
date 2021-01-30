@@ -32,7 +32,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 RouteSegmentInfo = new RouteSegmentInfo
                 {
                     Width = "10cm",
-                    Height = "2cm",
+                    Height = "",
                     Kind = (RouteSegmentKindEnum?)RouteNodeKindEnum.BuildingAccessPoint
                 },
                 ApplicationName = "GDB-integrator",
@@ -49,7 +49,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.ApplicationName.Should().Be(routeSegment.ApplicationName);
                 result.ApplicationInfo.Should().Be(routeSegment.ApplicationInfo);
                 result.EventTimestamp.Should().NotBe(new DateTime());
-                result.RouteSegmentInfo.Should().BeEquivalentTo(routeSegment.RouteSegmentInfo);
+                result.RouteSegmentInfo.Width.Should().BeEquivalentTo(routeSegment.RouteSegmentInfo.Width);
+                result.RouteSegmentInfo.Height.Should().BeEquivalentTo(null);
+                result.RouteSegmentInfo.Kind.Should().BeEquivalentTo(routeSegment.RouteSegmentInfo.Kind);
             }
         }
 

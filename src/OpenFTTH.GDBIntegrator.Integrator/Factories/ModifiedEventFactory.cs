@@ -26,8 +26,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                  routeSegment.Mrid,
                  new RouteSegmentInfo
                  {
-                     Width = routeSegment.RouteSegmentInfo?.Width,
-                     Height = routeSegment.RouteSegmentInfo?.Height,
+                     Width = String.IsNullOrEmpty(routeSegment.RouteSegmentInfo?.Width) ? null : routeSegment.RouteSegmentInfo.Width,
+                     Height = String.IsNullOrEmpty(routeSegment.RouteSegmentInfo?.Height) ? null : routeSegment.RouteSegmentInfo.Height,
                      Kind = routeSegment.RouteSegmentInfo?.Kind,
                  });
         }
@@ -111,11 +111,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 ROUTE_SEGMENT,
                 new MappingInfo
                 {
-                    HorizontalAccuracy = routeSegment.MappingInfo?.HorizontalAccuracy,
+                    HorizontalAccuracy = string.IsNullOrEmpty(routeSegment.MappingInfo?.HorizontalAccuracy) ? null : routeSegment.MappingInfo.HorizontalAccuracy,
                     Method = routeSegment.MappingInfo?.Method,
-                    SourceInfo = routeSegment.MappingInfo?.SourceInfo,
+                    SourceInfo = string.IsNullOrEmpty(routeSegment.MappingInfo?.SourceInfo) ? null : routeSegment.MappingInfo.SourceInfo,
                     SurveyDate = routeSegment.MappingInfo?.SurveyDate,
-                    VerticalAccuracy = routeSegment.MappingInfo?.VerticalAccuracy
+                    VerticalAccuracy = string.IsNullOrEmpty(routeSegment.MappingInfo?.VerticalAccuracy) ? null : routeSegment.MappingInfo.VerticalAccuracy
                 }
             );
         }
@@ -137,9 +137,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 {
                     HorizontalAccuracy = routeNode.MappingInfo?.HorizontalAccuracy,
                     Method = routeNode.MappingInfo?.Method,
-                    SourceInfo = routeNode.MappingInfo?.SourceInfo,
+                    SourceInfo = string.IsNullOrEmpty(routeNode.MappingInfo?.SourceInfo) ? null : routeNode.MappingInfo.SourceInfo,
                     SurveyDate = routeNode.MappingInfo?.SurveyDate,
-                    VerticalAccuracy = routeNode.MappingInfo?.VerticalAccuracy
+                    VerticalAccuracy = String.IsNullOrEmpty(routeNode.MappingInfo?.VerticalAccuracy) ? null : routeNode.MappingInfo.VerticalAccuracy
                 }
             );
         }
@@ -159,8 +159,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                     ROUTE_SEGMENT,
                     new SafetyInfo
                     {
-                        Classification = routeSegment.SafetyInfo?.Classification,
-                        Remark = routeSegment.SafetyInfo?.Remark
+                        Classification = String.IsNullOrEmpty(routeSegment.SafetyInfo?.Classification) ? null : routeSegment.SafetyInfo.Classification,
+                        Remark = String.IsNullOrEmpty(routeSegment.SafetyInfo?.Remark) ? null : routeSegment.SafetyInfo.Remark
                     }
                 );
         }
@@ -180,8 +180,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                     ROUTE_NODE,
                     new SafetyInfo
                     {
-                        Classification = routeNode.SafetyInfo?.Classification,
-                        Remark = routeNode.SafetyInfo?.Remark
+                        Classification = String.IsNullOrEmpty(routeNode.SafetyInfo?.Classification) ? null : routeNode.SafetyInfo.Classification,
+                        Remark = String.IsNullOrEmpty(routeNode.SafetyInfo?.Remark) ? null : routeNode.SafetyInfo.Remark
                     }
                 );
         }
@@ -201,8 +201,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                     ROUTE_SEGMENT,
                     new NamingInfo
                     {
-                        Description = routeSegment.NamingInfo?.Description,
-                        Name = routeSegment.NamingInfo?.Name
+                        Description = String.IsNullOrEmpty(routeSegment.NamingInfo?.Description) ? null : routeSegment.NamingInfo.Description,
+                        Name = string.IsNullOrEmpty(routeSegment.NamingInfo?.Name) ? null : routeSegment.NamingInfo.Name
                     }
                 );
         }
@@ -222,8 +222,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                     ROUTE_NODE,
                     new NamingInfo
                     {
-                        Description = routeNode.NamingInfo?.Description,
-                        Name = routeNode.NamingInfo?.Name
+                        Description = String.IsNullOrEmpty(routeNode.NamingInfo?.Description) ? null : routeNode.NamingInfo.Description,
+                        Name = String.IsNullOrEmpty(routeNode.NamingInfo?.Name) ? null : routeNode.NamingInfo.Name
                     }
                 );
         }
