@@ -286,7 +286,8 @@
       "work_task_mrid": null,
       "user_name": null,
       "application_name": null,
-      "application_info": null
+      "application_info": null,
+      "tmp_event_name": null
     },
     "after": {
       "mrid": "9bffa519-c672-49fd-93d0-52cd22519346",
@@ -307,7 +308,8 @@
       "lifecycle_installation_date": "2020-08-12T00:00:00Z",
       "lifecycle_removal_date": "2020-08-12T00:00:00Z",
       "routenode_kind": "",
-      "routenode_function": "FlexPoint"
+      "routenode_function": "FlexPoint",
+      "tmp_event_name": null
     },
     "source": {
       "version": "1.1.2.Final",

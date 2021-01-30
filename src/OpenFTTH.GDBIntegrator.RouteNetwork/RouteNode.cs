@@ -24,9 +24,11 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
         public SafetyInfo SafetyInfo { get; set; }
         public RouteNodeInfo RouteNodeInfo { get; set; }
         public NamingInfo NamingInfo { get; set; }
+        // TODO remove
+        public string TmpEventName { get; set; }
 
         // Default constructor is needed for serialization
-        public RouteNode() {}
+        public RouteNode() { }
 
         public RouteNode(Guid mrid, byte[] coord, Guid workTaskMrid, string username, string applicationName)
         {
