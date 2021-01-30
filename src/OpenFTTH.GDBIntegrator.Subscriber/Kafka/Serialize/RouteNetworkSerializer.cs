@@ -94,6 +94,10 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 MarkAsDeleted = (bool)routeSegment.marked_to_be_deleted,
                 ApplicationInfo = routeSegment.application_info.ToString(),
                 DeleteMe = (bool)routeSegment.delete_me,
+
+                // TODO remove
+                TmpEventName = routeSegment.tmp_event_name.ToString(),
+
                 LifeCycleInfo = new LifecycleInfo(
                      _infoMapper.MapDeploymentState((string)routeSegment.lifecycle_deployment_state),
                      (DateTime?)routeSegment.lifecycle_installation_date,
@@ -157,6 +161,10 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 Mrid = new Guid(routeNode.mrid.ToString()),
                 Username = routeNode.user_name.ToString(),
                 WorkTaskMrid = routeNode.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(routeNode.work_task_mrid.ToString()),
+
+                // TODO remove
+                TmpEventName = routeNode.tmp_event_name.ToString(),
+
                 LifeCycleInfo = new LifecycleInfo(
                     _infoMapper.MapDeploymentState((string)routeNode.lifecycle_deployment_state),
                     (DateTime?)routeNode.lifecycle_installation_date,
