@@ -96,7 +96,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 DeleteMe = (bool)routeSegment.delete_me,
 
                 // TODO remove
-                TmpEventName = routeSegment.tmp_event_name.ToString(),
+                TmpEventName = routeSegment.tmp_event_name.ToString() == string.Empty ? null : routeSegment.tmp_event_name.ToString(),
 
                 LifeCycleInfo = new LifecycleInfo(
                      _infoMapper.MapDeploymentState((string)routeSegment.lifecycle_deployment_state),
@@ -163,7 +163,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 WorkTaskMrid = routeNode.work_task_mrid.ToString() == string.Empty ? System.Guid.Empty : new Guid(routeNode.work_task_mrid.ToString()),
 
                 // TODO remove
-                TmpEventName = routeNode.tmp_event_name.ToString(),
+                TmpEventName = routeNode.tmp_event_name.ToString() == string.Empty ? null : routeNode.tmp_event_name.ToString(),
 
                 LifeCycleInfo = new LifecycleInfo(
                     _infoMapper.MapDeploymentState((string)routeNode.lifecycle_deployment_state),
