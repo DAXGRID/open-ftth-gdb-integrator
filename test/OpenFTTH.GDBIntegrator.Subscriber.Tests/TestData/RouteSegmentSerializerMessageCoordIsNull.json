@@ -264,8 +264,7 @@
       "work_task_mrid": null,
       "user_name": null,
       "application_name": null,
-      "application_info": null,
-      "tmp_event_name": null
+      "application_info": null
     },
     "after": {
       "mrid": "57fb87f5-093c-405d-b619-755e3f39073f",
@@ -276,8 +275,7 @@
       "work_task_mrid": null,
       "user_name": null,
       "application_name": null,
-      "application_info": null,
-      "tmp_event_name": null
+      "application_info": null
     },
     "source": {
       "version": "1.1.2.Final",
