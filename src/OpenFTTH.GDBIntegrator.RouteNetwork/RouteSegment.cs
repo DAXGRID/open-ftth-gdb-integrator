@@ -25,9 +25,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
         public RouteSegmentInfo RouteSegmentInfo { get; set; }
         public NamingInfo NamingInfo { get; set; }
 
-        // TODO remove
-        public string TmpEventName { get; set; }
-
         public virtual Point FindStartPoint()
         {
             var lineString = GetLineString();

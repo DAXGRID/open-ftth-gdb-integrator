@@ -28,27 +28,27 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                     $"Parameter {nameof(before)} or {nameof(after)} cannot be null");
             }
 
-            if (after.TmpEventName?.ToLower() == "RouteSegmentInfoUpdated".ToLower() || IsRouteSegmentInfoUpdated(before, after))
+            if (IsRouteSegmentInfoUpdated(before, after))
             {
                 notifications.Add(new RouteSegmentInfoUpdated(after));
             }
 
-            if (after.TmpEventName?.ToLower() == "LifeCycleInfoUpdated".ToLower() || IsLifecycleInfoModified(before, after))
+            if (IsLifecycleInfoModified(before, after))
             {
                 notifications.Add(new RouteSegmentLifecycleInfoUpdated(after));
             }
 
-            if (after.TmpEventName?.ToLower() == "MappingInfoUpdated".ToLower() || IsMappingInfoModified(before, after))
+            if (IsMappingInfoModified(before, after))
             {
                 notifications.Add(new RouteSegmentMappingInfoUpdated(after));
             }
 
-            if (after.TmpEventName?.ToLower() == "NamingInfoUpdated".ToLower() || IsNamingInfoModified(before, after))
+            if (IsNamingInfoModified(before, after))
             {
                 notifications.Add(new RouteSegmentNamingInfoUpdated(after));
             }
 
-            if (after.TmpEventName?.ToString() == "SafetyInfoUpdated".ToLower() || IsSafetyInfoModified(before, after))
+            if (IsSafetyInfoModified(before, after))
             {
                 notifications.Add(new RouteSegmentSafetyInfoUpdated(after));
             }
