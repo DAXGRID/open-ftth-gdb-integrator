@@ -102,7 +102,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return notifications;
             }
 
-            return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode } };
+            return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, Message = "Route node did not fit any condition in command factory." } };
         }
 
         private async Task<bool> IsValidNodeUpdate(RouteNode before, RouteNode after)
