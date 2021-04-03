@@ -69,7 +69,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             return routeNode.FirstOrDefault();
         }
 
-        public async Task<RouteSegment> GetRouteSegmentShadowTable(Guid mrid, bool getDeletedRouteSegments = false)
+        public async Task<RouteSegment> GetRouteSegmentShadowTable(Guid mrid, bool includeDeleted = false)
         {
             var connection = GetNpgsqlConnection();
             var query = @"SELECT
@@ -94,9 +94,14 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     routesegment_width AS routeSegmentWidth,
                     safety_classification AS safetyClassification,
                     safety_remark AS safetyRemark
-                    FROM route_network_integrator.route_segment WHERE mrid = @mrid AND marked_to_be_deleted = @getDeletedRouteSegments";
+                    FROM route_network_integrator.route_segment";
 
-            var routeSegment = await connection.QueryAsync<RouteSegment>(query, new { mrid, getDeletedRouteSegments });
+            if (!includeDeleted)
+            {
+                query += " WHERE mrid = @mrid AND marked_to_be_deleted = false";
+            }
+
+            var routeSegment = await connection.QueryAsync<RouteSegment>(query, new { mrid });
 
             return routeSegment.FirstOrDefault();
         }
