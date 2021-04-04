@@ -140,7 +140,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 && !IsNamingInfoModified(after, shadowTableRouteSegment)
                 && !IsMappingInfoModified(after, shadowTableRouteSegment)
                 && !IsLifecycleInfoModified(after, shadowTableRouteSegment)
-                && !IsRouteSegmentInfoModified(after, shadowTableRouteSegment);
+                && !IsRouteSegmentInfoModified(after, shadowTableRouteSegment)
+                && !IsSafetyInfoModified(after, shadowTableRouteSegment);
         }
     }
 }

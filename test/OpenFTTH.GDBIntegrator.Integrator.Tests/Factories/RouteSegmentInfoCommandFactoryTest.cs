@@ -16,28 +16,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
     public class RouteSegmentInfoCommandFactoryTest
     {
         [Fact]
-        public async Task Create_ShouldThrowException_OnSegmentAfterOrBeforeBeingNull()
-        {
-            var geoDatabase = A.Fake<IGeoDatabase>();
-            var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
-
-            // Both being null
-            Func<Task> actOne = async () =>
-                await factory.Create(null, null);
-            await actOne.Should().ThrowExactlyAsync<ArgumentNullException>();
-
-            // Before being null
-            Func<Task> actTwo = async () =>
-                await factory.Create(null, new RouteSegment());
-            await actTwo.Should().ThrowExactlyAsync<ArgumentNullException>();
-
-            // After being null
-            Func<Task> actThree = async () =>
-                await factory.Create(new RouteSegment(), null);
-            await actThree.Should().ThrowExactlyAsync<ArgumentNullException>();
-        }
-
-        [Fact]
         public async Task Create_ShouldReturnRouteSegmentInfoUpdated_OnUpdatedSegmentInfo()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
