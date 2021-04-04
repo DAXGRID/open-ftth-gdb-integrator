@@ -98,6 +98,44 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         }
 
         [Fact]
+        public async Task Create_ShouldRollback_OnBeforeBeingMarkedAsDeleted()
+        {
+            var routeSegmentId = Guid.NewGuid();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var before = new RouteSegment
+            {
+                Mrid = routeSegmentId,
+                MarkAsDeleted = true
+            };
+            var after = new RouteSegment
+            {
+                Mrid = routeSegmentId,
+                RouteSegmentInfo = new RouteSegmentInfo
+                {
+                    Height = "10"
+                }
+            };
+            var shadowTableSegment = new RouteSegment
+            {
+                Mrid = routeSegmentId,
+                MarkAsDeleted = true
+            };
+
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(after.Mrid, true)).Returns(shadowTableSegment);
+
+            var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
+
+            var rollbackInvalidRouteSegment = (RollbackInvalidRouteSegment)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                rollbackInvalidRouteSegment.Should().BeOfType(typeof(RollbackInvalidRouteSegment));
+            }
+        }
+
+        [Fact]
         public async Task Create_ShouldReturnRouteSegmentInfoUpdated_OnUpdatedSegmentInfo()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
