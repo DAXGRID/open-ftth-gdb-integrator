@@ -16,6 +16,88 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
     public class RouteSegmentInfoCommandFactoryTest
     {
         [Fact]
+        public async Task Create_ShouldReturnRollBackInvalidRouteSegment_OnAfterBeingNull()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var before = new RouteSegment();
+            RouteSegment after = null;
+
+            var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
+
+            var rollbackEvent = (RollbackInvalidRouteSegment)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                rollbackEvent.Should().BeOfType(typeof(RollbackInvalidRouteSegment));
+            }
+        }
+
+        [Fact]
+        public async Task Create_ShouldReturnRollBackInvalidRouteSegment_OnBeforeBeingNull()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            RouteSegment before = null;
+            var after = new RouteSegment();
+
+            var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
+
+            var rollbackEvent = (RollbackInvalidRouteSegment)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                rollbackEvent.Should().BeOfType(typeof(RollbackInvalidRouteSegment));
+            }
+        }
+
+        [Fact]
+        public async Task Create_ShouldReturnDoNothing_OnShadowTableRouteSegmentBeingEqToAfter()
+        {
+            var routeSegmentId = Guid.NewGuid();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var before = new RouteSegment
+            {
+                Mrid = routeSegmentId,
+                RouteSegmentInfo = new RouteSegmentInfo
+                {
+                    Height = "10"
+                }
+            };
+            var after = new RouteSegment
+            {
+                Mrid = routeSegmentId,
+                RouteSegmentInfo = new RouteSegmentInfo
+                {
+                    Height = "10"
+                }
+            };
+            var shadowTableSegment = new RouteSegment
+            {
+                Mrid = routeSegmentId,
+                RouteSegmentInfo = new RouteSegmentInfo
+                {
+                    Height = "10"
+                }
+            };
+
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(after.Mrid, true)).Returns(shadowTableSegment);
+
+            var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
+
+            var doNothingEvent = (DoNothing)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                doNothingEvent.Should().BeOfType(typeof(DoNothing));
+            }
+        }
+
+        [Fact]
         public async Task Create_ShouldReturnRouteSegmentInfoUpdated_OnUpdatedSegmentInfo()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
