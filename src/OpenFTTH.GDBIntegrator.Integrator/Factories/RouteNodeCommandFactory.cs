@@ -8,6 +8,7 @@ using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using Microsoft.Extensions.Options;
 using MediatR;
+using OpenFTTH.GDBIntegrator.Integrator.Validate;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
@@ -15,13 +16,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
     {
         private readonly ApplicationSetting _applicationSettings;
         private readonly IGeoDatabase _geoDatabase;
+        private readonly IValidationService _validationService;
 
         public RouteNodeCommandFactory(
             IOptions<ApplicationSetting> applicationSettings,
-            IGeoDatabase geoDatabase)
+            IGeoDatabase geoDatabase,
+            IValidationService validationService)
         {
             _applicationSettings = applicationSettings.Value;
             _geoDatabase = geoDatabase;
+            _validationService = validationService;
         }
 
         public async Task<List<INotification>> CreateUpdatedEvent(RouteNode before, RouteNode after)
@@ -40,10 +44,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             await _geoDatabase.UpdateRouteNodeShadowTable(after);
 
             if (!(await IsValidNodeUpdate(before, after)))
-                return new List<INotification> { new RollbackInvalidRouteNode(before) };
+                return new List<INotification> { new RollbackInvalidRouteNode(before, "Is not a valid route node update") };
 
             if (after.MarkAsDeleted)
-                return new List<INotification> { new RouteNodeDeleted { RouteNode = after } };
+            {
+                var canBeDeleted = await _validationService.CanBeDeleted(after.Mrid);
+                if (canBeDeleted)
+                    return new List<INotification> { new RouteNodeDeleted { RouteNode = after } };
+                else
+                    return new List<INotification> { new RollbackInvalidRouteNode(before, "Cannot be deleted response from validation service") };
+            }
 
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
             if (intersectingRouteSegments.Count > 0)

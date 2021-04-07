@@ -53,7 +53,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (after.MarkAsDeleted)
             {
                 var canBeDeleted = await _validationService.CanBeDeleted(after.Mrid);
-                Console.WriteLine("HERE: " + canBeDeleted);
                 if (!canBeDeleted)
                 {
                     return new List<INotification> { new RollbackInvalidRouteSegment(before) };
