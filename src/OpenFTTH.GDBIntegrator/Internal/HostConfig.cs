@@ -23,6 +23,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Serilog;
 using Serilog.Formatting.Compact;
+using OpenFTTH.GDBIntegrator.Integrator.Validate;
 
 namespace OpenFTTH.GDBIntegrator.Internal
 {
@@ -92,6 +93,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddTransient<IRouteNodeInfoCommandFactory, RouteNodeInfoCommandFactory>();
                 services.AddTransient<IRouteSegmentInfoCommandFactory, RouteSegmentInfoCommandFactory>();
                 services.AddTransient<IModifiedEventFactory, ModifiedEventFactory>();
+                services.AddTransient<IValidationService, ValidationService>();
 
                 services.Configure<KafkaSetting>(kafkaSettings =>
                                                  hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));

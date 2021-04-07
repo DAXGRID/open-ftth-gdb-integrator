@@ -11,6 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GraphQL.Client" Version="3.2.3" />
+    <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" Version="3.2.3" />
     <PackageReference Include="MediatR" Version="8.1.0" />
     <PackageReference Include="OpenFTTH.Events" Version="2.2.0" />
   </ItemGroup>
