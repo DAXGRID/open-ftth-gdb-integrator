@@ -3,11 +3,20 @@ using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.SystemTextJson;
+using Microsoft.Extensions.Options;
+using OpenFTTH.GDBIntegrator.Config;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Validate
 {
     public class ValidationService : IValidationService
     {
+        private readonly ApplicationSetting _applicationSetting;
+
+        public ValidationService(IOptions<ApplicationSetting> applicationSetting)
+        {
+            _applicationSetting = applicationSetting.Value;
+        }
+
         private class CanBeDeletedResponse
         {
             public RouteNetwork RouteNetwork { get; set; }
@@ -25,7 +34,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Validate
 
         public async Task<bool> CanBeDeleted(Guid mrid)
         {
-            var graphQLClient = new GraphQLHttpClient("http://api-gateway.openftth.local/graphql", new SystemTextJsonSerializer());
+            Console.WriteLine(_applicationSetting.ApiGatewayHost);
+            var graphQLClient = new GraphQLHttpClient($"{_applicationSetting.ApiGatewayHost}/graphql", new SystemTextJsonSerializer());
 
             var hasRelatedEquipmentRquest = new GraphQLRequest
             {
