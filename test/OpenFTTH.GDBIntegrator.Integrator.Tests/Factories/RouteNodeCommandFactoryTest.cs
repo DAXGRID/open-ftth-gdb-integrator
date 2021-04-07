@@ -13,7 +13,6 @@ using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
 using Microsoft.Extensions.Options;
 using OpenFTTH.GDBIntegrator.Integrator.Validate;
-using MediatR;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 {
