@@ -210,7 +210,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
 
-            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid))
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false))
                 .Returns(integratorRouteNode);
 
             A.CallTo(() => afterNode.GetGeoJsonCoordinate())
@@ -280,7 +280,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             RouteNode shadowTableRouteNode = null;
 
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
-            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid)).Returns(shadowTableRouteNode);
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableRouteNode);
 
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
@@ -299,7 +299,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var shadowTableRouteNode = A.Fake<RouteNode>();
 
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
-            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid)).Returns(shadowTableRouteNode);
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableRouteNode);
 
             A.CallTo(() => afterNode.GetGeoJsonCoordinate())
                 .Returns("[665931.4446905176,7197297.75114815]");
@@ -338,7 +338,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var shadowTableRouteNode = A.Fake<RouteNode>();
 
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
-            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid)).Returns(shadowTableRouteNode);
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableRouteNode);
 
             A.CallTo(() => afterNode.GetGeoJsonCoordinate())
                 .Returns("[665931.4446905176,7197297.75114815]");

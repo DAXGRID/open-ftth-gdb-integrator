@@ -16,25 +16,123 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
     public class RouteSegmentInfoCommandFactoryTest
     {
         [Fact]
-        public async Task Create_ShouldThrowException_OnSegmentAfterOrBeforeBeingNull()
+        public async Task Create_ShouldReturnRollBackInvalidRouteSegment_OnAfterBeingNull()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
+            var before = new RouteSegment();
+            RouteSegment after = null;
+
             var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
 
-            // Both being null
-            Func<Task> actOne = async () =>
-                await factory.Create(null, null);
-            await actOne.Should().ThrowExactlyAsync<ArgumentNullException>();
+            var rollbackEvent = (RollbackInvalidRouteSegment)result.First();
 
-            // Before being null
-            Func<Task> actTwo = async () =>
-                await factory.Create(null, new RouteSegment());
-            await actTwo.Should().ThrowExactlyAsync<ArgumentNullException>();
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                rollbackEvent.Should().BeOfType(typeof(RollbackInvalidRouteSegment));
+            }
+        }
 
-            // After being null
-            Func<Task> actThree = async () =>
-                await factory.Create(new RouteSegment(), null);
-            await actThree.Should().ThrowExactlyAsync<ArgumentNullException>();
+        [Fact]
+        public async Task Create_ShouldReturnRollBackInvalidRouteSegment_OnBeforeBeingNull()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            RouteSegment before = null;
+            var after = new RouteSegment();
+
+            var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
+
+            var rollbackEvent = (RollbackInvalidRouteSegment)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                rollbackEvent.Should().BeOfType(typeof(RollbackInvalidRouteSegment));
+            }
+        }
+
+        [Fact]
+        public async Task Create_ShouldReturnDoNothing_OnShadowTableRouteSegmentBeingEqToAfter()
+        {
+            var routeSegmentId = Guid.NewGuid();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var before = new RouteSegment
+            {
+                Mrid = routeSegmentId,
+                RouteSegmentInfo = new RouteSegmentInfo
+                {
+                    Height = "10"
+                }
+            };
+            var after = new RouteSegment
+            {
+                Mrid = routeSegmentId,
+                RouteSegmentInfo = new RouteSegmentInfo
+                {
+                    Height = "10"
+                }
+            };
+            var shadowTableSegment = new RouteSegment
+            {
+                Mrid = routeSegmentId,
+                RouteSegmentInfo = new RouteSegmentInfo
+                {
+                    Height = "10"
+                }
+            };
+
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(after.Mrid, true)).Returns(shadowTableSegment);
+
+            var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
+
+            var doNothingEvent = (DoNothing)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                doNothingEvent.Should().BeOfType(typeof(DoNothing));
+            }
+        }
+
+        [Fact]
+        public async Task Create_ShouldRollback_OnBeforeBeingMarkedAsDeleted()
+        {
+            var routeSegmentId = Guid.NewGuid();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var before = new RouteSegment
+            {
+                Mrid = routeSegmentId,
+                MarkAsDeleted = true
+            };
+            var after = new RouteSegment
+            {
+                Mrid = routeSegmentId,
+                RouteSegmentInfo = new RouteSegmentInfo
+                {
+                    Height = "10"
+                }
+            };
+            var shadowTableSegment = new RouteSegment
+            {
+                Mrid = routeSegmentId,
+                MarkAsDeleted = true
+            };
+
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(after.Mrid, true)).Returns(shadowTableSegment);
+
+            var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
+
+            var rollbackInvalidRouteSegment = (RollbackInvalidRouteSegment)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                rollbackInvalidRouteSegment.Should().BeOfType(typeof(RollbackInvalidRouteSegment));
+            }
         }
 
         [Fact]

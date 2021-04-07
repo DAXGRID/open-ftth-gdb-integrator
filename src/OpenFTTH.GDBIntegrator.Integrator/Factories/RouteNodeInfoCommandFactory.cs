@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +8,6 @@ using OpenFTTH.GDBIntegrator.RouteNetwork;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
-
     public class RouteNodeInfoCommandFactory : IRouteNodeInfoCommandFactory
     {
         private readonly IGeoDatabase _geoDatabase;
@@ -25,8 +23,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (before is null || after is null)
             {
-                throw new ArgumentNullException(
-                    $"Parameter {nameof(before)} or {nameof(after)} cannot be null");
+                notifications.Add(new RollbackInvalidRouteNode(before));
+                return notifications;
+            }
+
+            var routeNodeShadowTable = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid, true);
+
+            if (AlreadyUpdated(after, routeNodeShadowTable))
+            {
+                notifications.Add(new DoNothing($"{nameof(RouteNode)} is already updated, therefore do nothing."));
+                return notifications;
+            }
+
+            if (before.MarkAsDeleted)
+            {
+                notifications.Add(new RollbackInvalidRouteNode(before));
+                return notifications;
             }
 
             if (IsRouteNodeInfoUpdated(before, after))
@@ -119,6 +131,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             }
 
             return false;
+        }
+
+        private bool AlreadyUpdated(RouteNode after, RouteNode shadowTableRouteNode)
+        {
+            return !IsNamingInfoModified(after, shadowTableRouteNode)
+                && !IsNamingInfoModified(after, shadowTableRouteNode)
+                && !IsMappingInfoModified(after, shadowTableRouteNode)
+                && !IsLifecycleInfoModified(after, shadowTableRouteNode)
+                && !IsRouteNodeInfoUpdated(after, shadowTableRouteNode)
+                && !IsSafetyInfoModified(after, shadowTableRouteNode);
         }
     }
 }

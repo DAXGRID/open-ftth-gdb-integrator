@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,11 +23,25 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (before is null || after is null)
             {
-                throw new ArgumentNullException(
-                    $"Parameter {nameof(before)} or {nameof(after)} cannot be null");
+                notifications.Add(new RollbackInvalidRouteSegment(before));
+                return notifications;
             }
 
-            if (IsRouteSegmentInfoUpdated(before, after))
+            var routeSegmentShadowTable = await _geoDatabase.GetRouteSegmentShadowTable(after.Mrid, true);
+
+            if (AlreadyUpdated(after, routeSegmentShadowTable))
+            {
+                notifications.Add(new DoNothing($"{nameof(RouteSegment)} is already updated, therefore do nothing."));
+                return notifications;
+            }
+
+            if (before.MarkAsDeleted)
+            {
+                notifications.Add(new RollbackInvalidRouteSegment(before));
+                return notifications;
+            }
+
+            if (IsRouteSegmentInfoModified(before, after))
             {
                 notifications.Add(new RouteSegmentInfoUpdated(after));
             }
@@ -61,7 +74,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return notifications;
         }
 
-        private bool IsRouteSegmentInfoUpdated(RouteSegment before, RouteSegment after)
+        private bool IsRouteSegmentInfoModified(RouteSegment before, RouteSegment after)
         {
             if (before.RouteSegmentInfo?.Height != after.RouteSegmentInfo?.Height ||
                 before.RouteSegmentInfo?.Kind != after.RouteSegmentInfo?.Kind ||
@@ -119,6 +132,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             }
 
             return false;
+        }
+
+        private bool AlreadyUpdated(RouteSegment after, RouteSegment shadowTableRouteSegment)
+        {
+            return !IsNamingInfoModified(after, shadowTableRouteSegment)
+                && !IsNamingInfoModified(after, shadowTableRouteSegment)
+                && !IsMappingInfoModified(after, shadowTableRouteSegment)
+                && !IsLifecycleInfoModified(after, shadowTableRouteSegment)
+                && !IsRouteSegmentInfoModified(after, shadowTableRouteSegment)
+                && !IsSafetyInfoModified(after, shadowTableRouteSegment);
         }
     }
 }

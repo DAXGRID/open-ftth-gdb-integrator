@@ -51,35 +51,76 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             _connection = null;
         }
 
-        public async Task<RouteNode> GetRouteNodeShadowTable(Guid mrid)
+        public async Task<RouteNode> GetRouteNodeShadowTable(Guid mrid, bool includeDeleted = false)
         {
             var connection = GetNpgsqlConnection();
 
             var query = @"SELECT
-                              ST_AsBinary(coord) AS coord,
-                              mrid,
-                              marked_to_be_deleted AS markedToBeDeleted,
-                              work_task_mrid AS workTaskMrid,
-                              user_name AS userName,
-                              application_name AS applicationName
-                              FROM route_network_integrator.route_node WHERE mrid = @mrid AND marked_to_be_deleted = false";
+                    ST_AsBinary(coord) AS coord,
+                    mrid,
+                    work_task_mrid,
+                    user_name,
+                    application_name,
+                    application_info,
+                    marked_to_be_deleted,
+                    delete_me,
+                    lifecycle_deployment_state,
+                    lifecycle_installation_date,
+                    lifecycle_removal_date,
+                    mapping_method,
+                    mapping_vertical_accuracy,
+                    mapping_horizontal_accuracy,
+                    mapping_source_info,
+                    mapping_survey_date,
+                    safety_classification,
+                    safety_remark,
+                    routenode_kind,
+                    routenode_function,
+                    naming_name,
+                    naming_description
+                    FROM route_network_integrator.route_node";
+
+            if (!includeDeleted)
+            {
+                query += " WHERE mrid = @mrid AND marked_to_be_deleted = false";
+            }
 
             var routeNode = await connection.QueryAsync<RouteNode>(query, new { mrid });
 
             return routeNode.FirstOrDefault();
         }
 
-        public async Task<RouteSegment> GetRouteSegmentShadowTable(Guid mrid)
+        public async Task<RouteSegment> GetRouteSegmentShadowTable(Guid mrid, bool includeDeleted = false)
         {
             var connection = GetNpgsqlConnection();
             var query = @"SELECT
-                              ST_AsBinary(coord) AS coord,
-                              mrid,
-                              marked_to_be_deleted AS markedToBeDeleted,
-                              work_task_mrid AS workTaskMrid,
-                              user_name AS userName,
-                              application_name AS applicationName
-                              FROM route_network_integrator.route_segment WHERE mrid = @mrid AND marked_to_be_deleted = false";
+                    ST_AsBinary(coord) AS coord,
+                    mrid,
+                    work_task_mrid AS workTaskMrid,
+                    user_name AS username,
+                    application_name AS applicationName,
+                    application_info AS applicationInfo,
+                    mapping_method AS mappingMethod,
+                    mapping_vertical_accuracy AS mappingVerticalAccuracy,
+                    mapping_horizontal_accuracy AS mappingHorizontalAccuracy,
+                    mapping_source_info AS mappingSourceInfo,
+                    mapping_survey_date AS mappingSurveyDate,
+                    lifecycle_deployment_state AS lifeCycleDeploymentState,
+                    lifecycle_installation_date AS lifeCycleInstallationDate,
+                    lifecycle_removal_date AS lifeCycleRemovalDate,
+                    naming_name AS namingName,
+                    naming_description AS namingDescription,
+                    routesegment_height AS routeSegmentHeight,
+                    routeSegment_kind AS routeSegmentKind,
+                    routesegment_width AS routeSegmentWidth,
+                    safety_classification AS safetyClassification,
+                    safety_remark AS safetyRemark
+                    FROM route_network_integrator.route_segment";
+
+            if (!includeDeleted)
+            {
+                query += " WHERE mrid = @mrid AND marked_to_be_deleted = false";
+            }
 
             var routeSegment = await connection.QueryAsync<RouteSegment>(query, new { mrid });
 
@@ -666,7 +707,23 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       work_task_mrid = @workTaskMrId,
                       user_name = @username,
                       application_name = @applicationName,
-                      marked_to_be_deleted = @markAsDeleted
+                      application_info = @applicationInfo,
+                      marked_to_be_deleted = @markAsDeleted,
+                      delete_me = @deleteMe,
+                      lifecycle_deployment_state = @lifeCycleDeploymentState,
+                      lifecycle_installation_date = @lifeCycleInstallationDate,
+                      lifecycle_removal_date = @lifeCycleRemovalDate,
+                      mapping_method = @mappingMethod,
+                      mapping_vertical_accuracy = @mappingVerticalAccuracy,
+                      mapping_horizontal_accuracy = @mappingHorizontalAccuracy,
+                      mapping_source_info = @mappingSourceInfo,
+                      mapping_survey_date = @mappingSurveyDate,
+                      safety_classification = @safetyClassification,
+                      safety_remark = @safetyRemark,
+                      routenode_kind = @routeNodeKind,
+                      routenode_function = @routeNodeFunction,
+                      naming_name = @namingName,
+                      naming_description = @namingDescription
                     WHERE mrid = @mrid;";
 
             var query = @"
@@ -676,11 +733,53 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       work_task_mrid = @workTaskMrId,
                       user_name = @username,
                       application_name = @applicationName,
-                      marked_to_be_deleted = @markAsDeleted
+                      application_info = @applicationInfo,
+                      marked_to_be_deleted = @markAsDeleted,
+                      delete_me = @deleteMe,
+                      lifecycle_deployment_state = @lifeCycleDeploymentState,
+                      lifecycle_installation_date = @lifeCycleInstallationDate,
+                      lifecycle_removal_date = @lifeCycleRemovalDate,
+                      mapping_method = @mappingMethod,
+                      mapping_vertical_accuracy = @mappingVerticalAccuracy,
+                      mapping_horizontal_accuracy = @mappingHorizontalAccuracy,
+                      mapping_source_info = @mappingSourceInfo,
+                      mapping_survey_date = @mappingSurveyDate,
+                      safety_classification = @safetyClassification,
+                      safety_remark = @safetyRemark,
+                      routenode_kind = @routeNodeKind,
+                      routenode_function = @routeNodeFunction,
+                      naming_name = @namingName,
+                      naming_description = @namingDescription
                     WHERE mrid = @mrid;";
 
-            await connection.ExecuteAsync(integratorQuery, routeNode);
-            await connection.ExecuteAsync(query, routeNode);
+            var mappedRouteNode = new
+            {
+                mrid = routeNode.Mrid,
+                coord = routeNode.Coord,
+                workTaskMrId = routeNode.WorkTaskMrid,
+                userName = routeNode.Username,
+                applicationName = routeNode.ApplicationName,
+                applicationInfo = routeNode.ApplicationInfo,
+                markAsDeleted = routeNode.MarkAsDeleted,
+                deleteMe = routeNode.DeleteMe,
+                lifeCycleDeploymentState = routeNode.LifeCycleInfo?.DeploymentState?.ToString("g"),
+                lifeCycleInstallationDate = routeNode.LifeCycleInfo?.InstallationDate,
+                lifeCycleRemovalDate = routeNode.LifeCycleInfo?.RemovalDate,
+                mappingMethod = routeNode.MappingInfo?.Method?.ToString("g"),
+                mappingVerticalAccuracy = routeNode.MappingInfo?.VerticalAccuracy,
+                mappingHorizontalAccuracy = routeNode.MappingInfo?.HorizontalAccuracy,
+                mappingSourceInfo = routeNode.MappingInfo?.SourceInfo,
+                mappingSurveyDate = routeNode.MappingInfo?.SurveyDate,
+                safetyClassification = routeNode.SafetyInfo?.Classification,
+                safetyRemark = routeNode.SafetyInfo?.Remark,
+                routeNodeKind = routeNode.RouteNodeInfo?.Kind?.ToString("g"),
+                routeNodeFunction = routeNode.RouteNodeInfo?.Function?.ToString("g"),
+                namingName = routeNode.NamingInfo?.Name,
+                namingDescription = routeNode.NamingInfo?.Description
+            };
+
+            await connection.ExecuteAsync(integratorQuery, mappedRouteNode);
+            await connection.ExecuteAsync(query, mappedRouteNode);
         }
 
         public async Task UpdateRouteNodeShadowTable(RouteNode routeNode)
@@ -1227,7 +1326,23 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       work_task_mrid = @workTaskMrId,
                       user_name = @username,
                       application_name = @applicationName,
-                      marked_to_be_deleted = @markAsDeleted
+                      marked_to_be_deleted = @markAsDeleted,
+                      delete_me = @deleteMe,
+                      lifecycle_deployment_state = @lifeCycleDeploymentState,
+                      lifecycle_installation_date = @lifeCycleInstallationDate,
+                      lifecycle_removal_date = @lifeCycleRemovalDate,
+                      mapping_method = @mappingMethod,
+                      mapping_vertical_accuracy = @mappingVerticalAccuracy,
+                      mapping_horizontal_accuracy = @mappingHorizontalAccuracy,
+                      mapping_source_info = @mappingSourceInfo,
+                      mapping_survey_date = @mappingSurveyDate,
+                      safety_classification = @safetyClassification,
+                      safety_remark = @safetyRemark,
+                      routesegment_kind = @routeSegmentKind,
+                      routesegment_height = @routeSegmentHeight,
+                      routeSegment_width = @routeSegmentWidth,
+                      naming_name = @namingName,
+                      naming_description = @namingDescription
                     WHERE mrid = @mrid;";
 
             var query = @"
@@ -1237,11 +1352,54 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       work_task_mrid = @workTaskMrId,
                       user_name = @username,
                       application_name = @applicationName,
-                      marked_to_be_deleted = @markAsDeleted
+                      marked_to_be_deleted = @markAsDeleted,
+                      delete_me = @deleteMe,
+                      lifecycle_deployment_state = @lifeCycleDeploymentState,
+                      lifecycle_installation_date = @lifeCycleInstallationDate,
+                      lifecycle_removal_date = @lifeCycleRemovalDate,
+                      mapping_method = @mappingMethod,
+                      mapping_vertical_accuracy = @mappingVerticalAccuracy,
+                      mapping_horizontal_accuracy = @mappingHorizontalAccuracy,
+                      mapping_source_info = @mappingSourceInfo,
+                      mapping_survey_date = @mappingSurveyDate,
+                      safety_classification = @safetyClassification,
+                      safety_remark = @safetyRemark,
+                      routesegment_kind = @routeSegmentKind,
+                      routesegment_height = @routeSegmentHeight,
+                      routeSegment_width = @routeSegmentWidth,
+                      naming_name = @namingName,
+                      naming_description = @namingDescription
                     WHERE mrid = @mrid;";
 
-            await connection.ExecuteAsync(integratorQuery, routeSegment);
-            await connection.ExecuteAsync(query, routeSegment);
+            var mappedRouteSegment = new
+            {
+                mrid = routeSegment.Mrid,
+                coord = routeSegment.Coord,
+                workTaskMrId = routeSegment.WorkTaskMrid,
+                userName = routeSegment.Username,
+                applicationName = routeSegment.ApplicationName,
+                applicationInfo = routeSegment.ApplicationInfo,
+                markAsDeleted = routeSegment.MarkAsDeleted,
+                deleteMe = routeSegment.DeleteMe,
+                lifeCycleDeploymentState = routeSegment.LifeCycleInfo?.DeploymentState?.ToString("g"),
+                lifeCycleInstallationDate = routeSegment.LifeCycleInfo?.InstallationDate,
+                lifeCycleRemovalDate = routeSegment.LifeCycleInfo?.RemovalDate,
+                mappingMethod = routeSegment.MappingInfo?.Method?.ToString("g"),
+                mappingVerticalAccuracy = routeSegment.MappingInfo?.VerticalAccuracy,
+                mappingHorizontalAccuracy = routeSegment.MappingInfo?.HorizontalAccuracy,
+                mappingSourceInfo = routeSegment.MappingInfo?.SourceInfo,
+                mappingSurveyDate = routeSegment.MappingInfo?.SurveyDate,
+                safetyClassification = routeSegment.SafetyInfo?.Classification,
+                safetyRemark = routeSegment.SafetyInfo?.Remark,
+                routeSegmentKind = routeSegment?.RouteSegmentInfo?.Kind?.ToString("g"),
+                routeSegmentHeight = routeSegment.RouteSegmentInfo?.Height,
+                routeSegmentWidth = routeSegment.RouteSegmentInfo?.Width,
+                namingName = routeSegment.NamingInfo?.Name,
+                namingDescription = routeSegment.NamingInfo?.Description
+            };
+
+            await connection.ExecuteAsync(integratorQuery, mappedRouteSegment);
+            await connection.ExecuteAsync(query, mappedRouteSegment);
         }
 
         private bool AreAnyPropertiesNotNull<T>(object obj)

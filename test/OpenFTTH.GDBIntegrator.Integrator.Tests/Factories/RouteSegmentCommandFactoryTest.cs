@@ -517,7 +517,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             A.CallTo(() => routeSegmentAfter.Mrid).Returns(Guid.NewGuid());
             A.CallTo(() => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
-            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid)).Returns(routeSegmentShadowTable);
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid, false)).Returns(routeSegmentShadowTable);
             A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
             A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
             A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
@@ -542,7 +542,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentShadowTable = A.Fake<RouteSegment>();
 
             A.CallTo(() => routeSegmentAfter.Mrid).Returns(Guid.NewGuid());
-            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid)).Returns(routeSegmentShadowTable);
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid, false)).Returns(routeSegmentShadowTable);
             A.CallTo(() => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
             A.CallTo(() => routeSegmentAfter.GetLineString()).Returns(A.Fake<LineString>());
 
@@ -573,7 +573,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentAfter = A.Fake<RouteSegment>();
             RouteSegment routeSegmentShadowTable = null;
 
-            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid)).Returns(routeSegmentShadowTable);
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid, false)).Returns(routeSegmentShadowTable);
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
@@ -594,7 +594,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentShadowTable = A.Fake<RouteSegment>();
 
             A.CallTo(() => routeSegmentAfter.Mrid).Returns(Guid.NewGuid());
-            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid)).Returns(routeSegmentShadowTable);
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid, false)).Returns(routeSegmentShadowTable);
             A.CallTo(() => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
             A.CallTo(() => routeSegmentAfter.GetLineString()).Returns(A.Fake<LineString>());
 
@@ -639,7 +639,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var previousEndNode = A.Fake<RouteNode>();
 
             A.CallTo(() => routeSegmentAfter.Mrid).Returns(Guid.NewGuid());
-            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid)).Returns(routeSegmentShadowTable);
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid, false)).Returns(routeSegmentShadowTable);
             A.CallTo(() => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
             A.CallTo(() => routeSegmentAfter.GetLineString()).Returns(A.Fake<LineString>());
 
