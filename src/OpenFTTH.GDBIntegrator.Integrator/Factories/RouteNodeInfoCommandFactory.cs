@@ -23,7 +23,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (before is null || after is null)
             {
-                notifications.Add(new RollbackInvalidRouteNode(before));
+                notifications.Add(new RollbackInvalidRouteNode(before, "Before or after is null."));
                 return notifications;
             }
 
@@ -35,9 +35,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return notifications;
             }
 
-            if (before.MarkAsDeleted)
+            if (routeNodeShadowTable.MarkAsDeleted)
             {
-                notifications.Add(new RollbackInvalidRouteNode(before));
+                notifications.Add(new RollbackInvalidRouteNode(before, "Shadowtable is marked to be deleted."));
                 return notifications;
             }
 

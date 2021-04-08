@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenFTTH.GDBIntegrator.Integrator.Validate;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 {
@@ -38,6 +39,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         private readonly IModifiedGeometriesStore _modifiedGeometriesStore;
         private readonly IRouteNodeInfoCommandFactory _routeNodeInfoCommandFactory;
         private readonly IRouteSegmentInfoCommandFactory _routeSegmentInfoCommandFactory;
+        private readonly IValidationService _validationService;
 
         public GeoDatabaseUpdatedHandler(
             ILogger<GeoDatabaseUpdatedHandler> logger,
@@ -51,7 +53,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             IOptions<ApplicationSetting> applicationSettings,
             IModifiedGeometriesStore modifiedGeometriesStore,
             IRouteNodeInfoCommandFactory routeNodeInfoCommandFactory,
-            IRouteSegmentInfoCommandFactory routeSegmentInfoCommandFactory)
+            IRouteSegmentInfoCommandFactory routeSegmentInfoCommandFactory,
+            IValidationService validationService)
         {
             _logger = logger;
             _mediator = mediator;
@@ -65,6 +68,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _modifiedGeometriesStore = modifiedGeometriesStore;
             _routeNodeInfoCommandFactory = routeNodeInfoCommandFactory;
             _routeSegmentInfoCommandFactory = routeSegmentInfoCommandFactory;
+            _validationService = validationService;
         }
 
         public async Task<Unit> Handle(GeoDatabaseUpdated request, CancellationToken token)
@@ -126,14 +130,25 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 var modifiedEvents = await _routeNodeInfoCommandFactory
                     .Create(routeNodeMessage.Before, routeNodeMessage.After);
 
+                var routeNodeUpdatedEvents = await _routeNodeEventFactory
+                    .CreateUpdatedEvent(routeNodeMessage.Before, routeNodeMessage.After);
+
+                var possibleIllegalOperation = routeNodeUpdatedEvents.Any(x => x.GetType() == typeof(RouteNodeDeleted));
+                if (possibleIllegalOperation)
+                {
+                    var hasRelatedEquipment = await _validationService.HasRelatedEquipment(routeNodeMessage.After.Mrid);
+                    if (hasRelatedEquipment)
+                    {
+                        await _mediator.Publish(new RollbackInvalidRouteNode(routeNodeMessage.Before, "Rollback route node since it has related equipment."));
+                        return;
+                    }
+                }
+
                 foreach (var modifiedEvent in modifiedEvents)
                 {
                     if (!(modifiedEvent is null))
                         await _mediator.Publish(modifiedEvent);
                 }
-
-                var routeNodeUpdatedEvents = await _routeNodeEventFactory
-                    .CreateUpdatedEvent(routeNodeMessage.Before, routeNodeMessage.After);
 
                 foreach (var routeNodeUpdatedEvent in routeNodeUpdatedEvents)
                 {
@@ -163,16 +178,29 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             else if (IsSegmentUpdated(routeSegmentMessage))
             {
-                var modifiedEvents = await _routeSegmentInfoCommandFactory
+                var infoModifiedEvents = await _routeSegmentInfoCommandFactory
                     .Create(routeSegmentMessage.Before, routeSegmentMessage.After);
 
-                foreach (var modifiedEvent in modifiedEvents)
+                var routeSegmentUpdatedEvents = await _routeSegmentEventFactory
+                    .CreateUpdatedEvent(routeSegmentMessage.Before, routeSegmentMessage.After);
+
+                var possibleIllegalOperation = routeSegmentUpdatedEvents.Any(x => x.GetType() == typeof(RouteSegmentDeleted) || x.GetType() == typeof(RouteSegmentConnectivityChanged));
+                if (possibleIllegalOperation)
+                {
+                    var hasRelatedEquipment = await _validationService.HasRelatedEquipment(routeSegmentMessage.After.Mrid);
+                    if (hasRelatedEquipment)
+                    {
+                        await _mediator.Publish(new RollbackInvalidRouteSegment(routeSegmentMessage.Before, "Rollback route segment since it has related equipment."));
+                        return;
+                    }
+                }
+
+                foreach (var modifiedEvent in infoModifiedEvents)
                 {
                     if (!(modifiedEvent is null))
                         await _mediator.Publish(modifiedEvent);
                 }
 
-                var routeSegmentUpdatedEvents = await _routeSegmentEventFactory.CreateUpdatedEvent(routeSegmentMessage.Before, routeSegmentMessage.After);
                 foreach (var routeSegmentUpdatedEvent in routeSegmentUpdatedEvents)
                 {
                     if (!(routeSegmentUpdatedEvent is null))

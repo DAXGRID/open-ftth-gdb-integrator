@@ -15,6 +15,7 @@ using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.Config;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
+using OpenFTTH.GDBIntegrator.Integrator.Validate;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 {
@@ -442,6 +443,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
             var geoDatabase = A.Fake<IGeoDatabase>();
             var routeNodeFactory = A.Fake<IRouteNodeFactory>();
+            var validationService = A.Fake<IValidationService>();
             var routeSegment = A.Fake<RouteSegment>();
             var lineString = A.Fake<LineString>();
             var allIntersectingRouteNodes = new List<RouteNode>
@@ -481,7 +483,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task CreateUpdatedEvent_ShouldReturnRouteSegmentMarkedForDeletion_OnRouteSegmentAfterMarkedToBeDeletedIsTrue()
+        public async Task CreateUpdatedEvent_ShouldReturnRouteSegmentMarkedForDeletion_OnRouteSegmentAfterMarkedToBeDeletedTrueAndHasRelatedEquipmentFalse()
         {
             var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
@@ -496,11 +498,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
-            var result = (RouteSegmentDeleted)(await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter)).First();
+            var result = await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter);
+            var routeSegmentDeleted = (RouteSegmentDeleted)result.First();
 
             using (var scope = new AssertionScope())
             {
-                result.RouteSegment.Should().Be(routeSegmentAfter);
+                result.Count().Should().Be(1);
+                routeSegmentDeleted.RouteSegment.Should().Be(routeSegmentAfter);
             }
         }
 

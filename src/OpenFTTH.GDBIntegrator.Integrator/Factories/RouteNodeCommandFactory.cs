@@ -40,7 +40,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             await _geoDatabase.UpdateRouteNodeShadowTable(after);
 
             if (!(await IsValidNodeUpdate(before, after)))
-                return new List<INotification> { new RollbackInvalidRouteNode(before) };
+                return new List<INotification> { new RollbackInvalidRouteNode(before, "Is not a valid route node update") };
 
             if (after.MarkAsDeleted)
                 return new List<INotification> { new RouteNodeDeleted { RouteNode = after } };
