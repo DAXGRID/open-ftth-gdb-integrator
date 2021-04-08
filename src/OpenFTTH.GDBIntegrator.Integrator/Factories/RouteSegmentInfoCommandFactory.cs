@@ -23,7 +23,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (before is null || after is null)
             {
-                notifications.Add(new RollbackInvalidRouteSegment(before));
+                notifications.Add(new RollbackInvalidRouteSegment(before, "Before or after is null."));
                 return notifications;
             }
 
@@ -37,7 +37,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (before.MarkAsDeleted)
             {
-                notifications.Add(new RollbackInvalidRouteSegment(before));
+                notifications.Add(new RollbackInvalidRouteSegment(before, "Before is marked as deleted and that is not valid in RouteSegmentInfoCommandFactory Create."));
                 return notifications;
             }
 

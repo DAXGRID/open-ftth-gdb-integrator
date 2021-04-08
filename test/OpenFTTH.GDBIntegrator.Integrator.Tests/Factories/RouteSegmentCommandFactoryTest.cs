@@ -561,7 +561,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = (await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter)).First();
 
-            var expected = new RollbackInvalidRouteSegment(routeSegmentBefore);
+            var expected = new RollbackInvalidRouteSegment(routeSegmentBefore, "Linestring is not valid.");
 
             result.Should().BeEquivalentTo(expected);
         }
@@ -761,7 +761,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter);
 
-            var expectedEvent = new RollbackInvalidRouteSegment(routeSegmentBefore);
+            var expectedEvent = new RollbackInvalidRouteSegment(routeSegmentBefore, "Has more than 2 intersecting start or end nodes.");
 
             using (var scope = new AssertionScope())
             {
@@ -797,7 +797,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter);
 
-            var expectedEvent = new RollbackInvalidRouteSegment(routeSegmentBefore);
+            var expectedEvent = new RollbackInvalidRouteSegment(routeSegmentBefore, "Has more than 2 intersecting start or end nodes.");
 
             using (var scope = new AssertionScope())
             {
