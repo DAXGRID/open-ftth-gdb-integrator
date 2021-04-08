@@ -130,14 +130,25 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 var modifiedEvents = await _routeNodeInfoCommandFactory
                     .Create(routeNodeMessage.Before, routeNodeMessage.After);
 
+                var routeNodeUpdatedEvents = await _routeNodeEventFactory
+                    .CreateUpdatedEvent(routeNodeMessage.Before, routeNodeMessage.After);
+
+                var possibleIllegalOperation = routeNodeUpdatedEvents.Any(x => x.GetType() == typeof(RouteNodeDeleted));
+                if (possibleIllegalOperation)
+                {
+                    var hasRelatedEquipment = await _validationService.HasRelatedEquipment(routeNodeMessage.After.Mrid);
+                    if (hasRelatedEquipment)
+                    {
+                        await _mediator.Publish(new RollbackInvalidRouteNode(routeNodeMessage.Before, "Rollback route node since it has related equipment."));
+                        return;
+                    }
+                }
+
                 foreach (var modifiedEvent in modifiedEvents)
                 {
                     if (!(modifiedEvent is null))
                         await _mediator.Publish(modifiedEvent);
                 }
-
-                var routeNodeUpdatedEvents = await _routeNodeEventFactory
-                    .CreateUpdatedEvent(routeNodeMessage.Before, routeNodeMessage.After);
 
                 foreach (var routeNodeUpdatedEvent in routeNodeUpdatedEvents)
                 {
@@ -179,7 +190,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     var hasRelatedEquipment = await _validationService.HasRelatedEquipment(routeSegmentMessage.After.Mrid);
                     if (hasRelatedEquipment)
                     {
-                        await _mediator.Publish(new RollbackInvalidRouteSegment(routeSegmentMessage.Before));
+                        await _mediator.Publish(new RollbackInvalidRouteSegment(routeSegmentMessage.Before, "Rollback route segment since it has related equipment."));
                         return;
                     }
                 }
