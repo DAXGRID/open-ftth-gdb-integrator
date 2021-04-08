@@ -218,12 +218,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             if (invalidMessage.Message is RouteSegmentMessage)
             {
                 var rollbackMessage = (RouteSegmentMessage)invalidMessage.Message;
-                await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackMessage.Before));
+                await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackMessage.Before, "RouteSegment message is invalid."));
             }
             if (invalidMessage.Message is RouteNodeMessage)
             {
                 var rollbackMessage = (RouteNodeMessage)invalidMessage.Message;
-                await _mediator.Publish(new RollbackInvalidRouteNode(rollbackMessage.Before));
+                await _mediator.Publish(new RollbackInvalidRouteNode(rollbackMessage.Before, "RouteNode message is invalid."));
             }
         }
 
