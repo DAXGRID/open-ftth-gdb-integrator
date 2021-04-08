@@ -154,7 +154,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode))
                 .Returns(new List<RouteSegment> { });
 
-            A.CallTo(() => validationService.CanBeDeleted(afterNode.Mrid)).Returns(true);
+            A.CallTo(() => validationService.HasRelatedEquipment(afterNode.Mrid)).Returns(true);
 
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, validationService);
             var result = (RouteNodeDeleted)(await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
@@ -183,7 +183,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode))
                 .Returns(new List<RouteSegment> { });
 
-            A.CallTo(() => validationService.CanBeDeleted(afterNode.Mrid)).Returns(false);
+            A.CallTo(() => validationService.HasRelatedEquipment(afterNode.Mrid)).Returns(false);
 
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, validationService);
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
@@ -209,7 +209,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
 
-            A.CallTo(() => validationService.CanBeDeleted(afterNode.Mrid)).Returns(true);
+            A.CallTo(() => validationService.HasRelatedEquipment(afterNode.Mrid)).Returns(true);
 
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(beforeNode))
                 .Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
@@ -236,7 +236,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
-            A.CallTo(() => validationService.CanBeDeleted(afterNode.Mrid)).Returns(true);
+            A.CallTo(() => validationService.HasRelatedEquipment(afterNode.Mrid)).Returns(true);
 
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode))
                 .Returns(new List<RouteSegment>());

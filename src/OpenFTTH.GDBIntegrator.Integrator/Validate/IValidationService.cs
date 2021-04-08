@@ -5,6 +5,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Validate
 {
     public interface IValidationService
     {
-        Task<bool> CanBeDeleted(Guid mrid);
+        Task<bool> HasRelatedEquipment(Guid mrid);
     }
 }

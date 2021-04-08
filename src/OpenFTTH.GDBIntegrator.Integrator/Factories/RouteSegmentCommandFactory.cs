@@ -11,7 +11,6 @@ using OpenFTTH.GDBIntegrator.GeoDatabase;
 using Microsoft.Extensions.Options;
 using MediatR;
 using NetTopologySuite.Geometries;
-using OpenFTTH.GDBIntegrator.Integrator.Validate;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
@@ -21,20 +20,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         private readonly IRouteSegmentValidator _routeSegmentValidator;
         private readonly IGeoDatabase _geoDatabase;
         private readonly IRouteNodeFactory _routeNodeFactory;
-        private readonly IValidationService _validationService;
 
         public RouteSegmentCommandFactory(
             IOptions<ApplicationSetting> applicationSettings,
             IRouteSegmentValidator routeSegmentValidator,
             IGeoDatabase geoDatabase,
-            IRouteNodeFactory routeNodeFactory,
-            IValidationService validationService)
+            IRouteNodeFactory routeNodeFactory)
         {
             _applicationSettings = applicationSettings.Value;
             _routeSegmentValidator = routeSegmentValidator;
             _geoDatabase = geoDatabase;
             _routeNodeFactory = routeNodeFactory;
-            _validationService = validationService;
         }
 
         public async Task<IEnumerable<INotification>> CreateUpdatedEvent(RouteSegment before, RouteSegment after)
@@ -49,15 +45,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (!_routeSegmentValidator.LineIsValid(after.GetLineString()))
                 return new List<INotification> { new RollbackInvalidRouteSegment(before) };
-
-            if (after.MarkAsDeleted)
-            {
-                var canBeDeleted = await _validationService.CanBeDeleted(after.Mrid);
-                if (!canBeDeleted)
-                {
-                    return new List<INotification> { new RollbackInvalidRouteSegment(before) };
-                }
-            }
 
             await _geoDatabase.UpdateRouteSegmentShadowTable(after);
 

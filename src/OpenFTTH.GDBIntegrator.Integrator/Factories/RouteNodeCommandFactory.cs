@@ -48,7 +48,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (after.MarkAsDeleted)
             {
-                var canBeDeleted = await _validationService.CanBeDeleted(after.Mrid);
+                var canBeDeleted = await _validationService.HasRelatedEquipment(after.Mrid);
                 if (canBeDeleted)
                     return new List<INotification> { new RouteNodeDeleted { RouteNode = after } };
                 else

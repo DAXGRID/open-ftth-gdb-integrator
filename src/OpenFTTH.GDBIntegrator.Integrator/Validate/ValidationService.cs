@@ -17,7 +17,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Validate
             _applicationSetting = applicationSetting.Value;
         }
 
-        private class CanBeDeletedResponse
+        private class HasRelatedEquipmentResponse
         {
             public RouteNetwork RouteNetwork { get; set; }
         }
@@ -32,9 +32,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Validate
             public bool HasRelatedEquipment { get; set; }
         }
 
-        public async Task<bool> CanBeDeleted(Guid mrid)
+        public async Task<bool> HasRelatedEquipment(Guid mrid)
         {
-            Console.WriteLine(_applicationSetting.ApiGatewayHost);
             var graphQLClient = new GraphQLHttpClient($"{_applicationSetting.ApiGatewayHost}/graphql", new SystemTextJsonSerializer());
 
             var hasRelatedEquipmentRquest = new GraphQLRequest
@@ -54,8 +53,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Validate
                 }
             };
 
-            var response = await graphQLClient.SendQueryAsync<CanBeDeletedResponse>(hasRelatedEquipmentRquest);
-            return !response.Data.RouteNetwork.RouteElement.HasRelatedEquipment;
+            var response = await graphQLClient.SendQueryAsync<HasRelatedEquipmentResponse>(hasRelatedEquipmentRquest);
+            return response.Data.RouteNetwork.RouteElement.HasRelatedEquipment;
         }
     }
 }
