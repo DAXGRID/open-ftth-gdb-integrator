@@ -126,12 +126,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
             var result = await factory.Create(before, after);
 
-            var rollbackInvalidRouteSegment = (RollbackInvalidRouteSegment)result.First();
+            var rollbackInvalidRouteSegment = (DoNothing)result.First();
 
             using (var scope = new AssertionScope())
             {
                 result.Count().Should().Be(1);
-                rollbackInvalidRouteSegment.Should().BeOfType(typeof(RollbackInvalidRouteSegment));
+                rollbackInvalidRouteSegment.Should().BeOfType(typeof(DoNothing));
             }
         }
 
