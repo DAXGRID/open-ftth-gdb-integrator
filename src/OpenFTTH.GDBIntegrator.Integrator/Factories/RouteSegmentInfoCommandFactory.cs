@@ -137,7 +137,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         private bool AlreadyUpdated(RouteSegment after, RouteSegment shadowTableRouteSegment)
         {
             return !IsNamingInfoModified(after, shadowTableRouteSegment)
-                && !IsNamingInfoModified(after, shadowTableRouteSegment)
                 && !IsMappingInfoModified(after, shadowTableRouteSegment)
                 && !IsLifecycleInfoModified(after, shadowTableRouteSegment)
                 && !IsRouteSegmentInfoModified(after, shadowTableRouteSegment)
