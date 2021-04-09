@@ -35,9 +35,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return notifications;
             }
 
-            if (before.MarkAsDeleted)
+            if (routeSegmentShadowTable.MarkAsDeleted)
             {
-                notifications.Add(new RollbackInvalidRouteSegment(before, "Before is marked as deleted and that is not valid in RouteSegmentInfoCommandFactory Create."));
+                notifications.Add(new DoNothing($"{nameof(RouteSegment)} shadowtable is marked as deleted therefore do nothing."));
                 return notifications;
             }
 
