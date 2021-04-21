@@ -84,30 +84,117 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 else if (request.UpdateMessage is RouteSegmentMessage)
                     await HandleRouteSegment((RouteSegmentMessage)request.UpdateMessage);
                 else if (request.UpdateMessage is InvalidMessage)
-                    await HandleInvalidMessage((InvalidMessage)request.UpdateMessage);
+                    await Rollback((request.UpdateMessage as InvalidMessage).Message, "Message is invalid.");
 
                 var editOperationOccuredEvent = CreateEditOperationOccuredEvent(request.UpdateMessage);
 
-                if (_eventStore.Get().Count() > 0)
-                    await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, editOperationOccuredEvent);
+                if (IsOperationEditEventValid(editOperationOccuredEvent))
+                {
+                    if (_eventStore.Get().Count() > 0)
+                        await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, editOperationOccuredEvent);
 
-                await _geoDatabase.Commit();
+                    await _geoDatabase.Commit();
 
-                if (_eventStore.Get().Count() > 0 && _applicationSettings.SendGeographicalAreaUpdatedNotification)
-                    await _mediator.Publish(new GeographicalAreaUpdated() { RouteNodes = _modifiedGeometriesStore.GetRouteNodes(), RouteSegment = _modifiedGeometriesStore.GetRouteSegments() });
+                    if (_eventStore.Get().Count() > 0 && _applicationSettings.SendGeographicalAreaUpdatedNotification)
+                    {
+                        await _mediator.Publish(new GeographicalAreaUpdated
+                        {
+                            RouteNodes = _modifiedGeometriesStore.GetRouteNodes(),
+                            RouteSegment = _modifiedGeometriesStore.GetRouteSegments()
+                        });
+                    }
+                }
+                else
+                {
+                    _logger.LogError($"{nameof(RouteNetworkEditOperationOccuredEvent)} is not valid so we rollback.");
+                    await _geoDatabase.RollbackTransaction();
+                    await _geoDatabase.BeginTransaction();
+                    await Rollback(request.UpdateMessage, $"Rollback because {nameof(RouteNetworkEditOperationOccuredEvent)} is not valid.");
+                    await _geoDatabase.Commit();
+                    _logger.LogInformation($"{nameof(RouteNetworkEditOperationOccuredEvent)} is now rolled rollback.");
+                }
             }
             catch (Exception e)
             {
                 _logger.LogError($"{e.ToString()}: Rolling back geodatabase transactions");
                 await _geoDatabase.RollbackTransaction();
+                await _geoDatabase.BeginTransaction();
+                await Rollback(request.UpdateMessage, $"Rollback because of exception: {e.Message}");
+                await _geoDatabase.Commit();
             }
             finally
             {
                 _eventStore.Clear();
+                await _geoDatabase.DisposeTransaction();
+                await _geoDatabase.DisposeConnection();
                 _pool.Release();
             }
 
             return await Task.FromResult(new Unit());
+        }
+
+        private async Task Rollback(object message, string errorMessage)
+        {
+            if (message is RouteSegmentMessage)
+            {
+                var rollbackMessage = (RouteSegmentMessage)message;
+                if (rollbackMessage.Before != null)
+                {
+                    await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackMessage.Before, errorMessage));
+                }
+                else
+                {
+                    await _mediator.Publish(new InvalidRouteSegmentOperation
+                    {
+                        RouteSegment = rollbackMessage.After,
+                        Message = errorMessage
+                    });
+                }
+            }
+            else if (message is RouteNodeMessage)
+            {
+                var rollbackMessage = (RouteNodeMessage)message;
+                if (rollbackMessage.Before != null)
+                {
+                    await _mediator.Publish(new RollbackInvalidRouteNode(rollbackMessage.Before, errorMessage));
+                }
+                else
+                {
+                    await _mediator.Publish(new InvalidRouteNodeOperation
+                    {
+                        RouteNode = rollbackMessage.After,
+                        Message = errorMessage
+                    });
+                }
+            }
+            else
+            {
+                throw new Exception($"Message of type '{message.GetType()}' is not supported.");
+            }
+        }
+
+        private bool IsOperationEditEventValid(RouteNetworkEditOperationOccuredEvent operationOccuredEvent)
+        {
+            var existingSplittedCmds = operationOccuredEvent.RouteNetworkCommands
+                .Where(x => x.CmdType == nameof(ExistingRouteSegmentSplitted));
+
+            if (existingSplittedCmds.Count() > 0)
+            {
+                foreach (var splittedCmd in existingSplittedCmds)
+                {
+                    var removedEvents = splittedCmd.RouteNetworkEvents
+                        .Where(x => x.EventType == nameof(Events.RouteNetwork.RouteSegmentRemoved));
+                    var routeSegmentAdded = splittedCmd.RouteNetworkEvents
+                        .Where(x => x.EventType == nameof(Events.RouteNetwork.RouteSegmentAdded));
+
+                    if (removedEvents.Count() != 1 || routeSegmentAdded.Count() != 2)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         private async Task HandleRouteNode(RouteNodeMessage routeNodeMessage)
@@ -210,20 +297,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             else
             {
                 await _mediator.Publish(new InvalidRouteSegmentOperation { RouteSegment = routeSegmentMessage.After });
-            }
-        }
-
-        private async Task HandleInvalidMessage(InvalidMessage invalidMessage)
-        {
-            if (invalidMessage.Message is RouteSegmentMessage)
-            {
-                var rollbackMessage = (RouteSegmentMessage)invalidMessage.Message;
-                await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackMessage.Before, "RouteSegment message is invalid."));
-            }
-            if (invalidMessage.Message is RouteNodeMessage)
-            {
-                var rollbackMessage = (RouteNodeMessage)invalidMessage.Message;
-                await _mediator.Publish(new RollbackInvalidRouteNode(rollbackMessage.Before, "RouteNode message is invalid."));
             }
         }
 

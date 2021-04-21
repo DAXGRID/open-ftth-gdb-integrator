@@ -35,20 +35,36 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             _transaction = await connection.BeginTransactionAsync();
         }
 
+        public async Task DisposeTransaction()
+        {
+            if (_transaction != null)
+            {
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
+        }
+
+        public async Task DisposeConnection()
+        {
+            if (_connection != null)
+            {
+                await _connection.DisposeAsync();
+                _connection = null;
+            }
+        }
+
         public async Task Commit()
         {
             await _transaction.CommitAsync();
-            await _transaction.DisposeAsync();
-            await _connection.DisposeAsync();
-            _connection = null;
+            await DisposeTransaction();
+            await DisposeConnection();
         }
 
         public async Task RollbackTransaction()
         {
             await _transaction.RollbackAsync();
-            await _transaction.DisposeAsync();
-            await _connection.DisposeAsync();
-            _connection = null;
+            await DisposeTransaction();
+            await DisposeConnection();
         }
 
         public async Task<RouteNode> GetRouteNodeShadowTable(Guid mrid, bool includeDeleted = false)
