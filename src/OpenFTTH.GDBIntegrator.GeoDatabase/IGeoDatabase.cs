@@ -40,6 +40,8 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase
         Task UpdateRouteSegmentInfosShadowTable(RouteSegment routeSegment);
         Task<string> GetRouteSegmentsSplittedByRouteNode(RouteNode routeNode, RouteSegment intersectingRouteSegment);
         Task BeginTransaction();
+        Task DisposeTransaction();
+        Task DisposeConnection();
         Task Commit();
         Task RollbackTransaction();
     }

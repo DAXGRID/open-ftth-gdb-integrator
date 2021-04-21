@@ -10,6 +10,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
     public class InvalidRouteSegmentOperation : INotification
     {
         public RouteSegment RouteSegment { get; set; }
+        public string Message { get; set; }
     }
 
     public class InvalidRouteSegmentOperationHandler : INotificationHandler<InvalidRouteSegmentOperation>
@@ -25,7 +26,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(InvalidRouteSegmentOperation request, CancellationToken token)
         {
-            _logger.LogWarning($"Deleteting {nameof(RouteSegment)} with mrid '{request.RouteSegment.Mrid}'");
+            _logger.LogWarning($"Deleteting {nameof(RouteSegment)} with mrid '{request.RouteSegment.Mrid}' - Because: {request.Message}");
             await _geoDatabase.DeleteRouteSegment(request.RouteSegment.Mrid);
         }
     }
