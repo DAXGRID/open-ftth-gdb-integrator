@@ -1,8 +1,6 @@
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
-using GraphQL;
-using GraphQL.Client.Http;
-using GraphQL.Client.Serializer.SystemTextJson;
 using Microsoft.Extensions.Options;
 using OpenFTTH.GDBIntegrator.Config;
 
@@ -11,50 +9,26 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Validate
     public class ValidationService : IValidationService
     {
         private readonly ApplicationSetting _applicationSetting;
+        private readonly HttpClient _httpClient;
 
-        public ValidationService(IOptions<ApplicationSetting> applicationSetting)
+        public ValidationService(IOptions<ApplicationSetting> applicationSetting, HttpClient httpClient)
         {
             _applicationSetting = applicationSetting.Value;
-        }
-
-        private class HasRelatedEquipmentResponse
-        {
-            public RouteNetwork RouteNetwork { get; set; }
-        }
-
-        private class RouteNetwork
-        {
-            public RouteElement RouteElement { get; set; }
-        }
-
-        private class RouteElement
-        {
-            public bool HasRelatedEquipment { get; set; }
+            _httpClient = httpClient;
         }
 
         public async Task<bool> HasRelatedEquipment(Guid mrid)
         {
-            var graphQLClient = new GraphQLHttpClient($"{_applicationSetting.ApiGatewayHost}/graphql", new SystemTextJsonSerializer());
+            var response = await _httpClient.GetAsync($"{_applicationSetting.ApiGatewayHost}/api/routenetwork/hasrelatedequipment/{mrid}");
 
-            var hasRelatedEquipmentRquest = new GraphQLRequest
+            if (!response.IsSuccessStatusCode)
             {
-                Query = @"
-                query HasRelatedEquipment($routeElementId: ID!) {
-                  routeNetwork {
-                    routeElement(id: $routeElementId) {
-                      hasRelatedEquipment
-                    }
-                  }
-                }",
-                OperationName = "HasRelatedEquipment",
-                Variables = new
-                {
-                    routeElementId = mrid
-                }
-            };
+                throw new Exception($"Failed to receive has related equipment, received code: {response.StatusCode}");
+            }
 
-            var response = await graphQLClient.SendQueryAsync<HasRelatedEquipmentResponse>(hasRelatedEquipmentRquest);
-            return response.Data.RouteNetwork.RouteElement.HasRelatedEquipment;
+            var result = await response.Content.ReadAsStringAsync();
+
+            return Convert.ToBoolean(result);
         }
     }
 }
