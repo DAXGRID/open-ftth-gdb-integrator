@@ -84,7 +84,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 else if (request.UpdateMessage is RouteSegmentMessage)
                     await HandleRouteSegment((RouteSegmentMessage)request.UpdateMessage);
                 else if (request.UpdateMessage is InvalidMessage)
-                    await Rollback((request.UpdateMessage as InvalidMessage).Message, "Message is invalid.");
+                {
+                    var message = (InvalidMessage)request.UpdateMessage;
+                    // We only do this in very special cases where we cannot rollback
+                    if (message.Delete)
+                    {
+                        await Delete((request.UpdateMessage as InvalidMessage).Message, "Message is invalid and we cannot rollback.");
+                    }
+                    else
+                    {
+                        await RollbackOrDelete((request.UpdateMessage as InvalidMessage).Message, "Message is invalid so we rollback or delete");
+                    }
+                }
 
                 var editOperationOccuredEvent = CreateEditOperationOccuredEvent(request.UpdateMessage);
 
@@ -109,7 +120,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     _logger.LogError($"{nameof(RouteNetworkEditOperationOccuredEvent)} is not valid so we rollback.");
                     await _geoDatabase.RollbackTransaction();
                     await _geoDatabase.BeginTransaction();
-                    await Rollback(request.UpdateMessage, $"Rollback because {nameof(RouteNetworkEditOperationOccuredEvent)} is not valid.");
+                    await RollbackOrDelete(request.UpdateMessage, $"Rollback because {nameof(RouteNetworkEditOperationOccuredEvent)} is not valid.");
                     await _geoDatabase.Commit();
                     _logger.LogInformation($"{nameof(RouteNetworkEditOperationOccuredEvent)} is now rolled rollback.");
                 }
@@ -119,7 +130,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 _logger.LogError($"{e.ToString()}: Rolling back geodatabase transactions");
                 await _geoDatabase.RollbackTransaction();
                 await _geoDatabase.BeginTransaction();
-                await Rollback(request.UpdateMessage, $"Rollback because of exception: {e.Message}");
+                await RollbackOrDelete(request.UpdateMessage, $"Rollback because of exception: {e.Message}");
                 await _geoDatabase.Commit();
             }
             finally
@@ -133,7 +144,33 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             return await Task.FromResult(new Unit());
         }
 
-        private async Task Rollback(object message, string errorMessage)
+        private async Task Delete(object message, string errorMessage)
+        {
+            if (message is RouteSegmentMessage)
+            {
+                var routeSegmentMessage = (RouteSegmentMessage)message;
+                await _mediator.Publish(new InvalidRouteSegmentOperation
+                {
+                    RouteSegment = routeSegmentMessage.After,
+                    Message = errorMessage
+                });
+            }
+            else if (message is RouteNodeMessage)
+            {
+                var routeNodeMessage = (RouteNodeMessage)message;
+                await _mediator.Publish(new InvalidRouteNodeOperation
+                {
+                    RouteNode = routeNodeMessage.After,
+                    Message = errorMessage
+                });
+            }
+            else
+            {
+                throw new Exception($"Message of type '{message.GetType()}' is not supported.");
+            }
+        }
+
+        private async Task RollbackOrDelete(object message, string errorMessage)
         {
             if (message is RouteSegmentMessage)
             {
