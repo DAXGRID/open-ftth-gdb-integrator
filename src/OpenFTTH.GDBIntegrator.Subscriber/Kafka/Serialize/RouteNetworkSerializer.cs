@@ -54,7 +54,16 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                     var routeNodeMessage = (RouteNodeMessage)CreateRouteNodeMessage(payload);
 
                     if (routeNodeMessage?.After != null && routeNodeMessage.After?.Coord is null)
+                    {
+                        // Cannot roll back this should never happen, but we have seen it once.
+                        if (routeNodeMessage?.Before != null && routeNodeMessage.Before?.Coord is null)
+                        {
+                            // In case this happens we delete the node.
+                            return new ReceivedLogicalMessage(message.Headers, new InvalidMessage(routeNodeMessage, true), message.Position);
+                        }
+
                         return new ReceivedLogicalMessage(message.Headers, new InvalidMessage(routeNodeMessage), message.Position);
+                    }
 
                     return new ReceivedLogicalMessage(message.Headers, routeNodeMessage, message.Position);
                 }
