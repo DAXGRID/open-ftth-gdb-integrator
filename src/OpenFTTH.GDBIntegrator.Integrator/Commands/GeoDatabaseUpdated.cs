@@ -90,6 +90,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     if (message.Delete)
                     {
                         await Delete((request.UpdateMessage as InvalidMessage).Message, "Message is invalid and we cannot rollback.");
+                        await _geoDatabase.Commit();
+                        return await Task.FromResult(new Unit());
                     }
                     else
                     {
