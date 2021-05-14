@@ -86,10 +86,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 else if (request.UpdateMessage is InvalidMessage)
                 {
                     var message = (InvalidMessage)request.UpdateMessage;
-                    // We only do this in very special cases where we cannot rollback
                     if (message.Delete)
                     {
-                        await Delete((request.UpdateMessage as InvalidMessage).Message, "Message is invalid and we cannot rollback.");
+                        // We only do this in very special cases where we cannot rollback
+                        await MarkToBeDeleted((request.UpdateMessage as InvalidMessage).Message,
+                                              "Message is invalid and we cannot rollback so we mark it to be deleted.");
                         await _geoDatabase.Commit();
                         return await Task.FromResult(new Unit());
                     }
@@ -146,25 +147,25 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             return await Task.FromResult(new Unit());
         }
 
-        private async Task Delete(object message, string errorMessage)
+        private async Task MarkToBeDeleted(object message, string errorMessage)
         {
             if (message is RouteSegmentMessage)
             {
                 var routeSegmentMessage = (RouteSegmentMessage)message;
-                await _mediator.Publish(new InvalidRouteSegmentOperation
+                if (!routeSegmentMessage.After.MarkAsDeleted)
                 {
-                    RouteSegment = routeSegmentMessage.After,
-                    Message = errorMessage
-                });
+                    _logger.LogError($"RouteSegement with id {routeSegmentMessage.After.Mrid}, error message: {errorMessage}");
+                    await _geoDatabase.MarkDeleteRouteSegment(routeSegmentMessage.After.Mrid);
+                }
             }
             else if (message is RouteNodeMessage)
             {
                 var routeNodeMessage = (RouteNodeMessage)message;
-                await _mediator.Publish(new InvalidRouteNodeOperation
+                if (!routeNodeMessage.After.MarkAsDeleted)
                 {
-                    RouteNode = routeNodeMessage.After,
-                    Message = errorMessage
-                });
+                    _logger.LogError($"RouteNode with id {routeNodeMessage.After.Mrid}, error message: {errorMessage}");
+                    await _geoDatabase.MarkDeleteRouteNode(routeNodeMessage.After.Mrid);
+                }
             }
             else
             {
