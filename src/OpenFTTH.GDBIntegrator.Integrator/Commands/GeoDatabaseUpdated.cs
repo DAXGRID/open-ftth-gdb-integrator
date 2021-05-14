@@ -152,7 +152,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             if (message is RouteSegmentMessage)
             {
                 var routeSegmentMessage = (RouteSegmentMessage)message;
-                if (!routeSegmentMessage.After.MarkAsDeleted)
+
+                // We get this to check if it is deleted it is deleted if it is null
+                var shadowTableSegment = await _geoDatabase.GetRouteSegmentShadowTable(routeSegmentMessage.After.Mrid);
+
+                if (!routeSegmentMessage.After.MarkAsDeleted || shadowTableSegment != null)
                 {
                     _logger.LogError($"RouteSegement with id {routeSegmentMessage.After.Mrid}, error message: {errorMessage}");
                     await _geoDatabase.MarkDeleteRouteSegment(routeSegmentMessage.After.Mrid);
@@ -161,7 +165,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             else if (message is RouteNodeMessage)
             {
                 var routeNodeMessage = (RouteNodeMessage)message;
-                if (!routeNodeMessage.After.MarkAsDeleted)
+
+                // We get this to check if it is deleted it is deleted if it is null
+                var shadowTableNode = await _geoDatabase.GetRouteNodeShadowTable(routeNodeMessage.After.Mrid);
+
+                if (!routeNodeMessage.After.MarkAsDeleted || shadowTableNode != null)
                 {
                     _logger.LogError($"RouteNode with id {routeNodeMessage.After.Mrid}, error message: {errorMessage}");
                     await _geoDatabase.MarkDeleteRouteNode(routeNodeMessage.After.Mrid);
