@@ -74,7 +74,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 throw new ArgumentNullException($"Parameter {nameof(routeNode)} cannot be null");
 
             if (IsCreatedByApplication(routeNode))
-                return new List<INotification> { new DoNothing($"{nameof(RouteNode)} with id: '{routeNode.Mrid}' was created by nothing therefore do nothing.") };
+                return new List<INotification> { new DoNothing($"{nameof(RouteNode)} with id: '{routeNode.Mrid}' was created by {routeNode.ApplicationName} therefore do nothing.") };
 
             await _geoDatabase.InsertRouteNodeShadowTable(routeNode);
 
