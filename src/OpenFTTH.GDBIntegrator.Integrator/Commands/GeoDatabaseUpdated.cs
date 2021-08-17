@@ -2,7 +2,6 @@ using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
-using OpenFTTH.GDBIntegrator.Integrator.Queue;
 using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.Producer;
@@ -26,7 +25,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
     public class GeoDatabaseUpdatedHandler : IRequestHandler<GeoDatabaseUpdated, Unit>
     {
-        private static SemaphoreQueue _pool = new SemaphoreQueue(1, 1);
         private readonly ILogger<GeoDatabaseUpdatedHandler> _logger;
         private readonly IMediator _mediator;
         private readonly IRouteNodeCommandFactory _routeNodeEventFactory;
@@ -75,8 +73,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         {
             try
             {
-                await _pool.WaitAsync();
                 _eventStore.Clear();
+
                 await _geoDatabase.BeginTransaction();
 
                 if (request.UpdateMessage is RouteNodeMessage)
@@ -141,7 +139,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 _eventStore.Clear();
                 await _geoDatabase.DisposeTransaction();
                 await _geoDatabase.DisposeConnection();
-                _pool.Release();
             }
 
             return await Task.FromResult(new Unit());
