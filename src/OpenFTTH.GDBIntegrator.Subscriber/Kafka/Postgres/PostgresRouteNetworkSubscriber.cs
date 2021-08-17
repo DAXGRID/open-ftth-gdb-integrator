@@ -41,7 +41,6 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
                 .Options(x =>
                 {
                     x.SetMinimumBatchSize(1);
-                    x.SetMaximumBatchSize(1);
                 })
                 .Handle(async (messages, context, token) =>
                 {
