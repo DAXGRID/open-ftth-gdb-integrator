@@ -97,9 +97,9 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     FROM route_network_integrator.route_node";
 
             if (!includeDeleted)
-            {
                 query += " WHERE mrid = @mrid AND marked_to_be_deleted = false";
-            }
+            else
+                query += " WHERE mrid = @mrid";
 
             var routeNode = await connection.QueryAsync<RouteNode>(query, new { mrid });
 
@@ -134,9 +134,9 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     FROM route_network_integrator.route_segment";
 
             if (!includeDeleted)
-            {
                 query += " WHERE mrid = @mrid AND marked_to_be_deleted = false";
-            }
+            else
+                query += " WHERE mrid = @mrid";
 
             var routeSegment = await connection.QueryAsync<RouteSegment>(query, new { mrid });
 
