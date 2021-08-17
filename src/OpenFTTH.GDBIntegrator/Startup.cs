@@ -33,7 +33,7 @@ namespace OpenFTTH.GDBIntegrator
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting");
+            _logger.LogInformation("Starting GDB-Integrator");
 
             _migrationRunner.MigrateUp();
 
@@ -47,7 +47,7 @@ namespace OpenFTTH.GDBIntegrator
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Stopping");
+            _logger.LogInformation("Stopping GDB-integrator");
             return Task.CompletedTask;
         }
 
@@ -58,12 +58,10 @@ namespace OpenFTTH.GDBIntegrator
 
         private void OnStarted()
         {
-            _logger.LogInformation("Starting GDB-Integrator");
-
             _logger.LogInformation($"Starting {nameof(IRouteNetworkSubscriber)}");
             _routeNetworkSubscriber.Subscribe();
 
-            _logger.LogInformation("Init producer");
+            _logger.LogInformation("Init kafka producer");
             _producer.Init();
         }
 
@@ -71,7 +69,7 @@ namespace OpenFTTH.GDBIntegrator
         {
             _routeNetworkSubscriber.Dispose();
             _producer.Dispose();
-            _logger.LogInformation("Stopped");
+            _logger.LogInformation("Stopped service");
         }
     }
 }
