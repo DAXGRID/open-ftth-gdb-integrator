@@ -38,7 +38,11 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
                 .Topics(t => t.Subscribe(_kafkaSetting.PostgisRouteNetworkTopic))
                 .Positions(p => p.StoreInFileSystem(_kafkaSetting.PositionFilePath))
                 .Logging(l => l.UseSerilog())
-                .Options(x => x.SetMinimumBatchSize(1))
+                .Options(x =>
+                {
+                    x.SetMinimumBatchSize(1);
+                    x.SetMaximumBatchSize(1);
+                })
                 .Handle(async (messages, context, token) =>
                 {
                     foreach (var message in messages)
