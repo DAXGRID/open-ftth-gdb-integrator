@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,6 +29,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             }
 
             var routeNodeShadowTable = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid, true);
+            if (routeNodeShadowTable is null)
+            {
+                throw new Exception("Could not find {nameof(RouteNode)} in shadowtable with id '{after.Mrid}'");
+            }
 
             if (AlreadyUpdated(after, routeNodeShadowTable))
             {
