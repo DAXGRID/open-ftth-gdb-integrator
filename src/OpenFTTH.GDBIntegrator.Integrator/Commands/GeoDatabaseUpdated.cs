@@ -376,12 +376,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         private bool IsRouteSegmentedDeleted(RouteSegmentMessage routeSegmentMessage)
         {
-            return routeSegmentMessage.Before is null && routeSegmentMessage.After is null;
+            return routeSegmentMessage.After is null;
         }
 
         private bool IsRouteNodeDeleted(RouteNodeMessage routeNodeMessage)
         {
-            return routeNodeMessage.Before is null && routeNodeMessage.After is null;
+            return routeNodeMessage.After is null;
         }
 
         private bool IsNodeNewlyDigitized(RouteNodeMessage routeNodeMessage)
