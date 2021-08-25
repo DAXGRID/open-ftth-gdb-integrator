@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
+using OpenFTTH.GDBIntegrator.Integrator.Validate;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
@@ -41,6 +42,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
         private readonly IRouteNodeEventFactory _routeNodeEventFactory;
         private readonly IRouteSegmentEventFactory _routeSegmentEventFactory;
         private readonly IEventStore _eventStore;
+        private readonly IValidationService _validationService;
 
         public RouteSegmentConnectivityChangedHandler(
             ILogger<RouteSegmentConnectivityChangedHandler> logger,
@@ -51,7 +53,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             IRouteSegmentFactory routeSegmentFactory,
             IRouteNodeEventFactory routeNodeEventFactory,
             IRouteSegmentEventFactory routeSegmentEventFactory,
-            IEventStore eventStore)
+            IEventStore eventStore,
+            IValidationService validationService = null)
         {
             _logger = logger;
             _kafkaSettings = kafkaSettings.Value;
@@ -62,6 +65,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _routeNodeEventFactory = routeNodeEventFactory;
             _routeSegmentEventFactory = routeSegmentEventFactory;
             _eventStore = eventStore;
+            _validationService = validationService;
         }
 
         public async Task Handle(RouteSegmentConnectivityChanged request, CancellationToken token)
@@ -116,8 +120,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             var beforeStartNode = (await _geoDatabase.GetIntersectingStartRouteNodes(request.Before)).FirstOrDefault();
             var beforeEndNode = (await _geoDatabase.GetIntersectingEndRouteNodes(request.Before)).FirstOrDefault();
-            var isBeforeStartNodeDeleteable = await IsDeleteable(beforeStartNode);
-            var isBeforeEndNodeDeletable = await IsDeleteable(beforeEndNode);
+            var isBeforeStartNodeDeleteable = await IsRouteNodeDeleteable(beforeStartNode);
+            var isBeforeEndNodeDeletable = await IsRouteNodeDeleteable(beforeEndNode);
 
             if (isBeforeStartNodeDeleteable)
             {
@@ -136,8 +140,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
             _eventStore.Insert(routeSegmentConnectivityChangedEvent);
         }
 
-        private async Task<bool> IsDeleteable(RouteNode routeNode)
+        private async Task<bool> IsRouteNodeDeleteable(RouteNode routeNode)
         {
+            var hasRelatedEquipment = true;
+            try
+            {
+                hasRelatedEquipment = await _validationService.HasRelatedEquipment(routeNode.Mrid);
+            }
+            catch
+            {
+                _logger.LogWarning($"Could not reach validation service, so we do not delete the RouteNode with mrid '{routeNode.Mrid}'");
+            }
+
             var intersectingStartRouteSegments = await _geoDatabase.GetIntersectingStartRouteSegments(routeNode);
             var intersectingEndRouteSegments = await _geoDatabase.GetIntersectingEndRouteSegments(routeNode);
 
@@ -145,7 +159,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             return routeNode.RouteNodeInfo?.Kind == null
                 && String.IsNullOrEmpty(routeNode.NamingInfo?.Name)
-                && intersectingRouteSegmentsCount == 0;
+                && intersectingRouteSegmentsCount == 0
+                && !hasRelatedEquipment;
         }
 
         private async Task<RouteNodeMarkedForDeletion> MarkDeleteRouteNode(RouteNode routeNode)
