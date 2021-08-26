@@ -313,7 +313,29 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         public async Task<List<RouteSegment>> GetIntersectingRouteSegments(byte[] coordinates)
         {
             var connection = GetNpgsqlConnection();
-            var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_segment
+            var query = @"SELECT
+                    ST_AsBinary(coord) AS coord,
+                    mrid,
+                    work_task_mrid AS workTaskMrid,
+                    user_name AS username,
+                    application_name AS applicationName,
+                    application_info AS applicationInfo,
+                    mapping_method AS mappingMethod,
+                    mapping_vertical_accuracy AS mappingVerticalAccuracy,
+                    mapping_horizontal_accuracy AS mappingHorizontalAccuracy,
+                    mapping_source_info AS mappingSourceInfo,
+                    mapping_survey_date AS mappingSurveyDate,
+                    lifecycle_deployment_state AS lifeCycleDeploymentState,
+                    lifecycle_installation_date AS lifeCycleInstallationDate,
+                    lifecycle_removal_date AS lifeCycleRemovalDate,
+                    naming_name AS namingName,
+                    naming_description AS namingDescription,
+                    routesegment_height AS routeSegmentHeight,
+                    routeSegment_kind AS routeSegmentKind,
+                    routesegment_width AS routeSegmentWidth,
+                    safety_classification AS safetyClassification,
+                    safety_remark AS safetyRemark
+                    FROM route_network_integrator.route_segment
                     WHERE ST_Intersects(
                       ST_Buffer(
                         ST_GeomFromWKB(@coordinates, 25832),
@@ -321,9 +343,58 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                       ),
                       coord) AND marked_to_be_deleted = false";
 
-            var result = await connection.QueryAsync<RouteSegment>(query, new { coordinates, tolerance = _applicationSettings.Tolerance });
+            var routeSegments = (await connection.QueryAsync<RouteSegmentQueryModel>(query, new { coordinates, tolerance = _applicationSettings.Tolerance }))
+                .Select(x => new RouteSegment
+                {
+                    ApplicationInfo = x.ApplicationInfo,
+                    ApplicationName = x.ApplicationName,
+                    Coord = x.Coord,
+                    Mrid = x.Mrid,
+                    Username = x.Username,
+                    WorkTaskMrid = x.WorkTaskMrid,
+                    MappingInfo = new MappingInfo
+                    {
+                        HorizontalAccuracy = x.MappingHoritzontalAccuracy,
+                        Method = _infoMapper.MapMappingMethod(x.MappingMethod),
+                        SourceInfo = x.MappingSourceInfo,
+                        SurveyDate = x.MappingSurveyDate,
+                        VerticalAccuracy = x.MappingVerticalAccuracy
+                    },
+                    LifeCycleInfo = new LifecycleInfo
+                    {
+                        DeploymentState = _infoMapper.MapDeploymentState(x.LifeCycleDeploymentState),
+                        InstallationDate = x.LifeCycleInstallationDate,
+                        RemovalDate = x.LifeCycleRemovalDate
+                    },
+                    NamingInfo = new NamingInfo
+                    {
+                        Description = x.NamingDescription,
+                        Name = x.NamingName
+                    },
+                    RouteSegmentInfo = new RouteSegmentInfo
+                    {
+                        Height = x.RouteSegmentHeight,
+                        Kind = _infoMapper.MapRouteSegmentKind(x.RouteSegmentKind),
+                        Width = x.RouteSegmentWidth
+                    },
+                    SafetyInfo = new SafetyInfo
+                    {
+                        Classification = x.SafetyClassification,
+                        Remark = x.SafetyRemark
+                    }
+                }).ToList();
 
-            return result.AsList();
+            foreach (var routeSegment in routeSegments)
+            {
+                // Make fully empty objects into nulls.
+                routeSegment.LifeCycleInfo = AreAnyPropertiesNotNull<LifecycleInfo>(routeSegment.LifeCycleInfo) ? routeSegment.LifeCycleInfo : null;
+                routeSegment.MappingInfo = AreAnyPropertiesNotNull<MappingInfo>(routeSegment.MappingInfo) ? routeSegment.MappingInfo : null;
+                routeSegment.NamingInfo = AreAnyPropertiesNotNull<NamingInfo>(routeSegment.NamingInfo) ? routeSegment.NamingInfo : null;
+                routeSegment.RouteSegmentInfo = AreAnyPropertiesNotNull<RouteSegmentInfo>(routeSegment.RouteSegmentInfo) ? routeSegment.RouteSegmentInfo : null;
+                routeSegment.SafetyInfo = AreAnyPropertiesNotNull<SafetyInfo>(routeSegment.SafetyInfo) ? routeSegment.SafetyInfo : null;
+            }
+
+            return routeSegments;
         }
 
         public async Task<List<RouteSegment>> GetIntersectingRouteSegments(RouteNode routeNode, RouteSegment notInclude)
