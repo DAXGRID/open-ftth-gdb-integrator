@@ -40,7 +40,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
                 .Topics(t => t.Subscribe(_kafkaSetting.PostgisRouteNetworkTopic))
                 .Positions(p => p.StoreInPostgreSql(
                                $"Host={_postgisSetting.Host};Port={_postgisSetting.Port};Username={_postgisSetting.Username};Password={_postgisSetting.Password};Database={_postgisSetting.Database}",
-                               "gdb-integrator-consumer"))
+                               _kafkaSetting.PostgisRouteNetworkConsumer))
                 .Logging(l => l.UseSerilog())
                 .Options(x =>
                 {
