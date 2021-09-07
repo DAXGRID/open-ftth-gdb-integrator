@@ -16,18 +16,20 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
     {
         private IDisposable _consumer;
         private readonly KafkaSetting _kafkaSetting;
+        private readonly PostgisSetting _postgisSetting;
         private readonly IMediator _mediator;
         private readonly ILogger<PostgresRouteNetworkSubscriber> _logger;
 
         public PostgresRouteNetworkSubscriber(
             IOptions<KafkaSetting> kafkaSetting,
+            IOptions<PostgisSetting> postgisSetting,
             IMediator mediator,
-            ILogger<PostgresRouteNetworkSubscriber> logger
-            )
+            ILogger<PostgresRouteNetworkSubscriber> logger)
         {
             _kafkaSetting = kafkaSetting.Value;
             _mediator = mediator;
             _logger = logger;
+            _postgisSetting = postgisSetting.Value;
         }
 
         public void Subscribe()
@@ -36,7 +38,9 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
                 .Consumer(_kafkaSetting.PostgisRouteNetworkConsumer, c => c.UseKafka(_kafkaSetting.Server))
                 .Serialization(s => s.RouteNetwork())
                 .Topics(t => t.Subscribe(_kafkaSetting.PostgisRouteNetworkTopic))
-                .Positions(p => p.StoreInFileSystem(_kafkaSetting.PositionFilePath))
+                .Positions(p => p.StoreInPostgreSql(
+                               $"Host={_postgisSetting.Host};Port={_postgisSetting.Port};Username={_postgisSetting.Username};Password={_postgisSetting.Password};Database={_postgisSetting.Database}",
+                               "gdb-integrator-consumer"))
                 .Logging(l => l.UseSerilog())
                 .Options(x =>
                 {
