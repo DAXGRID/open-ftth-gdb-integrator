@@ -60,7 +60,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (intersectingStartNodes.Count >= 2 || intersectingEndNodes.Count >= 2)
                 return new List<INotification> { new RollbackInvalidRouteSegment(before, "Has more than 2 intersecting start or end nodes.") };
 
-            if (await IsGeometryChanged(intersectingStartNodes.FirstOrDefault(), intersectingEndNodes.FirstOrDefault(), before))
+            if (await IsGeometryChanged(intersectingStartNodes.FirstOrDefault(), intersectingEndNodes.FirstOrDefault(), routeSegmentShadowTableBeforeUpdate))
             {
                 var events = new List<INotification>();
                 events.Add(new RouteSegmentLocationChanged { RouteSegment = after });
