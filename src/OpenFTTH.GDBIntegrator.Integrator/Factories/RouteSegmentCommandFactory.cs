@@ -60,7 +60,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (intersectingStartNodes.Count >= 2 || intersectingEndNodes.Count >= 2)
                 return new List<INotification> { new RollbackInvalidRouteSegment(before, "Has more than 2 intersecting start or end nodes.") };
 
-            if (await IsGeometryChanged(intersectingStartNodes.FirstOrDefault(), intersectingEndNodes.FirstOrDefault(), before))
+            if (await IsGeometryChanged(intersectingStartNodes.FirstOrDefault(), intersectingEndNodes.FirstOrDefault(), routeSegmentShadowTableBeforeUpdate))
             {
                 var events = new List<INotification>();
                 events.Add(new RouteSegmentLocationChanged { RouteSegment = after });
@@ -91,8 +91,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (startNode is null || endNode is null)
                 return false;
 
-            var previousStartNode = (await _geoDatabase.GetIntersectingStartRouteNodes(before.Coord)).First();
-            var previousEndNode = (await _geoDatabase.GetIntersectingEndRouteNodes(before.Coord)).First();
+            var shadowTableSegment = await _geoDatabase.GetRouteSegmentShadowTable(before.Mrid);
+            var previousStartNode = (await _geoDatabase.GetIntersectingStartRouteNodes(shadowTableSegment.Coord)).First();
+            var previousEndNode = (await _geoDatabase.GetIntersectingEndRouteNodes(shadowTableSegment.Coord)).First();
 
             var routeSegmentHasSameStartRouteNode = startNode.Mrid == previousStartNode.Mrid;
             var routeSegmentHasSameEndRouteNode = endNode.Mrid == previousEndNode.Mrid;
