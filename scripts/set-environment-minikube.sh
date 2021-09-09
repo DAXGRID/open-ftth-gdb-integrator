@@ -19,7 +19,7 @@ export POSTGIS__PASSWORD="postgres"
 # Kafka
 export KAFKA__SERVER=$(minikube ip):$(kubectl describe service openftth-kafka-cluster-kafka-external-bootstrap -n openftth | grep NodePort | grep -o '[0-9]\+')
 export KAFKA__POSTGISROUTENETWORKTOPIC="postgres-connector.route-network"
-export KAFKA__POSTGISROUTENETWORKCONSUMER="postgis-route-network-consumer"
+export KAFKA__POSTGISROUTENETWORKCONSUMER="postgres-connector-gdb-integrator-consumer"
 export KAFKA__EVENTROUTENETWORKTOPICNAME="domain.route-network"
 export KAFKA__EVENTGEOGRAPHICALAREAUPDATED="notification.geographical-area-updated"
 
