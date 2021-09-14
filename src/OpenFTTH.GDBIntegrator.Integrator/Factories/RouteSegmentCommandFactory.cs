@@ -86,14 +86,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return notifications;
         }
 
-        public async Task<bool> IsGeometryChanged(RouteNode startNode, RouteNode endNode, RouteSegment before)
+        public async Task<bool> IsGeometryChanged(RouteNode startNode, RouteNode endNode, RouteSegment beforeShadowTable)
         {
             if (startNode is null || endNode is null)
                 return false;
 
-            var shadowTableSegment = await _geoDatabase.GetRouteSegmentShadowTable(before.Mrid);
-            var previousStartNode = (await _geoDatabase.GetIntersectingStartRouteNodes(shadowTableSegment.Coord)).First();
-            var previousEndNode = (await _geoDatabase.GetIntersectingEndRouteNodes(shadowTableSegment.Coord)).First();
+            var previousStartNode = (await _geoDatabase.GetIntersectingStartRouteNodes(beforeShadowTable.Coord)).First();
+            var previousEndNode = (await _geoDatabase.GetIntersectingEndRouteNodes(beforeShadowTable.Coord)).First();
 
             var routeSegmentHasSameStartRouteNode = startNode.Mrid == previousStartNode.Mrid;
             var routeSegmentHasSameEndRouteNode = endNode.Mrid == previousEndNode.Mrid;
