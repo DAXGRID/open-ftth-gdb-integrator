@@ -15,7 +15,7 @@ tasks:
      - dotnet restore
   start:
     cmds:
-     - dotnet run -p src/OpenFTTH.GDBIntegrator/OpenFTTH.GDBIntegrator.csproj
+     - dotnet run --project src/OpenFTTH.GDBIntegrator/OpenFTTH.GDBIntegrator.csproj
   test:
     cmds:
      - dotnet test
