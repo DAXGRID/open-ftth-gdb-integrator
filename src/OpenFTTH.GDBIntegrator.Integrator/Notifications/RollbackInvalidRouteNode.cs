@@ -9,17 +9,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
     public class RollbackInvalidRouteNode : INotification
     {
-        public RouteNode RollbackToNode { get; }
+        public RouteNode FailedRouteNode { get; }
         public string Message { get; }
 
         public RollbackInvalidRouteNode(RouteNode rollbackToNode)
         {
-            RollbackToNode = rollbackToNode;
+            FailedRouteNode = rollbackToNode;
         }
 
-        public RollbackInvalidRouteNode(RouteNode rollbackToNode, string message)
+        public RollbackInvalidRouteNode(RouteNode failedRouteNode, string message)
         {
-            RollbackToNode = rollbackToNode;
+            FailedRouteNode = failedRouteNode;
             Message = message;
         }
     }
@@ -37,8 +37,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(RollbackInvalidRouteNode request, CancellationToken token)
         {
-            _logger.LogWarning($"Rollbacks invalid {nameof(RouteNode)} with id: '{request.RollbackToNode.Mrid}'. {request.Message}");
-            await _geoDatabase.UpdateRouteNode(request.RollbackToNode);
+            _logger.LogWarning($"Rollbacks invalid {nameof(RouteNode)} with id: '{request.FailedRouteNode.Mrid}'. {request.Message}");
+            var rollbackRouteNode = await _geoDatabase.GetRouteNodeShadowTable(request.FailedRouteNode.Mrid);
+            await _geoDatabase.UpdateRouteNode(rollbackRouteNode);
         }
     }
 }
