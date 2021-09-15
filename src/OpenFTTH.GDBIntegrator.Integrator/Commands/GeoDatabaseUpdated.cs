@@ -185,7 +185,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 var rollbackMessage = (RouteSegmentMessage)message;
                 if (rollbackMessage.Before != null)
                 {
-                    await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackMessage.Before, errorMessage));
+                    var rollbackSegment = await _geoDatabase.GetRouteSegmentShadowTable(rollbackMessage.After.Mrid);
+                    await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackSegment, errorMessage));
                 }
                 else
                 {
@@ -201,7 +202,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 var rollbackMessage = (RouteNodeMessage)message;
                 if (rollbackMessage.Before != null)
                 {
-                    await _mediator.Publish(new RollbackInvalidRouteNode(rollbackMessage.Before, errorMessage));
+                    var rollbackNode = await _geoDatabase.GetRouteNodeShadowTable(rollbackMessage.After.Mrid);
+                    await _mediator.Publish(new RollbackInvalidRouteNode(rollbackNode, errorMessage));
                 }
                 else
                 {
@@ -271,8 +273,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     var hasRelatedEquipment = await _validationService.HasRelatedEquipment(routeNodeMessage.After.Mrid);
                     if (hasRelatedEquipment)
                     {
-                        await _mediator.Publish(new RollbackInvalidRouteNode(routeNodeMessage.Before, "Rollback route node since it has related equipment."));
-                        return;
+                        throw new Exception("Cannot update route node since it has related equipment.");
                     }
                 }
 
@@ -322,8 +323,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     var hasRelatedEquipment = await _validationService.HasRelatedEquipment(routeSegmentMessage.After.Mrid);
                     if (hasRelatedEquipment)
                     {
-                        await _mediator.Publish(new RollbackInvalidRouteSegment(routeSegmentMessage.Before, "Rollback route segment since it has related equipment."));
-                        return;
+                        throw new Exception("Cannot update route segment since it has related equipment.");
                     }
                 }
 

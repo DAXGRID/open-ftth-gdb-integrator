@@ -117,11 +117,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return true;
         }
 
-        private async Task RollbackInvalidOperation(RouteNode rollbackToNode)
-        {
-            await _geoDatabase.UpdateRouteNode(rollbackToNode);
-        }
-
         private bool AlreadyUpdated(RouteNode routeNode, RouteNode integratorRouteNode)
         {
             return routeNode.MarkAsDeleted == integratorRouteNode.MarkAsDeleted && routeNode.GetGeoJsonCoordinate() == integratorRouteNode.GetGeoJsonCoordinate();
