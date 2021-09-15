@@ -24,8 +24,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (before is null || after is null)
             {
-                notifications.Add(new RollbackInvalidRouteSegment(before, "Before or after is null."));
-                return notifications;
+                throw new Exception("Invalid route segment update, before or after is null.");
             }
 
             var routeSegmentShadowTable = await _geoDatabase.GetRouteSegmentShadowTable(after.Mrid, true);

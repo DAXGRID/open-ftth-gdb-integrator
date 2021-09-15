@@ -535,7 +535,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task CreateUpdatedEvent_ShouldReturnRollbackSegment_OnGeometryBeingInvalid()
+        public async Task CreateUpdatedEvent_ShouldThrowException_OnGeometryBeingInvalid()
         {
             var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
@@ -559,11 +559,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
-            var result = (await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter)).First();
+            Func<Task> act = async () => await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter);
 
-            var expected = new RollbackInvalidRouteSegment(routeSegmentBefore, "Linestring is not valid.");
-
-            result.Should().BeEquivalentTo(expected);
+            await act.Should().ThrowExactlyAsync<Exception>("Linestring is not valid.");
         }
 
         [Fact]
@@ -735,7 +733,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task CreateUpdatedEvent_ShouldReturnInvalidRouteSegmentOperation_OnStartRouteNodeCountBeingTwoOrMore()
+        public async Task CreateUpdatedEvent_ShouldThrowException_OnStartRouteNodeCountBeingTwoOrMore()
         {
             var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
@@ -759,19 +757,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
-            var result = await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter);
+            Func<Task> act = async () => await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter);
 
-            var expectedEvent = new RollbackInvalidRouteSegment(routeSegmentBefore, "Has more than 2 intersecting start or end nodes.");
-
-            using (var scope = new AssertionScope())
-            {
-                result.Count().Should().Be(1);
-                result.First().Should().BeEquivalentTo(expectedEvent);
-            }
+            await act.Should().ThrowExactlyAsync<Exception>("Has more than 2 intersecting start or end nodes.");
         }
 
         [Fact]
-        public async Task CreateUpdatedEvent_ShouldReturnInvalidRouteSegmentOperation_OnEndRouteNodeCountBeingTwoOrMore()
+        public async Task CreateUpdatedEvent_ShouldThrowException_OnEndRouteNodeCountBeingTwoOrMore()
         {
             var applicationSettings = A.Fake<IOptions<ApplicationSetting>>();
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
@@ -795,15 +787,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
-            var result = await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter);
+            Func<Task> act = async () => await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter);
 
-            var expectedEvent = new RollbackInvalidRouteSegment(routeSegmentBefore, "Has more than 2 intersecting start or end nodes.");
-
-            using (var scope = new AssertionScope())
-            {
-                result.Count().Should().Be(1);
-                result.First().Should().BeEquivalentTo(expectedEvent);
-            }
+            await act.Should().ThrowExactlyAsync<Exception>("Has more than 2 intersecting start or end nodes.");
         }
     }
 }

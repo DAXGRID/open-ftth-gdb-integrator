@@ -44,7 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return new List<INotification> { new DoNothing($"{nameof(RouteSegment)} is already updated, therefore do nothing.") };
 
             if (!_routeSegmentValidator.LineIsValid(after.GetLineString()))
-                return new List<INotification> { new RollbackInvalidRouteSegment(before, "Linestring is not valid.") };
+                throw new Exception("Linestring is not valid.");
 
             await _geoDatabase.UpdateRouteSegmentShadowTable(after);
 
@@ -58,7 +58,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var allIntersectingRouteNodesNoEdges = await _geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(after);
 
             if (intersectingStartNodes.Count >= 2 || intersectingEndNodes.Count >= 2)
-                return new List<INotification> { new RollbackInvalidRouteSegment(before, "Has more than 2 intersecting start or end nodes.") };
+                throw new Exception("Has more than 2 intersecting start or end nodes.");
 
             if (await IsGeometryChanged(intersectingStartNodes.FirstOrDefault(), intersectingEndNodes.FirstOrDefault(), routeSegmentShadowTableBeforeUpdate))
             {

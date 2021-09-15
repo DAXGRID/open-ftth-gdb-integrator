@@ -16,22 +16,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
     public class RouteSegmentInfoCommandFactoryTest
     {
         [Fact]
-        public async Task Create_ShouldReturnRollBackInvalidRouteSegment_OnAfterBeingNull()
+        public async Task Create_ShouldThrowException_OnAfterBeingNull()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             var before = new RouteSegment();
             RouteSegment after = null;
 
             var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
-            var result = await factory.Create(before, after);
 
-            var rollbackEvent = (RollbackInvalidRouteSegment)result.First();
+            Func<Task> act = async () => await factory.Create(before, after);
 
-            using (var scope = new AssertionScope())
-            {
-                result.Count().Should().Be(1);
-                rollbackEvent.Should().BeOfType(typeof(RollbackInvalidRouteSegment));
-            }
+            await act.Should().ThrowExactlyAsync<Exception>("Invalid route segment update, before or after is null.");
         }
 
         [Fact]
@@ -42,15 +37,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var after = new RouteSegment();
 
             var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
-            var result = await factory.Create(before, after);
 
-            var rollbackEvent = (RollbackInvalidRouteSegment)result.First();
+            Func<Task> act = async () => await factory.Create(before, after);
 
-            using (var scope = new AssertionScope())
-            {
-                result.Count().Should().Be(1);
-                rollbackEvent.Should().BeOfType(typeof(RollbackInvalidRouteSegment));
-            }
+            await act.Should().ThrowExactlyAsync<Exception>("Invalid route segment update, before or after is null.");
         }
 
         [Fact]
