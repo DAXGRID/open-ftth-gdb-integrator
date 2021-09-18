@@ -30,7 +30,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var routeSegmentShadowTable = await _geoDatabase.GetRouteSegmentShadowTable(after.Mrid, true);
             if (routeSegmentShadowTable is null)
             {
-                throw new Exception("Could not find {nameof(RouteSegment)} in shadowtable with id '{after.Mrid}'");
+                throw new Exception($"Could not find {nameof(RouteSegment)} in shadowtable with id '{after.Mrid}'");
             }
 
             if (AlreadyUpdated(after, routeSegmentShadowTable))

@@ -30,7 +30,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         }
 
         [Fact]
-        public async Task Create_ShouldReturnRollBackInvalidRouteSegment_OnBeforeBeingNull()
+        public async Task Create_ShouldThrowException_OnBeforeBeingNull()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             RouteSegment before = null;
@@ -41,6 +41,23 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             Func<Task> act = async () => await factory.Create(before, after);
 
             await act.Should().ThrowExactlyAsync<Exception>("Invalid route segment update, before or after is null.");
+        }
+
+        [Fact]
+        public async Task Create_ShouldThrowException_ReturnedGetRouteSegmentShadowTableBeingNull()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            RouteSegment before = null;
+            var after = new RouteSegment();
+
+            A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(after.Mrid, true)).Returns<RouteSegment>(null);
+
+            var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
+
+            Func<Task> act = async () => await factory.Create(before, after);
+
+            await act.Should().ThrowExactlyAsync<Exception>(
+                "Could not find {nameof(RouteSegment)} in shadowtable with id '{after.Mrid}'");
         }
 
         [Fact]
