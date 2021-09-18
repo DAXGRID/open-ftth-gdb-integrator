@@ -105,7 +105,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         }
 
         [Fact]
-        public async Task Create_ShouldRollback_OnBeforeBeingMarkedAsDeleted()
+        public async Task Create_ShouldThrowException_OnBeforeBeingMarkedAsDeleted()
         {
             var routeSegmentId = Guid.NewGuid();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -131,15 +131,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(after.Mrid, true)).Returns(shadowTableSegment);
 
             var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
-            var result = await factory.Create(before, after);
 
-            var rollbackInvalidRouteSegment = (DoNothing)result.First();
+            Func<Task> act = async () => await factory.Create(before, after);
 
-            using (var scope = new AssertionScope())
-            {
-                result.Count().Should().Be(1);
-                rollbackInvalidRouteSegment.Should().BeOfType(typeof(DoNothing));
-            }
+            await act.Should().ThrowExactlyAsync<Exception>(
+                $"Shadowtable {nameof(RouteSegment)} is marked to be deleted, info cannot be updated.");
         }
 
         [Fact]
