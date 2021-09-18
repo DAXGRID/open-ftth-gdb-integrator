@@ -33,18 +33,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 throw new Exception($"Could not find {nameof(RouteSegment)} in shadowtable with id '{after.Mrid}'");
             }
 
-            if (routeSegmentShadowTable.MarkAsDeleted)
-            {
-                notifications.Add(
-                    new DoNothing($"{nameof(RouteSegment)} shadowtable is marked as deleted therefore do nothing."));
-                return notifications;
-            }
-
             if (AlreadyUpdated(after, routeSegmentShadowTable))
             {
                 notifications.Add(
                     new DoNothing($"{nameof(RouteSegment)} is already updated, therefore do nothing."));
                 return notifications;
+            }
+
+            if (routeSegmentShadowTable.MarkAsDeleted)
+            {
+                throw new Exception(
+                    $"Shadowtable {nameof(RouteSegment)} is marked to be deleted, info cannot be updated.");
             }
 
             if (IsRouteSegmentInfoModified(before, after))

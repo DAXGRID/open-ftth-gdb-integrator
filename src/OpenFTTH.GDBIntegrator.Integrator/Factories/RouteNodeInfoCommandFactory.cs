@@ -33,15 +33,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 throw new Exception($"Could not find {nameof(RouteNode)} in shadowtable with id '{after.Mrid}'");
             }
 
-            if (routeNodeShadowTable.MarkAsDeleted)
-            {
-                throw new Exception("Shadowtable route node is marked to be deleted, info cannot be updated.");
-            }
-
             if (AlreadyUpdated(after, routeNodeShadowTable))
             {
                 notifications.Add(new DoNothing($"{nameof(RouteNode)} is already updated, therefore do nothing."));
                 return notifications;
+            }
+
+            if (routeNodeShadowTable.MarkAsDeleted)
+            {
+                throw new Exception("Shadowtable route node is marked to be deleted, info cannot be updated.");
             }
 
             if (IsRouteNodeInfoUpdated(before, after))
