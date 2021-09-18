@@ -17,42 +17,70 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
     public class RouteNodeInfoCommandFactoryTest
     {
         [Fact]
-        public async Task Create_ShouldReturnRollBackInvalidRouteNode_OnAfterBeingNull()
+        public async Task Create_ShouldThrowException_OnAfterBeingNull()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             var before = new RouteNode();
             RouteNode after = null;
 
             var factory = new RouteNodeInfoCommandFactory(geoDatabase);
-            var result = await factory.Create(before, after);
 
-            var rollbackEvent = (RollbackInvalidRouteNode)result.First();
+            Func<Task> act = async () => await factory.Create(before, after);
 
-            using (var scope = new AssertionScope())
-            {
-                result.Count().Should().Be(1);
-                rollbackEvent.Should().BeOfType(typeof(RollbackInvalidRouteNode));
-            }
+            await act.Should().ThrowExactlyAsync<Exception>("Before or after route node is null.");
         }
 
         [Fact]
-        public async Task Create_ShouldReturnRollBackInvalidRouteNode_OnBeforeBeingNull()
+        public async Task Create_ShouldThrowException_OnBeforeBeingNull()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             RouteNode before = null;
             RouteNode after = new RouteNode();
 
             var factory = new RouteNodeInfoCommandFactory(geoDatabase);
-            var result = await factory.Create(before, after);
 
-            var rollbackEvent = (RollbackInvalidRouteNode)result.First();
+            Func<Task> act = async () => await factory.Create(before, after);
 
-            using (var scope = new AssertionScope())
-            {
-                result.Count().Should().Be(1);
-                rollbackEvent.Should().BeOfType(typeof(RollbackInvalidRouteNode));
-            }
+            await act.Should().ThrowExactlyAsync<Exception>("Before or after route node is null.");
         }
+
+        [Fact]
+        public async Task Create_ShouldThrowException_OnReturnedGetRouteNodeShadowTableBeingNull()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            RouteNode before = null;
+            RouteNode after = new RouteNode();
+
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(after.Mrid, true)).Returns<RouteNode>(null);
+
+            var factory = new RouteNodeInfoCommandFactory(geoDatabase);
+            Func<Task> act = async () => await factory.Create(before, after);
+
+            await act.Should().ThrowExactlyAsync<Exception>
+                ($"Could not find {nameof(RouteNode)} in shadowtable with id '{after.Mrid}'");
+        }
+
+        [Fact]
+        public async Task Create_ShouldThrowException_OnReturnedRouteNodeShadowTableBeingDeleted()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            RouteNode before = null;
+            RouteNode after = new RouteNode();
+            var shadowTableSegment = new RouteNode
+            {
+                Mrid = Guid.NewGuid(),
+                MarkAsDeleted = true
+            };
+
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(after.Mrid, true)).Returns<RouteNode>(shadowTableSegment);
+
+            var factory = new RouteNodeInfoCommandFactory(geoDatabase);
+            Func<Task> act = async () => await factory.Create(before, after);
+
+            await act.Should().ThrowExactlyAsync<Exception>
+                ("Shadowtable route node is marked to be deleted, info cannot be updated.");
+        }
+
 
         [Fact]
         public async Task Create_ShouldReturnDoNothing_OnShadowTableRouteNodeBeingEqToAfter()
@@ -75,7 +103,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                     Kind = RouteNodeKindEnum.CabinetBig
                 }
             };
-            var shadowTableSegment = new RouteNode
+            var shadowTableRouteNode = new RouteNode
             {
                 Mrid = routeNodeId,
                 RouteNodeInfo = new RouteNodeInfo
@@ -84,7 +112,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 }
             };
 
-            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(after.Mrid, true)).Returns(shadowTableSegment);
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(after.Mrid, true)).Returns(shadowTableRouteNode);
 
             var factory = new RouteNodeInfoCommandFactory(geoDatabase);
             var result = await factory.Create(before, after);
@@ -125,15 +153,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(after.Mrid, true)).Returns(shadowTableSegment);
 
             var factory = new RouteNodeInfoCommandFactory(geoDatabase);
-            var result = await factory.Create(before, after);
 
-            var rollbackInvalidRouteSegment = (RollbackInvalidRouteNode)result.First();
+            Func<Task> act = async () => await factory.Create(before, after);
 
-            using (var scope = new AssertionScope())
-            {
-                result.Count().Should().Be(1);
-                rollbackInvalidRouteSegment.Should().BeOfType(typeof(RollbackInvalidRouteNode));
-            }
+            await act.Should().ThrowExactlyAsync<Exception>("Shadowtable route node is marked to be deleted, info cannot be updated.");
         }
 
         [Fact]
