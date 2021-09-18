@@ -45,6 +45,44 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
+        public async Task Create_ShouldThrowException_OnReturnedGetRouteNodeShadowTableBeingNull()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            RouteNode before = null;
+            RouteNode after = new RouteNode();
+
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(after.Mrid, true)).Returns<RouteNode>(null);
+
+            var factory = new RouteNodeInfoCommandFactory(geoDatabase);
+            Func<Task> act = async () => await factory.Create(before, after);
+
+            await act.Should().ThrowExactlyAsync<Exception>
+                ($"Could not find {nameof(RouteNode)} in shadowtable with id '{after.Mrid}'");
+        }
+
+        [Fact]
+        public async Task Create_ShouldThrowException_OnReturnedRouteNodeShadowTableBeingDeleted()
+        {
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            RouteNode before = null;
+            RouteNode after = new RouteNode();
+            var shadowTableSegment = new RouteNode
+            {
+                Mrid = Guid.NewGuid(),
+                MarkAsDeleted = true
+            };
+
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(after.Mrid, true)).Returns<RouteNode>(shadowTableSegment);
+
+            var factory = new RouteNodeInfoCommandFactory(geoDatabase);
+            Func<Task> act = async () => await factory.Create(before, after);
+
+            await act.Should().ThrowExactlyAsync<Exception>
+                ("Shadowtable route node is marked to be deleted, info cannot be updated.");
+        }
+
+
+        [Fact]
         public async Task Create_ShouldReturnDoNothing_OnShadowTableRouteNodeBeingEqToAfter()
         {
             var routeNodeId = Guid.NewGuid();
@@ -65,7 +103,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                     Kind = RouteNodeKindEnum.CabinetBig
                 }
             };
-            var shadowTableSegment = new RouteNode
+            var shadowTableRouteNode = new RouteNode
             {
                 Mrid = routeNodeId,
                 RouteNodeInfo = new RouteNodeInfo
@@ -74,7 +112,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 }
             };
 
-            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(after.Mrid, true)).Returns(shadowTableSegment);
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(after.Mrid, true)).Returns(shadowTableRouteNode);
 
             var factory = new RouteNodeInfoCommandFactory(geoDatabase);
             var result = await factory.Create(before, after);

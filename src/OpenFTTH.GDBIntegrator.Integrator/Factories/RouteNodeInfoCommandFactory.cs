@@ -30,18 +30,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var routeNodeShadowTable = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid, true);
             if (routeNodeShadowTable is null)
             {
-                throw new Exception("Could not find {nameof(RouteNode)} in shadowtable with id '{after.Mrid}'");
+                throw new Exception($"Could not find {nameof(RouteNode)} in shadowtable with id '{after.Mrid}'");
+            }
+
+            if (routeNodeShadowTable.MarkAsDeleted)
+            {
+                throw new Exception("Shadowtable route node is marked to be deleted, info cannot be updated.");
             }
 
             if (AlreadyUpdated(after, routeNodeShadowTable))
             {
                 notifications.Add(new DoNothing($"{nameof(RouteNode)} is already updated, therefore do nothing."));
                 return notifications;
-            }
-
-            if (routeNodeShadowTable.MarkAsDeleted)
-            {
-                throw new Exception("Shadowtable route node is marked to be deleted, info cannot be updated.");
             }
 
             if (IsRouteNodeInfoUpdated(before, after))
