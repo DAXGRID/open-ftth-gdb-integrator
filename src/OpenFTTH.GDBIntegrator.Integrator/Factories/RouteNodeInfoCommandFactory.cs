@@ -24,8 +24,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (before is null || after is null)
             {
-                notifications.Add(new RollbackInvalidRouteNode(before, "Before or after is null."));
-                return notifications;
+                throw new Exception("Before or after route node is null.");
             }
 
             var routeNodeShadowTable = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid, true);
@@ -42,8 +41,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (routeNodeShadowTable.MarkAsDeleted)
             {
-                notifications.Add(new RollbackInvalidRouteNode(before, "Shadowtable is marked to be deleted."));
-                return notifications;
+                throw new Exception("Shadowtable route node is marked to be deleted, info cannot be updated.");
             }
 
             if (IsRouteNodeInfoUpdated(before, after))
