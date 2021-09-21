@@ -74,26 +74,26 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             var query = @"SELECT
                     ST_AsBinary(coord) AS coord,
                     mrid,
-                    work_task_mrid,
-                    user_name,
-                    application_name,
-                    application_info,
-                    marked_to_be_deleted,
-                    delete_me,
-                    lifecycle_deployment_state,
-                    lifecycle_installation_date,
-                    lifecycle_removal_date,
-                    mapping_method,
-                    mapping_vertical_accuracy,
-                    mapping_horizontal_accuracy,
-                    mapping_source_info,
-                    mapping_survey_date,
-                    safety_classification,
-                    safety_remark,
-                    routenode_kind,
-                    routenode_function,
-                    naming_name,
-                    naming_description
+                    work_task_mrid AS workTaskMrid,
+                    user_name AS username,
+                    application_name AS applicationName,
+                    application_info AS applicationInfo,
+                    marked_to_be_deleted AS markedToBeDeleted,
+                    delete_me AS deleteMe,
+                    lifecycle_deployment_state AS lifecycleDeploymentState,
+                    lifecycle_installation_date AS lifecycleInstallationDate,
+                    lifecycle_removal_date AS lifecycleRemovalDate,
+                    mapping_method AS mappingMethod,
+                    mapping_vertical_accuracy AS mappingVerticalAccuracy,
+                    mapping_horizontal_accuracy AS mappingHorizontalAccuracy,
+                    mapping_source_info AS mappingSourceInfo,
+                    mapping_survey_date AS mappingSurveyDate,
+                    safety_classification AS safetyClassification,
+                    safety_remark AS safetyRemark,
+                    routenode_kind AS routeNodeKind,
+                    routenode_function AS routeNodeFunction,
+                    naming_name AS namingName,
+                    naming_description AS namingDescription
                     FROM route_network_integrator.route_node";
 
             if (!includeDeleted)
@@ -101,9 +101,49 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             else
                 query += " WHERE mrid = @mrid";
 
-            var routeNode = await connection.QueryAsync<RouteNode>(query, new { mrid });
+            var routeNodes = (await connection.QueryAsync<RouteNodeQueryModel>(query, new { mrid }))
+                .Select(x => new RouteNode
+                {
+                    Mrid = x.Mrid,
+                    Coord = x.Coord,
+                    WorkTaskMrid = x.WorkTaskMrid,
+                    Username = x.Username,
+                    ApplicationName = x.ApplicationName,
+                    ApplicationInfo = x.ApplicationInfo,
+                    MarkAsDeleted = x.MarkedToBeDeleted,
+                    DeleteMe = x.DeleteMe,
+                    LifeCycleInfo = new LifecycleInfo
+                    {
+                        DeploymentState = _infoMapper.MapDeploymentState(x.LifeCycleDeploymentState),
+                        InstallationDate = x.LifeCycleInstallationDate,
+                        RemovalDate = x.LifeCycleRemovalDate,
+                    },
+                    MappingInfo = new MappingInfo
+                    {
+                        HorizontalAccuracy = x.MappingHoritzontalAccuracy,
+                        Method = _infoMapper.MapMappingMethod(x.MappingMethod),
+                        SourceInfo = x.MappingSourceInfo,
+                        SurveyDate = x.MappingSurveyDate,
+                        VerticalAccuracy = x.MappingVerticalAccuracy
+                    },
+                    NamingInfo = new NamingInfo
+                    {
+                        Description = x.NamingDescription,
+                        Name = x.NamingName
+                    },
+                    RouteNodeInfo = new RouteNodeInfo
+                    {
+                        Function = _infoMapper.MapRouteNodeFunction(x.RouteNodeFunction),
+                        Kind = _infoMapper.MapRouteNodeKind(x.RouteNodeKind)
+                    },
+                    SafetyInfo = new SafetyInfo
+                    {
+                        Classification = x.SafetyClassification,
+                        Remark = x.SafetyRemark
+                    }
+                });
 
-            return routeNode.FirstOrDefault();
+            return routeNodes.FirstOrDefault();
         }
 
         public async Task<RouteSegment> GetRouteSegmentShadowTable(Guid mrid, bool includeDeleted = false)
@@ -116,6 +156,8 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     user_name AS username,
                     application_name AS applicationName,
                     application_info AS applicationInfo,
+                    marked_to_be_deleted AS markedToBeDeleted,
+                    delete_me AS deleteMe,
                     mapping_method AS mappingMethod,
                     mapping_vertical_accuracy AS mappingVerticalAccuracy,
                     mapping_horizontal_accuracy AS mappingHorizontalAccuracy,
@@ -138,9 +180,60 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             else
                 query += " WHERE mrid = @mrid";
 
-            var routeSegment = await connection.QueryAsync<RouteSegment>(query, new { mrid });
+            var routeSegments = (await connection.QueryAsync<RouteSegmentQueryModel>(query, new { mrid }))
+                .Select(x => new RouteSegment
+                {
+                    ApplicationInfo = x.ApplicationInfo,
+                    ApplicationName = x.ApplicationName,
+                    Coord = x.Coord,
+                    Mrid = x.Mrid,
+                    Username = x.Username,
+                    WorkTaskMrid = x.WorkTaskMrid,
+                    DeleteMe = x.DeleteMe,
+                    MarkAsDeleted = x.MarkedToBedeleted,
+                    MappingInfo = new MappingInfo
+                    {
+                        HorizontalAccuracy = x.MappingHorizontalAccuracy,
+                        Method = _infoMapper.MapMappingMethod(x.MappingMethod),
+                        SourceInfo = x.MappingSourceInfo,
+                        SurveyDate = x.MappingSurveyDate,
+                        VerticalAccuracy = x.MappingVerticalAccuracy
+                    },
+                    LifeCycleInfo = new LifecycleInfo
+                    {
+                        DeploymentState = _infoMapper.MapDeploymentState(x.LifeCycleDeploymentState),
+                        InstallationDate = x.LifeCycleInstallationDate,
+                        RemovalDate = x.LifeCycleRemovalDate
+                    },
+                    NamingInfo = new NamingInfo
+                    {
+                        Description = x.NamingDescription,
+                        Name = x.NamingName
+                    },
+                    RouteSegmentInfo = new RouteSegmentInfo
+                    {
+                        Height = x.RouteSegmentHeight,
+                        Kind = _infoMapper.MapRouteSegmentKind(x.RouteSegmentKind),
+                        Width = x.RouteSegmentWidth
+                    },
+                    SafetyInfo = new SafetyInfo
+                    {
+                        Classification = x.SafetyClassification,
+                        Remark = x.SafetyRemark
+                    }
+                }).ToList();
 
-            return routeSegment.FirstOrDefault();
+            foreach (var routeSegment in routeSegments)
+            {
+                // Make fully empty objects into nulls.
+                routeSegment.LifeCycleInfo = AreAnyPropertiesNotNull<LifecycleInfo>(routeSegment.LifeCycleInfo) ? routeSegment.LifeCycleInfo : null;
+                routeSegment.MappingInfo = AreAnyPropertiesNotNull<MappingInfo>(routeSegment.MappingInfo) ? routeSegment.MappingInfo : null;
+                routeSegment.NamingInfo = AreAnyPropertiesNotNull<NamingInfo>(routeSegment.NamingInfo) ? routeSegment.NamingInfo : null;
+                routeSegment.RouteSegmentInfo = AreAnyPropertiesNotNull<RouteSegmentInfo>(routeSegment.RouteSegmentInfo) ? routeSegment.RouteSegmentInfo : null;
+                routeSegment.SafetyInfo = AreAnyPropertiesNotNull<SafetyInfo>(routeSegment.SafetyInfo) ? routeSegment.SafetyInfo : null;
+            }
+
+            return routeSegments.FirstOrDefault();
         }
 
         public async Task<List<RouteNode>> GetIntersectingStartRouteNodes(RouteSegment routeSegment)
@@ -267,7 +360,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     WorkTaskMrid = x.WorkTaskMrid,
                     MappingInfo = new MappingInfo
                     {
-                        HorizontalAccuracy = x.MappingHoritzontalAccuracy,
+                        HorizontalAccuracy = x.MappingHorizontalAccuracy,
                         Method = _infoMapper.MapMappingMethod(x.MappingMethod),
                         SourceInfo = x.MappingSourceInfo,
                         SurveyDate = x.MappingSurveyDate,
@@ -354,7 +447,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     WorkTaskMrid = x.WorkTaskMrid,
                     MappingInfo = new MappingInfo
                     {
-                        HorizontalAccuracy = x.MappingHoritzontalAccuracy,
+                        HorizontalAccuracy = x.MappingHorizontalAccuracy,
                         Method = _infoMapper.MapMappingMethod(x.MappingMethod),
                         SourceInfo = x.MappingSourceInfo,
                         SurveyDate = x.MappingSurveyDate,
@@ -442,7 +535,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     WorkTaskMrid = x.WorkTaskMrid,
                     MappingInfo = new MappingInfo
                     {
-                        HorizontalAccuracy = x.MappingHoritzontalAccuracy,
+                        HorizontalAccuracy = x.MappingHorizontalAccuracy,
                         Method = _infoMapper.MapMappingMethod(x.MappingMethod),
                         SourceInfo = x.MappingSourceInfo,
                         SurveyDate = x.MappingSurveyDate,
