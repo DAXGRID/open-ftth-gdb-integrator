@@ -120,7 +120,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                     },
                     MappingInfo = new MappingInfo
                     {
-                        HorizontalAccuracy = x.MappingHoritzontalAccuracy,
+                        HorizontalAccuracy = x.MappingHorizontalAccuracy,
                         Method = _infoMapper.MapMappingMethod(x.MappingMethod),
                         SourceInfo = x.MappingSourceInfo,
                         SurveyDate = x.MappingSurveyDate,
