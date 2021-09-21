@@ -19,7 +19,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres.QueryModels
 
         public string MappingMethod { get; set; }
         public string MappingVerticalAccuracy { get; set; }
-        public string MappingHoritzontalAccuracy { get; set; }
+        public string MappingHorizontalAccuracy { get; set; }
         public string MappingSourceInfo { get; set; }
         public DateTime? MappingSurveyDate { get; set; }
 
