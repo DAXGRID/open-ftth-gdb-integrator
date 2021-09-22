@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,7 +23,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (before is null || after is null)
             {
-                throw new Exception("Invalid route segment update, before or after is null.");
+                notifications.Add(new DoNothing($"Before or after route node is null, cannot update info."));
+                return notifications;
             }
 
             var routeSegmentShadowTable = await _geoDatabase.GetRouteSegmentShadowTable(after.Mrid, true);
