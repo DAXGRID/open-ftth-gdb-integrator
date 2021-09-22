@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,13 +23,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (before is null || after is null)
             {
-                throw new Exception("Before or after route node is null.");
+                notifications.Add(
+                    new DoNothing($"Before or after route node is null, cannot update info."));
+                return notifications;
             }
 
             var routeNodeShadowTable = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid, true);
             if (routeNodeShadowTable is null)
             {
-                notifications.Add(new DoNothing($"Could not find {nameof(RouteNode)} in shadowtable with id '{after.Mrid}'"));
+                notifications.Add(
+                    new DoNothing($"Could not find {nameof(RouteNode)} in shadowtable with id '{after.Mrid}'"));
                 return notifications;
             }
 

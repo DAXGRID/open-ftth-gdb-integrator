@@ -25,9 +25,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var factory = new RouteNodeInfoCommandFactory(geoDatabase);
 
-            Func<Task> act = async () => await factory.Create(before, after);
+            var result = await factory.Create(before, after);
 
-            await act.Should().ThrowExactlyAsync<Exception>("Before or after route node is null.");
+            var doNothingEvent = (DoNothing)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                doNothingEvent.Should().BeOfType(typeof(DoNothing));
+            }
         }
 
         [Fact]
@@ -38,30 +44,40 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             RouteNode after = new RouteNode();
 
             var factory = new RouteNodeInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
 
-            Func<Task> act = async () => await factory.Create(before, after);
+            var doNothingEvent = (DoNothing)result.First();
 
-            await act.Should().ThrowExactlyAsync<Exception>("Before or after route node is null.");
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                doNothingEvent.Should().BeOfType(typeof(DoNothing));
+            }
         }
 
         [Fact]
-        public async Task Create_ShouldThrowException_OnReturnedGetRouteNodeShadowTableBeingNull()
+        public async Task Create_ShouldReturnDoNothing_OnReturnedGetRouteNodeShadowTableBeingNull()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
-            RouteNode before = null;
+            RouteNode before = new RouteNode();
             RouteNode after = new RouteNode();
 
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(after.Mrid, true)).Returns<RouteNode>(null);
 
             var factory = new RouteNodeInfoCommandFactory(geoDatabase);
-            Func<Task> act = async () => await factory.Create(before, after);
+            var result = await factory.Create(before, after);
 
-            await act.Should().ThrowExactlyAsync<Exception>
-                ($"Could not find {nameof(RouteNode)} in shadowtable with id '{after.Mrid}'");
+            var doNothingEvent = (DoNothing)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                doNothingEvent.Should().BeOfType(typeof(DoNothing));
+            }
         }
 
         [Fact]
-        public async Task Create_ShouldThrowException_OnReturnedRouteNodeShadowTableBeingDeleted()
+        public async Task Create_ShouldReturnDoNothing_OnReturnedRouteNodeShadowTableBeingDeleted()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             RouteNode before = new RouteNode();

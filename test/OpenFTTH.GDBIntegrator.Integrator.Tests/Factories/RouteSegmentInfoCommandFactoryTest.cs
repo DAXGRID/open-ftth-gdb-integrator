@@ -16,7 +16,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
     public class RouteSegmentInfoCommandFactoryTest
     {
         [Fact]
-        public async Task Create_ShouldThrowException_OnAfterBeingNull()
+        public async Task Create_ShouldReturnDoNothingEvent_OnAfterBeingNull()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             var before = new RouteSegment();
@@ -24,13 +24,19 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
 
-            Func<Task> act = async () => await factory.Create(before, after);
+            var result = await factory.Create(before, after);
 
-            await act.Should().ThrowExactlyAsync<Exception>("Invalid route segment update, before or after is null.");
+            var doNothingEvent = (DoNothing)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                doNothingEvent.Should().BeOfType(typeof(DoNothing));
+            }
         }
 
         [Fact]
-        public async Task Create_ShouldThrowException_OnBeforeBeingNull()
+        public async Task Create_ShouldReturnDoNothingEvent_OnBeforeBeingNull()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
             RouteSegment before = null;
@@ -38,26 +44,36 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
 
-            Func<Task> act = async () => await factory.Create(before, after);
+            var result = await factory.Create(before, after);
 
-            await act.Should().ThrowExactlyAsync<Exception>("Invalid route segment update, before or after is null.");
+            var doNothingEvent = (DoNothing)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                doNothingEvent.Should().BeOfType(typeof(DoNothing));
+            }
         }
 
         [Fact]
-        public async Task Create_ShouldThrowException_ReturnedGetRouteSegmentShadowTableBeingNull()
+        public async Task Create_ShouldReturnDoNothingEvent_ReturnedGetRouteSegmentShadowTableBeingNull()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
-            RouteSegment before = null;
+            RouteSegment before = new RouteSegment();
             var after = new RouteSegment();
 
             A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(after.Mrid, true)).Returns<RouteSegment>(null);
 
             var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
 
-            Func<Task> act = async () => await factory.Create(before, after);
+            var doNothingEvent = (DoNothing)result.First();
 
-            await act.Should().ThrowExactlyAsync<Exception>(
-                "Could not find {nameof(RouteSegment)} in shadowtable with id '{after.Mrid}'");
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                doNothingEvent.Should().BeOfType(typeof(DoNothing));
+            }
         }
 
         [Fact]
@@ -105,7 +121,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         }
 
         [Fact]
-        public async Task Create_ShouldThrowException_OnBeforeBeingMarkedAsDeleted()
+        public async Task Create_ShouldReturnDoNothing_OnBeforeBeingMarkedAsDeleted()
         {
             var routeSegmentId = Guid.NewGuid();
             var geoDatabase = A.Fake<IGeoDatabase>();
