@@ -64,7 +64,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         public async Task Create_ShouldThrowException_OnReturnedRouteNodeShadowTableBeingDeleted()
         {
             var geoDatabase = A.Fake<IGeoDatabase>();
-            RouteNode before = null;
+            RouteNode before = new RouteNode();
             RouteNode after = new RouteNode();
             var shadowTableSegment = new RouteNode
             {
@@ -75,12 +75,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(after.Mrid, true)).Returns<RouteNode>(shadowTableSegment);
 
             var factory = new RouteNodeInfoCommandFactory(geoDatabase);
-            Func<Task> act = async () => await factory.Create(before, after);
+            var result = await factory.Create(before, after);
 
-            await act.Should().ThrowExactlyAsync<Exception>
-                ("Shadowtable route node is marked to be deleted, info cannot be updated.");
+            var doNothingEvent = (DoNothing)result.First();
+
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                doNothingEvent.Should().BeOfType(typeof(DoNothing));
+            }
         }
-
 
         [Fact]
         public async Task Create_ShouldReturnDoNothing_OnShadowTableRouteNodeBeingEqToAfter()
@@ -153,10 +157,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(after.Mrid, true)).Returns(shadowTableSegment);
 
             var factory = new RouteNodeInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
 
-            Func<Task> act = async () => await factory.Create(before, after);
+            var doNothingEvent = (DoNothing)result.First();
 
-            await act.Should().ThrowExactlyAsync<Exception>("Shadowtable route node is marked to be deleted, info cannot be updated.");
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                doNothingEvent.Should().BeOfType(typeof(DoNothing));
+            }
         }
 
         [Fact]

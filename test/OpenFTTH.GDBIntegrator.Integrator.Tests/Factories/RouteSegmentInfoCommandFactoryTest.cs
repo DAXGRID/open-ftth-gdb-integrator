@@ -131,11 +131,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(after.Mrid, true)).Returns(shadowTableSegment);
 
             var factory = new RouteSegmentInfoCommandFactory(geoDatabase);
+            var result = await factory.Create(before, after);
+            var doNothingEvent = (DoNothing)result.First();
 
-            Func<Task> act = async () => await factory.Create(before, after);
-
-            await act.Should().ThrowExactlyAsync<Exception>(
-                $"Shadowtable {nameof(RouteSegment)} is marked to be deleted, info cannot be updated.");
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                doNothingEvent.Should().BeOfType(typeof(DoNothing));
+            }
         }
 
         [Fact]

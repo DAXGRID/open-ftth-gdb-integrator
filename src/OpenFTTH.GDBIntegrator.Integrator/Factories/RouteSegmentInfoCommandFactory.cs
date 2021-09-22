@@ -30,20 +30,26 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var routeSegmentShadowTable = await _geoDatabase.GetRouteSegmentShadowTable(after.Mrid, true);
             if (routeSegmentShadowTable is null)
             {
-                throw new Exception($"Could not find {nameof(RouteSegment)} in shadowtable with id '{after.Mrid}'");
+                notifications.Add(
+                    new DoNothing(
+                        $"Could not find {nameof(RouteSegment)} in shadowtable with id '{after.Mrid}'"));
+                return notifications;
             }
 
             if (AlreadyUpdated(after, routeSegmentShadowTable))
             {
                 notifications.Add(
-                    new DoNothing($"{nameof(RouteSegment)} is already updated, therefore do nothing."));
+                    new DoNothing(
+                        $"{nameof(RouteSegment)} with id '{after.Mrid}' is already updated, therefore do nothing."));
                 return notifications;
             }
 
             if (routeSegmentShadowTable.MarkAsDeleted)
             {
-                throw new Exception(
-                    $"Shadowtable {nameof(RouteSegment)} is marked to be deleted, info cannot be updated.");
+                notifications.Add(
+                    new DoNothing(
+                        $"Shadowtable {nameof(RouteSegment)} with id '{after.Mrid}' is marked to be deleted, info cannot be updated."));
+                return notifications;
             }
 
             if (IsRouteSegmentInfoModified(before, after))
