@@ -121,7 +121,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     _logger.LogError($"{nameof(RouteNetworkEditOperationOccuredEvent)} is not valid so we rollback.");
                     await _geoDatabase.RollbackTransaction();
                     await _geoDatabase.BeginTransaction();
-                    await RollbackOrDelete(request.UpdateMessage, $"Rollback because {nameof(RouteNetworkEditOperationOccuredEvent)} is not valid.");
+                    await RollbackOrDelete(request.UpdateMessage, $"Rollback or delete because {nameof(RouteNetworkEditOperationOccuredEvent)} is not valid.");
                     await _geoDatabase.Commit();
                     _logger.LogInformation($"{nameof(RouteNetworkEditOperationOccuredEvent)} is now rolled rollback.");
                 }
