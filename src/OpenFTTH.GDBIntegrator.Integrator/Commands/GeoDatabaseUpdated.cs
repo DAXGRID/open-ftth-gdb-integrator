@@ -131,7 +131,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 _logger.LogError($"{e.ToString()}: Rolling back geodatabase transactions");
                 await _geoDatabase.RollbackTransaction();
                 await _geoDatabase.BeginTransaction();
-                await RollbackOrDelete(request.UpdateMessage, $"Rollback because of exception: {e.Message}");
+                await RollbackOrDelete(request.UpdateMessage, $"Rollback or delete because of exception: {e.Message}");
                 await _geoDatabase.Commit();
             }
             finally
