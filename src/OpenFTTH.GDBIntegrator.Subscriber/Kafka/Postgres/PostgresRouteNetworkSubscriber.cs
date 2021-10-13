@@ -65,6 +65,11 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
                             var invalidMessage = (InvalidMessage)message.Body;
                             await HandleInvalidMessage(invalidMessage);
                         }
+                        else if (message.Body is HearthBeatMessage)
+                        {
+                            // DoNothing received hearthbeat
+                            _logger.LogDebug("Received hearthbeat.");
+                        }
                     }
                 }).Start();
         }

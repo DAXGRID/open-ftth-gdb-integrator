@@ -37,6 +37,9 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
                 dynamic topicMessageBody = JObject.Parse(messageBody);
                 payload = topicMessageBody.payload;
 
+                if (IsHeartBeat(topicMessageBody))
+                    return new ReceivedLogicalMessage(message.Headers, new HearthBeatMessage(), message.Position);
+
                 if (IsTombStoneMessage(payload))
                     return new ReceivedLogicalMessage(message.Headers, new RouteSegmentMessage(), message.Position);
 
@@ -222,6 +225,12 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
         {
             JToken afterPayload = payload["after"];
             return afterPayload.Type == JTokenType.Null;
+        }
+
+        private bool IsHeartBeat(dynamic topicMessageBody)
+        {
+            JToken schemaName = topicMessageBody?.schema?.name;
+            return schemaName is not null && schemaName.ToString() == "io.debezium.connector.common.Heartbeat";
         }
 
         public TransportMessage Serialize(LogicalMessage message)
