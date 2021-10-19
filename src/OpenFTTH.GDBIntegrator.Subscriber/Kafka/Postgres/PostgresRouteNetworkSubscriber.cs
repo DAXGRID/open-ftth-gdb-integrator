@@ -44,7 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
                 .Logging(l => l.UseSerilog())
                 .Options(x =>
                 {
-                    x.SetMinimumBatchSize(1);
+                    x.SetMaximumBatchSize(1);
                 })
                 .Handle(async (messages, context, token) =>
                 {
