@@ -239,22 +239,82 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         public async Task<List<RouteNode>> GetIntersectingStartRouteNodes(RouteSegment routeSegment)
         {
             var connection = GetNpgsqlConnection();
-            var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
-                    WHERE ST_Intersects(
-                      ST_Buffer(
-                        ST_StartPoint(
-                          (SELECT coord FROM route_network_integrator.route_segment
-                          WHERE mrid = @mrid)
-                          ),
-                        @tolerance
-                      ),
-                      coord) AND marked_to_be_deleted = false
-                    ";
+            var query = @"SELECT
+                          ST_AsBinary(coord) AS coord,
+                          mrid,
+                          work_task_mrid AS workTaskMrid,
+                          user_name AS username,
+                          application_name AS applicationName,
+                          application_info AS applicationInfo,
+                          marked_to_be_deleted AS markedToBeDeleted,
+                          delete_me AS deleteMe,
+                          lifecycle_deployment_state AS lifecycleDeploymentState,
+                          lifecycle_installation_date AS lifecycleInstallationDate,
+                          lifecycle_removal_date AS lifecycleRemovalDate,
+                          mapping_method AS mappingMethod,
+                          mapping_vertical_accuracy AS mappingVerticalAccuracy,
+                          mapping_horizontal_accuracy AS mappingHorizontalAccuracy,
+                          mapping_source_info AS mappingSourceInfo,
+                          mapping_survey_date AS mappingSurveyDate,
+                          safety_classification AS safetyClassification,
+                          safety_remark AS safetyRemark,
+                          routenode_kind AS routeNodeKind,
+                          routenode_function AS routeNodeFunction,
+                          naming_name AS namingName,
+                          naming_description AS namingDescription
+                          FROM route_network_integrator.route_node
+                          WHERE ST_Intersects(
+                          ST_Buffer(
+                              ST_StartPoint(
+                              (SELECT coord FROM route_network_integrator.route_segment
+                               WHERE mrid = @mrid)
+                              ),
+                              @tolerance
+                          ), coord) AND marked_to_be_deleted = false";
 
+            var routeNodes = (await connection.QueryAsync<RouteNodeQueryModel>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance }))
+                .Select(x => new RouteNode
+                {
+                    Mrid = x.Mrid,
+                    Coord = x.Coord,
+                    WorkTaskMrid = x.WorkTaskMrid,
+                    Username = x.Username,
+                    ApplicationName = x.ApplicationName,
+                    ApplicationInfo = x.ApplicationInfo,
+                    MarkAsDeleted = x.MarkedToBeDeleted,
+                    DeleteMe = x.DeleteMe,
+                    LifeCycleInfo = new LifecycleInfo
+                    {
+                        DeploymentState = _infoMapper.MapDeploymentState(x.LifeCycleDeploymentState),
+                        InstallationDate = x.LifeCycleInstallationDate,
+                        RemovalDate = x.LifeCycleRemovalDate,
+                    },
+                    MappingInfo = new MappingInfo
+                    {
+                        HorizontalAccuracy = x.MappingHorizontalAccuracy,
+                        Method = _infoMapper.MapMappingMethod(x.MappingMethod),
+                        SourceInfo = x.MappingSourceInfo,
+                        SurveyDate = x.MappingSurveyDate,
+                        VerticalAccuracy = x.MappingVerticalAccuracy
+                    },
+                    NamingInfo = new NamingInfo
+                    {
+                        Description = x.NamingDescription,
+                        Name = x.NamingName
+                    },
+                    RouteNodeInfo = new RouteNodeInfo
+                    {
+                        Function = _infoMapper.MapRouteNodeFunction(x.RouteNodeFunction),
+                        Kind = _infoMapper.MapRouteNodeKind(x.RouteNodeKind)
+                    },
+                    SafetyInfo = new SafetyInfo
+                    {
+                        Classification = x.SafetyClassification,
+                        Remark = x.SafetyRemark
+                    }
+                });
 
-            var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
-
-            return routeNodes.AsList();
+            return routeNodes.ToList();
         }
 
         public async Task<List<RouteNode>> GetIntersectingStartRouteNodes(byte[] coord)
@@ -279,21 +339,82 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         public async Task<List<RouteNode>> GetIntersectingEndRouteNodes(RouteSegment routeSegment)
         {
             var connection = GetNpgsqlConnection();
-            var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
-                    WHERE ST_Intersects(
-                      ST_Buffer(
-                        ST_EndPoint(
-                          (SELECT coord FROM route_network_integrator.route_segment
-                          WHERE mrid = @mrid)
-                          ),
-                        @tolerance
-                      ),
-                      coord) AND marked_to_be_deleted = false
-                    ";
+            var query = @"SELECT
+                          ST_AsBinary(coord) AS coord,
+                          mrid,
+                          work_task_mrid AS workTaskMrid,
+                          user_name AS username,
+                          application_name AS applicationName,
+                          application_info AS applicationInfo,
+                          marked_to_be_deleted AS markedToBeDeleted,
+                          delete_me AS deleteMe,
+                          lifecycle_deployment_state AS lifecycleDeploymentState,
+                          lifecycle_installation_date AS lifecycleInstallationDate,
+                          lifecycle_removal_date AS lifecycleRemovalDate,
+                          mapping_method AS mappingMethod,
+                          mapping_vertical_accuracy AS mappingVerticalAccuracy,
+                          mapping_horizontal_accuracy AS mappingHorizontalAccuracy,
+                          mapping_source_info AS mappingSourceInfo,
+                          mapping_survey_date AS mappingSurveyDate,
+                          safety_classification AS safetyClassification,
+                          safety_remark AS safetyRemark,
+                          routenode_kind AS routeNodeKind,
+                          routenode_function AS routeNodeFunction,
+                          naming_name AS namingName,
+                          naming_description AS namingDescription
+                          FROM route_network_integrator.route_node
+                          WHERE ST_Intersects(
+                          ST_Buffer(
+                              ST_EndPoint(
+                              (SELECT coord FROM route_network_integrator.route_segment
+                               WHERE mrid = @mrid)
+                              ),
+                              @tolerance
+                          ), coord) AND marked_to_be_deleted = false";
 
-            var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance });
+            var routeNodes = (await connection.QueryAsync<RouteNodeQueryModel>(query, new { routeSegment.Mrid, _applicationSettings.Tolerance }))
+                .Select(x => new RouteNode
+                {
+                    Mrid = x.Mrid,
+                    Coord = x.Coord,
+                    WorkTaskMrid = x.WorkTaskMrid,
+                    Username = x.Username,
+                    ApplicationName = x.ApplicationName,
+                    ApplicationInfo = x.ApplicationInfo,
+                    MarkAsDeleted = x.MarkedToBeDeleted,
+                    DeleteMe = x.DeleteMe,
+                    LifeCycleInfo = new LifecycleInfo
+                    {
+                        DeploymentState = _infoMapper.MapDeploymentState(x.LifeCycleDeploymentState),
+                        InstallationDate = x.LifeCycleInstallationDate,
+                        RemovalDate = x.LifeCycleRemovalDate,
+                    },
+                    MappingInfo = new MappingInfo
+                    {
+                        HorizontalAccuracy = x.MappingHorizontalAccuracy,
+                        Method = _infoMapper.MapMappingMethod(x.MappingMethod),
+                        SourceInfo = x.MappingSourceInfo,
+                        SurveyDate = x.MappingSurveyDate,
+                        VerticalAccuracy = x.MappingVerticalAccuracy
+                    },
+                    NamingInfo = new NamingInfo
+                    {
+                        Description = x.NamingDescription,
+                        Name = x.NamingName
+                    },
+                    RouteNodeInfo = new RouteNodeInfo
+                    {
+                        Function = _infoMapper.MapRouteNodeFunction(x.RouteNodeFunction),
+                        Kind = _infoMapper.MapRouteNodeKind(x.RouteNodeKind)
+                    },
+                    SafetyInfo = new SafetyInfo
+                    {
+                        Classification = x.SafetyClassification,
+                        Remark = x.SafetyRemark
+                    }
+                });
 
-            return routeNodes.AsList();
+            return routeNodes.ToList();
         }
 
         public async Task<List<RouteNode>> GetIntersectingEndRouteNodes(byte[] coord)

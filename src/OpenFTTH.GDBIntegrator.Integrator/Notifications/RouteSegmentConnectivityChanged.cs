@@ -154,7 +154,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
             var intersectingStartRouteSegments = await _geoDatabase.GetIntersectingStartRouteSegments(routeNode);
             var intersectingEndRouteSegments = await _geoDatabase.GetIntersectingEndRouteSegments(routeNode);
-
             var intersectingRouteSegmentsCount = intersectingStartRouteSegments.Count + intersectingEndRouteSegments.Count;
 
             return routeNode.RouteNodeInfo?.Kind == null
