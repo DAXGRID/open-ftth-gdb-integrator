@@ -137,6 +137,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             finally
             {
                 _eventStore.Clear();
+                _modifiedGeometriesStore.Clear();
                 await _geoDatabase.DisposeTransaction();
                 await _geoDatabase.DisposeConnection();
             }
