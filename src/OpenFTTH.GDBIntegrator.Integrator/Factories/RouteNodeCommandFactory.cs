@@ -42,28 +42,19 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (!(await IsValidNodeUpdate(before, after)))
                 return new List<INotification> { new RollbackInvalidRouteNode(before, "Is not a valid route node update") };
 
-            if (after.MarkAsDeleted)
-                return new List<INotification> { new RouteNodeDeleted { RouteNode = after } };
-
+            // We roll back in-case the update-command intersects with new route-segments
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
             if (intersectingRouteSegments.Count > 0)
             {
-                var notifications = new List<INotification>();
-                notifications.Add(new RouteNodeLocationChanged { RouteNodeAfter = after, RouteNodeBefore = before });
-
                 var previousIntersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(before.Coord);
-                var intersectingSegments = (await _geoDatabase.GetIntersectingRouteSegments(after))
+                var newIntersectingRouteSegments = intersectingRouteSegments
                     .Where(x => !previousIntersectingRouteSegments.Any(y => y.Mrid == x.Mrid)).ToList();
-                if (intersectingSegments.Count > 0)
-                {
-                    notifications.Add(new ExistingRouteSegmentSplitted
-                    {
-                        RouteNode = after,
-                    });
-                }
-
-                return notifications;
+                if (newIntersectingRouteSegments.Count > 0)
+                    return new List<INotification> { new RollbackInvalidRouteNode(before, "Update to route node is invalid because it is insecting with route-segments.") };
             }
+
+            if (after.MarkAsDeleted)
+                return new List<INotification> { new RouteNodeDeleted { RouteNode = after } };
 
             return new List<INotification> { new RouteNodeLocationChanged { RouteNodeAfter = after, RouteNodeBefore = before } };
         }

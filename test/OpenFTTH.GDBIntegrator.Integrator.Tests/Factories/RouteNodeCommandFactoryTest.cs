@@ -300,7 +300,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task CreateUpdatedEvent_ShouldReturnRouteNodeLocationChangedAndSplitRouteSegment_OnIntersectingRouteSegment()
+        public async Task CreateUpdatedEvent_ShouldReturnRollbackInvalidRouteNode_OnIntersectingRouteSegment()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -324,22 +324,19 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
 
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
-            var routeNodeLocationChanged = (RouteNodeLocationChanged)result[0];
-            var existingRouteSegmentSplitted = (ExistingRouteSegmentSplitted)result[1];
+            var rollbackInvalidRouteNode = (RollbackInvalidRouteNode)result[0];
+
+            var expected = new RollbackInvalidRouteNode(beforeNode, "Update to route node is invalid because it is insecting with route-segments.");
 
             using (var scope = new AssertionScope())
             {
-                routeNodeLocationChanged.Should().BeOfType(typeof(RouteNodeLocationChanged));
-                routeNodeLocationChanged.RouteNodeAfter.Should().Be(afterNode);
-
-                existingRouteSegmentSplitted.Should().BeOfType(typeof(ExistingRouteSegmentSplitted));
-                existingRouteSegmentSplitted.RouteNode.Should().NotBeNull();
-                existingRouteSegmentSplitted.RouteSegmentDigitizedByUser.Should().BeNull();
+                result.Should().HaveCount(1);
+                rollbackInvalidRouteNode.Should().BeEquivalentTo(expected);
             }
         }
 
         [Fact]
-        public async Task CreateUpdatedEvent_ShouldReturnRouteNodeLocationChanged_OnRouteNodeChangedWithNoChecksFailing()
+        public async Task CreateUpdatedEvent_ShouldReturnRouteNodeLocationChanged_OnRouteNodeChanged()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
