@@ -29,7 +29,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (before is null || after is null)
                 throw new ArgumentNullException($"Parameter {nameof(before)} or {nameof(after)} cannot both be null doing an update.");
 
-            var shadowTableNode = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid);
+            var shadowTableNode = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid, false);
 
             if (shadowTableNode is null)
                 return new List<INotification> { new DoNothing($"{nameof(RouteNode)} is already deleted, so do nothing.") };
@@ -108,9 +108,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return true;
         }
 
-        private bool AlreadyUpdated(RouteNode routeNode, RouteNode integratorRouteNode)
+        private bool AlreadyUpdated(RouteNode routeNode, RouteNode routeNodeShadowTable)
         {
-            return routeNode.MarkAsDeleted == integratorRouteNode.MarkAsDeleted && routeNode.GetGeoJsonCoordinate() == integratorRouteNode.GetGeoJsonCoordinate();
+            return routeNode.MarkAsDeleted == routeNodeShadowTable.MarkAsDeleted && routeNode.GetGeoJsonCoordinate() == routeNodeShadowTable.GetGeoJsonCoordinate();
         }
 
         private bool IsCreatedByApplication(RouteNode routeNode)
