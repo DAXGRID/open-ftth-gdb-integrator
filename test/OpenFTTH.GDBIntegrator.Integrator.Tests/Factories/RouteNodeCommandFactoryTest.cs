@@ -1,18 +1,18 @@
-using Xunit;
+using FakeItEasy;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using FakeItEasy;
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Extensions.Options;
+using OpenFTTH.GDBIntegrator.Config;
+using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
-using OpenFTTH.GDBIntegrator.GeoDatabase;
-using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.Config;
-using Microsoft.Extensions.Options;
 using OpenFTTH.GDBIntegrator.Integrator.Validate;
+using OpenFTTH.GDBIntegrator.RouteNetwork;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 {
@@ -161,27 +161,31 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
+            var shadowTableNode = A.Fake<RouteNode>();
             var beforeNode = A.Fake<RouteNode>();
             var afterNode = A.Fake<RouteNode>();
             var validationService = A.Fake<IValidationService>();
 
-            A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
+            A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
+            A.CallTo(() => shadowTableNode.Mrid).Returns(Guid.NewGuid());
 
             A.CallTo(() => validationService.HasRelatedEquipment(afterNode.Mrid)).Returns(true);
-
-            A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(beforeNode))
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableNode);
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(shadowTableNode))
                 .Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
-
-            A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(beforeNode))
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(shadowTableNode))
                 .Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
 
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
 
-            var expected = new RollbackInvalidRouteNode(beforeNode, "Is not a valid route node update");
-
-            result.Should().BeEquivalentTo(expected);
+            var expected = new RollbackInvalidRouteNode(shadowTableNode, "Is not a valid route node update.");
+            using (var scope = new AssertionScope())
+            {
+                result.Should().HaveCount(1);
+                result[0].Should().BeOfType(typeof(RollbackInvalidRouteNode)).And.BeEquivalentTo(expected);
+            }
         }
 
         [Fact]
@@ -204,7 +208,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
 
-            var expected = new RollbackInvalidRouteNode(beforeNode, "Is not a valid route node update");
+            var expected = new RollbackInvalidRouteNode(beforeNode, "Is not a valid route node update.");
 
             result.Should().BeEquivalentTo(expected);
         }
