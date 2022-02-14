@@ -1,16 +1,16 @@
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OpenFTTH.Events.Geo;
+using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
-using OpenFTTH.GDBIntegrator.Config;
-using OpenFTTH.Events.Geo;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {
@@ -44,7 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
         public async Task Handle(GeographicalAreaUpdated request, CancellationToken token)
         {
-            _logger.LogInformation($"Starting {nameof(GeographicalAreaUpdatedHandler)}");
+            _logger.LogDebug($"Starting {nameof(GeographicalAreaUpdatedHandler)}");
 
             var envelope = _envelopeFactory.Create(request.RouteNodes, request.RouteSegment);
             var envelopeInfo = new EnvelopeInfo(envelope.MinX, envelope.MaxX, envelope.MinY, envelope.MaxY);

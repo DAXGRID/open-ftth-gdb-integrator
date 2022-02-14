@@ -1,13 +1,13 @@
-using System;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Collections.Generic;
-using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.Integrator.Notifications;
+using MediatR;
+using Microsoft.Extensions.Options;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
-using Microsoft.Extensions.Options;
-using MediatR;
+using OpenFTTH.GDBIntegrator.Integrator.Notifications;
+using OpenFTTH.GDBIntegrator.RouteNetwork;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
@@ -27,7 +27,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         public async Task<List<INotification>> CreateUpdatedEvent(RouteNode before, RouteNode after)
         {
             if (before is null || after is null)
-                throw new ArgumentNullException($"Parameter {nameof(before)} or {nameof(after)} cannot be null");
+                throw new ArgumentNullException($"Parameter {nameof(before)} or {nameof(after)} cannot both be null doing an update.");
 
             var shadowTableNode = await _geoDatabase.GetRouteNodeShadowTable(after.Mrid);
 
@@ -37,26 +37,26 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (AlreadyUpdated(after, shadowTableNode))
                 return new List<INotification> { new DoNothing($"{nameof(RouteNode)} with id: '{after.Mrid}' was already updated therefore do nothing.") };
 
-            await _geoDatabase.UpdateRouteNodeShadowTable(after);
+            if (!(await IsValidNodeUpdate(shadowTableNode, after)))
+                return new List<INotification> { new RollbackInvalidRouteNode(shadowTableNode, "Is not a valid route node update.") };
 
-            if (!(await IsValidNodeUpdate(before, after)))
-                return new List<INotification> { new RollbackInvalidRouteNode(before, "Is not a valid route node update") };
+            await _geoDatabase.UpdateRouteNodeShadowTable(after);
 
             // We roll back in-case the update-command intersects with new route-segments
             var intersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(after);
             if (intersectingRouteSegments.Count > 0)
             {
-                var previousIntersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(before.Coord);
+                var previousIntersectingRouteSegments = await _geoDatabase.GetIntersectingRouteSegments(shadowTableNode.Coord);
                 var newIntersectingRouteSegments = intersectingRouteSegments
                     .Where(x => !previousIntersectingRouteSegments.Any(y => y.Mrid == x.Mrid)).ToList();
                 if (newIntersectingRouteSegments.Count > 0)
-                    return new List<INotification> { new RollbackInvalidRouteNode(before, "Update to route node is invalid because it is insecting with route-segments.") };
+                    return new List<INotification> { new RollbackInvalidRouteNode(shadowTableNode, "Update to route node is invalid because it is insecting with route-segments.") };
             }
 
             if (after.MarkAsDeleted)
                 return new List<INotification> { new RouteNodeDeleted { RouteNode = after } };
 
-            return new List<INotification> { new RouteNodeLocationChanged { RouteNodeAfter = after, RouteNodeBefore = before } };
+            return new List<INotification> { new RouteNodeLocationChanged { RouteNodeAfter = after, RouteNodeBefore = shadowTableNode } };
         }
 
         public async Task<List<INotification>> CreateDigitizedEvent(RouteNode routeNode)
@@ -96,10 +96,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, Message = "Route node did not fit any condition in command factory." } };
         }
 
-        private async Task<bool> IsValidNodeUpdate(RouteNode before, RouteNode after)
+        private async Task<bool> IsValidNodeUpdate(RouteNode shadowTableNode, RouteNode after)
         {
-            var startRouteSegment = await _geoDatabase.GetIntersectingStartRouteSegments(before);
-            var endRouteSegment = await _geoDatabase.GetIntersectingEndRouteSegments(before);
+            var startRouteSegment = await _geoDatabase.GetIntersectingStartRouteSegments(shadowTableNode);
+            var endRouteSegment = await _geoDatabase.GetIntersectingEndRouteSegments(shadowTableNode);
             var intersectingRouteNodes = await _geoDatabase.GetIntersectingRouteNodes(after);
 
             if (((startRouteSegment.Count + endRouteSegment.Count) > 0 && after.MarkAsDeleted) || intersectingRouteNodes.Count > 0)
