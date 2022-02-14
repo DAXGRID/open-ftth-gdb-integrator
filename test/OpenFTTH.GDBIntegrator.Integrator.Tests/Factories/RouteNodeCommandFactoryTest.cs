@@ -2,6 +2,7 @@ using FakeItEasy;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Options;
+using NetTopologySuite.Geometries;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.Integrator.Factories;
@@ -137,15 +138,19 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var geoDatabase = A.Fake<IGeoDatabase>();
             var beforeNode = A.Fake<RouteNode>();
             var afterNode = A.Fake<RouteNode>();
+            var shadowTableRouteNode = A.Fake<RouteNode>();
+            var appSettings = new ApplicationSetting { Tolerance = 0.01 };
 
             var mrid = Guid.NewGuid();
             A.CallTo(() => beforeNode.MarkAsDeleted).Returns(false);
             A.CallTo(() => beforeNode.Mrid).Returns(mrid);
             A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
             A.CallTo(() => afterNode.Mrid).Returns(mrid);
-
-            A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode))
-                .Returns(new List<RouteSegment> { });
+            A.CallTo(() => afterNode.GetPoint()).Returns(CreatePoint(565931.4446905176, 6197297.75114815));
+            A.CallTo(() => shadowTableRouteNode.GetPoint()).Returns(CreatePoint(565930.4446905176, 6197297.75114815));
+            A.CallTo(() => applicationSetting.Value).Returns(appSettings);
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableRouteNode);
+            A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode)).Returns(new List<RouteSegment> { });
 
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
             var result = (RouteNodeDeleted)(await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
@@ -169,13 +174,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
             A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
             A.CallTo(() => shadowTableNode.Mrid).Returns(Guid.NewGuid());
-
             A.CallTo(() => validationService.HasRelatedEquipment(afterNode.Mrid)).Returns(true);
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableNode);
-            A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(shadowTableNode))
-                .Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
-            A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(shadowTableNode))
-                .Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(shadowTableNode)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(shadowTableNode)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
+            A.CallTo(() => afterNode.GetPoint()).Returns(CreatePoint(665931.4446905176, 7197297.75114815));
+            A.CallTo(() => shadowTableNode.GetPoint()).Returns(CreatePoint(565931.4446905176, 6197297.75114815));
 
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
@@ -195,22 +199,25 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var geoDatabase = A.Fake<IGeoDatabase>();
             var beforeNode = A.Fake<RouteNode>();
             var afterNode = A.Fake<RouteNode>();
+            var shadowTableRouteNode = A.Fake<RouteNode>();
+            var appSettings = new ApplicationSetting { Tolerance = 0.01 };
 
-            A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
+            A.CallTo(() => applicationSetting.Value).Returns(appSettings);
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
-
-            A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode))
-                .Returns(new List<RouteSegment>());
-
-            A.CallTo(() => geoDatabase.GetIntersectingRouteNodes(afterNode))
-                .Returns(new List<RouteNode> { A.Fake<RouteNode>() });
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableRouteNode);
+            A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode)).Returns(new List<RouteSegment>());
+            A.CallTo(() => afterNode.GetPoint()).Returns(CreatePoint(565931.4446905176, 6197297.75114815));
+            A.CallTo(() => shadowTableRouteNode.GetPoint()).Returns(CreatePoint(565920.4446905176, 6197297.74114815));
+            A.CallTo(() => afterNode.GetGeoJsonCoordinate()).Returns("[565931.4446905176,6197297.75114815]");
+            A.CallTo(() => shadowTableRouteNode.GetGeoJsonCoordinate()).Returns("[565920.4446905176,6197297.74114815]");
+            A.CallTo(() => geoDatabase.GetIntersectingRouteNodes(afterNode)).Returns(new List<RouteNode> { A.Fake<RouteNode>() });
 
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
-            var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
+            var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
             var expected = new RollbackInvalidRouteNode(beforeNode, "Is not a valid route node update.");
 
-            result.Should().BeEquivalentTo(expected);
+            result.Should().BeOfType(typeof(RollbackInvalidRouteNode)).And.BeEquivalentTo(expected);
         }
 
         [Fact]
@@ -240,6 +247,33 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
             result.Should().BeOfType<DoNothing>();
+        }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldReturnRollbackInvalidRouteNode_OnIsModifiedDistanceLessThanTolerance()
+        {
+            var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var beforeNode = A.Fake<RouteNode>();
+            var afterNode = A.Fake<RouteNode>();
+            var shadowTableRouteNode = A.Fake<RouteNode>();
+            var appSettings = new ApplicationSetting { Tolerance = 0.01 };
+
+            A.CallTo(() => applicationSetting.Value).Returns(appSettings);
+            A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
+            A.CallTo(() => afterNode.GetGeoJsonCoordinate()).Returns("[552428.7508312801, 6188868.185819111]");
+            A.CallTo(() => afterNode.GetPoint()).Returns(CreatePoint(552428.7508312801, 6188868.185819111));
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableRouteNode);
+            A.CallTo(() => shadowTableRouteNode.GetGeoJsonCoordinate()).Returns("[552428.7515896157,6188868.184787691]");
+            A.CallTo(() => shadowTableRouteNode.GetPoint()).Returns(CreatePoint(552428.7515896157, 6188868.184787691));
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+
+            var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
+
+            var expected = new RollbackInvalidRouteNode(shadowTableRouteNode, "Modified distance less than tolerance.");
+
+            result.Should().BeOfType<RollbackInvalidRouteNode>();
         }
 
         [Fact]
@@ -311,18 +345,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var beforeNode = A.Fake<RouteNode>();
             var afterNode = A.Fake<RouteNode>();
             var shadowTableRouteNode = A.Fake<RouteNode>();
+            var appSettingsValue = new ApplicationSetting { Tolerance = 0.01 };
 
+            A.CallTo(() => applicationSetting.Value).Returns(appSettingsValue);
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableRouteNode);
-
-            A.CallTo(() => afterNode.GetGeoJsonCoordinate())
-                .Returns("[665931.4446905176,7197297.75114815]");
+            A.CallTo(() => afterNode.GetGeoJsonCoordinate()).Returns("[665931.4446905176,7197297.75114815]");
             A.CallTo(() => afterNode.MarkAsDeleted).Returns(false);
-
-            A.CallTo(() => shadowTableRouteNode.GetGeoJsonCoordinate())
-                .Returns("[565931.4446905176,6197297.75114815]");
+            A.CallTo(() => shadowTableRouteNode.GetGeoJsonCoordinate()).Returns("[565931.4446905176,6197297.75114815]");
             A.CallTo(() => shadowTableRouteNode.MarkAsDeleted).Returns(false);
-
+            A.CallTo(() => afterNode.GetPoint()).Returns(CreatePoint(665931.4446905176, 7197297.75114815));
+            A.CallTo(() => shadowTableRouteNode.GetPoint()).Returns(CreatePoint(565931.4446905176, 6197297.75114815));
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
 
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
@@ -350,13 +383,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableRouteNode);
-
-            A.CallTo(() => afterNode.GetGeoJsonCoordinate())
-                .Returns("[665931.4446905176,7197297.75114815]");
+            A.CallTo(() => afterNode.GetPoint()).Returns(CreatePoint(665931.4446905176, 7197297.75114815));
+            A.CallTo(() => shadowTableRouteNode.GetPoint()).Returns(CreatePoint(565931.4446905176, 6197297.75114815));
+            A.CallTo(() => afterNode.GetGeoJsonCoordinate()).Returns("[665931.4446905176,7197297.75114815]");
             A.CallTo(() => afterNode.MarkAsDeleted).Returns(false);
-
-            A.CallTo(() => shadowTableRouteNode.GetGeoJsonCoordinate())
-                .Returns("[565931.4446905176,6197297.75114815]");
+            A.CallTo(() => shadowTableRouteNode.GetGeoJsonCoordinate()).Returns("[565931.4446905176,6197297.75114815]");
             A.CallTo(() => shadowTableRouteNode.MarkAsDeleted).Returns(false);
 
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
@@ -369,5 +400,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 result.RouteNodeAfter.Should().Be(afterNode);
             }
         }
+
+        private Point CreatePoint(double x, double y)
+            => new Point(new Coordinate(x, y));
     }
 }

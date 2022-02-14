@@ -37,6 +37,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (AlreadyUpdated(after, shadowTableNode))
                 return new List<INotification> { new DoNothing($"{nameof(RouteNode)} with id: '{after.Mrid}' was already updated therefore do nothing.") };
 
+            if (IsModifiedDistanceLessThanTolerance(shadowTableNode, after))
+                return new List<INotification> { new RollbackInvalidRouteNode(shadowTableNode, "Modified distance less than tolerance.") };
+
             if (!(await IsValidNodeUpdate(shadowTableNode, after)))
                 return new List<INotification> { new RollbackInvalidRouteNode(shadowTableNode, "Is not a valid route node update.") };
 
@@ -109,13 +112,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         }
 
         private bool AlreadyUpdated(RouteNode routeNode, RouteNode routeNodeShadowTable)
-        {
-            return routeNode.MarkAsDeleted == routeNodeShadowTable.MarkAsDeleted && routeNode.GetGeoJsonCoordinate() == routeNodeShadowTable.GetGeoJsonCoordinate();
-        }
+            => routeNode.MarkAsDeleted == routeNodeShadowTable.MarkAsDeleted && routeNode.GetGeoJsonCoordinate() == routeNodeShadowTable.GetGeoJsonCoordinate();
 
         private bool IsCreatedByApplication(RouteNode routeNode)
-        {
-            return routeNode.ApplicationName == _applicationSettings.ApplicationName;
-        }
+            => routeNode.ApplicationName == _applicationSettings.ApplicationName;
+
+        private bool IsModifiedDistanceLessThanTolerance(RouteNode shadowTableNode, RouteNode after)
+            => after.GetPoint().Distance(shadowTableNode.GetPoint()) <= _applicationSettings.Tolerance;
     }
 }
