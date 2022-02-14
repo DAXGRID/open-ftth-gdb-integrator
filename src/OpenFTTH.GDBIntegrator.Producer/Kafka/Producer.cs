@@ -1,8 +1,8 @@
-using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using OpenFTTH.GDBIntegrator.Config;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using OpenFTTH.GDBIntegrator.Config;
+using System.Threading.Tasks;
 using Topos.Config;
 using Topos.Producer;
 
@@ -25,6 +25,7 @@ namespace OpenFTTH.GDBIntegrator.Producer.Kafka
             if (_producer is null)
             {
                 _producer = Configure.Producer(c => c.UseKafka(_kafkaSetting.Server))
+                    .Logging(x => { x.UseSerilog(); })
                     .Serialization(s => s.UseNewtonsoftJson())
                     .Create();
             }
