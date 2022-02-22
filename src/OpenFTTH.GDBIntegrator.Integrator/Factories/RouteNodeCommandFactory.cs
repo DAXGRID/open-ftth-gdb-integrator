@@ -118,6 +118,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             => routeNode.ApplicationName == _applicationSettings.ApplicationName;
 
         private bool IsModifiedDistanceLessThanTolerance(RouteNode shadowTableNode, RouteNode after)
-            => after.GetPoint().Distance(shadowTableNode.GetPoint()) <= _applicationSettings.Tolerance;
+        {
+            var distance = after.GetPoint().Distance(shadowTableNode.GetPoint());
+            return distance != 0 && distance <= _applicationSettings.Tolerance;
+        }
     }
 }
