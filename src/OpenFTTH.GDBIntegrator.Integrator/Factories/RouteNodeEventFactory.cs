@@ -1,7 +1,7 @@
-using System;
 using OpenFTTH.Events.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using System;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {

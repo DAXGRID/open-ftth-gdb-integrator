@@ -1,30 +1,31 @@
-using System;
-using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
-using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
-using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres;
-using OpenFTTH.GDBIntegrator.Config;
-using OpenFTTH.GDBIntegrator.Subscriber;
-using OpenFTTH.GDBIntegrator.Producer;
-using OpenFTTH.GDBIntegrator.GeoDatabase;
-using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres;
-using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres.SchemaMigration;
-using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
-using OpenFTTH.GDBIntegrator.Integrator.Commands;
-using OpenFTTH.GDBIntegrator.Integrator.Factories;
-using OpenFTTH.GDBIntegrator.Integrator.Store;
-using MediatR;
 using FluentMigrator.Runner;
+using MediatR;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using Serilog;
-using Serilog.Formatting.Compact;
+using OpenFTTH.GDBIntegrator.Config;
+using OpenFTTH.GDBIntegrator.GeoDatabase;
+using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres;
+using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres.SchemaMigration;
+using OpenFTTH.GDBIntegrator.Integrator.Commands;
+using OpenFTTH.GDBIntegrator.Integrator.Factories;
+using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.GDBIntegrator.Integrator.Validate;
+using OpenFTTH.GDBIntegrator.Integrator.WorkTask;
+using OpenFTTH.GDBIntegrator.Producer;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
+using OpenFTTH.GDBIntegrator.Subscriber;
+using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres;
+using Serilog;
 using Serilog.Events;
+using Serilog.Formatting.Compact;
+using System;
+using System.Reflection;
 
 namespace OpenFTTH.GDBIntegrator.Internal
 {
@@ -96,6 +97,8 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddTransient<IModifiedEventFactory, ModifiedEventFactory>();
                 services.AddTransient<IValidationService, ValidationService>();
                 services.AddHttpClient<IValidationService, ValidationService>();
+                services.AddTransient<IWorkTaskService, WorkTaskService>();
+                services.AddHttpClient<IWorkTaskService, WorkTaskService>();
 
                 services.Configure<KafkaSetting>(kafkaSettings =>
                                                  hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));
