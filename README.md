@@ -16,7 +16,6 @@ Configure environment variables using minikube ip and ports.
 ## Requirements running the application
 
 * [Taskfile](https://taskfile.dev/#/installation)
-* dotnet runtime 5.0
 
 ## Running
 
