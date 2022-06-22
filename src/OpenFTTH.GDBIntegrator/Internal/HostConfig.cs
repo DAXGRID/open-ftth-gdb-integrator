@@ -97,7 +97,8 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddTransient<IModifiedEventFactory, ModifiedEventFactory>();
                 services.AddTransient<IValidationService, ValidationService>();
                 services.AddHttpClient<IValidationService, ValidationService>();
-                services.AddSingleton<IWorkTaskService, WorkTaskService>();
+                services.AddTransient<IWorkTaskService, WorkTaskService>();
+                services.AddHttpClient<IWorkTaskService, WorkTaskService>();
 
                 services.Configure<KafkaSetting>(kafkaSettings =>
                                                  hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));

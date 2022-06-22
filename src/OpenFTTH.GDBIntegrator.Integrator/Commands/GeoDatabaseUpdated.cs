@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using OpenFTTH.Events.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
@@ -102,47 +103,52 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     }
                 }
 
-                var username = GetUsername(request.UpdateMessage);
-                var workTaskMrId = await GetUserWorkTaskMrId(username);
-                _logger.LogInformation($"Retrieved work task id {workTaskMrId}");
-
-                // We update the work task ids on the newly digitized network elements.
-                await UpdateWorkTaskIdOnNewlyDigitized(workTaskMrId);
-
-                var editOperationOccuredEvent = CreateEditOperationOccuredEvent(workTaskMrId, username);
-
-                if (IsOperationEditEventValid(editOperationOccuredEvent))
+                if (_eventStore.Get().Count() > 0)
                 {
-                    if (_eventStore.Get().Count() > 0)
-                        await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, editOperationOccuredEvent);
+                    var username = GetUsername(request.UpdateMessage);
+                    if (String.IsNullOrWhiteSpace(username))
+                        throw new ApplicationException("Username is required.");
 
-                    await _geoDatabase.Commit();
+                    var workTaskMrId = await GetUserWorkTaskMrId(username);
 
-                    if (_eventStore.Get().Count() > 0 && _applicationSettings.SendGeographicalAreaUpdatedNotification)
+                    // We update the work task ids on the newly digitized network elements.
+                    await UpdateWorkTaskIdOnNewlyDigitized(workTaskMrId);
+
+                    var editOperationOccuredEvent = CreateEditOperationOccuredEvent(workTaskMrId, username);
+
+                    if (IsOperationEditEventValid(editOperationOccuredEvent))
                     {
-                        await _mediator.Publish(new GeographicalAreaUpdated
+                        if (_eventStore.Get().Count() > 0)
+                            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, editOperationOccuredEvent);
+
+                        await _geoDatabase.Commit();
+
+                        if (_eventStore.Get().Count() > 0 && _applicationSettings.SendGeographicalAreaUpdatedNotification)
                         {
-                            RouteNodes = _modifiedGeometriesStore.GetRouteNodes(),
-                            RouteSegment = _modifiedGeometriesStore.GetRouteSegments()
-                        });
+                            await _mediator.Publish(new GeographicalAreaUpdated
+                            {
+                                RouteNodes = _modifiedGeometriesStore.GetRouteNodes(),
+                                RouteSegment = _modifiedGeometriesStore.GetRouteSegments()
+                            });
+                        }
                     }
-                }
-                else
-                {
-                    _logger.LogError($"{nameof(RouteNetworkEditOperationOccuredEvent)} is not valid so we rollback.");
-                    await _geoDatabase.RollbackTransaction();
-                    await _geoDatabase.BeginTransaction();
-                    await RollbackOrDelete(request.UpdateMessage, $"Rollback or delete because {nameof(RouteNetworkEditOperationOccuredEvent)} is not valid.");
-                    await _geoDatabase.Commit();
-                    _logger.LogInformation($"{nameof(RouteNetworkEditOperationOccuredEvent)} is now rolled rollback.");
+                    else
+                    {
+                        _logger.LogError($"{nameof(RouteNetworkEditOperationOccuredEvent)} is not valid so we rollback.");
+                        await _geoDatabase.RollbackTransaction();
+                        await _geoDatabase.BeginTransaction();
+                        await RollbackOrDelete(request.UpdateMessage, $"Rollback or delete because {nameof(RouteNetworkEditOperationOccuredEvent)} is not valid.");
+                        await _geoDatabase.Commit();
+                        _logger.LogInformation($"{nameof(RouteNetworkEditOperationOccuredEvent)} is now rolled rollback.");
+                    }
                 }
             }
             catch (Exception e)
             {
-                _logger.LogError($"{e.ToString()}: Rolling back geodatabase transactions");
+                _logger.LogError($"{e}: Rolling back geodatabase transactions");
                 await _geoDatabase.RollbackTransaction();
                 await _geoDatabase.BeginTransaction();
-                await RollbackOrDelete(request.UpdateMessage, $"Rollback or delete because of exception: {e.Message}");
+                await RollbackOrDelete(request.UpdateMessage, $"Rollback or delete because of exception: {e}");
                 await _geoDatabase.Commit();
             }
             finally
@@ -198,7 +204,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 if (rollbackMessage.Before != null)
                 {
                     var rollbackSegment = await _geoDatabase.GetRouteSegmentShadowTable(rollbackMessage.After.Mrid);
-                    await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackSegment, errorMessage));
+                    if (rollbackSegment is null)
+                    {
+                        await _mediator.Publish(new InvalidRouteSegmentOperation
+                        {
+                            RouteSegment = rollbackMessage.After,
+                            Message = errorMessage
+                        });
+                    }
+                    else
+                    {
+                        await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackSegment, errorMessage));
+                    }
                 }
                 else
                 {
@@ -410,7 +427,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                         case RouteSegmentAdded routeSegmentAdded:
                             var routeSegmentSt = await _geoDatabase.GetRouteSegmentShadowTable(routeSegmentAdded.SegmentId);
                             // If the id is empty, we update it to the current work task id.
-                            if (routeSegmentSt.WorkTaskMrid == Guid.Empty)
+                            if (routeSegmentSt is not null && routeSegmentSt.WorkTaskMrid == Guid.Empty)
                             {
                                 routeSegmentSt.WorkTaskMrid = workTaskMrId;
                                 await _geoDatabase.UpdateRouteSegment(routeSegmentSt);

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using OpenFTTH.GDBIntegrator.Config;
 using System;
@@ -12,10 +13,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.WorkTask
         private readonly HttpClient _httpClient;
 
         public WorkTaskService(
-            ApplicationSetting applicationSetting,
+            IOptions<ApplicationSetting> applicationSetting,
             HttpClient httpClient)
         {
-            _applicationSetting = applicationSetting;
+            _applicationSetting = applicationSetting.Value;
             _httpClient = httpClient;
         }
 
@@ -24,12 +25,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.WorkTask
             var response = await _httpClient.GetAsync($"{_applicationSetting.ApiGatewayHost}/api/worktask/userworktask/{userName}");
             if (response.IsSuccessStatusCode)
             {
-                throw new ApplicationException("Failed to receive user work task.");
+                var result = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<WorkTaskResponse>(result);
             }
             else
             {
-                var result = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<WorkTaskResponse>(result);
+                throw new ApplicationException("Failed to receive user work task.");
             }
         }
     }
