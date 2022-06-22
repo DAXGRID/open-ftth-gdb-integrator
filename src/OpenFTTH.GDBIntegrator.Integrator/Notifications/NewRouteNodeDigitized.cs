@@ -1,14 +1,14 @@
-using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.Integrator.Factories;
-using OpenFTTH.GDBIntegrator.Integrator.Store;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using OpenFTTH.Events;
 using OpenFTTH.Events.RouteNetwork;
-using MediatR;
+using OpenFTTH.GDBIntegrator.Integrator.Factories;
+using OpenFTTH.GDBIntegrator.Integrator.Store;
+using OpenFTTH.GDBIntegrator.RouteNetwork;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 {

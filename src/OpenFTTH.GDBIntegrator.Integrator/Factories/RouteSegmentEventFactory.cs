@@ -1,11 +1,11 @@
+using Microsoft.Extensions.Options;
 using OpenFTTH.Events.RouteNetwork;
-using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.GDBIntegrator.Config;
+using OpenFTTH.GDBIntegrator.Integrator.Store;
+using OpenFTTH.GDBIntegrator.RouteNetwork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Options;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
@@ -81,6 +81,5 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 routeSegment.GetGeoJsonCoordinate(),
                 routeSegment?.RouteSegmentInfo);
         }
-
     }
 }
