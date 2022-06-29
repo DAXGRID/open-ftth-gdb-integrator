@@ -107,7 +107,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 {
                     var username = GetUsername(request.UpdateMessage);
                     if (String.IsNullOrWhiteSpace(username))
-                        throw new ApplicationException("Username is required.");
+                    {
+                        throw new InvalidOperationException("The update message is missing username.");
+                    }
 
                     var workTaskMrId = await GetUserWorkTaskMrId(username);
 
@@ -118,29 +120,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
                     if (IsOperationEditEventValid(editOperationOccuredEvent))
                     {
-                        if (_eventStore.Get().Count() > 0)
-                            await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, editOperationOccuredEvent);
-
+                        await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, editOperationOccuredEvent);
                         await _geoDatabase.Commit();
-
-                        if (_eventStore.Get().Count() > 0 && _applicationSettings.SendGeographicalAreaUpdatedNotification)
-                        {
-                            await _mediator.Publish(new GeographicalAreaUpdated
-                            {
-                                RouteNodes = _modifiedGeometriesStore.GetRouteNodes(),
-                                RouteSegment = _modifiedGeometriesStore.GetRouteSegments()
-                            });
-                        }
                     }
                     else
                     {
-                        _logger.LogError($"{nameof(RouteNetworkEditOperationOccuredEvent)} is not valid so we rollback.");
-                        await _geoDatabase.RollbackTransaction();
-                        await _geoDatabase.BeginTransaction();
-                        await RollbackOrDelete(request.UpdateMessage, $"Rollback or delete because {nameof(RouteNetworkEditOperationOccuredEvent)} is not valid.");
-                        await _geoDatabase.Commit();
-                        _logger.LogInformation($"{nameof(RouteNetworkEditOperationOccuredEvent)} is now rolled rollback.");
+                        throw new Exception("Operation is invalid.");
                     }
+                }
+                else
+                {
+                    await _geoDatabase.Commit();
                 }
             }
             catch (Exception e)
@@ -150,9 +140,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 await _geoDatabase.BeginTransaction();
                 await RollbackOrDelete(request.UpdateMessage, $"Rollback or delete because of exception: {e}");
                 await _geoDatabase.Commit();
+                _logger.LogInformation($"{nameof(RouteNetworkEditOperationOccuredEvent)} is now rolled rollback.");
             }
             finally
             {
+                if (_modifiedGeometriesStore.GetRouteNodes().Count > 0 || _modifiedGeometriesStore.GetRouteSegments().Count > 0)
+                {
+                    await _mediator.Publish(new GeographicalAreaUpdated
+                    {
+                        RouteNodes = _modifiedGeometriesStore.GetRouteNodes(),
+                        RouteSegment = _modifiedGeometriesStore.GetRouteSegments()
+                    });
+                }
                 _eventStore.Clear();
                 _modifiedGeometriesStore.Clear();
                 await _geoDatabase.DisposeTransaction();
@@ -204,17 +203,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 if (rollbackMessage.Before != null)
                 {
                     var rollbackSegment = await _geoDatabase.GetRouteSegmentShadowTable(rollbackMessage.After.Mrid);
-                    if (rollbackSegment is null)
+
+                    if (rollbackSegment is not null)
+                    {
+                        await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackSegment, errorMessage));
+                    }
+                    else
                     {
                         await _mediator.Publish(new InvalidRouteSegmentOperation
                         {
                             RouteSegment = rollbackMessage.After,
                             Message = errorMessage
                         });
-                    }
-                    else
-                    {
-                        await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackSegment, errorMessage));
                     }
                 }
                 else
@@ -232,7 +232,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 if (rollbackMessage.Before != null)
                 {
                     var rollbackNode = await _geoDatabase.GetRouteNodeShadowTable(rollbackMessage.After.Mrid);
-                    await _mediator.Publish(new RollbackInvalidRouteNode(rollbackNode, errorMessage));
+                    if (rollbackNode is not null)
+                    {
+                        await _mediator.Publish(new RollbackInvalidRouteNode(rollbackNode, errorMessage));
+                    }
+                    else
+                    {
+                        await _mediator.Publish(new InvalidRouteNodeOperation
+                        {
+                            RouteNode = rollbackMessage.After,
+                            Message = errorMessage
+                        });
+                    }
                 }
                 else
                 {

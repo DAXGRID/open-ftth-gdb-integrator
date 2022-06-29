@@ -3,7 +3,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.Subscriber;
-using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,19 +58,10 @@ namespace OpenFTTH.GDBIntegrator
 
         private void OnStarted()
         {
-            try
-            {
-                _logger.LogInformation($"Starting {nameof(IRouteNetworkSubscriber)}");
-                _routeNetworkSubscriber.Subscribe();
-                _logger.LogInformation("Init kafka producer");
-                _producer.Init();
-
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                throw;
-            }
+            _logger.LogInformation($"Starting {nameof(IRouteNetworkSubscriber)}");
+            _routeNetworkSubscriber.Subscribe();
+            _logger.LogInformation("Init kafka producer");
+            _producer.Init();
         }
 
         private void OnStopped()
