@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using OpenFTTH.Events.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
@@ -14,6 +13,7 @@ using OpenFTTH.GDBIntegrator.Integrator.WorkTask;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -99,7 +99,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     }
                     else
                     {
-                        await RollbackOrDelete((request.UpdateMessage as InvalidMessage).Message, "Message is invalid so we rollback or delete");
+                        throw new InvalidOperationException("Message is invalid.");
                     }
                 }
 
@@ -125,7 +125,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     }
                     else
                     {
-                        throw new Exception("Operation is invalid.");
+                        throw new InvalidOperationException("The edit event operation is invalid.");
                     }
                 }
                 else
@@ -135,12 +135,37 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             catch (Exception e)
             {
-                _logger.LogError($"{e}: Rolling back geodatabase transactions");
+                _logger.LogError($"{e}: Rolling back geodatabase transactions.");
                 await _geoDatabase.RollbackTransaction();
                 await _geoDatabase.BeginTransaction();
                 await RollbackOrDelete(request.UpdateMessage, $"Rollback or delete because of exception: {e}");
                 await _geoDatabase.Commit();
                 _logger.LogInformation($"{nameof(RouteNetworkEditOperationOccuredEvent)} is now rolled rollback.");
+
+                // We send an updated event out, to notify that something has been rolled back to refresh GIS.
+                try
+                {
+                    if (request.UpdateMessage is RouteNodeMessage)
+                    {
+                        await _mediator.Publish(new GeographicalAreaUpdated
+                        {
+                            RouteNodes = new List<RouteNode> { ((RouteNodeMessage)request.UpdateMessage).After },
+                            RouteSegment = new List<RouteSegment>(),
+                        });
+                    }
+                    else if (request.UpdateMessage is RouteSegmentMessage)
+                    {
+                        await _mediator.Publish(new GeographicalAreaUpdated
+                        {
+                            RouteNodes = new List<RouteNode>(),
+                            RouteSegment = new List<RouteSegment> { ((RouteSegmentMessage)request.UpdateMessage).After }
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Could not send out {nameof(GeographicalAreaUpdated)} Exception: {ex}");
+                }
             }
             finally
             {
