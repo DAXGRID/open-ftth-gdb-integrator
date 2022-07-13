@@ -99,7 +99,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     }
                     else
                     {
-                        throw new InvalidOperationException("Message is invalid.");
+                        await RollbackOrDelete((request.UpdateMessage as InvalidMessage).Message, "Message is invalid so we rollback or delete");
                     }
                 }
 
