@@ -1,16 +1,16 @@
+using Dapper;
+using Microsoft.Extensions.Options;
+using Npgsql;
+using OpenFTTH.Events.Core.Infos;
+using OpenFTTH.Events.RouteNetwork.Infos;
+using OpenFTTH.GDBIntegrator.Config;
+using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres.QueryModels;
+using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using OpenFTTH.GDBIntegrator.Config;
-using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
-using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres.QueryModels;
-using OpenFTTH.Events.Core.Infos;
-using OpenFTTH.Events.RouteNetwork.Infos;
-using Dapper;
-using Npgsql;
-using Microsoft.Extensions.Options;
 
 namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
 {
@@ -782,17 +782,18 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
         public async Task<List<RouteNode>> GetIntersectingRouteNodes(RouteNode routeNode)
         {
             var connection = GetNpgsqlConnection();
-            var query = @"SELECT ST_AsBinary(coord) AS coord, mrid FROM route_network_integrator.route_node
+            var query = @"
+                    SELECT ST_AsBinary(coord) AS coord, mrid
+                    FROM route_network_integrator.route_node
                     WHERE ST_Intersects(
                       ST_Buffer(
-                        (SELECT coord FROM route_network_integrator.route_node
-                        WHERE mrid = @mrid),
+                        ST_GeomFromWKB(@coord, 25832),
                         @tolerance
                       ),
                       coord) AND mrid != @mrid AND marked_to_be_deleted = false
                     ";
 
-            var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeNode.Mrid, _applicationSettings.Tolerance });
+            var routeNodes = await connection.QueryAsync<RouteNode>(query, new { routeNode.Mrid, routeNode.Coord, _applicationSettings.Tolerance });
 
             return routeNodes.AsList();
         }
