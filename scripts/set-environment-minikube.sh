@@ -23,5 +23,9 @@ export KAFKA__POSTGISROUTENETWORKCONSUMER="postgres-connector-gdb-integrator-con
 export KAFKA__EVENTROUTENETWORKTOPICNAME="domain.route-network"
 export KAFKA__EVENTGEOGRAPHICALAREAUPDATED="notification.geographical-area-updated"
 
+# Notification server
+export NOTIFICATIONSERVER__DOMAIN="notification-server"
+export NOTIFICATIONSERVER__PORT="80"
+
 # Logging
 export SERILOG__MINIMUMLEVEL="Information"

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using OpenFTTH.Events.Geo;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.Producer;
@@ -22,27 +23,24 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
 
     public class GeographicalAreaUpdatedHandler : INotificationHandler<GeographicalAreaUpdated>
     {
-        private readonly IProducer _producer;
         private readonly ILogger<GeographicalAreaUpdatedHandler> _logger;
         private readonly IEnvelopeFactory _envelopeFactory;
-        private readonly KafkaSetting _kafkaSettings;
         private readonly ApplicationSetting _applicationSettings;
+        private readonly INotificationClient _notificationClient;
 
         public GeographicalAreaUpdatedHandler(
-            IProducer producer,
             ILogger<GeographicalAreaUpdatedHandler> logger,
             IEnvelopeFactory envelopeFactory,
-            IOptions<KafkaSetting> kafkaSettings,
-            IOptions<ApplicationSetting> applicationSetting)
+            IOptions<ApplicationSetting> applicationSetting,
+            INotificationClient notificationClient)
         {
-            _producer = producer;
             _logger = logger;
             _envelopeFactory = envelopeFactory;
-            _kafkaSettings = kafkaSettings.Value;
             _applicationSettings = applicationSetting.Value;
+            _notificationClient = notificationClient;
         }
 
-        public async Task Handle(GeographicalAreaUpdated request, CancellationToken token)
+        public Task Handle(GeographicalAreaUpdated request, CancellationToken token)
         {
             _logger.LogDebug($"Starting {nameof(GeographicalAreaUpdatedHandler)}");
 
@@ -62,10 +60,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                 string.Empty,
                 "RouteNetworkUpdated",
                 envelopeInfo,
-                null
-                );
+                null);
 
-            await _producer.Produce(_kafkaSettings.EventGeographicalAreaUpdated, geographicalAreaUpdatedEvent);
+            _notificationClient.Notify(
+                "GeographicalAreaUpdated",
+                JsonConvert.SerializeObject(geographicalAreaUpdatedEvent));
+
+            return Task.CompletedTask;
         }
     }
 }
