@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="MediatR" Version="8.1.0" />
+    <PackageReference Include="OpenFTTH.NotificationClient" Version="0.2.0" />
     <PackageReference Include="Topos" Version="0.0.95" />
     <PackageReference Include="Topos.Kafka" Version="0.0.95" />
     <PackageReference Include="Topos.Serilog" Version="0.0.95" />

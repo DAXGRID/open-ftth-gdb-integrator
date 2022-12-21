@@ -16,6 +16,7 @@ using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.GDBIntegrator.Integrator.Validate;
 using OpenFTTH.GDBIntegrator.Integrator.WorkTask;
 using OpenFTTH.GDBIntegrator.Producer;
+using OpenFTTH.GDBIntegrator.Producer.NotificationServer;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
@@ -99,15 +100,19 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddHttpClient<IValidationService, ValidationService>();
                 services.AddTransient<IWorkTaskService, WorkTaskService>();
                 services.AddHttpClient<IWorkTaskService, WorkTaskService>();
+                services.AddSingleton<INotificationClient, NotificationServerClient>();
 
-                services.Configure<KafkaSetting>(kafkaSettings =>
-                                                 hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));
+                services.Configure<KafkaSetting>(
+                    kafkaSettings => hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));
 
-                services.Configure<PostgisSetting>(postgisSettings =>
-                                                 hostContext.Configuration.GetSection("postgis").Bind(postgisSettings));
+                services.Configure<PostgisSetting>(
+                    postgisSettings => hostContext.Configuration.GetSection("postgis").Bind(postgisSettings));
 
-                services.Configure<ApplicationSetting>(applicationSettings =>
-                                                 hostContext.Configuration.GetSection("application").Bind(applicationSettings));
+                services.Configure<NotificationServerSetting>(
+                    notificationServerSetting => hostContext.Configuration.GetSection("notificationServer").Bind(notificationServerSetting));
+
+                services.Configure<ApplicationSetting>(
+                    applicationSettings => hostContext.Configuration.GetSection("application").Bind(applicationSettings));
             });
         }
 
