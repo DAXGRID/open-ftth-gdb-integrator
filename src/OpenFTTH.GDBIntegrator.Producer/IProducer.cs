@@ -3,9 +3,8 @@ using System.Threading.Tasks;
 
 namespace OpenFTTH.GDBIntegrator.Producer
 {
-    public interface IProducer : IDisposable
+    public interface IProducer
     {
-        void Init();
-        Task Produce(string topicName, Object message);
+        Task Produce(Guid streamId, object message);
     }
 }

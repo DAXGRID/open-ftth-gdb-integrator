@@ -1,15 +1,14 @@
-using OpenFTTH.GDBIntegrator;
+using FakeItEasy;
+using FluentAssertions;
+using FluentMigrator.Runner;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using OpenFTTH.GDBIntegrator.Producer;
+using OpenFTTH.GDBIntegrator.Subscriber;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
-using FakeItEasy;
 using Xunit;
-using OpenFTTH.GDBIntegrator.Subscriber;
-using OpenFTTH.GDBIntegrator.Producer;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Hosting;
-using FluentMigrator.Runner;
 
 namespace OpenFTTH.GDBIntegrator.Tests
 {

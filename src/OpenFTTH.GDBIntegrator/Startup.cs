@@ -60,14 +60,11 @@ namespace OpenFTTH.GDBIntegrator
         {
             _logger.LogInformation($"Starting {nameof(IRouteNetworkSubscriber)}");
             _routeNetworkSubscriber.Subscribe();
-            _logger.LogInformation("Init kafka producer");
-            _producer.Init();
         }
 
         private void OnStopped()
         {
             _routeNetworkSubscriber.Dispose();
-            _producer.Dispose();
             _logger.LogInformation("Stopped service");
         }
     }

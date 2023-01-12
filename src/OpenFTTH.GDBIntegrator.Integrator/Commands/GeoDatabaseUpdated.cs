@@ -27,6 +27,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
     public class GeoDatabaseUpdatedHandler : IRequestHandler<GeoDatabaseUpdated, Unit>
     {
+        // This is the global ID for the RouteNetwork event stream. Should not be changed.
+        private readonly Guid GLOBAL_STREAM_ID = Guid.Parse("70554b8a-a572-4ab6-b837-19681ed83d35");
+
         private readonly ILogger<GeoDatabaseUpdatedHandler> _logger;
         private readonly IMediator _mediator;
         private readonly IRouteNodeCommandFactory _routeNodeEventFactory;
@@ -136,7 +139,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
                     if (IsOperationEditEventValid(editOperationOccuredEvent))
                     {
-                        await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, editOperationOccuredEvent);
+                        await _producer.Produce(GLOBAL_STREAM_ID, editOperationOccuredEvent);
                         await _geoDatabase.Commit();
                     }
                     else
