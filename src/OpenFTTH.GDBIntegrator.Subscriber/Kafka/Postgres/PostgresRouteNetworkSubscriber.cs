@@ -19,24 +19,27 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres
         private readonly PostgisSetting _postgisSetting;
         private readonly IMediator _mediator;
         private readonly ILogger<PostgresRouteNetworkSubscriber> _logger;
+        private readonly IServiceProvider _serviceProvider;
 
         public PostgresRouteNetworkSubscriber(
             IOptions<KafkaSetting> kafkaSetting,
             IOptions<PostgisSetting> postgisSetting,
             IMediator mediator,
-            ILogger<PostgresRouteNetworkSubscriber> logger)
+            ILogger<PostgresRouteNetworkSubscriber> logger,
+            IServiceProvider serviceProvider)
         {
             _kafkaSetting = kafkaSetting.Value;
             _mediator = mediator;
             _logger = logger;
             _postgisSetting = postgisSetting.Value;
+            _serviceProvider = serviceProvider;
         }
 
         public void Subscribe()
         {
             _consumer = Configure
                 .Consumer(_kafkaSetting.PostgisRouteNetworkConsumer, c => c.UseKafka(_kafkaSetting.Server))
-                .Serialization(s => s.RouteNetwork())
+                .Serialization(s => s.RouteNetwork(_serviceProvider))
                 .Topics(t => t.Subscribe(_kafkaSetting.PostgisRouteNetworkTopic))
                 .Positions(p => p.StoreInPostgreSql(
                                $"Host={_postgisSetting.Host};Port={_postgisSetting.Port};Username={_postgisSetting.Username};Password={_postgisSetting.Password};Database={_postgisSetting.Database}",
