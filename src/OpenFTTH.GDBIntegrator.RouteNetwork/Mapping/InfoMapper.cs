@@ -1,6 +1,6 @@
-using System;
 using OpenFTTH.Events.Core.Infos;
 using OpenFTTH.Events.RouteNetwork.Infos;
+using System;
 
 namespace OpenFTTH.GDBIntegrator.RouteNetwork.Mapping
 {
@@ -58,10 +58,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Mapping
         {
             if (string.IsNullOrEmpty(routeNodeKindStringRepresentation))
                 return null;
-
-            // Hack because of invalid name was used in QGIS
-            if (routeNodeKindStringRepresentation == "CabinatSmall")
-                routeNodeKindStringRepresentation = "CabinetSmall";
 
             switch (routeNodeKindStringRepresentation.ToLower())
             {
