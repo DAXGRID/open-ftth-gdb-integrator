@@ -1,23 +1,26 @@
-using System;
-using System.Text;
-using System.Linq;
-using Topos.Serialization;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
-using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
 using OpenFTTH.Events.Core.Infos;
 using OpenFTTH.Events.RouteNetwork.Infos;
+using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
+using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
+using System;
+using System.Linq;
+using System.Text;
+using Topos.Serialization;
 
 namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
 {
     public class RouteNetworkSerializer : IMessageSerializer
     {
         private readonly IInfoMapper _infoMapper;
+        private readonly ILogger<RouteNetworkSerializer> _logger;
 
-        public RouteNetworkSerializer(IInfoMapper infoMapper)
+        public RouteNetworkSerializer(IInfoMapper infoMapper, ILogger<RouteNetworkSerializer> logger)
         {
             _infoMapper = infoMapper;
+            _logger = logger;
         }
 
         public ReceivedLogicalMessage Deserialize(ReceivedTransportMessage message)
@@ -82,11 +85,13 @@ namespace OpenFTTH.GDBIntegrator.Subscriber.Kafka.Serialize
             }
             catch (Exception e)
             {
-                // TODO rewrite to error logging
-                Console.WriteLine(e.StackTrace + "\n" + "With object: " + Newtonsoft.Json.JsonConvert.SerializeObject(payload, Newtonsoft.Json.Formatting.Indented));
+                _logger.LogError(
+                    $"{e}\nWith object: {Newtonsoft.Json.JsonConvert.SerializeObject(payload, Newtonsoft.Json.Formatting.Indented)}");
             }
 
-            throw new Exception($"No valid deserilizaiton for type {payload.source.table.ToString()}");
+            // We can't know what to do here, so we just fail hard. The service will keep failing until
+            // something is figured out to handle this case. Hopefully it will never happen.
+            throw new Exception($"No valid deserialization for type {payload.source.table.ToString()}");
         }
 
         private RouteSegmentMessage CreateRouteSegmentMessage(dynamic payload)
