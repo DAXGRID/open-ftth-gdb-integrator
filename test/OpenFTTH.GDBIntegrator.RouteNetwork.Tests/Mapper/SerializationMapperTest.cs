@@ -15,6 +15,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Mapping
         [InlineData("NotYetInstalled", DeploymentStateEnum.NotYetInstalled)]
         [InlineData("OutOfService", DeploymentStateEnum.OutOfService)]
         [InlineData("Removed", DeploymentStateEnum.Removed)]
+        [InlineData("Planned", DeploymentStateEnum.Planned)]
         [InlineData("", null)]
         [InlineData(null, null)]
         public void MapDeploymentState_ShouldReturnMappedEnumDeploymentState_OnBeingPassedValidStringRepresentation(string deploymentStateStringReprestation, DeploymentStateEnum? expected)
