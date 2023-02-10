@@ -168,11 +168,23 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             {
                 if (_modifiedGeometriesStore.GetRouteNodes().Count > 0 || _modifiedGeometriesStore.GetRouteSegments().Count > 0)
                 {
-                    await _mediator.Publish(new GeographicalAreaUpdated
+                    try
                     {
-                        RouteNodes = _modifiedGeometriesStore.GetRouteNodes(),
-                        RouteSegment = _modifiedGeometriesStore.GetRouteSegments()
-                    });
+                        await _mediator.Publish(new GeographicalAreaUpdated
+                        {
+                            RouteNodes = _modifiedGeometriesStore.GetRouteNodes(),
+                            RouteSegment = _modifiedGeometriesStore.GetRouteSegments()
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        // This is not good, but the application can still keep running even
+                        // if there are issues with the notification server.
+                        // If a notification is not broadcastet the worst thing that can happen
+                        // is that a user has to refresh the UI themselves.
+                        _logger.LogInformation(
+                            $"Could not broadcast {nameof(GeographicalAreaUpdated)}.\n{ex}");
+                    }
                 }
                 _eventStore.Clear();
                 _modifiedGeometriesStore.Clear();
