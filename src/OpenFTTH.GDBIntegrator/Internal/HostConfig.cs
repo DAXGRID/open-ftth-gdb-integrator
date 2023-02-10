@@ -3,9 +3,11 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using OpenFTTH.EventSourcing.Postgres;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.GeoDatabase.Postgres;
@@ -16,6 +18,7 @@ using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.GDBIntegrator.Integrator.Validate;
 using OpenFTTH.GDBIntegrator.Integrator.WorkTask;
 using OpenFTTH.GDBIntegrator.Producer;
+using OpenFTTH.GDBIntegrator.Producer.EventStore;
 using OpenFTTH.GDBIntegrator.Producer.NotificationServer;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
@@ -80,7 +83,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
 
                 services.AddHostedService<Startup>();
                 services.AddSingleton<IRouteNetworkSubscriber, PostgresRouteNetworkSubscriber>();
-                services.AddSingleton<IProducer, Producer.Kafka.Producer>();
+                services.AddSingleton<IProducer, EventStoreProducer>();
                 services.AddSingleton<IGeoDatabase, Postgis>();
                 services.AddTransient<IRouteSegmentValidator, RouteSegmentValidator>();
                 services.AddTransient<IRouteSegmentFactory, RouteSegmentFactory>();
@@ -91,7 +94,11 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddTransient<IRouteSegmentEventFactory, RouteSegmentEventFactory>();
                 services.AddTransient<IRouteNodeEventFactory, RouteNodeEventFactory>();
                 services.AddTransient<IInfoMapper, InfoMapper>();
+
+                // This is not the event store with database, this is a local implementation of a place
+                // to store events globally before being processed.
                 services.AddSingleton<IEventStore, EventStore>();
+
                 services.AddSingleton<IModifiedGeometriesStore, ModifiedGeometriesStore>();
                 services.AddTransient<IRouteNodeInfoCommandFactory, RouteNodeInfoCommandFactory>();
                 services.AddTransient<IRouteSegmentInfoCommandFactory, RouteSegmentInfoCommandFactory>();
@@ -101,6 +108,14 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddTransient<IWorkTaskService, WorkTaskService>();
                 services.AddHttpClient<IWorkTaskService, WorkTaskService>();
                 services.AddSingleton<INotificationClient, NotificationServerClient>();
+                services.AddSingleton<OpenFTTH.EventSourcing.IEventStore>(
+                    e =>
+                    new PostgresEventStore(
+                        serviceProvider: e.GetRequiredService<IServiceProvider>(),
+                        connectionString: e.GetRequiredService<IOptions<EventStoreSetting>>().Value.ConnectionString,
+                        databaseSchemaName: "events"
+                    )
+                );
 
                 services.Configure<KafkaSetting>(
                     kafkaSettings => hostContext.Configuration.GetSection("kafka").Bind(kafkaSettings));
@@ -113,6 +128,9 @@ namespace OpenFTTH.GDBIntegrator.Internal
 
                 services.Configure<ApplicationSetting>(
                     applicationSettings => hostContext.Configuration.GetSection("application").Bind(applicationSettings));
+
+                services.Configure<EventStoreSetting>(
+                        eventStoreSetting => hostContext.Configuration.GetSection("eventStore").Bind(eventStoreSetting));
             });
         }
 

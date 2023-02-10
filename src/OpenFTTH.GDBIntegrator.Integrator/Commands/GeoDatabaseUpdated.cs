@@ -27,6 +27,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
     public class GeoDatabaseUpdatedHandler : IRequestHandler<GeoDatabaseUpdated, Unit>
     {
+        // This is the global ID for the RouteNetwork event stream. Should not be changed.
+        private readonly Guid GLOBAL_STREAM_ID = Guid.Parse("70554b8a-a572-4ab6-b837-19681ed83d35");
+
         private readonly ILogger<GeoDatabaseUpdatedHandler> _logger;
         private readonly IMediator _mediator;
         private readonly IRouteNodeCommandFactory _routeNodeEventFactory;
@@ -136,7 +139,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
                     if (IsOperationEditEventValid(editOperationOccuredEvent))
                     {
-                        await _producer.Produce(_kafkaSettings.EventRouteNetworkTopicName, editOperationOccuredEvent);
+                        await _producer.Produce(GLOBAL_STREAM_ID, editOperationOccuredEvent);
                         await _geoDatabase.Commit();
                     }
                     else
@@ -165,11 +168,23 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             {
                 if (_modifiedGeometriesStore.GetRouteNodes().Count > 0 || _modifiedGeometriesStore.GetRouteSegments().Count > 0)
                 {
-                    await _mediator.Publish(new GeographicalAreaUpdated
+                    try
                     {
-                        RouteNodes = _modifiedGeometriesStore.GetRouteNodes(),
-                        RouteSegment = _modifiedGeometriesStore.GetRouteSegments()
-                    });
+                        await _mediator.Publish(new GeographicalAreaUpdated
+                        {
+                            RouteNodes = _modifiedGeometriesStore.GetRouteNodes(),
+                            RouteSegment = _modifiedGeometriesStore.GetRouteSegments()
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        // This is not good, but the application can still keep running even
+                        // if there are issues with the notification server.
+                        // If a notification is not broadcastet the worst thing that can happen
+                        // is that a user has to refresh the UI themselves.
+                        _logger.LogInformation(
+                            $"Could not broadcast {nameof(GeographicalAreaUpdated)}.\n{ex}");
+                    }
                 }
                 _eventStore.Clear();
                 _modifiedGeometriesStore.Clear();

@@ -24,8 +24,11 @@ export KAFKA__EVENTROUTENETWORKTOPICNAME="domain.route-network"
 export KAFKA__EVENTGEOGRAPHICALAREAUPDATED="notification.geographical-area-updated"
 
 # Notification server
-export NOTIFICATIONSERVER__DOMAIN="notification-server"
-export NOTIFICATIONSERVER__PORT="80"
+export NOTIFICATIONSERVER__DOMAIN="localhost"
+export NOTIFICATIONSERVER__PORT="6666"
+
+# Event store
+export EVENTSTORE__CONNECTIONSTRING="Host=event-store.openftth.local;Port=5432;Username=postgres;Password=postgres;Database=EVENT_STORE"
 
 # Logging
 export SERILOG__MINIMUMLEVEL="Information"
