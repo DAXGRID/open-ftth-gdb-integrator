@@ -13,19 +13,12 @@ namespace OpenFTTH.GDBIntegrator.Producer.EventStore
             _eventStore = eventStore;
         }
 
-        public async Task Produce(Guid streamId, object toposMessage)
+        public async Task Produce(Guid streamId, object message)
         {
-            var currentVersion = 0L;
-
-            if (_eventStore.Aggregates.CheckIfAggregateIdHasBeenUsed(streamId))
-            {
-                // We retrieve the latest version each time,
-                // so we don't have to keep internal version state up to date.
-                currentVersion = await _eventStore
-                   .CurrentStreamVersionAsync(streamId) ??
-                   throw new InvalidOperationException(
-                       "Could not get stream version. The method returned null.");
-            }
+            // We retrieve the latest version each time,
+            // so we don't have to keep internal version state up to date.
+            var currentVersion = await _eventStore
+                .CurrentStreamVersionAsync(streamId) ?? 0L;
 
             // Next expected version is current version plus one.
             var nextExpectedVersion = currentVersion + 1;
@@ -34,7 +27,7 @@ namespace OpenFTTH.GDBIntegrator.Producer.EventStore
                 .AppendStreamAsync(
                     streamId,
                     nextExpectedVersion,
-                    new[] { toposMessage });
+                    new[] { message });
         }
     }
 }
