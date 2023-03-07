@@ -1,16 +1,25 @@
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using System;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages
 {
-    public class RouteNodeMessage
+    public record RouteNodeMessage
     {
-        public RouteNode Before { get; }
-        public RouteNode After { get; }
+        public Guid EventId { get; init; }
+        public RouteNode Before { get; init; }
+        public RouteNode After { get; init; }
 
         public RouteNodeMessage() {}
-
-        public RouteNodeMessage(RouteNode before, RouteNode after)
+        public RouteNodeMessage(Guid eventId, RouteNode before, RouteNode after)
         {
+            if (eventId == Guid.Empty)
+            {
+                throw new ArgumentException(
+                    "Cannot be default guid.",
+                    nameof(eventId));
+            }
+
+            EventId = eventId;
             Before = before;
             After = after;
         }

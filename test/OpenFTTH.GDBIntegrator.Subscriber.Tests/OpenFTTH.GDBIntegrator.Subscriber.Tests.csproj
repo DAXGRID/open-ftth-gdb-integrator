@@ -13,7 +13,6 @@
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
-    <PackageReference Include="Topos" Version="0.0.95" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     <PackageReference Include="coverlet.collector" Version="1.2.0" />
@@ -22,9 +21,12 @@
   <ItemGroup>
     <None Update="TestData/RouteSegmentSerializerMessage.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData/RouteSegmentSerializerMessageBeforeIsNull.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="TestData/RouteSegmentSerializerMessageAfterIsNull.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData/RouteSegmentSerializerMessageCoordIsNull.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData/RouteNodeSerializerMessage.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData/RouteNodeSerializerMessageBeforeIsNull.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="TestData/RouteNodeSerializerMessageAfterIsNull.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="TestData/RouteNodeSerializerMessageCoordIsNull.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 
