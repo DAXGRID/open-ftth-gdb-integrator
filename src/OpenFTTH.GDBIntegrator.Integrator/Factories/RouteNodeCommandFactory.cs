@@ -4,6 +4,7 @@ using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,13 +16,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
     {
         private readonly ApplicationSetting _applicationSettings;
         private readonly IGeoDatabase _geoDatabase;
+        private readonly IRouteNodeValidator _routeNodeValidator;
 
         public RouteNodeCommandFactory(
             IOptions<ApplicationSetting> applicationSettings,
-            IGeoDatabase geoDatabase)
+            IGeoDatabase geoDatabase,
+            IRouteNodeValidator routeNodeValidator)
         {
             _applicationSettings = applicationSettings.Value;
             _geoDatabase = geoDatabase;
+            _routeNodeValidator = routeNodeValidator;
         }
 
         public async Task<List<INotification>> CreateUpdatedEvent(RouteNode before, RouteNode after)
@@ -36,6 +40,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (AlreadyUpdated(after, shadowTableNode))
                 return new List<INotification> { new DoNothing($"{nameof(RouteNode)} with id: '{after.Mrid}' was already updated therefore do nothing.") };
+
+            if (!_routeNodeValidator.PointIsValid(after.GetPoint()))
+                throw new ArgumentException("Point is not valid.");
 
             if (IsModifiedDistanceLessThanTolerance(shadowTableNode, after))
                 return new List<INotification> { new RollbackInvalidRouteNode(shadowTableNode, "Modified distance less than tolerance.") };

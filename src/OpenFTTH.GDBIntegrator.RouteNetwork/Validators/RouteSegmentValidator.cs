@@ -11,7 +11,9 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Validators
         private readonly ILogger<RouteSegmentValidator> _logger;
         private readonly ApplicationSetting _applicationSettings;
 
-        public RouteSegmentValidator(ILogger<RouteSegmentValidator> logger, IOptions<ApplicationSetting> applicationSettings)
+        public RouteSegmentValidator(
+            ILogger<RouteSegmentValidator> logger,
+            IOptions<ApplicationSetting> applicationSettings)
         {
             _logger = logger;
             _applicationSettings = applicationSettings.Value;
@@ -58,7 +60,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Validators
 
         private void LogValidationError(string errorName, LineString lineString)
         {
-            _logger.LogError($"Validation failed on '{errorName}'. WkbString: '{lineString.ToString()}'");
+            _logger.LogError($"Validation failed on '{errorName}'. WkbString: '{lineString.ToString()}'.");
         }
     }
 }

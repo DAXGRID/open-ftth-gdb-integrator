@@ -9,6 +9,7 @@ using OpenFTTH.GDBIntegrator.Integrator.Factories;
 using OpenFTTH.GDBIntegrator.Integrator.Notifications;
 using OpenFTTH.GDBIntegrator.Integrator.Validate;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,8 +25,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             Func<Task> act = async () => await factory.CreateDigitizedEvent(null);
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
@@ -36,10 +38,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
 
-            A.CallTo(() => applicationSetting.Value).Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
+            A.CallTo(() => applicationSetting.Value).Returns(
+                new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             var routeNode = new RouteNode(Guid.Empty, null, Guid.Empty, String.Empty, "GDB_INTEGRATOR");
             var result = (DoNothing)((await factory.CreateDigitizedEvent(routeNode)).First());
@@ -53,11 +57,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
             var routeNode = A.Fake<RouteNode>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
 
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(routeNode))
                 .Returns(new List<RouteSegment>());
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             var result = (NewRouteNodeDigitized)((await factory.CreateDigitizedEvent(routeNode)).First());
 
@@ -78,7 +83,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(routeNode))
                 .Returns(routeSegments);
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var point = A.Fake<Point>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            A.CallTo(() => routeNode.GetPoint()).Returns(point);
+            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             var result = await factory.CreateDigitizedEvent(routeNode);
             var firstEvent = (ExistingRouteSegmentSplitted)result[0];
@@ -100,7 +110,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(routeNode))
                 .Returns(routeSegments);
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var point = A.Fake<Point>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            A.CallTo(() => routeNode.GetPoint()).Returns(point);
+            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             var result = (InvalidRouteNodeOperation)((await factory.CreateDigitizedEvent(routeNode)).First());
 
@@ -121,7 +136,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetIntersectingRouteNodes(routeNode))
                 .Returns(intersectingRouteNodes);
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var point = A.Fake<Point>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            A.CallTo(() => routeNode.GetPoint()).Returns(point);
+            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             var result = (InvalidRouteNodeOperation)((await factory.CreateDigitizedEvent(routeNode)).First());
 
@@ -152,7 +172,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableRouteNode);
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode)).Returns(new List<RouteSegment> { });
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var point = A.Fake<Point>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            A.CallTo(() => afterNode.GetPoint()).Returns(point);
+            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
             var result = (RouteNodeDeleted)(await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
             using (new AssertionScope())
@@ -181,7 +206,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => afterNode.GetPoint()).Returns(CreatePoint(665931.4446905176, 7197297.75114815));
             A.CallTo(() => shadowTableNode.GetPoint()).Returns(CreatePoint(565931.4446905176, 6197297.75114815));
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var point = A.Fake<Point>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            A.CallTo(() => afterNode.GetPoint()).Returns(point);
+            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
 
             var expected = new RollbackInvalidRouteNode(shadowTableNode, "Is not a valid route node update.");
@@ -212,7 +242,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => shadowTableRouteNode.GetGeoJsonCoordinate()).Returns("[565920.4446905176,6197297.74114815]");
             A.CallTo(() => geoDatabase.GetIntersectingRouteNodes(afterNode)).Returns(new List<RouteNode> { A.Fake<RouteNode>() });
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var point = A.Fake<Point>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            A.CallTo(() => afterNode.GetPoint()).Returns(point);
+            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
             var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
             var expected = new RollbackInvalidRouteNode(beforeNode, "Is not a valid route node update.");
@@ -242,7 +277,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns("[565931.4446905176,6197297.75114815]");
             A.CallTo(() => integratorRouteNode.MarkAsDeleted).Returns(true);
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var point = A.Fake<Point>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            A.CallTo(() => afterNode.GetPoint()).Returns(point);
+            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
@@ -258,16 +298,21 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var afterNode = A.Fake<RouteNode>();
             var shadowTableRouteNode = A.Fake<RouteNode>();
             var appSettings = new ApplicationSetting { Tolerance = 0.01 };
+            var point = CreatePoint(552428.7508312801, 6188868.185819111);
 
             A.CallTo(() => applicationSetting.Value).Returns(appSettings);
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
             A.CallTo(() => afterNode.GetGeoJsonCoordinate()).Returns("[552428.7508312801, 6188868.185819111]");
-            A.CallTo(() => afterNode.GetPoint()).Returns(CreatePoint(552428.7508312801, 6188868.185819111));
+            A.CallTo(() => afterNode.GetPoint()).Returns(point);
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableRouteNode);
             A.CallTo(() => shadowTableRouteNode.GetGeoJsonCoordinate()).Returns("[552428.7515896157,6188868.184787691]");
             A.CallTo(() => shadowTableRouteNode.GetPoint()).Returns(CreatePoint(552428.7515896157, 6188868.184787691));
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            A.CallTo(() => afterNode.GetPoint()).Returns(point);
+            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
@@ -281,10 +326,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
             RouteNode beforeNode = null;
             RouteNode afterNode = null;
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             Func<Task> act = async () => await factory.CreateUpdatedEvent(beforeNode, afterNode);
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
@@ -298,7 +345,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             RouteNode beforeNode = null;
             var afterNode = A.Fake<RouteNode>();
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var point = A.Fake<Point>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            A.CallTo(() => afterNode.GetPoint()).Returns(point);
+            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             Func<Task> act = async () => await factory.CreateUpdatedEvent(beforeNode, afterNode);
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
@@ -310,9 +362,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
             var beforeNode = A.Fake<RouteNode>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
             RouteNode afterNode = null;
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             Func<Task> act = async () => await factory.CreateUpdatedEvent(beforeNode, afterNode);
             await act.Should().ThrowExactlyAsync<ArgumentNullException>();
@@ -330,7 +384,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableRouteNode);
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var point = A.Fake<Point>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            A.CallTo(() => afterNode.GetPoint()).Returns(point);
+            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
@@ -358,7 +417,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => shadowTableRouteNode.GetPoint()).Returns(CreatePoint(565931.4446905176, 6197297.75114815));
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var point = A.Fake<Point>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            A.CallTo(() => afterNode.GetPoint()).Returns(point);
+            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
             var rollbackInvalidRouteNode = (RollbackInvalidRouteNode)result[0];
@@ -390,7 +454,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => shadowTableRouteNode.GetGeoJsonCoordinate()).Returns("[565931.4446905176,6197297.75114815]");
             A.CallTo(() => shadowTableRouteNode.MarkAsDeleted).Returns(false);
 
-            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase);
+            var point = A.Fake<Point>();
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            A.CallTo(() => afterNode.GetPoint()).Returns(point);
+            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
             var result = (RouteNodeLocationChanged)(await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
