@@ -1,5 +1,4 @@
 using Xunit;
-using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;

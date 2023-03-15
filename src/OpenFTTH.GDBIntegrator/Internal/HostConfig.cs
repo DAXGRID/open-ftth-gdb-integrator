@@ -94,6 +94,7 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddTransient<IRouteSegmentEventFactory, RouteSegmentEventFactory>();
                 services.AddTransient<IRouteNodeEventFactory, RouteNodeEventFactory>();
                 services.AddTransient<IInfoMapper, InfoMapper>();
+                services.AddSingleton<IRouteNodeValidator, RouteNodeValidator>();
 
                 // This is not the event store with database, this is a local implementation of a place
                 // to store events globally before being processed.
