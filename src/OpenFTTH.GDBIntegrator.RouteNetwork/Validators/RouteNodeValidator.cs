@@ -1,5 +1,5 @@
-using NetTopologySuite.Geometries;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 
 namespace OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
 
@@ -15,6 +15,12 @@ public class RouteNodeValidator : IRouteNodeValidator
     public bool PointIsValid(Point point)
     {
         if (!point.IsValid)
+        {
+            LogValidationError("Point is not valid.", point);
+            return false;
+        }
+
+        if (point.X == double.NaN || point.Y == double.NaN)
         {
             LogValidationError("Point is not valid.", point);
             return false;
