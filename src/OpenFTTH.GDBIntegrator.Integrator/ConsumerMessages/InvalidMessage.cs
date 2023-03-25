@@ -1,13 +1,23 @@
+using System;
+
 namespace OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages
 {
-    public class InvalidMessage
+    public record InvalidMessage
     {
-        public object Message { get; }
-        public bool Delete { get; }
+        public Guid EventId { get; init; }
+        public object Message { get; init; }
+        public bool Delete { get; init; }
 
-        public InvalidMessage(object message, bool delete = false)
+        public InvalidMessage(object message, Guid eventId)
         {
             Message = message;
+            EventId = eventId;
+        }
+
+        public InvalidMessage(object message, Guid eventId, bool delete)
+        {
+            Message = message;
+            EventId = eventId;
             Delete = delete;
         }
     }

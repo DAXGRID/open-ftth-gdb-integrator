@@ -1,8 +1,10 @@
 using FluentMigrator.Runner;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OpenFTTH.GDBIntegrator.Integrator.Store;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.Subscriber;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,56 +18,70 @@ namespace OpenFTTH.GDBIntegrator
         private readonly ILogger _logger;
         private readonly IHostApplicationLifetime _applicationLifetime;
         private readonly IMigrationRunner _migrationRunner;
+        private readonly IEventIdStore _eventIdStore;
 
         public Startup(
             IRouteNetworkSubscriber routeNetworkSubscriber,
             IProducer producer,
             ILogger<Startup> logger,
             IHostApplicationLifetime applicationLifetime,
-            IMigrationRunner migrationRunner)
+            IMigrationRunner migrationRunner,
+            IEventIdStore eventIdStore)
         {
             _routeNetworkSubscriber = routeNetworkSubscriber;
             _producer = producer;
             _logger = logger;
             _applicationLifetime = applicationLifetime;
             _migrationRunner = migrationRunner;
+            _eventIdStore = eventIdStore;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting GDB-Integrator");
+            try
+            {
+                _logger.LogInformation("Starting GDB-Integrator.");
 
-            _migrationRunner.MigrateUp();
+                _logger.LogInformation("Starting migration runner.");
+                _migrationRunner.MigrateUp();
 
-            _applicationLifetime.ApplicationStarted.Register(OnStarted);
-            _applicationLifetime.ApplicationStopping.Register(OnStopped);
+                _logger.LogInformation("Loading all existing event ids.");
+                var eventIdsCount = await _eventIdStore
+                    .LoadEventIds(cancellationToken)
+                    .ConfigureAwait(false);
+                _logger.LogInformation(
+                    "Finished loading all existing event ids, {TotalCount}.",
+                    eventIdsCount);
 
-            MarkAsReady();
+                _logger.LogInformation($"Starting {nameof(IRouteNetworkSubscriber)}");
+                var subscriberTask = _routeNetworkSubscriber
+                    .Subscribe(10, cancellationToken)
+                    .ConfigureAwait(false);
 
-            return Task.CompletedTask;
+                MarkAsReady();
+                _logger.LogInformation($"Service is now in a healthy state.");
+
+                await subscriberTask;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("{Exception}", ex);
+                throw;
+            }
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Stopping GDB-integrator");
+
+            _routeNetworkSubscriber.Dispose();
+
             return Task.CompletedTask;
         }
 
         private void MarkAsReady()
         {
             File.Create("/tmp/healthy");
-        }
-
-        private void OnStarted()
-        {
-            _logger.LogInformation($"Starting {nameof(IRouteNetworkSubscriber)}");
-            _routeNetworkSubscriber.Subscribe();
-        }
-
-        private void OnStopped()
-        {
-            _routeNetworkSubscriber.Dispose();
-            _logger.LogInformation("Stopped service");
         }
     }
 }

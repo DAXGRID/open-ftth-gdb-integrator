@@ -24,7 +24,7 @@ using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Mapping;
 using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
 using OpenFTTH.GDBIntegrator.Subscriber;
-using OpenFTTH.GDBIntegrator.Subscriber.Kafka.Postgres;
+using OpenFTTH.GDBIntegrator.Subscriber.Postgres;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
@@ -82,7 +82,6 @@ namespace OpenFTTH.GDBIntegrator.Internal
                                  .ScanIn(typeof(InitialDatabaseSetup).Assembly).For.Migrations());
 
                 services.AddHostedService<Startup>();
-                services.AddSingleton<IRouteNetworkSubscriber, PostgresRouteNetworkSubscriber>();
                 services.AddSingleton<IProducer, EventStoreProducer>();
                 services.AddSingleton<IGeoDatabase, Postgis>();
                 services.AddTransient<IRouteSegmentValidator, RouteSegmentValidator>();
@@ -95,6 +94,8 @@ namespace OpenFTTH.GDBIntegrator.Internal
                 services.AddTransient<IRouteNodeEventFactory, RouteNodeEventFactory>();
                 services.AddTransient<IInfoMapper, InfoMapper>();
                 services.AddSingleton<IRouteNodeValidator, RouteNodeValidator>();
+                services.AddTransient<IRouteNetworkSubscriber, PostgresRouteNetworkSubscriber>();
+                services.AddSingleton<IEventIdStore, EventIdStore>();
 
                 // This is not the event store with database, this is a local implementation of a place
                 // to store events globally before being processed.

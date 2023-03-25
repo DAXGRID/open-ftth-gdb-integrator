@@ -44,6 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         private readonly IRouteSegmentInfoCommandFactory _routeSegmentInfoCommandFactory;
         private readonly IValidationService _validationService;
         private readonly IWorkTaskService _workTaskService;
+        private readonly IEventIdStore _eventIdStore;
 
         public GeoDatabaseUpdatedHandler(
             ILogger<GeoDatabaseUpdatedHandler> logger,
@@ -59,7 +60,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             IRouteNodeInfoCommandFactory routeNodeInfoCommandFactory,
             IRouteSegmentInfoCommandFactory routeSegmentInfoCommandFactory,
             IValidationService validationService,
-            IWorkTaskService workTaskService)
+            IWorkTaskService workTaskService,
+            IEventIdStore eventIdStore)
         {
             _logger = logger;
             _mediator = mediator;
@@ -75,10 +77,27 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             _routeSegmentInfoCommandFactory = routeSegmentInfoCommandFactory;
             _validationService = validationService;
             _workTaskService = workTaskService;
+            _eventIdStore = eventIdStore;
         }
 
         public async Task<Unit> Handle(GeoDatabaseUpdated request, CancellationToken token)
         {
+
+            var eventId = request.UpdateMessage switch
+                 {
+                    RouteNodeMessage msg => msg.EventId,
+                    RouteSegmentMessage msg => msg.EventId,
+                    InvalidMessage msg => msg.EventId,
+                    _ => throw new ArgumentException(
+                        "Could not handle type of '{typeof(request.UpdateMessage)}'.")
+                };
+
+            if (_eventIdStore.GetEventIds().Contains(eventId))
+            {
+                _logger.LogWarning("{EventId} has already been processed.", eventId);
+                return await Task.FromResult(new Unit());
+            }
+
             try
             {
                 _eventStore.Clear();
@@ -98,8 +117,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                         await _geoDatabase.BeginTransaction();
 
                         // We only do this in very special cases where we cannot rollback
-                        await MarkToBeDeleted((request.UpdateMessage as InvalidMessage).Message,
-                                              "Message is invalid and we cannot rollback so we mark it to be deleted.");
+                        await MarkToBeDeleted(
+                            (request.UpdateMessage as InvalidMessage).Message,
+                            "Message is invalid and we cannot rollback so we mark it to be deleted.");
                         await _geoDatabase.Commit();
 
                         // We send an updated event out, to notify that something has been rolled back to refresh GIS.
@@ -135,11 +155,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     // We update the work task ids on the newly digitized network elements.
                     await UpdateWorkTaskIdOnNewlyDigitized(workTaskMrId);
 
-                    var editOperationOccuredEvent = CreateEditOperationOccuredEvent(workTaskMrId, username);
+                    var editOperationOccuredEvent = CreateEditOperationOccuredEvent(
+                        workTaskMrId,
+                        username,
+                        eventId
+                    );
 
                     if (IsOperationEditEventValid(editOperationOccuredEvent))
                     {
                         await _producer.Produce(GLOBAL_STREAM_ID, editOperationOccuredEvent);
+                        _eventIdStore.AppendEventId(eventId);
                         await _geoDatabase.Commit();
                     }
                     else
@@ -539,11 +564,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
         }
 
-        private RouteNetworkEditOperationOccuredEvent CreateEditOperationOccuredEvent(Guid workTaskMrid, string username)
+        private RouteNetworkEditOperationOccuredEvent CreateEditOperationOccuredEvent(
+            Guid workTaskMrid,
+            string username,
+            Guid eventId)
         {
             return new RouteNetworkEditOperationOccuredEvent(
                 nameof(RouteNetworkEditOperationOccuredEvent),
-                Guid.NewGuid(),
+                eventId,
                 DateTime.UtcNow,
                 workTaskMrid,
                 username,

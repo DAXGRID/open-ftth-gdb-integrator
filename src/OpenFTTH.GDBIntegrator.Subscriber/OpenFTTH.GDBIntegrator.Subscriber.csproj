@@ -5,12 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="npgsql" Version="5.0.10" />
     <PackageReference Include="MediatR" Version="8.1.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-    <PackageReference Include="Topos" Version="0.0.95" />
-    <PackageReference Include="Topos.Kafka" Version="0.0.95" />
-    <PackageReference Include="Topos.PostgreSql" Version="0.0.95" />
-    <PackageReference Include="Topos.Serilog" Version="0.0.95" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
