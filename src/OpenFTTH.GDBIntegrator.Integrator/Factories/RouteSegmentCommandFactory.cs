@@ -161,7 +161,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
         private bool AlreadyUpdated(RouteSegment routeSegment, RouteSegment shadowTableRouteSegment)
         {
-            return routeSegment.MarkAsDeleted == shadowTableRouteSegment.MarkAsDeleted && routeSegment.GetGeoJsonCoordinate() == shadowTableRouteSegment.GetGeoJsonCoordinate();
+            return routeSegment.MarkAsDeleted == shadowTableRouteSegment.MarkAsDeleted && routeSegment.GetGeoJsonCoordinate(true) == shadowTableRouteSegment.GetGeoJsonCoordinate(true);
         }
 
         private bool IsCreatedByApplication(RouteSegment routeSegment)

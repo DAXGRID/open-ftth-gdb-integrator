@@ -45,7 +45,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 useApplicationName ? _applicationSettings.ApplicationName : routeSegment?.ApplicationName,
                 routeSegment?.ApplicationInfo,
                 routeSegment.Mrid,
-                routeSegment.GetGeoJsonCoordinate());
+                routeSegment.GetGeoJsonCoordinate(false));
         }
 
         public RouteSegmentMarkedForDeletion CreateMarkedForDeletion(RouteSegment routeSegment, bool useApplicationName = false)
@@ -78,7 +78,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 routeSegment.Mrid,
                 startRouteNode.Mrid,
                 endRouteNode.Mrid,
-                routeSegment.GetGeoJsonCoordinate(),
+                routeSegment.GetGeoJsonCoordinate(false),
                 routeSegment?.RouteSegmentInfo);
         }
     }

@@ -29,7 +29,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 routeNode?.MappingInfo,
                 routeNode?.SafetyInfo,
                 routeNode.Mrid,
-                routeNode.GetGeoJsonCoordinate(),
+                routeNode.GetGeoJsonCoordinate(false),
                 routeNode.RouteNodeInfo);
         }
 
@@ -57,7 +57,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 routeNode?.ApplicationName,
                 routeNode?.ApplicationInfo,
                 routeNode.Mrid,
-                routeNode.GetGeoJsonCoordinate());
+                routeNode.GetGeoJsonCoordinate(false));
         }
     }
 }
