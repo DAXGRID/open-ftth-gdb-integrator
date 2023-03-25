@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenFTTH.Events.Core.Infos;
 using OpenFTTH.Events.RouteNetwork.Infos;
+using System.Collections.Generic;
 
 namespace OpenFTTH.GDBIntegrator.RouteNetwork
 {
@@ -43,9 +44,9 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
             return endPoint;
         }
 
-        public virtual string GetGeoJsonCoordinate()
+        public virtual string GetGeoJsonCoordinate(bool round)
         {
-            var lineString = GetLineString();
+            var lineString = round ? RoundLineString(GetLineString()) : GetLineString();
             var serializer = GeoJsonSerializer.Create();
 
             using (var stringWriter = new StringWriter())
@@ -54,15 +55,37 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
                 var geoJson = stringWriter.ToString();
                 return JObject.Parse(geoJson)["coordinates"].ToString(Formatting.None);
             };
+
         }
 
         public virtual LineString GetLineString()
         {
             var wkbReader = new WKBReader();
             var geometry = wkbReader.Read(Coord);
-            var lineString = (LineString)geometry;
+            return (LineString)geometry;
+        }
 
-            return lineString;
+        private LineString RoundLineString(LineString inputLineString)
+        {
+            const int roundDecimal = 8;
+
+            var newCoords = new List<CoordinateZ>();
+            foreach (var coord in inputLineString.Coordinates)
+            {
+                var c = new CoordinateZ();
+                c.X = Math.Round(coord.X, roundDecimal);
+                c.Y = Math.Round(coord.Y, roundDecimal);
+                if (coord.Z != Coordinate.NullOrdinate)
+                {
+                    c.Z = Math.Round(coord.Z, roundDecimal);
+                }
+                else
+                {
+                    c.Z = Coordinate.NullOrdinate;
+                }
+            }
+
+            return new LineString(newCoords.ToArray());
         }
     }
 }

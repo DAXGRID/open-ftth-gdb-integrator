@@ -522,8 +522,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegmentAfter.Mrid).Returns(Guid.NewGuid());
             A.CallTo(() => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
             A.CallTo(() => geoDatabase.GetRouteSegmentShadowTable(routeSegmentAfter.Mrid, false)).Returns(routeSegmentShadowTable);
-            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
-            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate(true)).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate(true)).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
             A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
 
@@ -550,8 +550,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
             A.CallTo(() => routeSegmentAfter.GetLineString()).Returns(A.Fake<LineString>());
 
-            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
-            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate(true)).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate(true)).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
             A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
 
@@ -600,8 +600,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
             A.CallTo(() => routeSegmentAfter.GetLineString()).Returns(A.Fake<LineString>());
 
-            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
-            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate(true)).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate(true)).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
             A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
 
@@ -645,8 +645,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegmentShadowTable.Mrid).Returns(routeSegmentAfter.Mrid);
             A.CallTo(() => routeSegmentAfter.GetLineString()).Returns(A.Fake<LineString>());
 
-            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
-            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate(true)).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate(true)).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
             A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
 
@@ -747,8 +747,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
             A.CallTo(() => routeSegmentAfter.GetLineString()).Returns(A.Fake<LineString>());
-            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
-            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate(true)).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate(true)).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
             A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
 
@@ -777,8 +777,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
             A.CallTo(() => routeSegmentAfter.GetLineString()).Returns(A.Fake<LineString>());
-            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
-            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate(true)).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
+            A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate(true)).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
             A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
 
