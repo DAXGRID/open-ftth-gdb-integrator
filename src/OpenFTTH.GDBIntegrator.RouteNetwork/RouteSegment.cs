@@ -55,7 +55,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
                 var geoJson = stringWriter.ToString();
                 return JObject.Parse(geoJson)["coordinates"].ToString(Formatting.None);
             };
-
         }
 
         public virtual LineString GetLineString()
@@ -83,6 +82,8 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
                 {
                     c.Z = Coordinate.NullOrdinate;
                 }
+
+                newCoords.Add(c);
             }
 
             return new LineString(newCoords.ToArray());
