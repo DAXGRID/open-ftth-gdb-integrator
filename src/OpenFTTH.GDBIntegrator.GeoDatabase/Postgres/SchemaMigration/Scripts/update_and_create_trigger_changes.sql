@@ -42,16 +42,13 @@ BEGIN
         RETURN null;
     END IF;
 
-    IF to_json(OLD) <> to_json(NEW)
-    THEN
-	    insert into route_network.route_network_edit_operation (event_id, before, after, type)
-	    values (
-		    uuid_generate_v4(),
-		    to_json(OLD),
-		    to_json(NEW),
-        'RouteNode'
-	    );
-    END IF;
+	insert into route_network.route_network_edit_operation (event_id, before, after, type)
+	values (
+		uuid_generate_v4(),
+		to_json(OLD),
+		to_json(NEW),
+    'RouteNode'
+	);
 
     RETURN NEW;
 END $function$
@@ -90,16 +87,13 @@ BEGIN
         RETURN null;
     END IF;
 
-    IF to_json(OLD) <> to_json(NEW)
-    THEN
-	    insert into route_network.route_network_edit_operation (event_id, before, after, type)
-	      values (
-		      uuid_generate_v4(),
-		      to_json(OLD),
-		      to_json(NEW),
-          'RouteSegment'
-	      );
-    END IF;
+	insert into route_network.route_network_edit_operation (event_id, before, after, type)
+	values (
+		uuid_generate_v4(),
+		to_json(OLD),
+		to_json(NEW),
+    'RouteSegment'
+	);
 
     RETURN NEW;
 END $function$
