@@ -10,10 +10,6 @@ public sealed record PostgresRouteNode
     [JsonPropertyName("mrid")]
     public Guid Mrid { get; init; }
 
-    [JsonPropertyName("coord")]
-    [JsonConverter(typeof(GeoJsonConverter<Point>))]
-    public Point Coord { get; init; }
-
     [JsonPropertyName("marked_to_be_deleted")]
     public bool MarkedToBeDeleted { get; init; }
 

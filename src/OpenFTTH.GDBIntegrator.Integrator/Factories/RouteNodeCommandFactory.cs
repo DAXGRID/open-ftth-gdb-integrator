@@ -119,7 +119,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         }
 
         private bool AlreadyUpdated(RouteNode routeNode, RouteNode routeNodeShadowTable)
-            => routeNode.MarkAsDeleted == routeNodeShadowTable.MarkAsDeleted && routeNode.GetGeoJsonCoordinate(true) == routeNodeShadowTable.GetGeoJsonCoordinate(true);
+            => routeNode.MarkAsDeleted == routeNodeShadowTable.MarkAsDeleted && routeNode.GetGeoJsonCoordinate() == routeNodeShadowTable.GetGeoJsonCoordinate();
 
         private bool IsCreatedByApplication(RouteNode routeNode)
             => routeNode.ApplicationName == _applicationSettings.ApplicationName;

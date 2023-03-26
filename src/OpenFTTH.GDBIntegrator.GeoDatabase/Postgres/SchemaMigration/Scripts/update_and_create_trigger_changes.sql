@@ -3,7 +3,9 @@ CREATE TABLE route_network.route_network_edit_operation (
 	seq_no BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
 	event_id UUID NULL,
 	"before" VARCHAR NULL,
+  before_coord geometry NULL,
 	"after" VARCHAR NULL,
+  after_coord geometry NULL,
 	"type" VARCHAR NOT NULL,
   event_timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	CONSTRAINT route_network_edit_operation_pkey PRIMARY KEY (seq_no)
@@ -15,11 +17,13 @@ CREATE OR REPLACE FUNCTION route_network.route_node_create()
  LANGUAGE plpgsql
 AS $function$
 BEGIN
-	insert into route_network.route_network_edit_operation (event_id, before, after, type)
+	insert into route_network.route_network_edit_operation (event_id, before, before_coord, after, after_coord, type)
 	values (
 		uuid_generate_v4(),
 		null,
+    null,
 		to_json(NEW),
+    NEW.coord,
     'RouteNode'
 	);
     RETURN NEW;
@@ -42,11 +46,13 @@ BEGIN
         RETURN null;
     END IF;
 
-	insert into route_network.route_network_edit_operation (event_id, before, after, type)
+	insert into route_network.route_network_edit_operation (event_id, before, before_coord, after, after_coord, type)
 	values (
 		uuid_generate_v4(),
 		to_json(OLD),
+    OLD.coord,
 		to_json(NEW),
+    NEW.coord,
     'RouteNode'
 	);
 
@@ -60,11 +66,13 @@ CREATE OR REPLACE FUNCTION route_network.route_segment_create()
  LANGUAGE plpgsql
 AS $function$
 BEGIN
-	insert into route_network.route_network_edit_operation (event_id, before, after, type)
+	insert into route_network.route_network_edit_operation (event_id, before, before_coord, after, after_coord, type)
 	values (
 		uuid_generate_v4(),
 		null,
+    null,
 		to_json(NEW),
+    NEW.coord,
     'RouteSegment'
 	);
     RETURN NEW;
@@ -87,11 +95,13 @@ BEGIN
         RETURN null;
     END IF;
 
-	insert into route_network.route_network_edit_operation (event_id, before, after, type)
+	insert into route_network.route_network_edit_operation (event_id, before, before_coord, after, after_coord, type)
 	values (
 		uuid_generate_v4(),
 		to_json(OLD),
+    OLD.coord,
 		to_json(NEW),
+    NEW.coord,
     'RouteSegment'
 	);
 

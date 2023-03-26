@@ -44,9 +44,9 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
             return endPoint;
         }
 
-        public virtual string GetGeoJsonCoordinate(bool round)
+        public virtual string GetGeoJsonCoordinate()
         {
-            var lineString = round ? RoundLineString(GetLineString()) : GetLineString();
+            var lineString = GetLineString();
             var serializer = GeoJsonSerializer.Create();
 
             using (var stringWriter = new StringWriter())
@@ -62,31 +62,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork
             var wkbReader = new WKBReader();
             var geometry = wkbReader.Read(Coord);
             return (LineString)geometry;
-        }
-
-        private LineString RoundLineString(LineString inputLineString)
-        {
-            const int roundDecimal = 8;
-
-            var newCoords = new List<CoordinateZ>();
-            foreach (var coord in inputLineString.Coordinates)
-            {
-                var c = new CoordinateZ();
-                c.X = Math.Round(coord.X, roundDecimal);
-                c.Y = Math.Round(coord.Y, roundDecimal);
-                if (coord.Z != Coordinate.NullOrdinate)
-                {
-                    c.Z = Math.Round(coord.Z, roundDecimal);
-                }
-                else
-                {
-                    c.Z = Coordinate.NullOrdinate;
-                }
-
-                newCoords.Add(c);
-            }
-
-            return new LineString(newCoords.ToArray());
         }
     }
 }

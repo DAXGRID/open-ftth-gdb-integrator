@@ -1,4 +1,3 @@
-using NetTopologySuite.IO;
 using OpenFTTH.Events.Core.Infos;
 using OpenFTTH.Events.RouteNetwork.Infos;
 using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
@@ -34,12 +33,12 @@ public sealed class RouteSegmentMessageFactory
 
         return new RouteSegmentMessage(
             eventId: editOperation.EventId,
-            before: ParseRouteSegment(editOperation.Before),
-            after: ParseRouteSegment(editOperation.After)
+            before: ParseRouteSegment(editOperation.Before, editOperation.BeforeCoord),
+            after: ParseRouteSegment(editOperation.After, editOperation.AfterCoord)
         );
     }
 
-    private RouteSegment ParseRouteSegment(string json)
+    private RouteSegment ParseRouteSegment(string json, byte[] coord)
     {
         if (String.IsNullOrEmpty(json))
         {
@@ -52,13 +51,11 @@ public sealed class RouteSegmentMessageFactory
             return null;
         }
 
-        var wkbWriter = new WKBWriter();
-
         var mappedRouteSegment = new RouteSegment
         {
             ApplicationInfo = pgRouteSegment.ApplicationInfo,
             ApplicationName = pgRouteSegment.ApplicationName,
-            Coord = pgRouteSegment.Coord is null ? null : wkbWriter.Write(pgRouteSegment.Coord),
+            Coord = coord,
             MarkAsDeleted = pgRouteSegment.MarkedToBeDeleted,
             DeleteMe = pgRouteSegment.DeleteMe,
             Mrid = pgRouteSegment.Mrid,

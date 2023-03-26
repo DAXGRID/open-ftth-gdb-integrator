@@ -14,8 +14,14 @@ public sealed record RouteNetworkEditOperation
     [JsonPropertyName("before")]
     public string Before { get; init; }
 
+    [JsonPropertyName("before_coord")]
+    public byte[] BeforeCoord { get; init; }
+
     [JsonPropertyName("after")]
     public string After { get; init; }
+
+    [JsonPropertyName("after_coord")]
+    public byte[] AfterCoord { get; init; }
 
     [JsonPropertyName("type")]
     public string Type { get; init; }
@@ -25,13 +31,17 @@ public sealed record RouteNetworkEditOperation
         long sequenceNumber,
         Guid eventId,
         string before,
+        byte[] beforeCoord,
         string after,
+        byte[] afterCoord,
         string type)
     {
         SequenceNumber = sequenceNumber;
         EventId = eventId;
         Before = before;
+        BeforeCoord = beforeCoord;
         After = after;
+        AfterCoord = afterCoord;
         Type = type;
     }
 }
