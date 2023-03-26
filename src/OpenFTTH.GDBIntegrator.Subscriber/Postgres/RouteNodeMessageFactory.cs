@@ -1,4 +1,3 @@
-using NetTopologySuite.IO;
 using OpenFTTH.Events.Core.Infos;
 using OpenFTTH.Events.RouteNetwork.Infos;
 using OpenFTTH.GDBIntegrator.Integrator.ConsumerMessages;
@@ -34,12 +33,12 @@ public sealed class RouteNodeMessageFactory
 
         return new RouteNodeMessage(
             eventId: editOperation.EventId,
-            before: ParseRouteNode(editOperation.Before),
-            after: ParseRouteNode(editOperation.After)
+            before: ParseRouteNode(editOperation.Before, editOperation.BeforeCoord),
+            after: ParseRouteNode(editOperation.After, editOperation.AfterCoord)
         );
     }
 
-    private RouteNode ParseRouteNode(string json)
+    private RouteNode ParseRouteNode(string json, byte[] coord)
     {
         if (String.IsNullOrEmpty(json))
         {
@@ -52,13 +51,11 @@ public sealed class RouteNodeMessageFactory
             return null;
         }
 
-        var wkbWriter = new WKBWriter();
-
         var mappedRouteNode = new RouteNode
         {
             ApplicationInfo = pgRouteNode.ApplicationInfo,
             ApplicationName = pgRouteNode.ApplicationName,
-            Coord = pgRouteNode.Coord is null ? null : wkbWriter.Write(pgRouteNode.Coord),
+            Coord = coord,
             MarkAsDeleted = pgRouteNode.MarkedToBeDeleted,
             DeleteMe = pgRouteNode.DeleteMe,
             Mrid = pgRouteNode.Mrid,

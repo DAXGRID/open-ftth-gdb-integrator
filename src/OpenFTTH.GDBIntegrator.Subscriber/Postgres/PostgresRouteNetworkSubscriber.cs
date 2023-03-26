@@ -179,7 +179,7 @@ public sealed class PostgresRouteNetworkSubscriber : IRouteNetworkSubscriber
         int intervalMs,
         CancellationToken token = default)
     {
-        const string GET_LATEST_SQL = @"SELECT *
+        const string GET_LATEST_SQL = @"SELECT seq_no, event_id, before, ST_AsBinary(before_coord) AS before_coord, after, ST_AsBinary(after_coord) AS after_coord, type
 FROM route_network.route_network_edit_operation
 WHERE seq_no > @seq_no
 ORDER BY seq_no";
@@ -199,14 +199,18 @@ ORDER BY seq_no";
                 var sequenceNumber = reader.GetInt64(reader.GetOrdinal("seq_no"));
                 var eventId = reader.GetGuid(reader.GetOrdinal("event_id"));
                 var before = reader.GetValue(reader.GetOrdinal("before")) as string ?? null;
+                var beforeCoord = reader.GetValue(reader.GetOrdinal("before_coord")) as byte[] ?? null;
                 var after = reader.GetValue(reader.GetOrdinal("after")) as string ?? null;
+                var afterCoord = reader.GetValue(reader.GetOrdinal("after_coord")) as byte[] ?? null;
                 var type = reader.GetString(reader.GetOrdinal("type"));
 
                 var editOperation = new RouteNetworkEditOperation(
                     sequenceNumber: sequenceNumber,
                     eventId: eventId,
                     before: before,
+                    beforeCoord: beforeCoord,
                     after: after,
+                    afterCoord: afterCoord,
                     type: type
                 );
 
