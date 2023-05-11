@@ -7,7 +7,9 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase
 {
     public interface IGeoDatabase
     {
+        Task<bool> RouteNodeInShadowTableExists(Guid mrid);
         Task<RouteNode> GetRouteNodeShadowTable(Guid mrid, bool includeDeleted = false);
+        Task<bool> RouteSegmentInShadowTableExists(Guid mrid);
         Task<RouteSegment> GetRouteSegmentShadowTable(Guid mrid, bool includeDeleted = false);
         Task<List<RouteNode>> GetIntersectingStartRouteNodes(RouteSegment routeSegment);
         Task<List<RouteNode>> GetIntersectingStartRouteNodes(byte[] coord);
