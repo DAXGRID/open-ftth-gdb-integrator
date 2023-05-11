@@ -67,6 +67,13 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
             await DisposeConnection();
         }
 
+        public async Task<bool> RouteNodeInShadowTableExists(Guid mrid)
+        {
+            var connection = GetNpgsqlConnection();
+            var query = @"SELECT exists(SELECT 1 FROM route_network_integrator.route_node WHERE mrid = @mrid)";
+            return await connection.QueryFirstAsync<bool>(query, new { mrid });
+        }
+
         public async Task<RouteNode> GetRouteNodeShadowTable(Guid mrid, bool includeDeleted = false)
         {
             var connection = GetNpgsqlConnection();
@@ -144,6 +151,13 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres
                 });
 
             return routeNodes.FirstOrDefault();
+        }
+
+        public async Task<bool> RouteSegmentInShadowTableExists(Guid mrid)
+        {
+            var connection = GetNpgsqlConnection();
+            var query = @"SELECT exists(SELECT 1 FROM route_network_integrator.route_segment WHERE mrid = @mrid)";
+            return await connection.QueryFirstAsync<bool>(query, new { mrid });
         }
 
         public async Task<RouteSegment> GetRouteSegmentShadowTable(Guid mrid, bool includeDeleted = false)

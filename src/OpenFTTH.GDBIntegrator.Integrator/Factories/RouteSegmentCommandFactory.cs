@@ -107,8 +107,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (routeSegment is null)
                 throw new ArgumentNullException($"Parameter {nameof(routeSegment)} must not be null");
 
-            if (IsCreatedByApplication(routeSegment))
+            // If we find the route segment is in the shadow table, it means that it was created by the application and we therefore do nothing.
+            if (await _geoDatabase.RouteSegmentInShadowTableExists(routeSegment.Mrid))
+            {
                 return new List<INotification>();
+            }
 
             // Update integrator "shadow table" with the used digitized segment
             await _geoDatabase.InsertRouteSegmentShadowTable(routeSegment);
@@ -162,11 +165,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         private bool AlreadyUpdated(RouteSegment routeSegment, RouteSegment shadowTableRouteSegment)
         {
             return routeSegment.MarkAsDeleted == shadowTableRouteSegment.MarkAsDeleted && routeSegment.GetGeoJsonCoordinate() == shadowTableRouteSegment.GetGeoJsonCoordinate();
-        }
-
-        private bool IsCreatedByApplication(RouteSegment routeSegment)
-        {
-            return routeSegment.ApplicationName == _applicationSettings.ApplicationName;
         }
 
         private RouteSegmentDeleted CreateRouteSegmentDeleted(RouteSegment routeSegment)

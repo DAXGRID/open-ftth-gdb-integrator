@@ -39,13 +39,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
             var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            var routeNodeMrid = Guid.NewGuid();
 
-            A.CallTo(() => applicationSetting.Value).Returns(
-                new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
+            A.CallTo(() => geoDatabase.RouteNodeInShadowTableExists(routeNodeMrid))
+                .Returns(true);
 
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
 
-            var routeNode = new RouteNode(Guid.Empty, null, Guid.Empty, String.Empty, "GDB_INTEGRATOR");
+            var routeNode = new RouteNode(routeNodeMrid, null, Guid.Empty, String.Empty, "GDB_INTEGRATOR");
             var result = (DoNothing)((await factory.CreateDigitizedEvent(routeNode)).First());
 
             result.Should().BeOfType<DoNothing>();

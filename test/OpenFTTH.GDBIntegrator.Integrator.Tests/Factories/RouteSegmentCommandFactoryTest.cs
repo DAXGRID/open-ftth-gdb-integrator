@@ -43,10 +43,10 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentValidator = A.Fake<IRouteSegmentValidator>();
             var geoDatabase = A.Fake<IGeoDatabase>();
             var routeNodeFactory = A.Fake<IRouteNodeFactory>();
-            var routeSegment = new RouteSegment { ApplicationName = "GDB_INTEGRATOR" };
+            var routeSegment = new RouteSegment { Mrid = Guid.NewGuid(), ApplicationName = "GDB_INTEGRATOR" };
 
-            A.CallTo(() => applicationSettings.Value)
-                .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
+            A.CallTo(() => geoDatabase.RouteSegmentInShadowTableExists(routeSegment.Mrid))
+                .Returns(true);
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
