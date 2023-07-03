@@ -84,13 +84,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         {
 
             var eventId = request.UpdateMessage switch
-                 {
-                    RouteNodeMessage msg => msg.EventId,
-                    RouteSegmentMessage msg => msg.EventId,
-                    InvalidMessage msg => msg.EventId,
-                    _ => throw new ArgumentException(
-                        "Could not handle type of '{typeof(request.UpdateMessage)}'.")
-                };
+            {
+                RouteNodeMessage msg => msg.EventId,
+                RouteSegmentMessage msg => msg.EventId,
+                InvalidMessage msg => msg.EventId,
+                _ => throw new ArgumentException(
+                    "Could not handle type of '{typeof(request.UpdateMessage)}'.")
+            };
 
             if (_eventIdStore.GetEventIds().Contains(eventId))
             {
@@ -123,7 +123,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                         await _geoDatabase.Commit();
 
                         // We send an updated event out, to notify that something has been rolled back to refresh GIS.
-                        await SendGeographicalAreaUpdatedError(request);
+                        // TODO call send error here!!
+                        //await SendGeographicalAreaUpdatedError(request);
 
                         return await Task.FromResult(new Unit());
                     }
@@ -136,7 +137,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                         await _geoDatabase.Commit();
 
                         // We send an updated event out, to notify that something has been rolled back to refresh GIS.
-                        await SendGeographicalAreaUpdatedError(request);
+                        // await SendGeographicalAreaUpdatedError(request);
 
                         return await Task.FromResult(new Unit());
                     }
@@ -187,7 +188,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 _logger.LogInformation($"{nameof(RouteNetworkEditOperationOccuredEvent)} is now rolled rollback.");
 
                 // We send an updated event out, to notify that something has been rolled back to refresh GIS.
-                await SendGeographicalAreaUpdatedError(request);
+                // await SendGeographicalAreaUpdatedError(request);
             }
             finally
             {
@@ -221,58 +222,34 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         }
 
         // Use this function to send geographicalareaupdated when an error has occured, since we cannot use the modified geometries store.
-        private async Task SendGeographicalAreaUpdatedError(GeoDatabaseUpdated request)
+        private async Task SendGeographicalAreaUpdatedError(
+            GeoDatabaseUpdated request,
+            string errorMessage)
         {
             try
             {
+                string username = null;
                 if (request.UpdateMessage is RouteNodeMessage)
                 {
-                    var updateMessage = ((RouteNodeMessage)request.UpdateMessage);
-                    RouteNode routeNode = null;
-                    if (updateMessage.After.Coord is not null)
-                    {
-                        routeNode = updateMessage.After;
-                    }
-                    else if (updateMessage.Before.Coord is not null)
-                    {
-                        routeNode = updateMessage.Before;
-                    }
-
-                    if (routeNode is not null)
-                    {
-                        await _mediator.Publish(new GeographicalAreaUpdated
-                        {
-                            RouteNodes = new List<RouteNode> { routeNode },
-                            RouteSegment = new List<RouteSegment>(),
-                        });
-                    }
+                    username = ((RouteNodeMessage)request.UpdateMessage).After.Username;
                 }
                 else if (request.UpdateMessage is RouteSegmentMessage)
                 {
-                    var updateMessage = ((RouteSegmentMessage)request.UpdateMessage);
-                    RouteSegment routeSegment = null;
-                    if (updateMessage.After.Coord is not null)
-                    {
-                        routeSegment = updateMessage.After;
-                    }
-                    else if (updateMessage.Before.Coord is not null)
-                    {
-                        routeSegment = updateMessage.Before;
-                    }
-
-                    if (routeSegment is not null)
-                    {
-                        await _mediator.Publish(new GeographicalAreaUpdated
-                        {
-                            RouteNodes = new List<RouteNode>(),
-                            RouteSegment = new List<RouteSegment> { routeSegment }
-                        });
-                    }
+                    username = ((RouteSegmentMessage)request.UpdateMessage).After.Username;
                 }
+
+                await _mediator.Publish(
+                    new UserErrorOccured(
+                        errorCode: "TODO_INSERT_ERROR_CODE",
+                        username: username
+                    )).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Could not send out {nameof(GeographicalAreaUpdated)} Exception: {ex}");
+                _logger.LogError(
+                    "Could not send out {MessageType} Exception: {Exception}",
+                    nameof(UserErrorOccured),
+                    ex);
             }
         }
 
