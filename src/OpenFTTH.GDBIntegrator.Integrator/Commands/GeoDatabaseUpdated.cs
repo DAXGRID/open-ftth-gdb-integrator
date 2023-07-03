@@ -122,9 +122,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                             "Message is invalid and we cannot rollback so we mark it to be deleted.");
                         await _geoDatabase.Commit();
 
-                        // We send an updated event out, to notify that something has been rolled back to refresh GIS.
-                        // TODO call send error here!!
-                        //await SendGeographicalAreaUpdatedError(request);
+                        // Send out error message so the user can see it in QGIS.
+                        await SendUserErrorOccured(request, "TODO");
 
                         return await Task.FromResult(new Unit());
                     }
@@ -136,8 +135,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                         await RollbackOrDelete((request.UpdateMessage as InvalidMessage).Message, "Message is invalid so we rollback or delete.");
                         await _geoDatabase.Commit();
 
-                        // We send an updated event out, to notify that something has been rolled back to refresh GIS.
-                        // await SendGeographicalAreaUpdatedError(request);
+                        // Send out error message so the user can see it in QGIS.
+                        await SendUserErrorOccured(request, "TODO");
 
                         return await Task.FromResult(new Unit());
                     }
@@ -187,8 +186,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 await _geoDatabase.Commit();
                 _logger.LogInformation($"{nameof(RouteNetworkEditOperationOccuredEvent)} is now rolled rollback.");
 
-                // We send an updated event out, to notify that something has been rolled back to refresh GIS.
-                // await SendGeographicalAreaUpdatedError(request);
+                // Send out error message so the user can see it in QGIS.
+                await SendUserErrorOccured(request, "TODO");
             }
             finally
             {
@@ -222,9 +221,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         }
 
         // Use this function to send geographicalareaupdated when an error has occured, since we cannot use the modified geometries store.
-        private async Task SendGeographicalAreaUpdatedError(
+        private async Task SendUserErrorOccured(
             GeoDatabaseUpdated request,
-            string errorMessage)
+            string errorCode)
         {
             try
             {
@@ -240,12 +239,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
                 await _mediator.Publish(
                     new UserErrorOccured(
-                        errorCode: "TODO_INSERT_ERROR_CODE",
+                        errorCode: errorCode,
                         username: username
                     )).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
+                // Just log it out, it is not dangerous if it is not send out,
+                // but should be fixed if it ever occurs, therefore we just log it.
                 _logger.LogError(
                     "Could not send out {MessageType} Exception: {Exception}",
                     nameof(UserErrorOccured),
