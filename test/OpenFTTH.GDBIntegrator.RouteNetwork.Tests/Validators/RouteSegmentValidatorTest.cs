@@ -27,7 +27,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Validators
             var routeSegmentValidator = new RouteSegmentValidator(logger, applicationSettings);
 
             var result = routeSegmentValidator.LineIsValid(line);
-            result.Should().BeTrue();
+            result.Should().BeEquivalentTo((true, (string)null));
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Validators
             var routeSegmentValidator = new RouteSegmentValidator(logger, applicationSettings);
 
             var result = routeSegmentValidator.LineIsValid(line);
-            result.Should().BeFalse();
+            result.Should().BeEquivalentTo((false, "LINE_STRING_IS_CLOSED"));
         }
 
         [Fact]
@@ -73,7 +73,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Validators
             var routeSegmentValidator = new RouteSegmentValidator(logger, applicationSettings);
 
             var result = routeSegmentValidator.LineIsValid(line);
-            result.Should().BeFalse();
+            result.Should().BeEquivalentTo((false, "LINE_STRING_IS_NOT_SIMPLE"));
         }
 
         [Fact]
@@ -97,7 +97,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Validators
             var routeSegmentValidator = new RouteSegmentValidator(logger, applicationSettings);
 
             var result = routeSegmentValidator.LineIsValid(line);
-            result.Should().BeFalse();
+            result.Should().BeEquivalentTo((false, "LINE_STRING_IS_NOT_SIMPLE"));
         }
 
         [Fact]
@@ -119,7 +119,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Validators
             var routeSegmentValidator = new RouteSegmentValidator(logger, applicationSettings);
 
             var result = routeSegmentValidator.LineIsValid(line);
-            result.Should().BeTrue();
+            result.Should().BeEquivalentTo((true, (string)null));
         }
 
         [Fact]
@@ -141,7 +141,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Validators
             var routeSegmentValidator = new RouteSegmentValidator(logger, applicationSettings);
 
             var result = routeSegmentValidator.LineIsValid(line);
-            result.Should().BeFalse();
+            result.Should().BeEquivalentTo((false, "LINE_STRING_ENDS_CLOSER_TO_EACH_OTHER_THAN_TOLERANCE"));
         }
 
         [Fact]
@@ -177,7 +177,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Validators
 
             // Assert that distance from end point to edge is 0.023
             endPointToEdgeDistance.Should().Be(0.023);
-            result.Should().BeTrue();
+            result.Should().BeEquivalentTo((true, (string)null));
         }
 
         [Fact]
@@ -214,7 +214,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests.Validators
 
             // Assert that distance from end point to edge is 0.007
             endPointToEdgeDistance.Should().Be(0.007);
-            result.Should().BeFalse();
+            result.Should().BeEquivalentTo((false, "LINE_STRING_ENDS_CLOSER_TO_THE_EDGE_THAN_TOLERANCE"));;
         }
     }
 }

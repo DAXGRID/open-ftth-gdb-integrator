@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Notifications;
 
-public class UserErrorOccured : INotification
+public class UserErrorOccurred : INotification
 {
     public string ErrorCode { get; init; }
     public string Username { get; init; }
 
-    public UserErrorOccured(
+    public UserErrorOccurred(
         string errorCode,
         string username)
     {
@@ -21,7 +21,7 @@ public class UserErrorOccured : INotification
     }
 }
 
-public class UserErrorOccurredHandler : INotificationHandler<UserErrorOccured>
+public class UserErrorOccurredHandler : INotificationHandler<UserErrorOccurred>
 {
     private readonly ILogger<UserErrorOccurredHandler> _logger;
     private readonly INotificationClient _notificationClient;
@@ -34,7 +34,7 @@ public class UserErrorOccurredHandler : INotificationHandler<UserErrorOccured>
         _notificationClient = notificationClient;
     }
 
-    public Task Handle(UserErrorOccured request, CancellationToken token)
+    public Task Handle(UserErrorOccurred request, CancellationToken token)
     {
         _logger.LogDebug($"Starting {nameof(UserErrorOccurredHandler)}.");
 

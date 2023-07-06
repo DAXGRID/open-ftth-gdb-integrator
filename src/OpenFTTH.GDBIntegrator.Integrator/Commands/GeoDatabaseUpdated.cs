@@ -82,7 +82,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         public async Task<Unit> Handle(GeoDatabaseUpdated request, CancellationToken token)
         {
-
             var eventId = request.UpdateMessage switch
             {
                 RouteNodeMessage msg => msg.EventId,
@@ -123,7 +122,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                         await _geoDatabase.Commit();
 
                         // Send out error message so the user can see it in QGIS.
-                        await SendUserErrorOccured(request, "TODO");
+                        await SendUserErrorOccured(request, ErrorCode.RECEIVED_INVALID_MESSAGE);
 
                         return await Task.FromResult(new Unit());
                     }
@@ -135,8 +134,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                         await RollbackOrDelete((request.UpdateMessage as InvalidMessage).Message, "Message is invalid so we rollback or delete.");
                         await _geoDatabase.Commit();
 
-                        // Send out error message so the user can see it in QGIS.
-                        await SendUserErrorOccured(request, "TODO");
+                        // Send out error message so the user can see it.
+                        await SendUserErrorOccured(request, ErrorCode.RECEIVED_INVALID_MESSAGE);
 
                         return await Task.FromResult(new Unit());
                     }
@@ -158,8 +157,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     var editOperationOccuredEvent = CreateEditOperationOccuredEvent(
                         workTaskMrId,
                         username,
-                        eventId
-                    );
+                        eventId);
 
                     if (IsOperationEditEventValid(editOperationOccuredEvent))
                     {
@@ -187,7 +185,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 _logger.LogInformation($"{nameof(RouteNetworkEditOperationOccuredEvent)} is now rolled rollback.");
 
                 // Send out error message so the user can see it in QGIS.
-                await SendUserErrorOccured(request, "TODO");
+                await SendUserErrorOccured(request, ErrorCode.UNKNOWN_ERROR);
             }
             finally
             {
@@ -238,7 +236,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 }
 
                 await _mediator.Publish(
-                    new UserErrorOccured(
+                    new UserErrorOccurred(
                         errorCode: errorCode,
                         username: username
                     )).ConfigureAwait(false);
@@ -249,7 +247,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 // but should be fixed if it ever occurs, therefore we just log it.
                 _logger.LogError(
                     "Could not send out {MessageType} Exception: {Exception}",
-                    nameof(UserErrorOccured),
+                    nameof(UserErrorOccurred),
                     ex);
             }
         }
@@ -299,24 +297,35 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
                     if (rollbackSegment is not null)
                     {
-                        await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackSegment, errorMessage));
+                        await _mediator.Publish(
+                            new RollbackInvalidRouteSegment(
+                                rollbackSegment,
+                                errorMessage,
+                                ErrorCode.UNKNOWN_ERROR,
+                                rollbackMessage.After.Username ?? "COULD_NOT_GET_USERNAME"
+                            )
+                        );
                     }
                     else
                     {
-                        await _mediator.Publish(new InvalidRouteSegmentOperation
-                        {
-                            RouteSegment = rollbackMessage.After,
-                            Message = errorMessage
-                        });
+                        await _mediator.Publish(
+                            new InvalidRouteSegmentOperation(
+                                routeSegment: rollbackMessage.After,
+                                message: errorMessage,
+                                errorCode: ErrorCode.UNKNOWN_ERROR,
+                                username: rollbackMessage.After.Username));
                     }
                 }
                 else
                 {
-                    await _mediator.Publish(new InvalidRouteSegmentOperation
-                    {
-                        RouteSegment = rollbackMessage.After,
-                        Message = errorMessage
-                    });
+                    await _mediator.Publish(
+                        new InvalidRouteSegmentOperation(
+                            routeSegment: rollbackMessage.After,
+                            message: errorMessage,
+                            errorCode: ErrorCode.UNKNOWN_ERROR,
+                            username: rollbackMessage.After.Username
+                        )
+                    );
                 }
             }
             else if (message is RouteNodeMessage)
@@ -474,7 +483,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             else
             {
-                await _mediator.Publish(new InvalidRouteSegmentOperation { RouteSegment = routeSegmentMessage.After });
+                await _mediator.Publish(
+                    new InvalidRouteSegmentOperation(
+                        routeSegment: routeSegmentMessage.After,
+                        message: "Could not figure out how to handle the route segment creation/update.",
+                        errorCode: ErrorCode.UNKNOWN_ERROR,
+                        username: routeSegmentMessage.After.Username
+                    )
+                );
             }
         }
 
