@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using OpenFTTH.Events.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
@@ -340,20 +341,26 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     }
                     else
                     {
-                        await _mediator.Publish(new InvalidRouteNodeOperation
-                        {
-                            RouteNode = rollbackMessage.After,
-                            Message = errorMessage
-                        });
+                        await _mediator.Publish(
+                            new InvalidRouteNodeOperation(
+                                routeNode: rollbackMessage.After,
+                                message: errorMessage,
+                                ErrorCode.UNKNOWN_ERROR,
+                                username: rollbackMessage.After.Username
+                            )
+                        );
                     }
                 }
                 else
                 {
-                    await _mediator.Publish(new InvalidRouteNodeOperation
-                    {
-                        RouteNode = rollbackMessage.After,
-                        Message = errorMessage
-                    });
+                    await _mediator.Publish(
+                        new InvalidRouteNodeOperation(
+                            routeNode: rollbackMessage.After,
+                            message: errorMessage,
+                            errorCode: ErrorCode.UNKNOWN_ERROR,
+                            username: rollbackMessage.After.Username
+                        )
+                    );
                 }
             }
             else
@@ -433,7 +440,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             else
             {
-                await _mediator.Publish(new InvalidRouteNodeOperation { RouteNode = routeNodeMessage.After });
+                await _mediator.Publish(
+                    new InvalidRouteNodeOperation(
+                        routeNode: routeNodeMessage.After,
+                        message: $"Could not handle route node message. '{JsonConvert.SerializeObject(routeNodeMessage)}'",
+                        errorCode: ErrorCode.UNKNOWN_ERROR,
+                        username: routeNodeMessage.After.Username
+                    )
+                );
             }
         }
 

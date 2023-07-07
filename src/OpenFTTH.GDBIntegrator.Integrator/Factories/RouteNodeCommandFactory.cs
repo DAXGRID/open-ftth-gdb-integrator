@@ -72,12 +72,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
         public async Task<List<INotification>> CreateDigitizedEvent(RouteNode routeNode)
         {
             if (routeNode is null)
-                throw new ArgumentNullException($"Parameter {nameof(routeNode)} cannot be null");
+            {
+                throw new ArgumentNullException($"Parameter {nameof(routeNode)} cannot be null.");
+            }
 
             // If we find the route node is in the shadow table, it means that it was created by the application and we therefore do nothing.
             if (await _geoDatabase.RouteNodeInShadowTableExists(routeNode.Mrid))
             {
-                return new List<INotification> { new DoNothing($"{nameof(RouteNode)} with id: '{routeNode.Mrid}' was created by {routeNode.ApplicationName} therefore do nothing.") };
+                return new List<INotification>
+                {
+                    new DoNothing($"{nameof(RouteNode)} with id: '{routeNode.Mrid}' was created by {routeNode.ApplicationName} therefore do nothing.")
+                };
             }
 
             await _geoDatabase.InsertRouteNodeShadowTable(routeNode);
@@ -87,11 +92,21 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 
             if (intersectingRouteNodes.Count > 0)
             {
-                return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, Message = "RouteNode intersects with another RouteNode" } };
+                return new List<INotification>
+                {
+                    new InvalidRouteNodeOperation(
+                        routeNode: routeNode,
+                        message: "The route node intersects with another route node.",
+                        errorCode: ErrorCode.ROUTE_NODE_INTERSECTS_WITH_ANOTHER_ROUTE_NODE,
+                        username: routeNode.Username
+                    )
+                };
             }
 
             if (intersectingRouteSegments.Count == 0)
+            {
                 return new List<INotification> { new NewRouteNodeDigitized { RouteNode = routeNode } };
+            }
 
             if (intersectingRouteSegments.Count == 1)
             {
@@ -106,7 +121,15 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 return notifications;
             }
 
-            return new List<INotification> { new InvalidRouteNodeOperation { RouteNode = routeNode, Message = "Route node did not fit any condition in command factory." } };
+            return new List<INotification>
+            {
+                new InvalidRouteNodeOperation(
+                    routeNode: routeNode,
+                    message: "Route node did not fit any condition in command factory.",
+                    errorCode: ErrorCode.UNKNOWN_ERROR,
+                    username: routeNode.Username
+                )
+            };
         }
 
         private async Task<bool> IsValidNodeUpdate(RouteNode shadowTableNode, RouteNode after)
