@@ -88,6 +88,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 RouteNodeMessage msg => msg.EventId,
                 RouteSegmentMessage msg => msg.EventId,
                 InvalidMessage msg => msg.EventId,
+                // This is a very exceptional error and something is very wrong if this happens.
+                // It will keep retrying and crashing the service, which is intended.
+                // In case this happens it needs to be investigated manually.
                 _ => throw new ArgumentException(
                     "Could not handle type of '{typeof(request.UpdateMessage)}'.")
             };
@@ -101,7 +104,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             try
             {
                 _eventStore.Clear();
-
                 await _geoDatabase.BeginTransaction();
 
                 if (request.UpdateMessage is RouteNodeMessage)
@@ -145,18 +147,40 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 if (_eventStore.Get().Count() > 0)
                 {
                     var username = GetUsername(request.UpdateMessage);
+
+                    // A username is always required.
                     if (String.IsNullOrWhiteSpace(username))
                     {
-                        throw new InvalidOperationException("The update message is missing username.");
+                        await RollbackOrDelete(
+                            request.UpdateMessage,
+                            "The message is missing a username.",
+                            ErrorCode.MESSAGE_IS_MISSING_USERNAME);
+
+                        await _geoDatabase.Commit();
+
+                        return await Task.FromResult(new Unit());
                     }
 
-                    var workTaskMrId = await GetUserWorkTaskMrId(username);
+                    var workTask = await _workTaskService.GetUserWorkTask(username);
+                    // A work task is always required.
+                    if (workTask is null)
+                    {
+                        await RollbackOrDelete(
+                            request.UpdateMessage,
+                            "The user has not selected a work task.",
+                            ErrorCode.USER_HAS_NOT_SELECTED_A_WORK_TASK
+                        );
+
+                        await _geoDatabase.Commit();
+
+                        return await Task.FromResult(new Unit());
+                    }
 
                     // We update the work task ids on the newly digitized network elements.
-                    await UpdateWorkTaskIdOnNewlyDigitized(workTaskMrId);
+                    await UpdateWorkTaskIdOnNewlyDigitized(workTask.Id);
 
                     var editOperationOccuredEvent = CreateEditOperationOccuredEvent(
-                        workTaskMrId,
+                        workTask.Id,
                         username,
                         eventId);
 
@@ -287,7 +311,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
         }
 
-        private async Task RollbackOrDelete(object message, string errorMessage)
+        private async Task RollbackOrDelete(object message, string errorMessage, string errorCode = ErrorCode.UNKNOWN_ERROR)
         {
             if (message is RouteSegmentMessage)
             {
@@ -302,7 +326,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                             new RollbackInvalidRouteSegment(
                                 rollbackSegment,
                                 errorMessage,
-                                ErrorCode.UNKNOWN_ERROR,
+                                errorCode,
                                 rollbackMessage.After.Username ?? "COULD_NOT_GET_USERNAME"
                             )
                         );
@@ -313,8 +337,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                             new InvalidRouteSegmentOperation(
                                 routeSegment: rollbackMessage.After,
                                 message: errorMessage,
-                                errorCode: ErrorCode.UNKNOWN_ERROR,
-                                username: rollbackMessage.After.Username));
+                                errorCode: errorCode,
+                                username: rollbackMessage.After.Username ?? "COULD_NOT_GET_USERNAME"));
                     }
                 }
                 else
@@ -323,8 +347,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                         new InvalidRouteSegmentOperation(
                             routeSegment: rollbackMessage.After,
                             message: errorMessage,
-                            errorCode: ErrorCode.UNKNOWN_ERROR,
-                            username: rollbackMessage.After.Username
+                            errorCode: errorCode,
+                            username: rollbackMessage.After.Username ?? "COULD_NOT_GET_USERNAME"
                         )
                     );
                 }
@@ -341,8 +365,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                             new RollbackInvalidRouteNode(
                                 rollbackToNode: rollbackNode,
                                 message: errorMessage,
-                                errorCode: ErrorCode.UNKNOWN_ERROR,
-                                username: rollbackMessage.After.Username
+                                errorCode: errorCode,
+                                username: rollbackMessage.After.Username ?? "COULD_NOT_GET_USERNAME"
                             ));
                     }
                     else
@@ -351,8 +375,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                             new InvalidRouteNodeOperation(
                                 routeNode: rollbackMessage.After,
                                 message: errorMessage,
-                                ErrorCode.UNKNOWN_ERROR,
-                                username: rollbackMessage.After.Username
+                                errorCode: errorCode,
+                                username: rollbackMessage.After.Username ?? "COULD_NOT_GET_USERNAME"
                             )
                         );
                     }
@@ -363,8 +387,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                         new InvalidRouteNodeOperation(
                             routeNode: rollbackMessage.After,
                             message: errorMessage,
-                            errorCode: ErrorCode.UNKNOWN_ERROR,
-                            username: rollbackMessage.After.Username
+                            errorCode: errorCode,
+                            username: rollbackMessage.After.Username ?? "COULD_NOT_GET_USERNAME"
                         )
                     );
                 }
@@ -532,17 +556,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
 
             return username;
-        }
-
-        private async Task<Guid> GetUserWorkTaskMrId(string username)
-        {
-            var workTask = await _workTaskService.GetUserWorkTask(username);
-            if (workTask is null)
-            {
-                throw new ApplicationException($"User {username} does not have a selected work task.");
-            }
-
-            return workTask.Id;
         }
 
         // Updates work task id on newly digitized routenetwork-elements

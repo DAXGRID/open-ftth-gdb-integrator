@@ -99,9 +99,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                     {
                         new RollbackInvalidRouteNode(
                             shadowTableNode,
-                            "Update to route node is invalid because it is insecting with route-segments.",
-                            // No idea how to describe this error to the user, so we just set UNKNOWN_ERROR.
-                            errorCode: ErrorCode.UNKNOWN_ERROR,
+                            "It is not allowed to change the geometry of a route node so it intersects with one or more route segments.",
+                            errorCode: ErrorCode.ROUTE_NODE_GEOMETRY_UPDATE_NOT_ALLOWED_TO_INTERSECT_WITH_ROUTE_SEGMENT,
                             username: after.Username
                         )
                     };
