@@ -51,7 +51,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                     new RollbackInvalidRouteNode(
                         rollbackToNode: shadowTableNode,
                         message: "Route node's distance was modified distance less than tolerance.",
-                        errorCode: ErrorCode.ROUTE_NODE_MODIFIED_LESS_THAN_TOLERANCE,
+                        errorCode: ErrorCode.ROUTE_NODE_CANNOT_MODIFY_GEOMETRY_AND_MARK_FOR_DELETION_IN_THE_SAME_OPERATION,
                         username: after.Username
                     )
                 };
@@ -71,14 +71,27 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 };
             }
 
-            if ((await IsModifiedAndMarkedToBeDeleted(shadowTableNode, after)))
+            if (await IsMarkedToBeDeletedAndGeometryChanged(shadowTableNode, after))
             {
                 return new List<INotification>
                 {
                     new RollbackInvalidRouteNode(
                         rollbackToNode: shadowTableNode,
-                        message: "Changing the connectivity and marking the route node to be deleted in the same operation is not valid.",
-                        errorCode: ErrorCode.ROUTE_NODE_CANNOT_CHANGE_CONNECTIVITY_AND_DELETE_SAME_OPERATION,
+                        message: "Modifying the geometry and marking the route node to be deleted in the same operation is not valid.",
+                        errorCode: ErrorCode.ROUTE_NODE_CANNOT_MODIFY_GEOMETRY_AND_MARK_FOR_DELETION_IN_THE_SAME_OPERATION,
+                        username: after.Username
+                    )
+                };
+            }
+
+            if (await BeforeValueIntersectsWithRouteSegmentAndAfterIsMarkedToBeDeleted(shadowTableNode, after))
+            {
+                return new List<INotification>
+                {
+                    new RollbackInvalidRouteNode(
+                        rollbackToNode: shadowTableNode,
+                        message: "Route node that intersects with route segment cannot be marked to deleted.",
+                        errorCode: ErrorCode.ROUTE_NODE_INTERSECT_WITH_ROUTE_SEGMENT_CANNOT_BE_DELETED,
                         username: after.Username
                     )
                 };
@@ -178,11 +191,16 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             };
         }
 
-        private async Task<bool> IsModifiedAndMarkedToBeDeleted(RouteNode shadowTableNode, RouteNode after)
+        private async Task<bool> IsMarkedToBeDeletedAndGeometryChanged(RouteNode shadowTableNode, RouteNode after)
+        {
+            return after.MarkAsDeleted && !after.GetPoint().EqualsTopologically(shadowTableNode.GetPoint());
+        }
+
+        private async Task<bool> BeforeValueIntersectsWithRouteSegmentAndAfterIsMarkedToBeDeleted(RouteNode shadowTableNode, RouteNode after)
         {
             var startRouteSegment = await _geoDatabase.GetIntersectingStartRouteSegments(shadowTableNode);
             var endRouteSegment = await _geoDatabase.GetIntersectingEndRouteSegments(shadowTableNode);
-            return (((startRouteSegment.Count + endRouteSegment.Count) > 0 && after.MarkAsDeleted));
+            return (startRouteSegment.Count + endRouteSegment.Count) > 0 && after.MarkAsDeleted;
         }
 
         private bool AlreadyUpdated(RouteNode routeNode, RouteNode routeNodeShadowTable)
