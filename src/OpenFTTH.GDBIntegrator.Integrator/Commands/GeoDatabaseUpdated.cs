@@ -337,7 +337,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     var rollbackNode = await _geoDatabase.GetRouteNodeShadowTable(rollbackMessage.After.Mrid);
                     if (rollbackNode is not null)
                     {
-                        await _mediator.Publish(new RollbackInvalidRouteNode(rollbackNode, errorMessage));
+                        await _mediator.Publish(
+                            new RollbackInvalidRouteNode(
+                                rollbackToNode: rollbackNode,
+                                message: errorMessage,
+                                errorCode: ErrorCode.UNKNOWN_ERROR,
+                                username: rollbackMessage.After.Username
+                            ));
                     }
                     else
                     {

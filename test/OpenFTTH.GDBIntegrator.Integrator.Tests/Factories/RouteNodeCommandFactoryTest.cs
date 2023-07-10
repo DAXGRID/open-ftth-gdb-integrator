@@ -196,6 +196,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var beforeNode = A.Fake<RouteNode>();
             var afterNode = A.Fake<RouteNode>();
             var validationService = A.Fake<IValidationService>();
+            var username = "myAwesomeUsername";
+            afterNode.Username = username;
 
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
             A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
@@ -215,7 +217,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
 
-            var expected = new RollbackInvalidRouteNode(shadowTableNode, "Is not a valid route node update.");
+            var expected = new RollbackInvalidRouteNode(
+                rollbackToNode: shadowTableNode,
+                message: "Changing the connectivity and marking the route node to be deleted in the same operation is not valid.",
+                errorCode: "ROUTE_NODE_CANNOT_CHANGE_CONNECTIVITY_AND_DELETE_SAME_OPERATION",
+                username: username
+            );
+
             using (var scope = new AssertionScope())
             {
                 result.Should().HaveCount(1);
@@ -232,6 +240,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var afterNode = A.Fake<RouteNode>();
             var shadowTableRouteNode = A.Fake<RouteNode>();
             var appSettings = new ApplicationSetting { Tolerance = 0.01 };
+            var username = "myAwesomeUsername";
+            afterNode.Username = username;
 
             A.CallTo(() => applicationSetting.Value).Returns(appSettings);
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
@@ -251,7 +261,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
             var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
-            var expected = new RollbackInvalidRouteNode(beforeNode, "Is not a valid route node update.");
+            var expected = new RollbackInvalidRouteNode(
+                rollbackToNode: beforeNode,
+                message: "The route node intersects with another route node.",
+                errorCode: "ROUTE_NODE_INTERSECTS_WITH_ANOTHER_ROUTE_NODE",
+                username: username
+            );
 
             result.Should().BeOfType(typeof(RollbackInvalidRouteNode)).And.BeEquivalentTo(expected);
         }
@@ -300,6 +315,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var shadowTableRouteNode = A.Fake<RouteNode>();
             var appSettings = new ApplicationSetting { Tolerance = 0.01 };
             var point = CreatePoint(552428.7508312801, 6188868.185819111);
+            var username = "myAwesomeUsername";
 
             A.CallTo(() => applicationSetting.Value).Returns(appSettings);
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
@@ -317,7 +333,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
-            var expected = new RollbackInvalidRouteNode(shadowTableRouteNode, "Modified distance less than tolerance.");
+            var expected = new RollbackInvalidRouteNode(
+                rollbackToNode: shadowTableRouteNode,
+                message: "Modified distance less than tolerance.",
+                errorCode: "",
+                username: username
+            );
 
             result.Should().BeOfType<RollbackInvalidRouteNode>();
         }
@@ -406,6 +427,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var afterNode = A.Fake<RouteNode>();
             var shadowTableRouteNode = A.Fake<RouteNode>();
             var appSettingsValue = new ApplicationSetting { Tolerance = 0.01 };
+            var username = "myAwesomeUsername";
+            afterNode.Username = username;
 
             A.CallTo(() => applicationSetting.Value).Returns(appSettingsValue);
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
@@ -428,7 +451,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
             var rollbackInvalidRouteNode = (RollbackInvalidRouteNode)result[0];
 
-            var expected = new RollbackInvalidRouteNode(beforeNode, "Update to route node is invalid because it is insecting with route-segments.");
+            var expected = new RollbackInvalidRouteNode(
+                rollbackToNode: beforeNode,
+                message: "Update to route node is invalid because it is insecting with route-segments.",
+                errorCode: "UNKNOWN_ERROR",
+                username: username
+            );
 
             using (var scope = new AssertionScope())
             {

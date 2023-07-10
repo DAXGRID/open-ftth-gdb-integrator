@@ -45,10 +45,44 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 throw new ArgumentException("Point is not valid.");
 
             if (IsModifiedDistanceLessThanTolerance(shadowTableNode, after))
-                return new List<INotification> { new RollbackInvalidRouteNode(shadowTableNode, "Modified distance less than tolerance.") };
+            {
+                return new List<INotification>
+                {
+                    new RollbackInvalidRouteNode(
+                        rollbackToNode: shadowTableNode,
+                        message: "Route node's distance was modified distance less than tolerance.",
+                        errorCode: ErrorCode.ROUTE_NODE_MODIFIED_LESS_THAN_TOLERANCE,
+                        username: after.Username
+                    )
+                };
+            }
 
-            if (!(await IsValidNodeUpdate(shadowTableNode, after)))
-                return new List<INotification> { new RollbackInvalidRouteNode(shadowTableNode, "Is not a valid route node update.") };
+            var intersectingRouteNodes = await _geoDatabase.GetIntersectingRouteNodes(after);
+            if (intersectingRouteNodes.Count > 0)
+            {
+                return new List<INotification>
+                {
+                    new RollbackInvalidRouteNode(
+                        rollbackToNode: shadowTableNode,
+                        message: "The route node intersects with another route node.",
+                        errorCode: ErrorCode.ROUTE_NODE_INTERSECTS_WITH_ANOTHER_ROUTE_NODE,
+                        username: after.Username
+                    )
+                };
+            }
+
+            if ((await IsModifiedAndMarkedToBeDeleted(shadowTableNode, after)))
+            {
+                return new List<INotification>
+                {
+                    new RollbackInvalidRouteNode(
+                        rollbackToNode: shadowTableNode,
+                        message: "Changing the connectivity and marking the route node to be deleted in the same operation is not valid.",
+                        errorCode: ErrorCode.ROUTE_NODE_CANNOT_CHANGE_CONNECTIVITY_AND_DELETE_SAME_OPERATION,
+                        username: after.Username
+                    )
+                };
+            }
 
             await _geoDatabase.UpdateRouteNodeShadowTable(after);
 
@@ -60,11 +94,24 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 var newIntersectingRouteSegments = intersectingRouteSegments
                     .Where(x => !previousIntersectingRouteSegments.Any(y => y.Mrid == x.Mrid)).ToList();
                 if (newIntersectingRouteSegments.Count > 0)
-                    return new List<INotification> { new RollbackInvalidRouteNode(shadowTableNode, "Update to route node is invalid because it is insecting with route-segments.") };
+                {
+                    return new List<INotification>
+                    {
+                        new RollbackInvalidRouteNode(
+                            shadowTableNode,
+                            "Update to route node is invalid because it is insecting with route-segments.",
+                            // No idea how to describe this error to the user, so we just set UNKNOWN_ERROR.
+                            errorCode: ErrorCode.UNKNOWN_ERROR,
+                            username: after.Username
+                        )
+                    };
+                }
             }
 
             if (after.MarkAsDeleted)
+            {
                 return new List<INotification> { new RouteNodeDeleted { RouteNode = after } };
+            }
 
             return new List<INotification> { new RouteNodeLocationChanged { RouteNodeAfter = after, RouteNodeBefore = shadowTableNode } };
         }
@@ -132,16 +179,11 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             };
         }
 
-        private async Task<bool> IsValidNodeUpdate(RouteNode shadowTableNode, RouteNode after)
+        private async Task<bool> IsModifiedAndMarkedToBeDeleted(RouteNode shadowTableNode, RouteNode after)
         {
             var startRouteSegment = await _geoDatabase.GetIntersectingStartRouteSegments(shadowTableNode);
             var endRouteSegment = await _geoDatabase.GetIntersectingEndRouteSegments(shadowTableNode);
-            var intersectingRouteNodes = await _geoDatabase.GetIntersectingRouteNodes(after);
-
-            if (((startRouteSegment.Count + endRouteSegment.Count) > 0 && after.MarkAsDeleted) || intersectingRouteNodes.Count > 0)
-                return false;
-
-            return true;
+            return (((startRouteSegment.Count + endRouteSegment.Count) > 0 && after.MarkAsDeleted));
         }
 
         private bool AlreadyUpdated(RouteNode routeNode, RouteNode routeNodeShadowTable)
