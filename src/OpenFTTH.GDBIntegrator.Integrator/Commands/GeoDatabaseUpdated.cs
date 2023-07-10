@@ -151,6 +151,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     // A username is always required.
                     if (String.IsNullOrWhiteSpace(username))
                     {
+                        await _geoDatabase.RollbackTransaction();
+                        await _geoDatabase.BeginTransaction();
+
                         await RollbackOrDelete(
                             request.UpdateMessage,
                             "The message is missing a username.",
@@ -165,6 +168,9 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     // A work task is always required.
                     if (workTask is null)
                     {
+                        await _geoDatabase.RollbackTransaction();
+                        await _geoDatabase.BeginTransaction();
+
                         await RollbackOrDelete(
                             request.UpdateMessage,
                             "The user has not selected a work task.",
