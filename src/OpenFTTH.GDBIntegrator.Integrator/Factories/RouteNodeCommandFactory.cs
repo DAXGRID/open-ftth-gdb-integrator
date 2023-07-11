@@ -50,7 +50,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 {
                     new RollbackInvalidRouteNode(
                         rollbackToNode: shadowTableNode,
-                        message: "Route node's distance was modified distance less than tolerance.",
+                        message: "Route node's distance was modified less than tolerance.",
                         errorCode: ErrorCode.ROUTE_NODE_MODIFIED_LESS_THAN_TOLERANCE,
                         username: after.Username
                     )
