@@ -14,8 +14,10 @@ using OpenFTTH.GDBIntegrator.Integrator.WorkTask;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -124,9 +126,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                             "Message is invalid and we cannot rollback so we mark it to be deleted.");
                         await _geoDatabase.Commit();
 
-                        // Send out error message so the user can see it in QGIS.
-                        await SendUserErrorOccured(request, ErrorCode.RECEIVED_INVALID_MESSAGE);
-
                         return await Task.FromResult(new Unit());
                     }
                     else
@@ -136,9 +135,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
                         await RollbackOrDelete((request.UpdateMessage as InvalidMessage).Message, "Message is invalid so we rollback or delete.");
                         await _geoDatabase.Commit();
-
-                        // Send out error message so the user can see it.
-                        await SendUserErrorOccured(request, ErrorCode.RECEIVED_INVALID_MESSAGE);
 
                         return await Task.FromResult(new Unit());
                     }
@@ -205,6 +201,36 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 {
                     await _geoDatabase.Commit();
                 }
+            }
+            // This is not a pretty wasy to handle it, but it was the simplest way
+            // without having to restructure the whole thing.
+            catch (CannotDeleteRouteSegmentRelatedEquipmentException)
+            {
+                await _geoDatabase.RollbackTransaction();
+                await _geoDatabase.BeginTransaction();
+
+                await RollbackOrDelete(
+                    request.UpdateMessage,
+                    $"Cannot delete route segment when it has related equipment.",
+                    ErrorCode.CANNOT_DELETE_ROUTE_SEGMENT_WITH_RELATED_EQUIPMENT
+                );
+
+                await _geoDatabase.Commit();
+            }
+            // This is not a pretty wasy to handle it, but it was the simplest way
+            // without having to restructure the whole thing.
+            catch (CannotDeleteRouteNodeRelatedEquipmentException)
+            {
+                await _geoDatabase.RollbackTransaction();
+                await _geoDatabase.BeginTransaction();
+
+                await RollbackOrDelete(
+                    request.UpdateMessage,
+                    $"Cannot delete route node when it has related equipment.",
+                    ErrorCode.CANNOT_DELETE_ROUTE_NODE_WITH_RELATED_EQUIPMENT
+                );
+
+                await _geoDatabase.Commit();
             }
             catch (Exception e)
             {
@@ -458,7 +484,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     var hasRelatedEquipment = await _validationService.HasRelatedEquipment(routeNodeMessage.After.Mrid);
                     if (hasRelatedEquipment)
                     {
-                        throw new Exception("Cannot update route node since it has related equipment.");
+                        throw new CannotDeleteRouteNodeRelatedEquipmentException(
+                            "Cannot delete route node when it has releated equipment.");
                     }
                 }
 
@@ -512,10 +539,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 var possibleIllegalOperation = routeSegmentUpdatedEvents.Any(x => x.GetType() == typeof(RouteSegmentDeleted) || x.GetType() == typeof(RouteSegmentConnectivityChanged));
                 if (possibleIllegalOperation)
                 {
-                    var hasRelatedEquipment = await _validationService.HasRelatedEquipment(routeSegmentMessage.After.Mrid);
+                    var hasRelatedEquipment = await _validationService.HasRelatedEquipment(
+                        routeSegmentMessage.After.Mrid);
+
                     if (hasRelatedEquipment)
                     {
-                        throw new Exception("Cannot update route segment since it has related equipment.");
+                        throw new CannotDeleteRouteSegmentRelatedEquipmentException(
+                            "Cannot delete route segment when it has releated equipment.");
                     }
                 }
 

@@ -71,7 +71,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
                 };
             }
 
-            if (await IsMarkedToBeDeletedAndGeometryChanged(shadowTableNode, after))
+            if (IsMarkedToBeDeletedAndGeometryChanged(shadowTableNode, after))
             {
                 return new List<INotification>
                 {
@@ -191,7 +191,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             };
         }
 
-        private async Task<bool> IsMarkedToBeDeletedAndGeometryChanged(RouteNode shadowTableNode, RouteNode after)
+        private bool IsMarkedToBeDeletedAndGeometryChanged(RouteNode shadowTableNode, RouteNode after)
         {
             return after.MarkAsDeleted && !after.GetPoint().EqualsTopologically(shadowTableNode.GetPoint());
         }
