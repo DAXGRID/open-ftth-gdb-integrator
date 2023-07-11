@@ -232,17 +232,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
                 await _geoDatabase.Commit();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _logger.LogError($"{e}: Rolling back geodatabase transactions.");
                 await _geoDatabase.RollbackTransaction();
                 await _geoDatabase.BeginTransaction();
-                await RollbackOrDelete(request.UpdateMessage, $"Rollback or delete because of exception: {e}");
-                await _geoDatabase.Commit();
-                _logger.LogInformation($"{nameof(RouteNetworkEditOperationOccuredEvent)} is now rolled rollback.");
 
-                // Send out error message so the user can see it in QGIS.
-                await SendUserErrorOccured(request, ErrorCode.UNKNOWN_ERROR);
+                await RollbackOrDelete(
+                    request.UpdateMessage,
+                    $"Rollback or delete because of exception: {ex}",
+                    ErrorCode.UNKNOWN_ERROR
+                );
+
+                await _geoDatabase.Commit();
             }
             finally
             {
