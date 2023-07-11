@@ -8,6 +8,6 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Validators
         /// Logic that checks if a line drawn by user (representing a route segment) is ok to be futher processed
         /// </summary>
         /// <returns>bool</returns>
-        bool LineIsValid(LineString lineString);
+        (bool isValid, string errorCode) LineIsValid(LineString lineString);
     }
 }

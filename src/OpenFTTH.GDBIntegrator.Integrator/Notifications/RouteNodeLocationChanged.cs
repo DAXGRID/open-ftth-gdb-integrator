@@ -94,7 +94,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Notifications
                     throw new InvalidOperationException("Route segments intersects with any route nodes");
                 }
 
-                var anyRouteSegmentInvalid = routeSegmentsToBeUpdated.Any(x => !_routeSegmentValidator.LineIsValid(x.GetLineString()));
+                var anyRouteSegmentInvalid = routeSegmentsToBeUpdated.Any(x => !_routeSegmentValidator.LineIsValid(x.GetLineString()).isValid);
                 if (anyRouteSegmentInvalid)
                 {
                     throw new InvalidOperationException("Route node move results in invalid routesegment geometries.");

@@ -153,7 +153,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
         }
 
         [Fact]
-        public async Task CreateUpdatedEvent_ShouldReturnRouteNodeDeletedEvent_OnRouteNodeMarkAsDeletedSetAndNoIntersectingSegments()
+        public async Task CreateUpdatedEvent_ShouldReturnRouteNodeDeletedEvent_OnRouteNodeMarkAsDeletedSetAndNoIntersectingSegmentsAndGeometryNotModified()
         {
             var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
             var geoDatabase = A.Fake<IGeoDatabase>();
@@ -161,22 +161,22 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var afterNode = A.Fake<RouteNode>();
             var shadowTableRouteNode = A.Fake<RouteNode>();
             var appSettings = new ApplicationSetting { Tolerance = 0.01 };
+            var shadowTablePoint = CreatePoint(565931.4446905176, 6197297.75114815);
+            var afterPoint = CreatePoint(565931.4446905176, 6197297.75114815);
 
             var mrid = Guid.NewGuid();
             A.CallTo(() => beforeNode.MarkAsDeleted).Returns(false);
             A.CallTo(() => beforeNode.Mrid).Returns(mrid);
             A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
             A.CallTo(() => afterNode.Mrid).Returns(mrid);
-            A.CallTo(() => afterNode.GetPoint()).Returns(CreatePoint(565931.4446905176, 6197297.75114815));
-            A.CallTo(() => shadowTableRouteNode.GetPoint()).Returns(CreatePoint(565930.4446905176, 6197297.75114815));
+            A.CallTo(() => afterNode.GetPoint()).Returns(afterPoint);
+            A.CallTo(() => shadowTableRouteNode.GetPoint()).Returns(shadowTablePoint);
             A.CallTo(() => applicationSetting.Value).Returns(appSettings);
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableRouteNode);
             A.CallTo(() => geoDatabase.GetIntersectingRouteSegments(afterNode)).Returns(new List<RouteSegment> { });
 
-            var point = A.Fake<Point>();
             var routeNodeValidator = A.Fake<IRouteNodeValidator>();
-            A.CallTo(() => afterNode.GetPoint()).Returns(point);
-            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+            A.CallTo(() => routeNodeValidator.PointIsValid(afterPoint)).Returns(true);
 
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
             var result = (RouteNodeDeleted)(await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
@@ -184,6 +184,50 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             using (new AssertionScope())
             {
                 result.RouteNode.Should().Be(afterNode);
+            }
+        }
+
+        [Fact]
+        public async Task CreateUpdatedEvent_ShouldReturnRollbackInvalidRouteNodeOperation_WhenGeometryIsChangedAndMarkedToBeDeletedInSameOperation()
+        {
+            var applicationSetting = A.Fake<IOptions<ApplicationSetting>>();
+            var geoDatabase = A.Fake<IGeoDatabase>();
+            var shadowTableNode = A.Fake<RouteNode>();
+            var beforeNode = A.Fake<RouteNode>();
+            var afterNode = A.Fake<RouteNode>();
+            var validationService = A.Fake<IValidationService>();
+            var username = "myAwesomeUsername";
+            afterNode.Username = username;
+            var shadowPoint = CreatePoint(565931.4446905176, 6197297.75114815);
+            var afterPoint = CreatePoint(665931.4446905176, 7197297.75114815);
+
+            A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
+            A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
+            A.CallTo(() => shadowTableNode.Mrid).Returns(Guid.NewGuid());
+            A.CallTo(() => validationService.HasRelatedEquipment(afterNode.Mrid)).Returns(false);
+            A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableNode);
+            A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(shadowTableNode)).Returns(new List<RouteSegment>());
+            A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(shadowTableNode)).Returns(new List<RouteSegment>());
+            A.CallTo(() => afterNode.GetPoint()).Returns(afterPoint);
+            A.CallTo(() => shadowTableNode.GetPoint()).Returns(shadowPoint);
+
+            var routeNodeValidator = A.Fake<IRouteNodeValidator>();
+            A.CallTo(() => routeNodeValidator.PointIsValid(afterPoint)).Returns(true);
+
+            var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
+            var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
+
+            var expected = new RollbackInvalidRouteNode(
+                rollbackToNode: shadowTableNode,
+                message: "Modifying the geometry and marking the route node to be deleted in the same operation is not valid.",
+                errorCode: "ROUTE_NODE_CANNOT_MODIFY_GEOMETRY_AND_MARK_FOR_DELETION_IN_THE_SAME_OPERATION",
+                username: username
+            );
+
+            using (var scope = new AssertionScope())
+            {
+                result.Should().HaveCount(1);
+                result[0].Should().BeOfType(typeof(RollbackInvalidRouteNode)).And.BeEquivalentTo(expected);
             }
         }
 
@@ -196,26 +240,36 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var beforeNode = A.Fake<RouteNode>();
             var afterNode = A.Fake<RouteNode>();
             var validationService = A.Fake<IValidationService>();
+            var username = "myAwesomeUsername";
+            afterNode.Username = username;
+            var shadowPoint = CreatePoint(565931.4446905176, 6197297.75114815);
+            var afterPoint = CreatePoint(565931.4446905176, 6197297.75114815);
 
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
             A.CallTo(() => afterNode.MarkAsDeleted).Returns(true);
             A.CallTo(() => shadowTableNode.Mrid).Returns(Guid.NewGuid());
-            A.CallTo(() => validationService.HasRelatedEquipment(afterNode.Mrid)).Returns(true);
+            A.CallTo(() => validationService.HasRelatedEquipment(afterNode.Mrid)).Returns(false);
             A.CallTo(() => geoDatabase.GetRouteNodeShadowTable(afterNode.Mrid, false)).Returns(shadowTableNode);
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(shadowTableNode)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
             A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(shadowTableNode)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
-            A.CallTo(() => afterNode.GetPoint()).Returns(CreatePoint(665931.4446905176, 7197297.75114815));
-            A.CallTo(() => shadowTableNode.GetPoint()).Returns(CreatePoint(565931.4446905176, 6197297.75114815));
+            A.CallTo(() => afterNode.GetPoint()).Returns(afterPoint);
+            A.CallTo(() => shadowTableNode.GetPoint()).Returns(shadowPoint);
 
-            var point = A.Fake<Point>();
+            Console.WriteLine("Got in here1");
+
             var routeNodeValidator = A.Fake<IRouteNodeValidator>();
-            A.CallTo(() => afterNode.GetPoint()).Returns(point);
-            A.CallTo(() => routeNodeValidator.PointIsValid(point)).Returns(true);
+            A.CallTo(() => routeNodeValidator.PointIsValid(afterPoint)).Returns(true);
 
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
 
-            var expected = new RollbackInvalidRouteNode(shadowTableNode, "Is not a valid route node update.");
+            var expected = new RollbackInvalidRouteNode(
+                rollbackToNode: shadowTableNode,
+                message: "Route node that intersects with route segment cannot be marked to deleted.",
+                errorCode: "ROUTE_NODE_INTERSECT_WITH_ROUTE_SEGMENT_CANNOT_BE_DELETED",
+                username: username
+            );
+
             using (var scope = new AssertionScope())
             {
                 result.Should().HaveCount(1);
@@ -232,6 +286,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var afterNode = A.Fake<RouteNode>();
             var shadowTableRouteNode = A.Fake<RouteNode>();
             var appSettings = new ApplicationSetting { Tolerance = 0.01 };
+            var username = "myAwesomeUsername";
+            afterNode.Username = username;
 
             A.CallTo(() => applicationSetting.Value).Returns(appSettings);
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
@@ -251,7 +307,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var factory = new RouteNodeCommandFactory(applicationSetting, geoDatabase, routeNodeValidator);
             var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
-            var expected = new RollbackInvalidRouteNode(beforeNode, "Is not a valid route node update.");
+            var expected = new RollbackInvalidRouteNode(
+                rollbackToNode: beforeNode,
+                message: "The route node intersects with another route node.",
+                errorCode: "ROUTE_NODE_INTERSECTS_WITH_ANOTHER_ROUTE_NODE",
+                username: username
+            );
 
             result.Should().BeOfType(typeof(RollbackInvalidRouteNode)).And.BeEquivalentTo(expected);
         }
@@ -300,6 +361,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var shadowTableRouteNode = A.Fake<RouteNode>();
             var appSettings = new ApplicationSetting { Tolerance = 0.01 };
             var point = CreatePoint(552428.7508312801, 6188868.185819111);
+            var username = "myAwesomeUsername";
 
             A.CallTo(() => applicationSetting.Value).Returns(appSettings);
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
@@ -317,7 +379,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             var result = (await factory.CreateUpdatedEvent(beforeNode, afterNode)).First();
 
-            var expected = new RollbackInvalidRouteNode(shadowTableRouteNode, "Modified distance less than tolerance.");
+            var expected = new RollbackInvalidRouteNode(
+                rollbackToNode: shadowTableRouteNode,
+                message: "Modified distance less than tolerance.",
+                errorCode: "",
+                username: username
+            );
 
             result.Should().BeOfType<RollbackInvalidRouteNode>();
         }
@@ -406,6 +473,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var afterNode = A.Fake<RouteNode>();
             var shadowTableRouteNode = A.Fake<RouteNode>();
             var appSettingsValue = new ApplicationSetting { Tolerance = 0.01 };
+            var username = "myAwesomeUsername";
+            afterNode.Username = username;
 
             A.CallTo(() => applicationSetting.Value).Returns(appSettingsValue);
             A.CallTo(() => afterNode.Mrid).Returns(Guid.NewGuid());
@@ -428,7 +497,12 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var result = await factory.CreateUpdatedEvent(beforeNode, afterNode);
             var rollbackInvalidRouteNode = (RollbackInvalidRouteNode)result[0];
 
-            var expected = new RollbackInvalidRouteNode(beforeNode, "Update to route node is invalid because it is insecting with route-segments.");
+            var expected = new RollbackInvalidRouteNode(
+                rollbackToNode: beforeNode,
+                message: "It is not allowed to change the geometry of a route node so it intersects with one or more route segments.",
+                errorCode: "ROUTE_NODE_GEOMETRY_UPDATE_NOT_ALLOWED_TO_INTERSECT_WITH_ROUTE_SEGMENT",
+                username: username
+            );
 
             using (var scope = new AssertionScope())
             {

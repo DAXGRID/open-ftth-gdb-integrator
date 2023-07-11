@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using OpenFTTH.Events.RouteNetwork;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
@@ -13,8 +14,10 @@ using OpenFTTH.GDBIntegrator.Integrator.WorkTask;
 using OpenFTTH.GDBIntegrator.Producer;
 using OpenFTTH.GDBIntegrator.RouteNetwork;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -82,15 +85,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
         public async Task<Unit> Handle(GeoDatabaseUpdated request, CancellationToken token)
         {
-
             var eventId = request.UpdateMessage switch
-                 {
-                    RouteNodeMessage msg => msg.EventId,
-                    RouteSegmentMessage msg => msg.EventId,
-                    InvalidMessage msg => msg.EventId,
-                    _ => throw new ArgumentException(
-                        "Could not handle type of '{typeof(request.UpdateMessage)}'.")
-                };
+            {
+                RouteNodeMessage msg => msg.EventId,
+                RouteSegmentMessage msg => msg.EventId,
+                InvalidMessage msg => msg.EventId,
+                // This is a very exceptional error and something is very wrong if this happens.
+                // It will keep retrying and crashing the service, which is intended.
+                // In case this happens it needs to be investigated manually.
+                _ => throw new ArgumentException(
+                    "Could not handle type of '{typeof(request.UpdateMessage)}'.")
+            };
 
             if (_eventIdStore.GetEventIds().Contains(eventId))
             {
@@ -101,7 +106,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             try
             {
                 _eventStore.Clear();
-
                 await _geoDatabase.BeginTransaction();
 
                 if (request.UpdateMessage is RouteNodeMessage)
@@ -122,9 +126,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                             "Message is invalid and we cannot rollback so we mark it to be deleted.");
                         await _geoDatabase.Commit();
 
-                        // We send an updated event out, to notify that something has been rolled back to refresh GIS.
-                        await SendGeographicalAreaUpdatedError(request);
-
                         return await Task.FromResult(new Unit());
                     }
                     else
@@ -135,9 +136,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                         await RollbackOrDelete((request.UpdateMessage as InvalidMessage).Message, "Message is invalid so we rollback or delete.");
                         await _geoDatabase.Commit();
 
-                        // We send an updated event out, to notify that something has been rolled back to refresh GIS.
-                        await SendGeographicalAreaUpdatedError(request);
-
                         return await Task.FromResult(new Unit());
                     }
                 }
@@ -145,21 +143,48 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 if (_eventStore.Get().Count() > 0)
                 {
                     var username = GetUsername(request.UpdateMessage);
+
+                    // A username is always required.
                     if (String.IsNullOrWhiteSpace(username))
                     {
-                        throw new InvalidOperationException("The update message is missing username.");
+                        await _geoDatabase.RollbackTransaction();
+                        await _geoDatabase.BeginTransaction();
+
+                        await RollbackOrDelete(
+                            request.UpdateMessage,
+                            "The message is missing a username.",
+                            ErrorCode.MESSAGE_IS_MISSING_USERNAME);
+
+                        await _geoDatabase.Commit();
+
+                        return await Task.FromResult(new Unit());
                     }
 
-                    var workTaskMrId = await GetUserWorkTaskMrId(username);
+                    var workTask = await _workTaskService.GetUserWorkTask(username);
+                    // A work task is always required.
+                    if (workTask is null)
+                    {
+                        await _geoDatabase.RollbackTransaction();
+                        await _geoDatabase.BeginTransaction();
+
+                        await RollbackOrDelete(
+                            request.UpdateMessage,
+                            "The user has not selected a work task.",
+                            ErrorCode.USER_HAS_NOT_SELECTED_A_WORK_TASK
+                        );
+
+                        await _geoDatabase.Commit();
+
+                        return await Task.FromResult(new Unit());
+                    }
 
                     // We update the work task ids on the newly digitized network elements.
-                    await UpdateWorkTaskIdOnNewlyDigitized(workTaskMrId);
+                    await UpdateWorkTaskIdOnNewlyDigitized(workTask.Id);
 
                     var editOperationOccuredEvent = CreateEditOperationOccuredEvent(
-                        workTaskMrId,
+                        workTask.Id,
                         username,
-                        eventId
-                    );
+                        eventId);
 
                     if (IsOperationEditEventValid(editOperationOccuredEvent))
                     {
@@ -177,17 +202,48 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     await _geoDatabase.Commit();
                 }
             }
-            catch (Exception e)
+            // This is not a pretty wasy to handle it, but it was the simplest way
+            // without having to restructure the whole thing.
+            catch (CannotDeleteRouteSegmentRelatedEquipmentException)
             {
-                _logger.LogError($"{e}: Rolling back geodatabase transactions.");
                 await _geoDatabase.RollbackTransaction();
                 await _geoDatabase.BeginTransaction();
-                await RollbackOrDelete(request.UpdateMessage, $"Rollback or delete because of exception: {e}");
-                await _geoDatabase.Commit();
-                _logger.LogInformation($"{nameof(RouteNetworkEditOperationOccuredEvent)} is now rolled rollback.");
 
-                // We send an updated event out, to notify that something has been rolled back to refresh GIS.
-                await SendGeographicalAreaUpdatedError(request);
+                await RollbackOrDelete(
+                    request.UpdateMessage,
+                    $"Cannot delete route segment when it has related equipment.",
+                    ErrorCode.CANNOT_DELETE_ROUTE_SEGMENT_WITH_RELATED_EQUIPMENT
+                );
+
+                await _geoDatabase.Commit();
+            }
+            // This is not a pretty wasy to handle it, but it was the simplest way
+            // without having to restructure the whole thing.
+            catch (CannotDeleteRouteNodeRelatedEquipmentException)
+            {
+                await _geoDatabase.RollbackTransaction();
+                await _geoDatabase.BeginTransaction();
+
+                await RollbackOrDelete(
+                    request.UpdateMessage,
+                    $"Cannot delete route node when it has related equipment.",
+                    ErrorCode.CANNOT_DELETE_ROUTE_NODE_WITH_RELATED_EQUIPMENT
+                );
+
+                await _geoDatabase.Commit();
+            }
+            catch (Exception ex)
+            {
+                await _geoDatabase.RollbackTransaction();
+                await _geoDatabase.BeginTransaction();
+
+                await RollbackOrDelete(
+                    request.UpdateMessage,
+                    $"Rollback or delete because of exception: {ex}",
+                    ErrorCode.UNKNOWN_ERROR
+                );
+
+                await _geoDatabase.Commit();
             }
             finally
             {
@@ -221,58 +277,36 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
         }
 
         // Use this function to send geographicalareaupdated when an error has occured, since we cannot use the modified geometries store.
-        private async Task SendGeographicalAreaUpdatedError(GeoDatabaseUpdated request)
+        private async Task SendUserErrorOccured(
+            GeoDatabaseUpdated request,
+            string errorCode)
         {
             try
             {
+                string username = null;
                 if (request.UpdateMessage is RouteNodeMessage)
                 {
-                    var updateMessage = ((RouteNodeMessage)request.UpdateMessage);
-                    RouteNode routeNode = null;
-                    if (updateMessage.After.Coord is not null)
-                    {
-                        routeNode = updateMessage.After;
-                    }
-                    else if (updateMessage.Before.Coord is not null)
-                    {
-                        routeNode = updateMessage.Before;
-                    }
-
-                    if (routeNode is not null)
-                    {
-                        await _mediator.Publish(new GeographicalAreaUpdated
-                        {
-                            RouteNodes = new List<RouteNode> { routeNode },
-                            RouteSegment = new List<RouteSegment>(),
-                        });
-                    }
+                    username = ((RouteNodeMessage)request.UpdateMessage).After.Username;
                 }
                 else if (request.UpdateMessage is RouteSegmentMessage)
                 {
-                    var updateMessage = ((RouteSegmentMessage)request.UpdateMessage);
-                    RouteSegment routeSegment = null;
-                    if (updateMessage.After.Coord is not null)
-                    {
-                        routeSegment = updateMessage.After;
-                    }
-                    else if (updateMessage.Before.Coord is not null)
-                    {
-                        routeSegment = updateMessage.Before;
-                    }
-
-                    if (routeSegment is not null)
-                    {
-                        await _mediator.Publish(new GeographicalAreaUpdated
-                        {
-                            RouteNodes = new List<RouteNode>(),
-                            RouteSegment = new List<RouteSegment> { routeSegment }
-                        });
-                    }
+                    username = ((RouteSegmentMessage)request.UpdateMessage).After.Username;
                 }
+
+                await _mediator.Publish(
+                    new UserErrorOccurred(
+                        errorCode: errorCode,
+                        username: username
+                    )).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Could not send out {nameof(GeographicalAreaUpdated)} Exception: {ex}");
+                // Just log it out, it is not dangerous if it is not send out,
+                // but should be fixed if it ever occurs, therefore we just log it.
+                _logger.LogError(
+                    "Could not send out {MessageType} Exception: {Exception}",
+                    nameof(UserErrorOccurred),
+                    ex);
             }
         }
 
@@ -310,7 +344,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
         }
 
-        private async Task RollbackOrDelete(object message, string errorMessage)
+        private async Task RollbackOrDelete(object message, string errorMessage, string errorCode = ErrorCode.UNKNOWN_ERROR)
         {
             if (message is RouteSegmentMessage)
             {
@@ -321,24 +355,35 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
 
                     if (rollbackSegment is not null)
                     {
-                        await _mediator.Publish(new RollbackInvalidRouteSegment(rollbackSegment, errorMessage));
+                        await _mediator.Publish(
+                            new RollbackInvalidRouteSegment(
+                                rollbackSegment,
+                                errorMessage,
+                                errorCode,
+                                rollbackMessage.After.Username ?? "COULD_NOT_GET_USERNAME"
+                            )
+                        );
                     }
                     else
                     {
-                        await _mediator.Publish(new InvalidRouteSegmentOperation
-                        {
-                            RouteSegment = rollbackMessage.After,
-                            Message = errorMessage
-                        });
+                        await _mediator.Publish(
+                            new InvalidRouteSegmentOperation(
+                                routeSegment: rollbackMessage.After,
+                                message: errorMessage,
+                                errorCode: errorCode,
+                                username: rollbackMessage.After.Username ?? "COULD_NOT_GET_USERNAME"));
                     }
                 }
                 else
                 {
-                    await _mediator.Publish(new InvalidRouteSegmentOperation
-                    {
-                        RouteSegment = rollbackMessage.After,
-                        Message = errorMessage
-                    });
+                    await _mediator.Publish(
+                        new InvalidRouteSegmentOperation(
+                            routeSegment: rollbackMessage.After,
+                            message: errorMessage,
+                            errorCode: errorCode,
+                            username: rollbackMessage.After.Username ?? "COULD_NOT_GET_USERNAME"
+                        )
+                    );
                 }
             }
             else if (message is RouteNodeMessage)
@@ -349,24 +394,36 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     var rollbackNode = await _geoDatabase.GetRouteNodeShadowTable(rollbackMessage.After.Mrid);
                     if (rollbackNode is not null)
                     {
-                        await _mediator.Publish(new RollbackInvalidRouteNode(rollbackNode, errorMessage));
+                        await _mediator.Publish(
+                            new RollbackInvalidRouteNode(
+                                rollbackToNode: rollbackNode,
+                                message: errorMessage,
+                                errorCode: errorCode,
+                                username: rollbackMessage.After.Username ?? "COULD_NOT_GET_USERNAME"
+                            ));
                     }
                     else
                     {
-                        await _mediator.Publish(new InvalidRouteNodeOperation
-                        {
-                            RouteNode = rollbackMessage.After,
-                            Message = errorMessage
-                        });
+                        await _mediator.Publish(
+                            new InvalidRouteNodeOperation(
+                                routeNode: rollbackMessage.After,
+                                message: errorMessage,
+                                errorCode: errorCode,
+                                username: rollbackMessage.After.Username ?? "COULD_NOT_GET_USERNAME"
+                            )
+                        );
                     }
                 }
                 else
                 {
-                    await _mediator.Publish(new InvalidRouteNodeOperation
-                    {
-                        RouteNode = rollbackMessage.After,
-                        Message = errorMessage
-                    });
+                    await _mediator.Publish(
+                        new InvalidRouteNodeOperation(
+                            routeNode: rollbackMessage.After,
+                            message: errorMessage,
+                            errorCode: errorCode,
+                            username: rollbackMessage.After.Username ?? "COULD_NOT_GET_USERNAME"
+                        )
+                    );
                 }
             }
             else
@@ -428,7 +485,8 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     var hasRelatedEquipment = await _validationService.HasRelatedEquipment(routeNodeMessage.After.Mrid);
                     if (hasRelatedEquipment)
                     {
-                        throw new Exception("Cannot update route node since it has related equipment.");
+                        throw new CannotDeleteRouteNodeRelatedEquipmentException(
+                            "Cannot delete route node when it has releated equipment.");
                     }
                 }
 
@@ -446,7 +504,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             else
             {
-                await _mediator.Publish(new InvalidRouteNodeOperation { RouteNode = routeNodeMessage.After });
+                await _mediator.Publish(
+                    new InvalidRouteNodeOperation(
+                        routeNode: routeNodeMessage.After,
+                        message: $"Could not handle route node message. '{JsonConvert.SerializeObject(routeNodeMessage)}'",
+                        errorCode: ErrorCode.UNKNOWN_ERROR,
+                        username: routeNodeMessage.After.Username
+                    )
+                );
             }
         }
 
@@ -475,10 +540,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 var possibleIllegalOperation = routeSegmentUpdatedEvents.Any(x => x.GetType() == typeof(RouteSegmentDeleted) || x.GetType() == typeof(RouteSegmentConnectivityChanged));
                 if (possibleIllegalOperation)
                 {
-                    var hasRelatedEquipment = await _validationService.HasRelatedEquipment(routeSegmentMessage.After.Mrid);
+                    var hasRelatedEquipment = await _validationService.HasRelatedEquipment(
+                        routeSegmentMessage.After.Mrid);
+
                     if (hasRelatedEquipment)
                     {
-                        throw new Exception("Cannot update route segment since it has related equipment.");
+                        throw new CannotDeleteRouteSegmentRelatedEquipmentException(
+                            "Cannot delete route segment when it has releated equipment.");
                     }
                 }
 
@@ -496,7 +564,14 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             else
             {
-                await _mediator.Publish(new InvalidRouteSegmentOperation { RouteSegment = routeSegmentMessage.After });
+                await _mediator.Publish(
+                    new InvalidRouteSegmentOperation(
+                        routeSegment: routeSegmentMessage.After,
+                        message: "Could not figure out how to handle the route segment creation/update.",
+                        errorCode: ErrorCode.UNKNOWN_ERROR,
+                        username: routeSegmentMessage.After.Username
+                    )
+                );
             }
         }
 
@@ -518,17 +593,6 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
 
             return username;
-        }
-
-        private async Task<Guid> GetUserWorkTaskMrId(string username)
-        {
-            var workTask = await _workTaskService.GetUserWorkTask(username);
-            if (workTask is null)
-            {
-                throw new ApplicationException($"User {username} does not have a selected work task.");
-            }
-
-            return workTask.Id;
         }
 
         // Updates work task id on newly digitized routenetwork-elements

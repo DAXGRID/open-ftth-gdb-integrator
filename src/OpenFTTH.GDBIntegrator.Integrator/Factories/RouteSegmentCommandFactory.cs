@@ -1,16 +1,16 @@
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
-using OpenFTTH.GDBIntegrator.RouteNetwork;
-using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
-using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
-using OpenFTTH.GDBIntegrator.Integrator.Notifications;
+using MediatR;
+using Microsoft.Extensions.Options;
+using NetTopologySuite.Geometries;
 using OpenFTTH.GDBIntegrator.Config;
 using OpenFTTH.GDBIntegrator.GeoDatabase;
-using Microsoft.Extensions.Options;
-using MediatR;
-using NetTopologySuite.Geometries;
+using OpenFTTH.GDBIntegrator.Integrator.Notifications;
+using OpenFTTH.GDBIntegrator.RouteNetwork;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Factories;
+using OpenFTTH.GDBIntegrator.RouteNetwork.Validators;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OpenFTTH.GDBIntegrator.Integrator.Factories
 {
@@ -43,8 +43,18 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             if (AlreadyUpdated(after, routeSegmentShadowTableBeforeUpdate))
                 return new List<INotification> { new DoNothing($"{nameof(RouteSegment)} is already updated, therefore do nothing.") };
 
-            if (!_routeSegmentValidator.LineIsValid(after.GetLineString()))
-                throw new Exception("Linestring is not valid.");
+            var (isValid, isValidErrorCode) = _routeSegmentValidator.LineIsValid(after.GetLineString());
+            if (!isValid)
+            {
+                return new List<INotification>
+                {
+                    new RollbackInvalidRouteSegment(
+                        rollbackToSegment: routeSegmentShadowTableBeforeUpdate,
+                        message: $"The line string is invalid '{after.GetGeoJsonCoordinate()}'.",
+                        errorCode: isValidErrorCode,
+                        username: after.Username)
+                };
+            }
 
             await _geoDatabase.UpdateRouteSegmentShadowTable(after);
 
@@ -116,8 +126,19 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             // Update integrator "shadow table" with the used digitized segment
             await _geoDatabase.InsertRouteSegmentShadowTable(routeSegment);
 
-            if (!_routeSegmentValidator.LineIsValid(routeSegment.GetLineString()))
-                return new List<INotification> { new InvalidRouteSegmentOperation { RouteSegment = routeSegment } };
+            var (isValid, isValidErrorCode) = _routeSegmentValidator.LineIsValid(routeSegment.GetLineString());
+            if (!isValid)
+            {
+                return new List<INotification>
+                {
+                    new InvalidRouteSegmentOperation(
+                        routeSegment: routeSegment,
+                        message: $"The line string is invalid '{routeSegment.GetGeoJsonCoordinate()}'.",
+                        errorCode: isValidErrorCode,
+                        username: routeSegment.Username
+                    )
+                };
+            }
 
             var intersectingStartNodes = await _geoDatabase.GetIntersectingStartRouteNodes(routeSegment);
             var intersectingEndNodes = await _geoDatabase.GetIntersectingEndRouteNodes(routeSegment);
@@ -126,7 +147,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Factories
             var allIntersectingRouteNodesNoEdges = await _geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(routeSegment);
 
             if (intersectingStartNodes.Count >= 2 || intersectingEndNodes.Count >= 2)
-                return new List<INotification> { new InvalidRouteSegmentOperation { RouteSegment = routeSegment } };
+            {
+                return new List<INotification>
+                {
+                    new InvalidRouteSegmentOperation(
+                        routeSegment: routeSegment,
+                        message: "The line string intersects with two or more start or end nodes.",
+                        errorCode: ErrorCode.ROUTE_SEGMENT_INTERSECTS_WITH_MULTIPLE_START_OR_END_ROUTE_NODES,
+                        username: routeSegment.Username
+                    )
+                };
+            }
 
             var notifications = new List<INotification>();
 

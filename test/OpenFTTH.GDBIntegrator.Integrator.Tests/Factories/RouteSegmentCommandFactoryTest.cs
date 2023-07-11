@@ -69,7 +69,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
             A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
-            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(false);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns((false, "LINE_STRING_IS_INVALID"));
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
@@ -102,7 +102,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
             A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
-            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns((true, null));
 
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegment))
                 .Returns(intersectingStartNodes);
@@ -143,7 +143,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
             A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
-            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns((true, null));
 
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegment))
                 .Returns(intersectingStartNodes);
@@ -184,7 +184,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
             A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
-            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns((true, null));
 
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegment))
                 .Returns(intersectingStartNodes);
@@ -225,7 +225,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
             A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
-            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns((true, null));
 
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegment))
                 .Returns(intersectingStartNodes);
@@ -262,7 +262,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
             A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
-            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns((true, null));
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
@@ -294,7 +294,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
             A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
-            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns((true, null));
 
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegment))
                 .Returns(intersectingStartNodes);
@@ -345,7 +345,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
             A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
-            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns((true, null));
 
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegment))
                 .Returns(intersectingStartNodes);
@@ -398,7 +398,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
             A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
-            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns((true, null));
 
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegment))
                 .Returns(intersectingStartNodes);
@@ -456,7 +456,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
             A.CallTo(() => routeSegment.GetLineString()).Returns(lineString);
-            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(lineString)).Returns((true, null));
 
             A.CallTo(() => geoDatabase.GetAllIntersectingRouteNodesNotIncludingEdges(routeSegment))
                 .Returns(allIntersectingRouteNodes);
@@ -493,7 +493,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             var routeSegmentAfter = A.Fake<RouteSegment>();
 
             A.CallTo(() => routeSegmentAfter.GetLineString()).Returns(A.Fake<LineString>());
-            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns((true, null));
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(true);
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
@@ -552,16 +552,21 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
 
             A.CallTo(() => routeSegmentAfter.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 578238.4182511 6179279.78494725)");
             A.CallTo(() => routeSegmentShadowTable.GetGeoJsonCoordinate()).Returns("LINESTRING(578223.64355838 6179284.23759438, 378238.4182511 6179279.78494725)");
+            //A.CallTo(() => routeSegmentShadowTable.Username).Returns("MyAwesomeUserName");
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
             A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
 
-            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(false);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns((false, "LINE_STRING_IS_INVALID"));
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
 
-            Func<Task> act = async () => await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter);
+            var result = (await factory.CreateUpdatedEvent(routeSegmentBefore, routeSegmentAfter)).ToList();
 
-            await act.Should().ThrowExactlyAsync<Exception>("Linestring is not valid.");
+            using (var scope = new AssertionScope())
+            {
+                result.Count().Should().Be(1);
+                result[0].Should().BeOfType(typeof(RollbackInvalidRouteSegment));
+            }
         }
 
         [Fact]
@@ -605,7 +610,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
             A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
 
-            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns((true, null));
 
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(routeSegmentAfter)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
             A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(routeSegmentAfter)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
@@ -650,7 +655,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
             A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
 
-            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns((true, null));
 
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteSegments(routeSegmentAfter)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
             A.CallTo(() => geoDatabase.GetIntersectingEndRouteSegments(routeSegmentAfter)).Returns(new List<RouteSegment> { A.Fake<RouteSegment>() });
@@ -692,7 +697,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => applicationSettings.Value)
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
-            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegment.GetLineString())).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegment.GetLineString())).Returns((true, null));
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegment)).Returns(new List<RouteNode> { A.Fake<RouteNode>(), A.Fake<RouteNode>() });
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
@@ -718,7 +723,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => applicationSettings.Value)
                 .Returns(new ApplicationSetting { ApplicationName = "GDB_INTEGRATOR" });
 
-            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegment.GetLineString())).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegment.GetLineString())).Returns((true, null));
             A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegment)).Returns(new List<RouteNode> { A.Fake<RouteNode>(), A.Fake<RouteNode>() });
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
@@ -752,7 +757,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
             A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
 
-            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns((true, null));
             A.CallTo(() => geoDatabase.GetIntersectingStartRouteNodes(routeSegmentAfter)).Returns(new List<RouteNode> { A.Fake<RouteNode>(), A.Fake<RouteNode>() });
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
@@ -782,7 +787,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Tests.Factories
             A.CallTo(() => routeSegmentAfter.MarkAsDeleted).Returns(false);
             A.CallTo(() => routeSegmentShadowTable.MarkAsDeleted).Returns(false);
 
-            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns(true);
+            A.CallTo(() => routeSegmentValidator.LineIsValid(routeSegmentAfter.GetLineString())).Returns((true, null));
             A.CallTo(() => geoDatabase.GetIntersectingEndRouteNodes(routeSegmentAfter)).Returns(new List<RouteNode> { A.Fake<RouteNode>(), A.Fake<RouteNode>() });
 
             var factory = new RouteSegmentCommandFactory(applicationSettings, routeSegmentValidator, geoDatabase, routeNodeFactory);
