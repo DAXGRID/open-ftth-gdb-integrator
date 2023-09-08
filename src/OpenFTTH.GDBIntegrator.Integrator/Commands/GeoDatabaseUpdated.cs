@@ -204,15 +204,30 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
             }
             // This is not a pretty wasy to handle it, but it was the simplest way
             // without having to restructure the whole thing.
-            catch (CannotDeleteRouteSegmentRelatedEquipmentException)
+            catch (CannotDeleteRouteSegmentRelatedEquipmentException ex)
             {
                 await _geoDatabase.RollbackTransaction();
                 await _geoDatabase.BeginTransaction();
 
                 await RollbackOrDelete(
                     request.UpdateMessage,
-                    $"Cannot delete route segment when it has related equipment.",
+                    ex.Message,
                     ErrorCode.CANNOT_DELETE_ROUTE_SEGMENT_WITH_RELATED_EQUIPMENT
+                );
+
+                await _geoDatabase.Commit();
+            }
+            // This is not a pretty wasy to handle it, but it was the simplest way
+            // without having to restructure the whole thing.
+            catch (CannotChangeConnectivityRouteSegmentRelatedEquipmentException ex)
+            {
+                await _geoDatabase.RollbackTransaction();
+                await _geoDatabase.BeginTransaction();
+
+                await RollbackOrDelete(
+                    request.UpdateMessage,
+                    ex.Message,
+                    ErrorCode.CANNOT_CHANGE_CONNECTIVITY_ROUTE_SEGMENT_WITH_RELATED_EQUIPMENT
                 );
 
                 await _geoDatabase.Commit();
@@ -537,8 +552,13 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                 var routeSegmentUpdatedEvents = await _routeSegmentEventFactory
                     .CreateUpdatedEvent(routeSegmentMessage.Before, routeSegmentMessage.After);
 
-                var possibleIllegalOperation = routeSegmentUpdatedEvents.Any(x => x.GetType() == typeof(RouteSegmentDeleted) || x.GetType() == typeof(RouteSegmentConnectivityChanged));
-                if (possibleIllegalOperation)
+                var possibleIllegalOperationSegmentDeletion = routeSegmentUpdatedEvents
+                    .Any(x => x.GetType() == typeof(RouteSegmentDeleted));
+
+                var possibleIllegalOperationSegmentConnectivityChanged = routeSegmentUpdatedEvents
+                    .Any(x => x.GetType() == typeof(RouteSegmentConnectivityChanged));
+
+                if (possibleIllegalOperationSegmentDeletion)
                 {
                     var hasRelatedEquipment = await _validationService.HasRelatedEquipment(
                         routeSegmentMessage.After.Mrid);
@@ -547,6 +567,17 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Commands
                     {
                         throw new CannotDeleteRouteSegmentRelatedEquipmentException(
                             "Cannot delete route segment when it has releated equipment.");
+                    }
+                }
+                else if (possibleIllegalOperationSegmentConnectivityChanged)
+                {
+                    var hasRelatedEquipment = await _validationService.HasRelatedEquipment(
+                        routeSegmentMessage.After.Mrid);
+
+                    if (hasRelatedEquipment)
+                    {
+                        throw new CannotChangeConnectivityRouteSegmentRelatedEquipmentException(
+                            "Cannot change the route segment connectivity when it has related equipment.");
                     }
                 }
 
