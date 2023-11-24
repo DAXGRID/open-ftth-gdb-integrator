@@ -18,11 +18,13 @@ executors:
   alpine-git:
     environment:
       IMAGE_NAME: openftth/gdb-integrator
+      CHART_PATH: ./dax/gdb-integrator
+      GIT_USER_NAME: "dax-bot"
+      GIT_USER_EMAIL: "admin@dax.dk"
+      GIT_CLONE_REPO: "git@github.com:DAXGRID/dax-charts.git"
+      SSH_FINGERPRINT: "57:e3:35:08:f3:d7:70:73:f1:07:d3:6c:26:eb:af:48"
     docker:
     - image: alpine/git
-      auth:
-        username: $DOCKER_LOGIN
-        password: $DOCKER_ACCESSTOKEN
 
 jobs:
   build-app:
@@ -97,27 +99,24 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - "57:e3:35:08:f3:d7:70:73:f1:07:d3:6c:26:eb:af:48"
+            - $SSH_FINGERPRINT
       - run:
           name: key-scan
           command: ssh-keyscan github.com >> ~/.ssh/known_hosts
       - run:
-          name: git clone open-ftth-chart
-          command: git clone git@github.com:DAXGRID/open-ftth-chart.git
+          name: git clone charts repo
+          command: git clone $GIT_CLONE_REPO
       - run:
           name: package and push
           command: |
              apk add bash
              IMAGE_TAG_NO_V=${CIRCLE_TAG:1}
-             cd ./open-ftth-chart
-             git config user.email "admin@dax.dk"
-             git config user.name "dax-bot"
-             sed -i "/appVersion:.*/c\appVersion: \"$IMAGE_TAG_NO_V\"" ./openftth/charts/gdb-integrator/Chart.yaml
-             sed -i "/  tag:.*/c\  tag: v$IMAGE_TAG_NO_V" ./openftth/charts/gdb-integrator/values.yaml
-             CHART_VERSION="$(./scripts/increment-chart-number.sh "$(grep -w '^version:' ./openftth/Chart.yaml)" bug)"
-             sed -i "/^version:.*/c\version: $CHART_VERSION" ./openftth/Chart.yaml
+             cd ./dax-charts
+             git config user.email $GIT_USER_EMAIL
+             git config user.name $GIT_USER_NAME
+             ./scripts/update-chart-version.sh $CHART_PATH $IMAGE_TAG_NO_V
              git add .
-             git commit -m "upgrades $IMAGE_NAME to version $CHART_VERSION"
+             git commit -m "upgrades $IMAGE_NAME to version $CIRCLE_TAG"
              git push
 
 workflows:
