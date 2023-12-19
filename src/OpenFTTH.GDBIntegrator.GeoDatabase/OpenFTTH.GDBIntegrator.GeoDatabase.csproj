@@ -20,6 +20,7 @@
     <None Update="Postgres/SchemaMigration/Scripts/create_route_network_schema.sql" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Postgres/SchemaMigration/Scripts/ddl_survey_import.sql" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Postgres/SchemaMigration/Scripts/update_and_create_trigger_changes.sql" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Postgres/SchemaMigration/Scripts/set_valid_geometry_constraint_route_network.sql" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
