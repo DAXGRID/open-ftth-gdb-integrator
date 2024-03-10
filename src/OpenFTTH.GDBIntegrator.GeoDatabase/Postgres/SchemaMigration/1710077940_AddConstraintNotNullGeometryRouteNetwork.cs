@@ -9,7 +9,7 @@ namespace OpenFTTH.GDBIntegrator.GeoDatabase.Postgres.SchemaMigration
         public override void Up()
         {
             Execute.Script(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
-                           + "/Postgres/SchemaMigration/Scripts/set_not_null_contraint_route_network.sql");
+                           + "/Postgres/SchemaMigration/Scripts/set_not_null_constraint_route_network.sql");
         }
 
         public override void Down()
