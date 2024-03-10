@@ -22,6 +22,7 @@
     <None Update="Postgres/SchemaMigration/Scripts/update_and_create_trigger_changes.sql" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Postgres/SchemaMigration/Scripts/set_valid_geometry_constraint_route_network.sql" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Postgres/SchemaMigration/Scripts/set_not_null_constraint_route_network.sql" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Postgres/SchemaMigration/Scripts/set_constraint_is_simple_route_network.sql" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
