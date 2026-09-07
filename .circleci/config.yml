@@ -11,7 +11,7 @@ executors:
     environment:
       IMAGE_NAME: openftth/gdb-integrator
     docker:
-      - image: cimg/base:2020.09
+      - image: cimg/base:current
         auth:
           username: $DOCKER_LOGIN
           password: $DOCKER_ACCESSTOKEN
@@ -22,7 +22,7 @@ executors:
       GIT_USER_NAME: "dax-bot"
       GIT_USER_EMAIL: "admin@dax.dk"
       GIT_CLONE_REPO: "git@github.com:DAXGRID/dax-charts.git"
-      SSH_FINGERPRINT: "57:e3:35:08:f3:d7:70:73:f1:07:d3:6c:26:eb:af:48"
+      SSH_FINGERPRINT: "SHA256:EwBPZslF0izBt/KXmmFVg1/LX9vwB1FjJlc1KVwQE6g"
     docker:
     - image: alpine/git
 
