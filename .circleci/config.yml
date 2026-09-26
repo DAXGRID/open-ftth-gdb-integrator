@@ -9,7 +9,7 @@ executors:
         password: $DOCKER_ACCESSTOKEN
   docker-publisher:
     environment:
-      IMAGE_NAME: openftth/gdb-integrator
+      IMAGE_NAME: daxgrid/gdb-integrator
     docker:
       - image: cimg/base:current
         auth:
