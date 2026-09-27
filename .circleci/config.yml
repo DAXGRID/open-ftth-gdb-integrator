@@ -22,9 +22,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Apt update
-          command: apt-get update;
-      - run:
           name: Install taskfile
           command: curl -sL https://taskfile.dev/install.sh | sh
       - run:
@@ -38,9 +35,6 @@ jobs:
     executor: dotnet-core-sdk
     steps:
       - checkout
-      - run:
-          name: Apt update
-          command: apt-get update;
       - run:
           name: Install taskrunner
           command: curl -sL https://taskfile.dev/install.sh | sh
