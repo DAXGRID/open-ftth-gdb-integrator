@@ -18,7 +18,7 @@ namespace OpenFTTH.GDBIntegrator.Producer.EventStore
             // We retrieve the latest version each time,
             // so we don't have to keep internal version state up to date.
             var currentVersion = await _eventStore
-                .CurrentStreamVersionAsync(streamId) ?? 0L;
+                .CurrentStreamVersionAsync(streamId);
 
             // Next expected version is current version plus one.
             var nextExpectedVersion = currentVersion + 1;
