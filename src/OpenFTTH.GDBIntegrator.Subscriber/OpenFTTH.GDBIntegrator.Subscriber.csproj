@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="npgsql" Version="5.0.10" />
+    <PackageReference Include="npgsql" Version="10.0.3" />
     <PackageReference Include="MediatR" Version="8.1.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.12" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.12" />
