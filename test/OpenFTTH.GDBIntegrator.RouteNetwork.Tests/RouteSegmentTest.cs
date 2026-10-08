@@ -107,7 +107,7 @@ namespace OpenFTTH.GDBIntegrator.RouteNetwork.Tests
 
             var result = routeSegment.GetLineString();
 
-            result.AsText().Should().BeEquivalentTo("LINESTRING (565930.04437811056 6197345.1510744784, 565937.381442214 6197349.1290008)");
+            result.AsText().Should().BeEquivalentTo("LINESTRING (565930.0443781106 6197345.151074478, 565937.381442214 6197349.1290008)");
         }
     }
 }
