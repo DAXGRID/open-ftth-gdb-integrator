@@ -44,7 +44,7 @@ namespace OpenFTTH.GDBIntegrator.Integrator.Store
         private async IAsyncEnumerable<Guid> GetAllEventIds(
             [EnumeratorCancellation] CancellationToken token = default)
         {
-            const string SQL = @"SELECT data->'EventId' AS event_id
+            const string SQL = @"SELECT (data ->> 'EventId')::uuid AS event_id
 FROM events.mt_events
 WHERE type = 'route_network_edit_operation_occured_event'";
 
