@@ -9,7 +9,7 @@
     <PackageReference Include="FluentMigrator" Version="3.2.8" />
     <PackageReference Include="FluentMigrator.runner" Version="3.2.8" />
     <PackageReference Include="FluentMigrator.Runner.Postgres" Version="3.2.8" />
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.13" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.13" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.13" />
