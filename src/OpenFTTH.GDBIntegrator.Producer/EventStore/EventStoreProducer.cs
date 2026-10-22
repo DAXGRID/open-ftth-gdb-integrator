@@ -20,13 +20,10 @@ namespace OpenFTTH.GDBIntegrator.Producer.EventStore
             var currentVersion = await _eventStore
                 .CurrentStreamVersionAsync(streamId);
 
-            // Next expected version is current version plus one.
-            var nextExpectedVersion = currentVersion + 1;
-
             await _eventStore
                 .AppendStreamAsync(
                     streamId,
-                    nextExpectedVersion,
+                    currentVersion,
                     new[] { message });
         }
     }
